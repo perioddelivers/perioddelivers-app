@@ -2423,3 +2423,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initReviewPrompt();
 });
+
+/* =============================================================
+   IMPACT STRIP — sync numbers + scroll on click
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  // Sync strip numbers with the main counter values
+  function syncImpactStrip() {
+    const t = getTotalImpact();
+    const sk = $('stripKits');
+    const sr = $('stripRoundup');
+    if (sk) sk.textContent = t.kits.toLocaleString();
+    if (sr) sr.textContent = '$' + t.roundup.toLocaleString();
+  }
+  syncImpactStrip();
+
+  // Tap strip → smooth scroll to full impact section
+  const strip = $('impactStrip');
+  if (strip) {
+    strip.addEventListener('click', () => {
+      const section = $('impactSection');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+});
