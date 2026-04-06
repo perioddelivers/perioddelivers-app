@@ -62,9 +62,9 @@ const CATEGORIES = [
 ];
 
 const PLANS = {
-  starter:   { name:'Starter',   price:19.99, slots:5  },
-  essential: { name:'Essential', price:34.99, slots:10 },
-  royal:     { name:'Royal',     price:54.99, slots:15 },
+  starter:   { name:'Starter',   price:19.99, slots:3  },
+  essential: { name:'Essential', price:34.99, slots:6  },
+  royal:     { name:'Royal',     price:54.99, slots:9  },
 };
 
 /* =============================================
@@ -212,6 +212,7 @@ let state = {
   cart:            {},          // { id: qty }
   careBox:         {},          // { id: qty } for subscription
   activeCategory:  'all',
+  pickerFilter:    'all',       // category filter inside subscription picker
   searchQuery:     '',
   openProduct:     null,
   selectedPlan:    null,
@@ -593,8 +594,33 @@ function selectPlan(id) {
   $('subscribeSummaryText').textContent = `${plan.name} plan — pick ${plan.slots} items`;
   $('subscribeSummaryPrice').textContent = fmt(plan.price);
   $('subscribeBtnPrice').textContent = fmt(plan.price);
+  state.pickerFilter = 'all';  // reset filter on plan change
   updateSubscribeBtn();
+  renderPickerFilter();
   renderPickerGrid();
+}
+
+function renderPickerFilter() {
+  const bar = $('pickerFilterBar');
+  if (!bar) return;
+
+  // Build category list from products that exist
+  const usedCats = [...new Set(PRODUCTS.map(p => p.category))];
+  const tabs = CATEGORIES.filter(c => c.id === 'all' || usedCats.includes(c.id));
+
+  bar.innerHTML = tabs.map(c => `
+    <button class="picker-filter-tab ${state.pickerFilter === c.id ? 'active' : ''}"
+            data-filter="${c.id}" aria-pressed="${state.pickerFilter === c.id}">
+      <span aria-hidden="true">${c.icon}</span> ${c.label}
+    </button>`).join('');
+
+  bar.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.pickerFilter = btn.dataset.filter;
+      renderPickerFilter();
+      renderPickerGrid();
+    });
+  });
 }
 
 function renderPickerGrid() {
@@ -605,7 +631,11 @@ function renderPickerGrid() {
   $('pickerSlots').textContent = `${used} / ${slots} selected`;
   $('pickerSlots').classList.toggle('full', used >= slots);
 
-  $('pickerGrid').innerHTML = PRODUCTS.map(p => {
+  const filtered = state.pickerFilter === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === state.pickerFilter);
+
+  $('pickerGrid').innerHTML = filtered.length ? filtered.map(p => {
     const selected = state.careBox[p.id] > 0;
     const full     = !selected && used >= slots;
     return `
@@ -618,10 +648,11 @@ function renderPickerGrid() {
         </div>
         <div class="picker-body">
           <div class="picker-name">${p.name}</div>
+          <div class="picker-cat">${p.cat_label}</div>
           <div class="picker-price">${fmt(p.price)}</div>
         </div>
       </div>`;
-  }).join('');
+  }).join('') : `<p class="picker-empty">No products in this category yet.</p>`;
 
   $$('[data-pick]').forEach(card => {
     card.addEventListener('click', () => toggleCareItem(+card.dataset.pick));

@@ -2317,3 +2317,62 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
 /* Holistic reminder accent */
 [data-version='holistic'] .rem-enable-btn { box-shadow: 0 4px 14px rgba(52,211,153,.24); }
 [data-version='holistic'] .rem-save-btn   { box-shadow: 0 4px 12px rgba(52,211,153,.22); }
+
+/* ===== PICKER CATEGORY FILTER BAR ===== */
+.picker-filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 var(--sp-4) var(--sp-3);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+}
+.picker-filter-bar::-webkit-scrollbar { display: none; }
+
+.picker-filter-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.6);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+.picker-filter-tab:hover {
+  border-color: rgba(255,255,255,0.28);
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+.picker-filter-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(168,85,247,0.4);
+}
+
+/* Category label on picker cards */
+.picker-cat {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Empty state */
+.picker-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  color: rgba(255,255,255,0.35);
+  font-size: var(--text-sm);
+  padding: var(--sp-8) 0;
+}
