@@ -259,6 +259,36 @@
     </div>
   </div>
 
+  <!-- ===== EMERGENCY SHOP — shown only in emergency mode ===== -->
+  <div id="emergencyShop" style="display:none" aria-label="Emergency order">
+
+    <div class="emg-calm">
+      <span class="emg-calm-icon">🫂</span>
+      <div>
+        <div class="emg-calm-title">Take a breath. We’ve got you.</div>
+        <div class="emg-calm-sub">Your order can be here in under 30 minutes.</div>
+      </div>
+    </div>
+
+    <button class="emg-kit-btn" id="emergencyKitBtn" aria-label="Add Emergency Kit to cart and checkout">
+      <div class="emg-kit-left">
+        <span class="emg-kit-emoji">🚨</span>
+        <div class="emg-kit-text">
+          <div class="emg-kit-title">Emergency Kit — One Tap</div>
+          <div class="emg-kit-sub">Pads · Liners · Wipes · Everything you need · ~20 min</div>
+        </div>
+      </div>
+      <div class="emg-kit-right">
+        <div class="emg-kit-price">$14.99</div>
+        <div class="emg-kit-cta">Add &amp; Go →</div>
+      </div>
+    </button>
+
+    <p class="emg-also-label">Need anything else?</p>
+    <div class="emg-items" id="emergencyItems"></div>
+
+  </div><!-- /emergencyShop -->
+
   <!-- CATEGORY GRID — default shop view -->
   <div class="category-grid" id="categoryGrid" role="list" aria-label="Browse categories"></div>
 

@@ -340,8 +340,8 @@ function initVersion() {
   if (pickEmergency) pickEmergency.addEventListener('click', () => {
     setVersion('emergency');
     dismissVersionPicker();
-    // Emergency = no time to browse — go straight to products
-    setTimeout(() => { navigate('shop'); showProductsMode('all'); }, 460);
+    // Emergency = no time to browse — go straight to urgent shop
+    setTimeout(() => navigate('shop'), 460);
   });
   if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
   if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
@@ -360,9 +360,9 @@ function navigate(view) {
   if (view === 'shop') {
     state.searchQuery = '';
     if ($('searchInput')) $('searchInput').value = '';
-    // Emergency mode skips categories — show all products immediately
+    // Emergency mode gets a stripped-down urgent UI
     if (state.version === 'emergency') {
-      showProductsMode('all');
+      renderEmergencyShop();
     } else {
       showCategoriesMode();
     }
@@ -440,10 +440,63 @@ function filteredProducts() {
   });
 }
 
+/* =============================================
+   EMERGENCY SHOP — stripped-down urgent UI
+   ============================================= */
+const EMERGENCY_IDS = [17, 18, 1, 15, 2]; // kit first, then add-ons
+
+function renderEmergencyShop() {
+  // Hide all normal shop elements
+  $('emergencyShop').style.display = '';
+  $('categoryGrid').style.display = 'none';
+  $('shopBreadcrumb').style.display = 'none';
+  if ($('filterBar'))    $('filterBar').style.display = 'none';
+  if ($('sectionHeader')) $('sectionHeader').style.display = 'none';
+  $('productGrid').style.display = 'none';
+
+  // Render add-on items (everything except the kit hero)
+  const addOns = EMERGENCY_IDS.slice(1)
+    .map(id => PRODUCTS.find(p => p.id === id))
+    .filter(Boolean);
+
+  const items = $('emergencyItems');
+  items.innerHTML = addOns.map(p => {
+    const inCart = state.cart[p.id] > 0;
+    return `
+      <div class="emg-item">
+        <div class="emg-item-info">
+          <span class="emg-item-emoji">${p.emoji}</span>
+          <div>
+            <div class="emg-item-name">${p.name}</div>
+            <div class="emg-item-meta">${p.eta} \u00b7 ${fmt(p.price)}</div>
+          </div>
+        </div>
+        <button class="emg-add-btn ${inCart ? 'in-cart' : ''}" data-add="${p.id}">
+          ${inCart ? '\u2713 Added' : '+ Add'}
+        </button>
+      </div>`;
+  }).join('');
+
+  items.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      addToCart(+btn.dataset.add);
+      renderEmergencyShop(); // re-render to update button states
+    });
+  });
+
+  // Wire kit button (only once)
+  const kitBtn = $('emergencyKitBtn');
+  kitBtn.onclick = () => {
+    addToCart(17);
+    openCart();
+  };
+}
+
 /* Show the category browse grid */
 function showCategoriesMode() {
   state.shopMode = 'categories';
   state.activeCategory = 'all';
+  if ($('emergencyShop')) $('emergencyShop').style.display = 'none';
   $('categoryGrid').style.display = '';
   $('shopBreadcrumb').style.display = 'none';
   if ($('filterBar')) $('filterBar').style.display = 'none';
