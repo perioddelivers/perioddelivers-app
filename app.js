@@ -20,15 +20,33 @@ const PRODUCTS = [
   { id:14, name:'Ingrown Hair Serum',             sub:'Bikini + body · 2 fl oz',  category:'skincare',cat_label:'Skincare',    emoji:'🧴', price:15.99, badge:null,          eta:'~45 min', desc:'Salicylic acid serum to target and prevent ingrown hairs in sensitive areas. Aloe and centella asiatica soothe skin.', features:['Salicylic Acid','Aloe Vera','Centella','All Skin Types'] },
   { id:15, name:'Intimate Wipes Travel Pack',     sub:'Fragrance-free · 30 ct',   category:'hygiene', cat_label:'Hygiene',     emoji:'🧻', price:7.99,  badge:null,          eta:'~30 min', desc:'Individually wrapped flushable wipes. pH-balanced for intimate use. Perfect for on-the-go. Alcohol & paraben-free.', features:['Flushable','pH-Balanced','Travel Size','No Alcohol'] },
   { id:16, name:'Hormone Balance Tea',            sub:'Raspberry leaf · 20 bags', category:'wellness',cat_label:'Wellness',    emoji:'🍵', price:14.99, badge:'Natural',       eta:'~50 min', desc:'Herbal blend with red raspberry leaf, vitex, and spearmint. Supports hormonal balance and eases PMS symptoms.', features:['Raspberry Leaf','Vitex Berry','Spearmint','Caffeine-Free'] },
+  // --- Emergency Kit ---
+  { id:17, name:'Emergency Period Kit',          sub:'Pads + liners + wipes',         category:'period',   cat_label:'Period Care',     emoji:'🚨', price:14.99, badge:'Fastest',   eta:'~20 min', desc:'Pre-packed emergency kit: organic pads (regular + overnight), pantiliners, and intimate wipes. Everything you need, right now. No thinking required.', features:['Ready to Go','Fast Delivery','Organic Pads','Wipes Included'] },
+  // --- Undies & Bottoms ---
+  { id:18, name:'Cotton Brief Essentials 5-Pack',sub:'XS–XL · soft & breathable',      category:'clothing', cat_label:'Undies & Bottoms',emoji:'🧥', price:12.99, badge:'Must Have', eta:'~25 min', desc:'Ultra-soft 100% cotton briefs in a 5-pack. Perfect for emergencies or everyday comfort. Tagless waistband, full coverage. XS–XL.', features:['100% Cotton','Full Coverage','Tagless','5-Pack'] },
+  { id:19, name:'High-Waist Cotton Briefs 3-Pack',sub:'XS–3XL · all sizes',            category:'clothing', cat_label:'Undies & Bottoms',emoji:'👙', price:18.99, badge:null,       eta:'~40 min', desc:'High-rise waist for extra coverage and comfort. Buttery-soft cotton, wide waistband, perfect for period days or anytime you want something cozy.', features:['High-Waist','Extra Coverage','Wide Band','3-Pack'] },
+  { id:20, name:'Cozy Lounge Leggings',          sub:'One size fits most',              category:'clothing', cat_label:'Undies & Bottoms',emoji:'👖', price:27.99, badge:null,       eta:'~50 min', desc:'Ultra-soft brushed interior lounge leggings with a wide comfort waistband. Dark wash, no see-through, perfect for period days at home or on the go.', features:['Brushed Interior','Wide Band','Dark Wash','Full Length'] },
+  { id:21, name:'Classic Biker Shorts',          sub:'High-waist · 5" inseam',             category:'clothing', cat_label:'Undies & Bottoms',emoji:'⚡',    price:22.99, badge:'Top Pick',   eta:'~45 min', desc:'High-waist compression biker shorts. No ride-up, no chafing. Perfect under dresses or on their own. Double-layered for confidence.', features:['Compression','No Ride-Up','Double Layer','High Waist'] },
+  // --- Sweets ---
+  { id:22, name:'Dark Chocolate Assortment',     sub:'Sea salt & almond · 3.5 oz',         category:'candy',    cat_label:'Sweets',          emoji:'🍫', price:11.99, badge:'Fan Fave',   eta:'~40 min', desc:'Rich 70% dark chocolate bark with sea salt and roasted almonds. Mood-lifting, antioxidant-rich, and honestly just delicious. Period approved.', features:['70% Dark Cocoa','Sea Salt','Antioxidants','Mood Boost'] },
+  { id:23, name:'Gummy Candy Mix',               sub:'Sweet + sour · assorted',             category:'candy',    cat_label:'Sweets',          emoji:'🍮', price:8.99,  badge:null,       eta:'~35 min', desc:'A satisfying mix of sweet and sour gummies — fruity bears, worms, peach rings, and more. The craving is real and we are not judging.', features:['Assorted Flavors','Sweet + Sour','Shareable','Resealable Bag'] },
+  { id:24, name:'Salted Caramel Cocoa Kit',      sub:'2 cocoa packets + caramel',        category:'candy',    cat_label:'Sweets',          emoji:'☕',    price:13.99, badge:null,       eta:'~45 min', desc:'Rich hot cocoa mix with a salted caramel drizzle pack. Just add hot water or milk. Cozy in a cup — perfect for period evenings on the couch.', features:['Rich Cocoa','Salted Caramel','Just Add Milk','2 Servings'] },
+  // --- Cozy Picks ---
+  { id:25, name:'Sheet Face Mask Set',           sub:'Hydrating + brightening · 5-pack',    category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧖', price:15.99, badge:null,       eta:'~40 min', desc:'5-pack K-beauty sheet masks: hyaluronic acid, vitamin C brightening, centella calming, collagen firming, and charcoal pore-cleanse.', features:['5 Variety Masks','K-Beauty','Single Use','All Skin Types'] },
+  { id:26, name:'Cozy Fuzzy Socks 3-Pack',       sub:'Ultra-plush · one size',              category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧦', price:13.99, badge:'So Cozy',   eta:'~35 min', desc:'Thick cloud-soft fuzzy socks in 3 neutral shades. Non-slip sole, wide cuff, machine washable. You deserve the softest socks on your hardest days.', features:['Ultra-Plush','Non-Slip Sole','Machine Wash','3 Colors'] },
+  { id:27, name:'Lavender Calm Roller',          sub:'Aromatherapy · 10 mL roller',         category:'comfort',  cat_label:'Cozy Picks',      emoji:'💜', price:14.99, badge:null,       eta:'~40 min', desc:'Essential oil blend — lavender, chamomile and eucalyptus — in a ready-to-use roller ball. Apply to pulse points for calm and stress relief.', features:['Lavender + Chamomile','Roller Ball','Pulse Points','Calming Blend'] },
 ];
 
 const CATEGORIES = [
-  { id:'all',      label:'All',         icon:'✦' },
-  { id:'period',   label:'Period Care', icon:'🌸' },
-  { id:'intimate', label:'Intimate',    icon:'🫧' },
-  { id:'wellness', label:'Wellness',    icon:'🌿' },
-  { id:'skincare', label:'Skincare',    icon:'🌹' },
-  { id:'hygiene',  label:'Hygiene',     icon:'🧴' },
+  { id:'all',      label:'All',              icon:'✦' },
+  { id:'period',   label:'Period Care',      icon:'🌸' },
+  { id:'intimate', label:'Intimate',         icon:'🫧' },
+  { id:'wellness', label:'Wellness',         icon:'🌿' },
+  { id:'skincare', label:'Skincare',         icon:'🌹' },
+  { id:'hygiene',  label:'Hygiene',          icon:'🧴' },
+  { id:'clothing', label:'Undies & Bottoms', icon:'👙' },
+  { id:'candy',    label:'Sweets',           icon:'🍫' },
+  { id:'comfort',  label:'Cozy Picks',       icon:'✨' },
 ];
 
 const PLANS = {
@@ -86,6 +104,54 @@ const CONTENT = {
     subSub:              'Pick a plan, choose what goes inside, and receive it every month \u2014 on your schedule.',
     plansLabel:          'Step 1 \u2014 Choose Your Plan',
     pickerTitle:         'Step 2 \u2014 Build Your Box',
+  },
+
+  emergency: {
+    heroTagline:         "we've got you. right now.",
+    heroSub:             "pads, underwear, essentials \u2014 at your door in under 30 minutes. no fluff. just fast.",
+    heroOrderNowText:    'Get It NOW',
+    heroCarePackageText: 'Auto-Delivery',
+    card1Title:          'Get It NOW',
+    card1Desc:           "Fastest delivery available. Pads, liners, fresh underwear, wipes \u2014 whatever you need, at your door in under 30 minutes.",
+    card2Title:          'Set Auto-Delivery',
+    card2Desc:           "So this never happens again. Your essentials ship automatically every month \u2014 on time, every time.",
+    howTitle:            'How It Works',
+    step1Name:           'Tell Us What You Need',
+    step1Desc:           "Pads, liners, underwear \u2014 pick your essentials fast. We stock the must-haves for every situation.",
+    step2Name:           'Order in Seconds',
+    step2Desc:           "One tap, done. We route your order to the nearest supplier for the fastest possible delivery.",
+    step3Name:           'At Your Door \u2014 Fast',
+    step3Desc:           "Under 30 minutes for emergency orders. Discreet packaging. No judgment. Ever.",
+    trustBadges:         ['\U0001F6A8 Under 30 Min', '\U0001F4E6 Discreet Pack', '\U0001F9F7 Always Stocked', '\u26a1 Order Fast', '\U0001F49C No Judgment'],
+    subEyebrow:          'Never Get Caught Off Guard',
+    subTitle:            'Set up<br><span>auto-delivery.</span>',
+    subSub:              "Pick a plan and your essentials ship every month \u2014 automatically. Always covered, no stress.",
+    plansLabel:          'Step 1 \u2014 Choose Your Plan',
+    pickerTitle:         'Step 2 \u2014 Build Your Box',
+  },
+
+  gifter: {
+    heroTagline:         'show up for her. \U0001F451',
+    heroSub:             "send candy, comfort items, and essentials straight to her door. because she deserves it.",
+    heroOrderNowText:    'Gift Her Now',
+    heroCarePackageText: 'Monthly Gift Box',
+    card1Title:          'Gift Her Now',
+    card1Desc:           "Chocolate, cozy socks, heating patches, period care \u2014 build her a care basket and get it delivered today.",
+    card2Title:          'Monthly Gift Box',
+    card2Desc:           "Set it up once and she gets a thoughtful care package every month \u2014 during her cycle or any time she needs a pick-me-up.",
+    howTitle:            'How It Works',
+    step1Name:           'Pick Her Favorites',
+    step1Desc:           "Browse candy, cozy picks, period care, bottoms, skincare \u2014 everything she loves.",
+    step2Name:           'Add a Sweet Note',
+    step2Desc:           "Personalize your gift and we handle the rest \u2014 packaged with care and discretion.",
+    step3Name:           'Delivered to Her',
+    step3Desc:           "Discreet delivery straight to her door. Same-day for on-demand, or monthly for recurring gifts.",
+    trustBadges:         ['\U0001F381 Gift-Ready', '\U0001F36B Sweets Included', '\U0001F48C Personal Note', '\U0001F680 Same-Day Delivery', "\U0001F451 She'll Love It"],
+    subEyebrow:          'Monthly Gift Box',
+    subTitle:            'Send love<br><span>every month.</span>',
+    subSub:              "Set up a recurring gift box \u2014 she gets a thoughtful delivery every cycle or on whatever schedule you set.",
+    plansLabel:          'Step 1 \u2014 Choose a Gift Plan',
+    pickerTitle:         'Step 2 \u2014 Pick What She Gets',
   }
 };
 
@@ -95,6 +161,9 @@ const CAT_GRADIENTS = {
   wellness: 'linear-gradient(135deg,#0D150A,#1A3020)',
   skincare: 'linear-gradient(135deg,#1A1205,#3D2A08)',
   hygiene:  'linear-gradient(135deg,#0A1020,#102040)',
+  clothing: 'linear-gradient(135deg,#1A0515,#2D0A28)',
+  candy:    'linear-gradient(135deg,#1A0808,#3D1010)',
+  comfort:  'linear-gradient(135deg,#0D0A1A,#1A1240)',
 };
 
 /* =============================================
@@ -209,7 +278,8 @@ function dismissVersionPicker() {
 
 function initVersion() {
   const stored = getVersionCookie();
-  if (stored === 'teen' || stored === 'adult') {
+  const validVersions = ['teen', 'adult', 'emergency', 'gifter'];
+  if (validVersions.includes(stored)) {
     setVersion(stored);
     // Head script already set data-version, CSS hides picker — force display:none as backup
     const picker = $('versionPicker');
@@ -219,13 +289,17 @@ function initVersion() {
     document.body.style.overflow = 'hidden';
   }
 
-  const pickTeen  = $('pickTeen');
-  const pickAdult = $('pickAdult');
-  const switchBtn = $('switchModeBtn');
+  const pickTeen      = $('pickTeen');
+  const pickAdult     = $('pickAdult');
+  const pickEmergency = $('pickEmergency');
+  const pickGifter    = $('pickGifter');
+  const switchBtn     = $('switchModeBtn');
 
-  if (pickTeen)  pickTeen.addEventListener('click',  () => { setVersion('teen');  dismissVersionPicker(); });
-  if (pickAdult) pickAdult.addEventListener('click', () => { setVersion('adult'); dismissVersionPicker(); });
-  if (switchBtn) switchBtn.addEventListener('click', showVersionPicker);
+  if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
+  if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
+  if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); });
+  if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
+  if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
 }
 
 /* =============================================

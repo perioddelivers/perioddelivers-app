@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <link rel="stylesheet" href="styles.css"/>
   <!-- Apply saved version before render to prevent picker flash -->
-  <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;if(v==='teen'||v==='adult')document.documentElement.setAttribute('data-version',v);})();</script>
+  <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;if(v==='teen'||v==='adult'||v==='emergency'||v==='gifter')document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
 <body>
 
@@ -484,8 +484,8 @@
       <span class="vp-dot">.</span>
     </div>
 
-    <h1 class="vp-headline">which vibe is you?</h1>
-    <p class="vp-sub">we'll tailor the experience just for you</p>
+    <h1 class="vp-headline">how can we help you today?</h1>
+    <p class="vp-sub">pick your situation — we'll tailor everything for you</p>
 
     <div class="vp-cards">
 
@@ -509,6 +509,30 @@
         <div class="vp-card-desc">Quick. No fluff. You know your routine — we just make it effortless.</div>
         <div class="vp-card-cta">
           Let's go
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <button class="vp-card vp-card--emergency" id="pickEmergency" aria-label="Choose: I need it right now">
+        <div class="vp-card-glow vp-card-glow--emergency" aria-hidden="true"></div>
+        <div class="vp-card-tag">🚨 urgent</div>
+        <div class="vp-card-emoji" aria-hidden="true">⚡</div>
+        <div class="vp-card-title">I need it<br>RIGHT NOW</div>
+        <div class="vp-card-desc">No time for anything. Pads, fresh underwear, essentials — at your door in under 30 min.</div>
+        <div class="vp-card-cta">
+          Get help now
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <button class="vp-card vp-card--gifter" id="pickGifter" aria-label="Choose: Shopping for someone else">
+        <div class="vp-card-glow vp-card-glow--gifter" aria-hidden="true"></div>
+        <div class="vp-card-tag">🎁 gifting</div>
+        <div class="vp-card-emoji" aria-hidden="true">💝</div>
+        <div class="vp-card-title">Shopping<br>for her</div>
+        <div class="vp-card-desc">Candy, cozy picks, undies &amp; more — send a gift to someone you love. She deserves it.</div>
+        <div class="vp-card-cta">
+          Shop for her
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </button>
