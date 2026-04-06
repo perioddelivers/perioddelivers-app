@@ -202,6 +202,13 @@
       <span id="trackerBtnText">my tracker</span>
       <span class="tlock" id="trackerLock" aria-hidden="true">🔒</span>
     </button>
+    <div class="legal-footer-links">
+      <button class="legal-link" id="openPrivacy">Privacy Policy</button>
+      <span class="legal-dot" aria-hidden="true">&middot;</span>
+      <button class="legal-link" id="openTerms">Terms of Service</button>
+      <span class="legal-dot" aria-hidden="true">&middot;</span>
+      <span class="legal-copy">&copy; 2026 Periodt LLC &mdash; Cleveland, OH</span>
+    </div>
   </div>
 
 </div><!-- /homeView -->
@@ -449,12 +456,40 @@
       <span class="cart-subtotal-amt" id="cartTotal">$0.00</span>
     </div>
     <p class="cart-note">Delivery fee $4.99 · Free over $35 · Tax at checkout</p>
+
+    <!-- Express Checkout -->
+    <div class="express-checkout">
+      <button class="pay-btn apple-pay-btn" id="applePayBtn" aria-label="Pay with Apple Pay">
+        <svg viewBox="0 0 38 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M7.234 2.235c-.4.474-1.04.847-1.68.795-.08-.64.234-1.32.6-1.74.4-.487 1.1-.833 1.667-.86.066.666-.194 1.32-.587 1.805zm.58.92c-.927-.053-1.72.527-2.16.527-.447 0-1.12-.5-1.854-.487-. 954.013-1.84.554-2.327 1.407-1 1.72-.52 3.667.534 5.134.514.74 1.087 1.527 1.834 1.514.72-.014 1-.467 1.874-.467.867 0 1.12.467 1.88.453.774-.013 1.267-.773 1.774-1.52.547-.853.773-1.68.787-1.72-.02-.014-1.507-.587-1.52-2.32-.014-1.454 1.187-2.147 1.24-2.187-.68-1-1.72-1.107-2.087-1.12-.947-.067-1.747.527-2.24.527z"/>
+          <path d="M17.5 1.18h-1.834l-.013 9.587h1.193V7.421h1.654c1.513 0 2.573-1.04 2.573-2.627 0-1.587-1.04-2.613-2.573-2.613zm.3 4.12h-1.374V2.261h1.374c1.013 0 1.587.547 1.587 1.52 0 .974-.574 1.52-1.587 1.52zM23.867 10.848c.747 0 1.44-.38 1.754-.98h.026v.92h1.1V6.54c0-1.107-.886-1.82-2.247-1.82-1.267 0-2.2.72-2.234 1.707h1.074c.093-.467.52-.774 1.12-.774.72 0 1.12.334 1.12.947v.414l-1.467.087c-1.36.08-2.094.64-2.094 1.607 0 .974.76 1.64 1.847 1.64zm.32-.88c-.627 0-1.027-.3-1.027-.76 0-.474.387-.747 1.127-.794l1.307-.08v.42c0 .714-.627 1.214-1.407 1.214zM27.867 13.474c1.167 0 1.714-.447 2.194-1.8l2.1-5.9h-1.207l-1.407 4.567h-.027l-1.407-4.567H26.9l2.034 5.627-.114.354c-.187.594-.487.82-1.027.82-.1 0-.287-.013-.367-.026v.94c.08.013.327.027.44.027z"/>
+        </svg>
+        Apple Pay
+      </button>
+      <button class="pay-btn google-pay-btn" id="googlePayBtn" aria-label="Pay with Google Pay">
+        <svg viewBox="0 0 41 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M19.526 8.3v2.9h-.92V4.4h2.44c.62 0 1.14.2 1.56.6.43.4.64.89.64 1.46 0 .58-.21 1.07-.64 1.47-.42.39-.94.59-1.56.59h-1.52zm0-.77h1.52c.36 0 .66-.12.9-.36.24-.24.36-.54.36-.9 0-.35-.12-.65-.36-.88-.24-.24-.54-.36-.9-.36h-1.52v2.5zM24.507 6.4c.67 0 1.2.18 1.59.54.39.36.58.85.58 1.47v2.99h-.88v-.67h-.04c-.37.55-.87.82-1.48.82-.53 0-.97-.16-1.33-.47-.36-.31-.54-.7-.54-1.17 0-.5.19-.89.56-1.18.37-.29.87-.44 1.48-.44.52 0 .95.1 1.29.29v-.2c0-.31-.12-.57-.37-.79-.25-.22-.54-.32-.88-.32-.5 0-.9.21-1.19.63l-.81-.51c.44-.63 1.1-.95 1.96-.95zm-1.18 3.52c0 .23.1.43.3.58.2.15.43.23.69.23.38 0 .71-.14.99-.42.28-.28.42-.61.42-.98-.26-.21-.63-.31-1.09-.31-.34 0-.62.08-.85.25-.23.17-.46.39-.46.65zM30.987 6.55l-3.07 7.06h-.92l1.14-2.47-2.02-4.59h.97l1.45 3.51h.02l1.41-3.51h.02z" fill="#3C4043"/>
+          <path d="M14.8 8.05c0-.27-.02-.53-.07-.77H9.78v1.46h2.82c-.12.65-.49 1.2-1.04 1.57v1.3h1.68c.98-.9 1.55-2.23 1.55-3.56z" fill="#4285F4"/>
+          <path d="M9.78 12.7c1.41 0 2.6-.47 3.46-1.27l-1.68-1.3c-.47.31-1.07.5-1.78.5-1.37 0-2.53-.93-2.95-2.17H5.09v1.34C5.95 11.7 7.75 12.7 9.78 12.7z" fill="#34A853"/>
+          <path d="M6.83 8.46c-.1-.31-.16-.64-.16-.98 0-.34.06-.67.16-.98V5.16H5.09A4.83 4.83 0 004.57 7.48c0 .78.18 1.52.52 2.17l1.74-1.19z" fill="#FBBC05"/>
+          <path d="M9.78 5.33c.77 0 1.46.26 2 .78l1.5-1.5C12.37 3.73 11.18 3.26 9.78 3.26c-2.03 0-3.83 1-4.69 2.47l1.74 1.35c.42-1.25 1.58-1.75 2.95-1.75z" fill="#EA4335"/>
+        </svg>
+        Google Pay
+      </button>
+    </div>
+
+    <div class="pay-divider"><span>or</span></div>
+
     <button class="checkout-btn" id="checkoutBtn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M5 12h14M12 5l7 7-7 7"/>
       </svg>
       Place Order
     </button>
+    <div class="stripe-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Secured by Stripe
+    </div>
   </div>
 </aside>
 
@@ -813,5 +848,17 @@
 </div>
 
 <script src="app.js"></script>
+<!-- ===== LEGAL MODAL ===== -->
+<div class="legal-overlay" id="legalOverlay" aria-hidden="true"></div>
+<div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle" style="display:none">
+  <div class="legal-modal-header">
+    <h2 class="legal-modal-title" id="legalModalTitle"></h2>
+    <button class="legal-modal-close" id="legalModalClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="legal-modal-body" id="legalModalBody"></div>
+</div>
+
 </body>
 </html>

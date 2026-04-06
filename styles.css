@@ -2381,3 +2381,290 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
   font-size: var(--text-sm);
   padding: var(--sp-8) 0;
 }
+
+/* =============================================
+   LEGAL MODAL
+   ============================================= */
+.legal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 1100;
+  backdrop-filter: blur(4px);
+}
+.legal-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1101;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 640px) {
+  .legal-modal { align-items: center; }
+}
+.legal-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  position: sticky;
+  top: 0;
+  background: #1a1026;
+  z-index: 1;
+}
+.legal-modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: .01em;
+}
+.legal-modal-close {
+  background: rgba(255,255,255,.08);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(255,255,255,.7);
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.legal-modal-close:hover { background: rgba(255,255,255,.15); }
+.legal-modal-body {
+  padding: 1.25rem 1.5rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  /* scroll within the modal itself */
+  max-height: calc(80vh - 64px);
+}
+/* The actual modal card */
+.legal-modal[role="dialog"] {
+  /* override the flex container display trick */
+}
+/* Inner card wrapper */
+.legal-modal > * {
+  /* nothing extra — the modal IS the card */
+}
+
+/* Re-style: make the modal itself the scrollable card */
+div#legalModal {
+  display: none; /* JS controls via style.display='flex' */
+  position: fixed;
+  inset: 0;
+  z-index: 1101;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+@media (min-width: 640px) {
+  div#legalModal { align-items: center; padding: 1.5rem; }
+}
+div#legalModal > .legal-modal-header,
+div#legalModal > .legal-modal-body {
+  /* children live inside the card below */
+}
+/* Actual card — wrap header + body in a visual container using a pseudo approach.
+   Since we can't wrap them without changing HTML, we style legalModal itself as the card. */
+div#legalModal {
+  background: transparent;
+}
+/* Card visual: apply background to the direct children collectively via a wrapper trick.
+   Since legalModalHeader + legalModalBody are siblings, target legalModal's layout. */
+.legal-modal-header { border-radius: 20px 20px 0 0; }
+@media (min-width: 640px) {
+  .legal-modal-header { border-radius: 16px 16px 0 0; }
+}
+
+/* Build a real card container */
+div#legalModal::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: min(100%, 640px);
+  height: min(82vh, 640px);
+  background: #1a1026;
+  border-radius: 20px 20px 0 0;
+  z-index: -1;
+  box-shadow: 0 -8px 48px rgba(0,0,0,.5);
+}
+@media (min-width: 640px) {
+  div#legalModal::before {
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 16px;
+    height: auto;
+  }
+}
+
+/* Direct children of legalModal need to be in the visible card */
+.legal-modal-header,
+.legal-modal-body {
+  width: min(100%, 640px);
+  background: #1a1026;
+}
+.legal-modal-header {
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 32px rgba(0,0,0,.4);
+}
+.legal-modal-body {
+  border-radius: 0 0 0 0;
+}
+@media (min-width: 640px) {
+  .legal-modal-header { border-radius: 16px 16px 0 0; }
+}
+
+/* Legal content typography */
+.legal-modal-body h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent, #A855F7);
+  margin: 1.4rem 0 .4rem;
+}
+.legal-modal-body h3 {
+  font-size: .92rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+  margin: 1rem 0 .3rem;
+}
+.legal-modal-body p,
+.legal-modal-body li {
+  font-size: .85rem;
+  line-height: 1.65;
+  color: rgba(255,255,255,.65);
+  margin-bottom: .5rem;
+}
+.legal-modal-body ul {
+  padding-left: 1.25rem;
+  margin-bottom: .75rem;
+}
+.legal-modal-body a {
+  color: var(--accent, #A855F7);
+  text-decoration: none;
+}
+.legal-modal-body a:hover { text-decoration: underline; }
+.legal-updated {
+  font-size: .75rem;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 1rem;
+}
+
+/* Legal footer */
+.legal-footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .35rem .5rem;
+  padding: .6rem 1rem .5rem;
+  margin-top: .5rem;
+}
+.legal-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .72rem;
+  color: rgba(255,255,255,.4);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s;
+}
+.legal-link:hover { color: rgba(255,255,255,.75); }
+.legal-dot {
+  font-size: .72rem;
+  color: rgba(255,255,255,.25);
+}
+.legal-copy {
+  font-size: .72rem;
+  color: rgba(255,255,255,.3);
+}
+
+/* =============================================
+   EXPRESS CHECKOUT — APPLE PAY & GOOGLE PAY
+   ============================================= */
+.express-checkout {
+  display: flex;
+  gap: .6rem;
+  margin-top: .75rem;
+}
+.pay-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  height: 46px;
+  border: none;
+  border-radius: 12px;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  letter-spacing: .01em;
+}
+.pay-btn:active { transform: scale(.97); opacity: .85; }
+.pay-btn svg { flex-shrink: 0; }
+
+/* Apple Pay — black pill, white text */
+.apple-pay-btn {
+  background: #000;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.apple-pay-btn svg {
+  width: 36px;
+  height: 15px;
+  fill: #fff;
+}
+.apple-pay-btn:hover { background: #111; }
+
+/* Google Pay — white pill, dark text */
+.google-pay-btn {
+  background: #fff;
+  color: #3c4043;
+  border: 1px solid rgba(0,0,0,.08);
+}
+.google-pay-btn svg {
+  width: 40px;
+  height: 16px;
+}
+.google-pay-btn:hover { background: #f8f8f8; }
+
+/* "or" divider between express and standard checkout */
+.pay-divider {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: .8rem 0 .1rem;
+  color: rgba(255,255,255,.25);
+  font-size: .72rem;
+}
+.pay-divider::before,
+.pay-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,.1);
+}
+
+/* Stripe trust badge in cart footer */
+.stripe-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  margin-top: .6rem;
+  font-size: .68rem;
+  color: rgba(255,255,255,.28);
+}
+.stripe-badge svg { opacity: .4; }

@@ -690,6 +690,29 @@ function updateSubscribeBtn() {
 /* =============================================
    CHECKOUT / ORDER
    ============================================= */
+/* =============================================
+   EXPRESS CHECKOUT — Apple Pay & Google Pay
+   ============================================= */
+function handleExpressCheckout(provider) {
+  // Validate cart has items
+  const itemCount = Object.values(state.cart).reduce((s, n) => s + n, 0);
+  if (itemCount === 0) {
+    showToast('Add items to your cart first ✨');
+    return;
+  }
+
+  const label = provider === 'apple' ? 'Apple Pay' : 'Google Pay';
+
+  // When Stripe is connected (Day 2), this will trigger the native payment sheet.
+  // For now, simulate the express checkout flow.
+  showToast(`${label} — payment goes live on launch day 🚀`);
+
+  // Simulate brief processing then complete order
+  setTimeout(() => {
+    placeOrder();
+  }, 900);
+}
+
 function placeOrder() {
   // Clear cart and show success
   state.cart = {};
@@ -872,6 +895,16 @@ function init() {
     state.activeCategory = 'holistic';
     navigate('shop');
   });
+
+  // Legal modal
+  if ($('openPrivacy'))    $('openPrivacy').addEventListener('click',   () => openLegal('privacy'));
+  if ($('openTerms'))      $('openTerms').addEventListener('click',     () => openLegal('terms'));
+  if ($('legalModalClose')) $('legalModalClose').addEventListener('click', closeLegal);
+  if ($('legalOverlay'))   $('legalOverlay').addEventListener('click',  closeLegal);
+
+  // Apple Pay + Google Pay (express checkout)
+  if ($('applePayBtn'))  $('applePayBtn').addEventListener('click',  () => handleExpressCheckout('apple'));
+  if ($('googlePayBtn')) $('googlePayBtn').addEventListener('click', () => handleExpressCheckout('google'));
 
   // Fetch live trends + init tracker button state
   fetchTrends();
@@ -1481,4 +1514,180 @@ function checkAndFireReminder() {
       icon: 'icon-192.png',
     });
   }
+}
+
+/* =============================================
+   LEGAL — PRIVACY POLICY + TERMS OF SERVICE
+   ============================================= */
+
+const LEGAL = {
+  privacy: {
+    title: 'Privacy Policy',
+    lastUpdated: 'April 6, 2026',
+    content: `
+      <p class="legal-updated">Last updated: April 6, 2026</p>
+
+      <h3>Who We Are</h3>
+      <p>Periodt LLC ("we," "us," or "our") operates the . (Period) platform — a feminine care delivery and subscription service based in Cleveland, Ohio. We are the middleman between you and our supplier partners. We do not manufacture or warehouse products.</p>
+
+      <h3>Information We Collect</h3>
+      <p><strong>You provide directly:</strong></p>
+      <ul>
+        <li>Email address (newsletter, account)</li>
+        <li>Phone number (optional, SMS reminders only)</li>
+        <li>Delivery address (for order fulfillment)</li>
+        <li>Payment information — processed securely by Stripe. We never store your card number.</li>
+      </ul>
+      <p><strong>Automatically collected:</strong></p>
+      <ul>
+        <li>Cookies — we use browser cookies to remember your version preference, period tracker data, and cart. No third-party tracking cookies.</li>
+        <li>Usage data — general analytics to improve the app (no personally identifiable information).</li>
+      </ul>
+
+      <h3>How We Use Your Information</h3>
+      <ul>
+        <li>To process and fulfill your orders</li>
+        <li>To send your monthly care package</li>
+        <li>To send the newsletter you subscribed to (you can unsubscribe any time)</li>
+        <li>To send period reminder notifications or SMS messages you opted into</li>
+        <li>To improve our products and services</li>
+        <li>To comply with legal obligations</li>
+      </ul>
+
+      <h3>Third-Party Services</h3>
+      <p>We work with the following trusted partners who may process your data:</p>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing (stripe.com/privacy)</li>
+        <li><strong>DoorDash Drive / Uber Direct</strong> — on-demand order delivery</li>
+        <li><strong>Klaviyo</strong> — email newsletter platform</li>
+        <li><strong>Spocket</strong> — supplier fulfillment network</li>
+      </ul>
+      <p>We do not sell your personal information to any third party. Ever.</p>
+
+      <h3>Cookies</h3>
+      <p>We use first-party cookies only to store your preferences locally (version selection, tracker data, cart). No advertising or cross-site tracking cookies are used. You can clear cookies in your browser settings at any time.</p>
+
+      <h3>Children's Privacy</h3>
+      <p>Our service is intended for users aged 13 and older. Users between 13–17 should have parental awareness when making purchases. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has submitted information, contact us immediately.</p>
+
+      <h3>Your Rights</h3>
+      <ul>
+        <li><strong>Access</strong> — Request a copy of the data we hold about you</li>
+        <li><strong>Deletion</strong> — Request deletion of your personal data</li>
+        <li><strong>Opt-out</strong> — Unsubscribe from emails or SMS at any time</li>
+        <li><strong>Correction</strong> — Update inaccurate information</li>
+      </ul>
+      <p>To exercise any of these rights, email us at <a href="mailto:privacy@shopperiodt.com">privacy@shopperiodt.com</a>.</p>
+
+      <h3>Data Security</h3>
+      <p>We use industry-standard encryption (HTTPS/TLS) for all data in transit. Payment data is handled exclusively by Stripe and never touches our servers. We regularly review our security practices.</p>
+
+      <h3>Changes to This Policy</h3>
+      <p>We may update this policy from time to time. When we do, we'll update the "Last updated" date at the top and notify newsletter subscribers of material changes.</p>
+
+      <h3>Contact Us</h3>
+      <p>Periodt LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:privacy@shopperiodt.com">privacy@shopperiodt.com</a></p>
+    `
+  },
+
+  terms: {
+    title: 'Terms of Service',
+    lastUpdated: 'April 6, 2026',
+    content: `
+      <p class="legal-updated">Last updated: April 6, 2026</p>
+
+      <h3>Agreement to Terms</h3>
+      <p>By accessing or using the . (Period) platform operated by Periodt LLC ("we," "us," "our"), you agree to these Terms of Service. If you do not agree, please do not use our service. You must be at least 13 years old to use this platform.</p>
+
+      <h3>What We Do</h3>
+      <p>Periodt LLC is a middleman service. We connect customers with third-party supplier partners for feminine care, wellness, and related products. We do not manufacture, store, or ship products ourselves. We coordinate on-demand delivery through third-party courier services (DoorDash Drive, Uber Direct) and monthly subscription fulfillment through our supplier network.</p>
+
+      <h3>Orders and Payment</h3>
+      <ul>
+        <li>All prices are listed in U.S. dollars.</li>
+        <li>Prices may change due to supplier costs or market conditions. Your cart price at checkout is the price you pay.</li>
+        <li>Payment is processed securely by Stripe. By placing an order, you authorize the charge to your payment method.</li>
+        <li>Orders are confirmed via email. We reserve the right to cancel orders if a product becomes unavailable.</li>
+      </ul>
+
+      <h3>Delivery</h3>
+      <ul>
+        <li>On-demand delivery is estimated at 30–60 minutes. Actual times depend on your location, courier availability, and conditions outside our control.</li>
+        <li>Delivery estimates are not guaranteed. We are not liable for delays caused by third-party couriers, weather, or other circumstances beyond our control.</li>
+        <li>Delivery is available within our service area. We'll notify you if we can't fulfill delivery to your address.</li>
+      </ul>
+
+      <h3>Subscriptions</h3>
+      <ul>
+        <li>Monthly care package subscriptions are billed on a recurring basis on your chosen plan date.</li>
+        <li>You may cancel your subscription at any time before the next billing date. Cancellations take effect the following billing cycle.</li>
+        <li>We do not offer refunds for subscription boxes that have already shipped.</li>
+        <li>You may swap items in your box at any time before your monthly cutoff date.</li>
+      </ul>
+
+      <h3>Returns and Refunds</h3>
+      <ul>
+        <li>Due to the personal hygiene nature of our products, opened items cannot be returned.</li>
+        <li>Unopened, unused items may be eligible for return within 7 days of delivery. Contact us to initiate a return.</li>
+        <li>If you received the wrong item or a damaged product, we will replace it at no cost to you.</li>
+        <li>Refunds are issued to the original payment method within 5–10 business days.</li>
+      </ul>
+
+      <h3>Your Account</h3>
+      <ul>
+        <li>You are responsible for keeping your delivery address and payment method up to date.</li>
+        <li>You are responsible for all activity associated with your orders.</li>
+        <li>We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity.</li>
+      </ul>
+
+      <h3>Intellectual Property</h3>
+      <p>The . (Period) name, crown logo, app design, copy, and all original content are owned by Periodt LLC. You may not copy, reproduce, or use our brand assets without written permission. All rights reserved.</p>
+
+      <h3>Prohibited Uses</h3>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Use the platform for any unlawful purpose</li>
+        <li>Attempt to reverse-engineer, copy, or replicate our platform</li>
+        <li>Submit false or fraudulent orders</li>
+        <li>Harass, abuse, or harm other users or our team</li>
+      </ul>
+
+      <h3>Limitation of Liability</h3>
+      <p>To the fullest extent permitted by Ohio law, Periodt LLC is not liable for indirect, incidental, or consequential damages arising from use of our service, including delivery delays, product allergic reactions (please review product ingredients), or third-party service failures. Our total liability for any claim shall not exceed the amount you paid for the specific order in question.</p>
+
+      <h3>Health Disclaimer</h3>
+      <p>Products sold through our platform are not intended to diagnose, treat, cure, or prevent any medical condition. The period tracker and health content on this platform are for informational purposes only and do not constitute medical advice. Consult a healthcare provider for medical concerns.</p>
+
+      <h3>Governing Law</h3>
+      <p>These Terms are governed by the laws of the State of Ohio, United States. Any disputes shall be resolved in the courts of Cuyahoga County, Ohio.</p>
+
+      <h3>Changes to Terms</h3>
+      <p>We may update these Terms at any time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll notify subscribers of material changes.</p>
+
+      <h3>Contact Us</h3>
+      <p>Periodt LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:legal@shopperiodt.com">legal@shopperiodt.com</a></p>
+    `
+  }
+};
+
+function openLegal(type) {
+  const doc   = LEGAL[type];
+  const modal = $('legalModal');
+  const overlay = $('legalOverlay');
+  if (!modal || !doc) return;
+  $('legalModalTitle').textContent = doc.title;
+  $('legalModalBody').innerHTML    = doc.content;
+  modal.style.display = 'flex';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  modal.scrollTop = 0;
+}
+
+function closeLegal() {
+  const modal = $('legalModal');
+  const overlay = $('legalOverlay');
+  if (!modal) return;
+  modal.style.display = 'none';
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
 }
