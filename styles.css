@@ -1225,16 +1225,21 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
    ============================================= */
 .switch-mode-btn {
   display: flex; align-items: center; gap: var(--sp-2);
-  font-size: var(--text-xs); color: rgba(237,232,250,.22);
+  font-size: var(--text-xs); color: rgba(237,232,250,.5);
   margin: var(--sp-5) auto 0;
-  padding: var(--sp-2) var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
   border-radius: var(--r-full);
-  transition: color var(--trans), background var(--trans);
+  border: 1.5px solid rgba(237,232,250,.18);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: color var(--trans), background var(--trans), border-color var(--trans);
   letter-spacing: .02em;
+  pointer-events: auto;
 }
-.switch-mode-btn:hover {
-  color: rgba(237,232,250,.55);
+.switch-mode-btn:hover, .switch-mode-btn:active {
+  color: rgba(237,232,250,.9);
   background: var(--surface-2);
+  border-color: rgba(237,232,250,.35);
 }
 [data-theme='light'] .switch-mode-btn { color: rgba(13,10,20,.28); }
 [data-theme='light'] .switch-mode-btn:hover { color: rgba(13,10,20,.6); }
