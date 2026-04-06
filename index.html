@@ -81,6 +81,11 @@
     </div>
     <p class="hero-tagline" id="heroTagline">Delivered when you need it.</p>
     <p class="hero-sub" id="heroSub">On-demand delivery wherever you are, or a monthly care package curated just for you.</p>
+    <button class="hero-how-btn" id="heroHowBtn" aria-label="Jump to How It Works section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      How It Works
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </button>
     <div class="hero-cta-pair">
       <button class="cta-primary" id="heroOrderNow">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -602,6 +607,23 @@
       </svg>
       Back to Home
     </button>
+
+    <!-- Emoji review prompt -->
+    <div class="review-prompt" id="reviewPrompt">
+      <div class="review-prompt-divider"></div>
+      <p class="review-prompt-q">How are you feeling about us?</p>
+      <div class="review-emoji-row" id="reviewEmojiRow">
+        <button class="review-emoji-btn" data-emoji="😍" data-label="Love it!" aria-label="Love it">&#x1F60D;</button>
+        <button class="review-emoji-btn" data-emoji="😊" data-label="Good"     aria-label="Good">&#x1F60A;</button>
+        <button class="review-emoji-btn" data-emoji="😐" data-label="Okay"     aria-label="Okay">&#x1F610;</button>
+        <button class="review-emoji-btn" data-emoji="😕" data-label="Meh"      aria-label="Meh">&#x1F615;</button>
+        <button class="review-emoji-btn" data-emoji="👎" data-label="Not great" aria-label="Not great">&#x1F44E;</button>
+      </div>
+      <div class="review-thanks" id="reviewThanks" style="display:none">
+        <span class="review-thanks-emoji" id="reviewThanksEmoji"></span>
+        <span class="review-thanks-text">Thanks for the feedback!</span>
+      </div>
+    </div>
 
     <!-- Monthly upsell — shown after any order -->
     <div class="monthly-upsell" id="monthlyUpsell">

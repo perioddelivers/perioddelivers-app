@@ -2318,3 +2318,108 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+/* =============================================================
+   HOW IT WORKS JUMP BUTTON
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const howBtn = $('heroHowBtn');
+  if (howBtn) {
+    howBtn.addEventListener('click', () => {
+      const section = document.querySelector('.how-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+});
+
+/* =============================================================
+   EMOJI REVIEW SYSTEM
+   ============================================================= */
+
+function getReviews() {
+  try {
+    const raw = getCookie('period_reviews');
+    return raw ? JSON.parse(decodeURIComponent(raw)) : [];
+  } catch { return []; }
+}
+
+function saveReview(emoji, label) {
+  const reviews = getReviews();
+  reviews.push({ emoji, label, ts: Date.now(), v: state.version });
+  // Keep last 50 reviews
+  if (reviews.length > 50) reviews.shift();
+  setCookie('period_reviews', encodeURIComponent(JSON.stringify(reviews)), 365 * 5);
+}
+
+function wasReviewedRecently() {
+  const reviews = getReviews();
+  if (!reviews.length) return false;
+  const last = reviews[reviews.length - 1];
+  // Don't re-prompt within 7 days
+  return (Date.now() - last.ts) < 7 * 24 * 60 * 60 * 1000;
+}
+
+function initReviewPrompt() {
+  const prompt   = $('reviewPrompt');
+  const row      = $('reviewEmojiRow');
+  const thanks   = $('reviewThanks');
+  const thanksEm = $('reviewThanksEmoji');
+
+  if (!prompt || !row) return;
+
+  // Hide prompt if reviewed recently
+  if (wasReviewedRecently()) {
+    prompt.style.display = 'none';
+    return;
+  }
+
+  // Wire emoji buttons
+  row.querySelectorAll('.review-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const emoji = btn.dataset.emoji;
+      const label = btn.dataset.label;
+
+      // Mark selected
+      row.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      // Save and show thanks
+      saveReview(emoji, label);
+
+      setTimeout(() => {
+        row.style.display = 'none';
+        if (thanksEm)  thanksEm.textContent = emoji;
+        if (thanks)    thanks.style.display = 'flex';
+        document.querySelector('.review-prompt-q').textContent = label + '!';
+      }, 300);
+    });
+  });
+}
+
+// Re-init review prompt every time the order success modal opens
+document.addEventListener('DOMContentLoaded', () => {
+  const orderSuccessEl = $('orderSuccess');
+  if (!orderSuccessEl) return;
+
+  new MutationObserver(() => {
+    if (orderSuccessEl.classList.contains('open')) {
+      // Reset prompt state each time modal opens
+      const prompt   = $('reviewPrompt');
+      const row      = $('reviewEmojiRow');
+      const thanks   = $('reviewThanks');
+      const promptQ  = prompt?.querySelector('.review-prompt-q');
+
+      if (wasReviewedRecently()) {
+        if (prompt) prompt.style.display = 'none';
+        return;
+      }
+      if (prompt)  prompt.style.display = '';
+      if (row)     row.style.display = 'flex';
+      if (thanks)  thanks.style.display = 'none';
+      if (promptQ) promptQ.textContent = 'How are you feeling about us?';
+      row?.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
+    }
+  }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
+
+  initReviewPrompt();
+});

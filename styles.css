@@ -3393,3 +3393,97 @@ div#legalModal::before {
   transition: transform 0.15s, opacity 0.2s;
 }
 .impact-cta-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+/* ==========================================================
+   HOW IT WORKS JUMP BUTTON (holistic mode only)
+   ========================================================== */
+.hero-how-btn {
+  display: none;   /* hidden in all non-holistic modes */
+  align-items: center;
+  gap: var(--sp-2);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent);
+  border-radius: var(--r-full);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: var(--sp-3);
+  transition: background 0.2s, transform 0.15s;
+  width: fit-content;
+  align-self: center;
+}
+.hero-how-btn:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  transform: translateY(2px);
+}
+
+/* Show ONLY in holistic version */
+[data-version="holistic"] .hero-how-btn {
+  display: flex;
+}
+
+/* ==========================================================
+   HIDE "HOLISTIC & NATURAL" CARD WHEN IN HOLISTIC MODE
+   ========================================================== */
+[data-version="holistic"] #cardHolistic {
+  display: none !important;
+}
+
+/* ==========================================================
+   EMOJI REVIEW PROMPT
+   ========================================================== */
+.review-prompt {
+  width: 100%;
+  margin-top: var(--sp-2);
+}
+.review-prompt-divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--sp-4) 0 var(--sp-3);
+}
+.review-prompt-q {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: var(--sp-3);
+}
+.review-emoji-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+.review-emoji-btn {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: var(--r-xl);
+  width: 52px;
+  height: 52px;
+  font-size: 26px;
+  cursor: pointer;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.review-emoji-btn:hover {
+  transform: scale(1.18);
+  border-color: var(--accent);
+}
+.review-emoji-btn.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface-2));
+  transform: scale(1.22);
+}
+.review-thanks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  animation: fadeInUp 0.3s ease forwards;
+}
+.review-thanks-emoji  { font-size: 28px; }
+.review-thanks-text   { font-size: var(--text-sm); color: var(--text-muted); font-weight: 500; }
