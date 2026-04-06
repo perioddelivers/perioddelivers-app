@@ -394,10 +394,15 @@ function setIcon(btn, dark) {
    FAVORITES
    ============================================= */
 function getFavorites() {
-  try { return JSON.parse(localStorage.getItem('period_favs') || '[]'); } catch { return []; }
+  try {
+    const m = document.cookie.match(/period_favs=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
 }
 function saveFavorites(favs) {
-  try { localStorage.setItem('period_favs', JSON.stringify(favs)); } catch {}
+  try {
+    document.cookie = 'period_favs=' + encodeURIComponent(JSON.stringify(favs)) + ';max-age=946080000;path=/;SameSite=Lax';
+  } catch {}
 }
 function isFavorite(id) { return getFavorites().includes(id); }
 function toggleFavorite(id) {
