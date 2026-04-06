@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#080610"/>
+  <meta name="description" content=". — Premium feminine care delivered on demand, or curated monthly. Period."/>
+  <meta property="og:title" content=". — Feminine Care"/>
+  <meta property="og:description" content="On-demand delivery + monthly care packages. Premium feminine care."/>
+  <title>. — Feminine Care</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header" role="banner">
+  <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" style="flex-shrink:0"></button>
+
+  <!-- Crown + Dot brand mark (center) -->
+  <button class="brand-mark" id="homeLogo" aria-label="Go to home">
+    <!-- Crown SVG (gold) -->
+    <svg class="crown-svg" viewBox="0 0 48 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Crown silhouette -->
+      <path d="M3 26 L3 16 L12.5 20 L24 4 L35.5 20 L45 16 L45 26 Z" fill="#C9941A"/>
+      <!-- Band highlight -->
+      <rect x="3" y="22" width="42" height="4" rx="2" fill="#B07D10"/>
+      <!-- Gem dots at tips -->
+      <circle cx="3"  cy="15" r="3.5" fill="#F5D060"/>
+      <circle cx="24" cy="3.5" r="3.5" fill="#F5D060"/>
+      <circle cx="45" cy="15" r="3.5" fill="#F5D060"/>
+      <!-- Crown sparkle -->
+      <circle cx="3"  cy="15" r="1.5" fill="white" opacity="0.6"/>
+      <circle cx="24" cy="3.5" r="1.5" fill="white" opacity="0.6"/>
+      <circle cx="45" cy="15" r="1.5" fill="white" opacity="0.6"/>
+    </svg>
+    <!-- The dot — always black, gold glow on dark -->
+    <span class="brand-dot" aria-label="Period store">.</span>
+  </button>
+
+  <div class="header-actions" style="flex-shrink:0">
+    <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-badge" id="cartBadge" aria-live="polite"></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===================================================
+     HOME VIEW
+     =================================================== -->
+<div class="view active" id="homeView">
+
+  <!-- Hero -->
+  <section class="home-hero" aria-label="Welcome">
+    <div class="hero-brand-mark" aria-hidden="true">
+      <svg class="hero-crown-svg" viewBox="0 0 64 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 34 L4 20 L16 26 L32 4 L48 26 L60 20 L60 34 Z" fill="#C9941A"/>
+        <rect x="4" y="28" width="56" height="6" rx="3" fill="#B07D10"/>
+        <circle cx="4"  cy="19" r="5" fill="#F5D060"/>
+        <circle cx="32" cy="4"  r="5" fill="#F5D060"/>
+        <circle cx="60" cy="19" r="5" fill="#F5D060"/>
+        <circle cx="4"  cy="19" r="2" fill="white" opacity="0.7"/>
+        <circle cx="32" cy="4"  r="2" fill="white" opacity="0.7"/>
+        <circle cx="60" cy="19" r="2" fill="white" opacity="0.7"/>
+      </svg>
+      <span class="hero-dot">.</span>
+    </div>
+    <p class="hero-tagline">Delivered when you need it.</p>
+    <p class="hero-sub">On-demand delivery to your door, or a monthly care package curated just for you.</p>
+    <div class="hero-cta-pair">
+      <button class="cta-primary" id="heroOrderNow">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Order Now
+      </button>
+      <button class="cta-secondary" id="heroCarePackage">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+        </svg>
+        Care Package
+      </button>
+    </div>
+  </section>
+
+  <!-- Mode Cards -->
+  <div class="mode-cards" role="list">
+
+    <button class="mode-card mode-card--gold" id="cardOrderNow" role="listitem" aria-label="Order on demand">
+      <div class="mode-card-icon">⚡</div>
+      <div class="mode-card-title">Order Now</div>
+      <div class="mode-card-desc">Get feminine care products delivered straight to your door in under an hour — like DoorDash, but for your care.</div>
+      <div class="mode-card-link">
+        Shop products
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </button>
+
+    <button class="mode-card mode-card--purple" id="cardCarePackage" role="listitem" aria-label="Subscribe to care package">
+      <div class="mode-card-icon">👑</div>
+      <div class="mode-card-title">Care Package</div>
+      <div class="mode-card-desc">Choose your plan, pick your products, and receive a customized monthly box delivered right on time — every month.</div>
+      <div class="mode-card-link">
+        Subscribe
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </button>
+
+  </div>
+
+  <!-- How It Works -->
+  <section class="how-section" aria-label="How it works">
+    <h2 class="how-title">How It Works</h2>
+    <div class="how-steps">
+
+      <div class="how-step how-step--gold">
+        <div class="how-step-num">1</div>
+        <div class="how-step-text">
+          <div class="how-step-name">Browse &amp; Add to Cart</div>
+          <div class="how-step-desc">Shop our full product catalog — period care, intimate wellness, skincare, hygiene &amp; more.</div>
+        </div>
+      </div>
+
+      <div class="how-step how-step--gold">
+        <div class="how-step-num">2</div>
+        <div class="how-step-text">
+          <div class="how-step-name">Place Your Order</div>
+          <div class="how-step-desc">We connect with our supplier partners and arrange fast delivery directly to you — no warehouse, no hassle.</div>
+        </div>
+      </div>
+
+      <div class="how-step how-step--gold">
+        <div class="how-step-num">3</div>
+        <div class="how-step-text">
+          <div class="how-step-name">Delivered to Your Door</div>
+          <div class="how-step-desc">Expect your order in 30–60 minutes for on-demand, or on your chosen date for Care Packages.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Trust Strip -->
+  <div class="home-footer">
+    <div class="trust-strip" role="list" aria-label="Store highlights">
+      <div class="trust-badge" role="listitem">🔒 Secure &amp; Discreet</div>
+      <div class="trust-badge" role="listitem">⚡ Under 1 Hour</div>
+      <div class="trust-badge" role="listitem">🌿 Natural Products</div>
+      <div class="trust-badge" role="listitem">↩️ Easy Returns</div>
+      <div class="trust-badge" role="listitem">👑 Supplier Direct</div>
+    </div>
+  </div>
+
+</div><!-- /homeView -->
+
+
+<!-- ===================================================
+     SHOP VIEW (On-Demand)
+     =================================================== -->
+<div class="view" id="shopView">
+
+  <!-- Back bar -->
+  <nav class="back-bar" aria-label="Navigation">
+    <button class="back-btn" id="shopBack">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <div class="back-bar-title">Order Now</div>
+    <div class="back-bar-spacer"></div>
+  </nav>
+
+  <!-- Delivery ETA banner -->
+  <div class="delivery-banner" role="status" aria-label="Delivery information">
+    <div class="delivery-info">
+      <div class="delivery-icon" aria-hidden="true">🛵</div>
+      <div>
+        <div class="delivery-label">On-Demand Delivery</div>
+        <div class="delivery-time">30–60 min estimated</div>
+        <div class="delivery-fee">$4.99 delivery · Free over $35</div>
+      </div>
+    </div>
+    <button class="address-pill" id="addressPill" aria-label="Set delivery address">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      Set address
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar" role="search">
+    <div class="search-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" id="searchInput" type="search" placeholder="Search products…" aria-label="Search products" autocomplete="off"/>
+    </div>
+  </div>
+
+  <!-- Category filters -->
+  <nav class="filter-bar" aria-label="Product categories">
+    <div class="filter-pills" id="filterPills" role="list"></div>
+  </nav>
+
+  <!-- Section header -->
+  <div class="section-header">
+    <h2 class="section-title">All Products</h2>
+    <span class="section-count" id="productCount" aria-live="polite"></span>
+  </div>
+
+  <!-- Product grid -->
+  <div class="product-grid" id="productGrid" role="list" aria-label="Products"></div>
+
+</div><!-- /shopView -->
+
+
+<!-- ===================================================
+     SUBSCRIBE VIEW (Care Package)
+     =================================================== -->
+<div class="view" id="subscribeView">
+
+  <!-- Back bar -->
+  <nav class="back-bar" aria-label="Navigation">
+    <button class="back-btn" id="subscribeBack">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <div class="back-bar-title">Care Package</div>
+    <div class="back-bar-spacer"></div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="subscribe-hero">
+    <div class="subscribe-eyebrow">Monthly Subscription</div>
+    <h1 class="subscribe-title">Your personal<br><span>care package.</span></h1>
+    <p class="subscribe-sub">Pick a plan, choose what goes inside, and receive it every month — on your schedule.</p>
+  </div>
+
+  <!-- Step 1: Choose a plan -->
+  <div class="plans-section">
+    <div class="plans-label">Step 1 — Choose Your Plan</div>
+    <div class="plan-cards" id="planCards" role="radiogroup" aria-label="Choose a plan">
+
+      <div class="plan-card" data-plan="starter" role="radio" aria-checked="false" tabindex="0">
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Starter</div>
+            <div class="plan-slot-info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Pick any 5 items
+            </div>
+          </div>
+          <div class="plan-price-wrap">
+            <div class="plan-price">$19.99</div>
+            <div class="plan-per">/ month</div>
+          </div>
+        </div>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> 5 items of your choice</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Monthly delivery</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Swap items anytime</div>
+        </div>
+      </div>
+
+      <div class="plan-card gold-plan" data-plan="essential" role="radio" aria-checked="false" tabindex="0">
+        <div class="plan-popular">Most Popular 👑</div>
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Essential</div>
+            <div class="plan-slot-info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Pick any 10 items
+            </div>
+          </div>
+          <div class="plan-price-wrap">
+            <div class="plan-price">$34.99</div>
+            <div class="plan-per">/ month</div>
+          </div>
+        </div>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> 10 items of your choice</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Priority delivery</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Free delivery every month</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Swap items anytime</div>
+        </div>
+      </div>
+
+      <div class="plan-card" data-plan="royal" role="radio" aria-checked="false" tabindex="0">
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Royal</div>
+            <div class="plan-slot-info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Pick any 15 items
+            </div>
+          </div>
+          <div class="plan-price-wrap">
+            <div class="plan-price">$54.99</div>
+            <div class="plan-per">/ month</div>
+          </div>
+        </div>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> 15 items of your choice</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Same-day priority dispatch</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Free delivery always</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Early access to new products</div>
+          <div class="plan-feature"><div class="plan-feature-check">✓</div> Dedicated customer support</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 2: Pick items -->
+  <div class="picker-section" id="pickerSection" style="display:none">
+    <div class="picker-header">
+      <h2 class="picker-title">Step 2 — Build Your Box</h2>
+      <div class="picker-slots" id="pickerSlots">0 / 0 selected</div>
+    </div>
+    <p class="picker-hint">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Tap a product to add it to your care package. You can change selections anytime.
+    </p>
+    <div class="picker-grid" id="pickerGrid" role="list" aria-label="Choose products for your box"></div>
+  </div>
+
+  <!-- Subscribe CTA bar (sticky) -->
+  <div class="subscribe-cta-bar" id="subscribeCta" style="display:none">
+    <div class="subscribe-summary">
+      <div class="subscribe-summary-text" id="subscribeSummaryText">Select a plan to get started</div>
+      <div class="subscribe-summary-price" id="subscribeSummaryPrice"></div>
+    </div>
+    <button class="subscribe-btn" id="subscribeBtn" disabled>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Subscribe — <span id="subscribeBtnPrice"></span>/mo
+    </button>
+  </div>
+
+</div><!-- /subscribeView -->
+
+
+<!-- ===== PRODUCT MODAL ===== -->
+<div class="overlay" id="modalOverlay" role="presentation" aria-hidden="true"></div>
+<div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-drag-handle" aria-hidden="true"></div>
+  <div class="modal-hero" id="modalHero">
+    <span id="modalHeroEmoji" aria-hidden="true" style="font-size:5rem"></span>
+    <button class="modal-close" id="modalClose" aria-label="Close product">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="modal-cat-tag" id="modalCatTag"></div>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <p class="modal-sub"  id="modalSub"></p>
+    <p class="modal-desc" id="modalDesc"></p>
+    <div class="modal-features" id="modalFeatures"></div>
+    <div class="modal-footer">
+      <div>
+        <div class="modal-price" id="modalPrice"></div>
+        <div class="modal-price-sub">Free shipping over $35</div>
+      </div>
+      <button class="modal-add-btn" id="modalAddBtn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CART SIDEBAR ===== -->
+<div class="cart-overlay" id="cartOverlay" role="presentation" aria-hidden="true"></div>
+<aside class="cart-sidebar" id="cartSidebar" role="dialog" aria-modal="true" aria-label="Shopping cart">
+  <div class="cart-header">
+    <h2 class="cart-title">Your Cart</h2>
+    <button class="icon-btn" id="cartClose" aria-label="Close cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-footer">
+    <div class="cart-delivery-row">
+      <span>🛵</span>
+      Estimated delivery: <strong>30–60 min</strong>
+    </div>
+    <div class="cart-subtotal">
+      <span class="cart-subtotal-label">Total · <span id="cartItemCount">0 items</span></span>
+      <span class="cart-subtotal-amt" id="cartTotal">$0.00</span>
+    </div>
+    <p class="cart-note">Delivery fee $4.99 · Free over $35 · Tax at checkout</p>
+    <button class="checkout-btn" id="checkoutBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Place Order
+    </button>
+  </div>
+</aside>
+
+<!-- ===== ORDER SUCCESS MODAL ===== -->
+<div class="success-modal" id="orderSuccess" role="dialog" aria-modal="true" aria-label="Order placed">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-eta">🛵 Arriving in 30–45 minutes</div>
+    <div class="success-title">Order Placed!</div>
+    <p class="success-sub">Your order is being picked up from our supplier partner and is on its way to you. Sit tight!</p>
+    <button class="success-btn" id="orderSuccessClose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Back to Home
+    </button>
+  </div>
+</div>
+
+<!-- ===== SUBSCRIBE SUCCESS MODAL ===== -->
+<div class="success-modal" id="subscribeSuccess" role="dialog" aria-modal="true" aria-label="Subscription confirmed">
+  <div class="success-card">
+    <div class="success-icon">👑</div>
+    <div class="success-eta" id="subscribeSuccessEta"></div>
+    <div class="success-title">You're Subscribed!</div>
+    <p class="success-sub" id="subscribeSuccessSub">Your first care package is on its way. You'll receive a confirmation with your delivery date shortly.</p>
+    <button class="success-btn" id="subscribeSuccessClose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Back to Home
+    </button>
+  </div>
+</div>
+
+<!-- ===== ADDRESS MODAL ===== -->
+<div class="overlay" id="addressOverlay" role="presentation" aria-hidden="true"></div>
+<div class="modal" id="addressModal" role="dialog" aria-modal="true" aria-label="Set delivery address" style="padding:var(--sp-6)">
+  <div class="modal-drag-handle" aria-hidden="true"></div>
+  <div style="padding:var(--sp-2) var(--sp-5) var(--sp-8)">
+    <h2 style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:600;margin-bottom:var(--sp-2)">Delivery Address</h2>
+    <p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-5)">Enter your address so we can connect you with the nearest supplier partner.</p>
+    <input id="addressInput" type="text" placeholder="123 Main St, Cleveland, OH…" style="width:100%;height:48px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-4)"/>
+    <button id="addressSave" style="width:100%;height:48px;background:var(--accent);color:white;border-radius:var(--r-full);font-size:var(--text-sm);font-weight:700;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Save Address
+    </button>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
