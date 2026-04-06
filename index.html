@@ -91,6 +91,12 @@
     </div>
   </section>
 
+  <!-- Trending This Week -->
+  <div class="trending-strip" id="trendingStrip" aria-label="Trending this week">
+    <span class="trending-label">🔥 Trending</span>
+    <div class="trending-pills" id="trendingPills"><!-- filled by JS --></div>
+  </div>
+
   <!-- Mode Cards -->
   <div class="mode-cards" role="list">
 
@@ -110,6 +116,16 @@
       <div class="mode-card-desc" id="card2Desc">Choose your plan, pick your products, and receive a customized monthly box delivered right on time — every month.</div>
       <div class="mode-card-link">
         Subscribe
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </button>
+
+    <button class="mode-card mode-card--holistic" id="cardHolistic" role="listitem" aria-label="Shop holistic and natural products">
+      <div class="mode-card-icon">🌿</div>
+      <div class="mode-card-title">Holistic &amp; Natural</div>
+      <div class="mode-card-desc">Menstrual discs, cloth pads, CBD salves, magnesium lotion, sea sponges — 100% clean, zero synthetic ingredients. Your cycle, your way.</div>
+      <div class="mode-card-link">
+        Shop natural
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </div>
     </button>
@@ -148,6 +164,26 @@
     </div>
   </section>
 
+  <!-- Newsletter + Tracker CTA -->
+  <section class="nl-home-cta" id="nlHomeCta" aria-label="Newsletter and tracker">
+    <div class="nl-home-inner">
+      <div class="nl-home-text">
+        <div class="nl-home-eyebrow" id="nlHomeEyebrow">Free · Tailored · Monthly</div>
+        <h3 class="nl-home-h3" id="nlHomeH3">know your cycle.<br>own your health.</h3>
+        <p class="nl-home-sub" id="nlHomeSub">Monthly education on how your cycle affects your body, mind, and mood — plus a free period tracker.</p>
+        <ul class="nl-home-perks">
+          <li><span>📊</span> Free period tracker — unlocked instantly</li>
+          <li><span id="nlPerk1">🧠</span> <span id="nlPerk1Text">Monthly cycle facts (physical · mental · emotional)</span></li>
+          <li><span>🔥</span> Trending finds + what’s working right now</li>
+        </ul>
+      </div>
+      <button class="nl-home-btn" id="openNewsletterBtn" aria-label="Subscribe to free newsletter">
+        Subscribe Free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+
   <!-- Trust Strip -->
   <div class="home-footer">
     <div class="trust-strip" id="trustStrip" role="list" aria-label="Store highlights">
@@ -159,7 +195,12 @@
     </div>
     <button class="switch-mode-btn" id="switchModeBtn" aria-label="Switch experience mode">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-      switch experience
+            switch experience
+    </button>
+    <button class="tracker-access-btn" id="trackerAccessBtn" aria-label="My period tracker">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="trackerBtnText">my tracker</span>
+      <span class="tlock" id="trackerLock" aria-hidden="true">🔒</span>
     </button>
   </div>
 
@@ -467,6 +508,220 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- ===== VERSION PICKER (First Launch) ===== -->
+<!-- ===================================================
+     NEWSLETTER MODAL
+     =================================================== -->
+<div class="nl-modal" id="newsletterModal" role="dialog" aria-modal="true" aria-label="Subscribe to newsletter" style="display:none">
+  <div class="nl-modal-inner">
+
+    <button class="nl-close-btn" id="nlCloseBtn" aria-label="Close newsletter">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="nl-brand-mark" aria-hidden="true">
+      <svg class="nl-crown" viewBox="0 0 64 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 34 L4 20 L16 26 L32 4 L48 26 L60 20 L60 34 Z" fill="#C9941A"/>
+        <rect x="4" y="28" width="56" height="6" rx="3" fill="#B07D10"/>
+        <circle cx="4"  cy="19" r="5" fill="#F5D060"/><circle cx="32" cy="4"  r="5" fill="#F5D060"/><circle cx="60" cy="19" r="5" fill="#F5D060"/>
+        <circle cx="4"  cy="19" r="2" fill="white" opacity="0.7"/><circle cx="32" cy="4"  r="2" fill="white" opacity="0.7"/><circle cx="60" cy="19" r="2" fill="white" opacity="0.7"/>
+      </svg>
+      <span class="nl-dot">.</span>
+    </div>
+
+    <!-- Main content (shown before subscribe) -->
+    <div id="nlFormState">
+      <h2 class="nl-title" id="nlTitle">know your cycle.<br>own your health.</h2>
+      <p class="nl-eyebrow" id="nlEyebrow">monthly education · free · tailored to you</p>
+
+      <!-- Rotating fact teaser -->
+      <div class="nl-fact-card" id="nlFactCard">
+        <span class="nl-fact-icon" id="nlFactIcon">🧠</span>
+        <p class="nl-fact-text" id="nlFactText">Loading this week’s fact…</p>
+      </div>
+
+      <!-- Perks list -->
+      <ul class="nl-perks">
+        <li><span>📊</span><div><strong>Free period tracker</strong><br>Track your cycle, predict your phases, get wellness tips.</div></li>
+        <li><span id="nlPerkIcon">🧠</span><div><strong id="nlPerkTitle">Monthly cycle facts</strong><br>Physical · mental · emotional — tailored to your stage.</div></li>
+        <li><span>🔥</span><div><strong>Trending finds</strong><br>What’s working right now in cycle wellness.</div></li>
+        <li><span>💅</span><div><strong>Your journey, your content</strong><br>We personalize based on where you are in life.</div></li>
+      </ul>
+
+      <!-- Life stage selector -->
+      <div class="nl-stage-label">Who is this for?</div>
+      <div class="nl-stage-row" id="nlStageRow" role="group" aria-label="Your life stage">
+        <button class="nl-stage-btn" data-stage="teen" type="button">Teen 🌸</button>
+        <button class="nl-stage-btn" data-stage="young" type="button">Young Adult</button>
+        <button class="nl-stage-btn" data-stage="adult" type="button">Adult 👑</button>
+        <button class="nl-stage-btn" data-stage="peri" type="button">40+ 🌙</button>
+      </div>
+
+      <!-- Email input -->
+      <div class="nl-input-row">
+        <input type="email" id="nlEmailInput" placeholder="your@email.com" autocomplete="email" aria-label="Email address"/>
+        <button class="nl-submit-btn" id="nlSubmitBtn" type="button" aria-label="Subscribe">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <p class="nl-privacy">We respect your privacy. Unsubscribe any time. No spam, ever.</p>
+    </div>
+
+    <!-- Success state (shown after subscribe) -->
+    <div id="nlSuccessState" style="display:none" class="nl-success">
+      <div class="nl-success-icon">👑</div>
+      <h3 class="nl-success-h3">You’re in!</h3>
+      <p class="nl-success-p" id="nlSuccessMsg">Your period tracker is now unlocked. Welcome to the community.</p>
+      <button class="nl-open-tracker" id="nlOpenTracker" type="button">Open My Tracker →</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===================================================
+     TRACKER VIEW
+     =================================================== -->
+<div class="view" id="trackerView">
+
+  <nav class="back-bar" aria-label="Navigation">
+    <button class="back-btn" id="trackerBack" aria-label="Back to home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="back-bar-title">My Tracker</div>
+    <div class="back-bar-spacer"></div>
+  </nav>
+
+  <!-- Phase card -->
+  <div class="tracker-phase-card" id="trackerPhaseCard">
+    <div class="tpc-row">
+      <span class="tpc-emoji" id="tpcEmoji">🌸</span>
+      <div>
+        <div class="tpc-phase" id="tpcPhase">Log a period to begin</div>
+        <div class="tpc-day" id="tpcDay">Tap a date below to start tracking</div>
+      </div>
+    </div>
+    <div class="tpc-next" id="tpcNext"></div>
+    <div class="tpc-tip" id="tpcTip"></div>
+  </div>
+
+  <!-- Calendar navigation -->
+  <div class="tracker-nav">
+    <button class="tracker-nav-btn" id="trackerPrev" aria-label="Previous month">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="tracker-month-label" id="trackerMonthLabel">April 2026</div>
+    <button class="tracker-nav-btn" id="trackerNext" aria-label="Next month">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <!-- Day-of-week header -->
+  <div class="tracker-dow-row" aria-hidden="true">
+    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+  </div>
+
+  <!-- Calendar grid -->
+  <div class="tracker-cal-grid" id="trackerCalGrid" role="grid" aria-label="Period calendar"></div>
+
+  <!-- Legend -->
+  <div class="tracker-legend">
+    <div class="tleg-item"><span class="tleg-dot tleg-logged"></span> Period</div>
+    <div class="tleg-item"><span class="tleg-dot tleg-predicted"></span> Predicted</div>
+    <div class="tleg-item"><span class="tleg-dot tleg-ovulation"></span> Ovulation</div>
+    <div class="tleg-item"><span class="tleg-dot tleg-today"></span> Today</div>
+  </div>
+
+  <!-- Reminder section -->
+  <div class="reminder-section" id="reminderSection">
+    <div class="rem-header">
+      <div class="rem-title">🔔 Period Reminders</div>
+      <div class="rem-sub">Get notified before your period arrives — never get caught off guard.</div>
+    </div>
+
+    <!-- Tab row -->
+    <div class="rem-tabs" role="tablist">
+      <button class="rem-tab active" id="remTabBrowser" role="tab" aria-selected="true">📱 Push Notification</button>
+      <button class="rem-tab" id="remTabSms" role="tab" aria-selected="false">💬 Text Message</button>
+    </div>
+
+    <!-- Browser panel -->
+    <div class="rem-panel" id="remPanelBrowser">
+      <p class="rem-panel-desc">Get a push notification on this device. Works in your browser or as a home-screen app.</p>
+      <div class="rem-days-label">Remind me this many days before:</div>
+      <div class="rem-days-row">
+        <button class="rem-days-btn" data-days="1" type="button">1 day</button>
+        <button class="rem-days-btn active" data-days="3" type="button">3 days</button>
+        <button class="rem-days-btn" data-days="5" type="button">5 days</button>
+        <button class="rem-days-btn" data-days="7" type="button">1 week</button>
+      </div>
+      <button class="rem-enable-btn" id="remEnableBrowser" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Enable Reminders
+      </button>
+      <div class="rem-status" id="remBrowserStatus" style="display:none"></div>
+    </div>
+
+    <!-- SMS panel -->
+    <div class="rem-panel" id="remPanelSms" style="display:none">
+      <p class="rem-panel-desc">Enter your mobile number to receive a text message reminder before your predicted period.</p>
+      <div class="rem-days-label">Remind me this many days before:</div>
+      <div class="rem-days-row">
+        <button class="rem-days-btn" data-days="1" type="button">1 day</button>
+        <button class="rem-days-btn active" data-days="3" type="button">3 days</button>
+        <button class="rem-days-btn" data-days="5" type="button">5 days</button>
+        <button class="rem-days-btn" data-days="7" type="button">1 week</button>
+      </div>
+      <div class="rem-input-row">
+        <input type="tel" id="remSmsInput" placeholder="+1 (555) 000-0000" autocomplete="tel" aria-label="Mobile phone number"/>
+        <button class="rem-save-btn" id="remSaveSms" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Save
+        </button>
+      </div>
+      <div class="rem-sms-note">📲 SMS requires an active connection. Standard messaging rates may apply.</div>
+      <div class="rem-status" id="remSmsStatus" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Log buttons -->
+  <div class="tracker-log-row">
+    <button class="tracker-log-btn tracker-log-start" id="logStart" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Log Period Start
+    </button>
+    <button class="tracker-log-btn tracker-log-end" id="logEnd" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Log Period End
+    </button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="tracker-stats-row" id="trackerStats">
+    <div class="tstat">
+      <div class="tstat-val" id="tstatAvg">—</div>
+      <div class="tstat-label">Avg Cycle</div>
+    </div>
+    <div class="tstat">
+      <div class="tstat-val" id="tstatCount">—</div>
+      <div class="tstat-label">Cycles Tracked</div>
+    </div>
+    <div class="tstat">
+      <div class="tstat-val" id="tstatDuration">—</div>
+      <div class="tstat-label">Avg Duration</div>
+    </div>
+  </div>
+
+  <!-- Educational fact (phase-based) -->
+  <div class="tracker-edu-card" id="trackerEduCard" style="display:none">
+    <div class="tec-eyebrow">🧠 did you know?</div>
+    <p class="tec-text" id="tecText"></p>
+    <a class="tec-link" href="#" id="tecLink">Learn more in your next newsletter →</a>
+  </div>
+
+</div><!-- /trackerView -->
+
+
 <div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience">
   <div class="vp-inner">
 
@@ -533,6 +788,18 @@
         <div class="vp-card-desc">Candy, cozy picks, undies &amp; more — send a gift to someone you love. She deserves it.</div>
         <div class="vp-card-cta">
           Shop for her
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <button class="vp-card vp-card--holistic" id="pickHolistic" aria-label="Choose: Holistic and all-natural">
+        <div class="vp-card-glow vp-card-glow--holistic" aria-hidden="true"></div>
+        <div class="vp-card-tag">🌿 holistic</div>
+        <div class="vp-card-emoji" aria-hidden="true">🌾</div>
+        <div class="vp-card-title">All-Natural,<br>all the way</div>
+        <div class="vp-card-desc">No synthetics, no toxins. Cloth pads, discs, CBD, magnesium &amp; more — your cycle honored naturally.</div>
+        <div class="vp-card-cta">
+          Go natural
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </button>

@@ -1,0 +1,58 @@
+{
+  "version": "2026-W15",
+  "updated": "2026-04-06",
+
+  "trendingProductIds": [10, 17, 22, 25, 28, 32, 4, 5],
+  "trendBadge": "🔥 Trending",
+
+  "weeklyFocus": {
+    "teen":      { "label": "LutealTok Era 🌙",        "desc": "Understanding your pre-period phase" },
+    "adult":     { "label": "Cycle Syncing 2026",      "desc": "Match your life to your hormones" },
+    "emergency": { "label": "Always Prepared ⚡",      "desc": "Never get caught off guard again" },
+    "gifter":    { "label": "Gift the Glow-Up 💝",     "desc": "What she actually wants this cycle" },
+    "holistic":  { "label": "Zero Waste Cycle 🌱",     "desc": "Ditch disposables — your body will thank you" }
+  },
+
+  "slang": {
+    "teen":      ["understood the assignment 💅","main character era ✨","it's giving wellness 🌸","slay, periodt 👑","LutealTok made me do it 🌙","cycle check queen 👑","that girl activated ✨","real for that, no cap 💜","hot girl healing era 🌸","understood the vibes 💅"],
+    "adult":     ["living in alignment 🌙","luteal phase supported 💜","cycle-synced and thriving","hormonal health era 🌿","radical softness, always","doing the work 👑","follicular energy activated ✨","in my wellness era 🌸","cycle-aware baddie 👑","aligned and unbothered 🌙"],
+    "emergency": ["we've got you, always ⚡","SOS handled 🚨","never caught off guard 💪","always stocked, always ready 🧷"],
+    "gifter":    ["show up for her 👑","she deserves it, periodt 💝","thoughtful queen energy 🎁","because you see her 💜"],
+    "holistic":  ["my body, my ritual 🌿","clean cycle queen 🌱","zero waste, full power ♻️","chemical-free and thriving 🍃","earth-aligned era 🌍","no synthetics, no problem 🌾"]
+  },
+
+  "facts": {
+    "teen": [
+      { "icon": "🌱", "text": "It takes 2–3 years after your first period for your cycle to fully regulate. You're not broken — you're calibrating." },
+      { "icon": "🧠", "text": "Your brain literally changes throughout your cycle. In the days before your period, creative thinking actually peaks. No cap." },
+      { "icon": "💜", "text": "Estrogen affects serotonin. Low estrogen before your period means lower serotonin — the emotional sensitivity is real, not dramatic." },
+      { "icon": "🔥", "text": "'Period brain' is real. Iron loss during your period affects focus and memory. Iron-rich foods and rest genuinely help." },
+      { "icon": "💊", "text": "Cramps are caused by prostaglandins — the same chemicals that cause inflammation. Heat + ibuprofen work together for a reason." },
+      { "icon": "🌙", "text": "Your skin, energy, mood, digestion, and sleep all change throughout your cycle. Understanding the pattern is literally a superpower." }
+    ],
+    "adult": [
+      { "icon": "🧬", "text": "Your luteal phase metabolism rises by ~5–10%. Those carb cravings before your period are your body asking for more fuel. Biochemistry, not weakness." },
+      { "icon": "🧠", "text": "Estrogen affects serotonin. Progesterone affects GABA. Your emotional map is hormonal — and it's always valid." },
+      { "icon": "🩺", "text": "1 in 10 women has endometriosis. Average time to diagnosis: 7–10 years. Advocating for your pain is always the right move." },
+      { "icon": "💪", "text": "Your pain tolerance actually drops in the luteal phase — up to 35% in some studies. You're not weak. You're hormonally accurate." },
+      { "icon": "🌿", "text": "PCOS affects up to 10% of women and is a leading cause of infertility. Many cases go undiagnosed for years. Know your cycle, know your body." },
+      { "icon": "🌙", "text": "Magnesium deficiency is common in the luteal phase and linked directly to PMS severity. Dark chocolate + magnesium glycinate: not a coincidence." }
+    ],
+    "holistic": [
+      { "icon": "🌿", "text": "Conventional pads and tampons may contain trace pesticides and synthetic fragrances. Organic cotton alternatives avoid these exposures entirely." },
+      { "icon": "♻️", "text": "The average person uses 10,000–16,000 disposable period products in their lifetime. Reusables like discs and cloth pads eliminate this waste entirely." },
+      { "icon": "🫚", "text": "CBD and magnesium work on the same prostaglandin pathways that cause cramps — both are evidence-backed for menstrual pain relief without pharmaceuticals." },
+      { "icon": "🌱", "text": "Castor oil packs applied with heat have been used for centuries to ease uterine cramping and reduce pelvic inflammation. Science is beginning to validate why." },
+      { "icon": "🍵", "text": "Red raspberry leaf has been shown to tone uterine muscles and reduce cramping duration. Cramp bark relaxes smooth muscle. Used together, they're powerful." },
+      { "icon": "🌍", "text": "Clary sage essential oil contains sclareol — a phytoestrogen that may help balance estrogen during the luteal phase. Applied topically or diffused." }
+    ],
+    "emergency": [
+      { "icon": "⚡", "text": "Always keep a backup. Setting up auto-delivery means you'll always have essentials — no more unexpected emergencies." },
+      { "icon": "🧠", "text": "Stress (like an unexpected period) spikes cortisol, which can actually worsen cramps. Having a plan literally reduces pain." }
+    ],
+    "gifter": [
+      { "icon": "💝", "text": "Research shows that receiving care packages during a menstrual cycle significantly reduces reported emotional distress. Showing up matters." },
+      { "icon": "🧠", "text": "Dark chocolate contains magnesium — a mineral that's often deficient during the luteal phase and directly linked to PMS. That's why it's craved." }
+    ]
+  }
+}
