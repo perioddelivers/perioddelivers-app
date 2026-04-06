@@ -185,6 +185,54 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
 }
 .icon-btn:hover{background:var(--surface-offset);color:var(--text)}
 
+/* ── Version Badge Pill ─────────────────────────────── */
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px 6px 10px;
+  border-radius: var(--r-full);
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  background: var(--vbadge-bg, #A855F7);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(168,85,247,0.35), 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+  animation: badgePulse 2.4s ease-in-out 1.2s 2;
+  flex-shrink: 0;
+}
+.version-badge:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.5), 0 4px 14px rgba(0,0,0,0.35);
+}
+.version-badge:active { transform: scale(0.97); }
+.version-badge svg { opacity: 0.85; flex-shrink: 0; }
+
+/* Per-version accent */
+[data-version="teen"]      .version-badge { --vbadge-bg: #CF6AFF; box-shadow: 0 0 0 2px rgba(207,106,255,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+[data-version="adult"]     .version-badge { --vbadge-bg: #A855F7; box-shadow: 0 0 0 2px rgba(168,85,247,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+[data-version="emergency"] .version-badge { --vbadge-bg: #EF4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.4),  0 2px 8px rgba(0,0,0,0.3); }
+[data-version="gifter"]    .version-badge { --vbadge-bg: #EC4899; box-shadow: 0 0 0 2px rgba(236,72,153,0.4), 0 2px 8px rgba(0,0,0,0.3); }
+[data-version="holistic"]  .version-badge { --vbadge-bg: #34D399; box-shadow: 0 0 0 2px rgba(52,211,153,0.4),  0 2px 8px rgba(0,0,0,0.3); }
+
+/* No-version state — use gold to invite first pick */
+:not([data-version]) .version-badge,
+[data-version=""] .version-badge {
+  --vbadge-bg: #D4AF37;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.4), 0 2px 8px rgba(0,0,0,0.3);
+  color: #0D0A14;
+}
+
+@keyframes badgePulse {
+  0%   { box-shadow: 0 0 0 2px rgba(168,85,247,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+  50%  { box-shadow: 0 0 0 6px rgba(168,85,247,0.0),  0 4px 18px rgba(168,85,247,0.4); transform: scale(1.06); }
+  100% { box-shadow: 0 0 0 2px rgba(168,85,247,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+}
+
 .cart-btn{position:relative}
 .cart-badge {
   position: absolute;
@@ -3425,9 +3473,10 @@ div#legalModal::before {
 }
 
 /* ==========================================================
-   HIDE "HOLISTIC & NATURAL" CARD WHEN IN HOLISTIC MODE
+   HOLISTIC & NATURAL CARD — hidden on ALL home screens
+   (holistic experience lives in the version picker, not as a home card)
    ========================================================== */
-[data-version="holistic"] #cardHolistic {
+#cardHolistic {
   display: none !important;
 }
 

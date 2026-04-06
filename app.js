@@ -278,6 +278,17 @@ function applyVersionContent(version) {
   if ($('subSub'))      $('subSub').textContent       = c.subSub;
   if ($('plansLabel'))  $('plansLabel').textContent   = c.plansLabel;
   if ($('pickerTitle')) $('pickerTitle').textContent  = c.pickerTitle;
+
+  // Version badge in header
+  const badgeLabels = {
+    teen:      '\u{1F451} Teen',
+    adult:     '\u{1F49C} Adult',
+    emergency: '\u{1F6A8} Urgent',
+    gifter:    '\u{1F381} Gifter',
+    holistic:  '\u{1F33F} Holistic'
+  };
+  const badgeText = $('versionBadgeText');
+  if (badgeText) badgeText.textContent = badgeLabels[version] || 'Choose';
 }
 
 function setVersionCookie(v) {
@@ -346,6 +357,10 @@ function initVersion() {
   if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
   if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
   if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
+
+  // Header version badge
+  const versionBadge = $('versionBadge');
+  if (versionBadge) versionBadge.addEventListener('click', showVersionPicker);
 }
 
 /* =============================================
