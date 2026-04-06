@@ -212,6 +212,7 @@ let state = {
   cart:            {},          // { id: qty }
   careBox:         {},          // { id: qty } for subscription
   activeCategory:  'all',
+  shopMode:        'categories', // 'categories' | 'products'
   pickerFilter:    'all',       // category filter inside subscription picker
   searchQuery:     '',
   openProduct:     null,
@@ -352,8 +353,10 @@ function navigate(view) {
   window.scrollTo({ top:0, behavior:'instant' });
 
   if (view === 'shop') {
-    renderCategories();
-    renderProductGrid();
+    // Reset to category browse mode each time shop is opened
+    state.searchQuery = '';
+    if ($('searchInput')) $('searchInput').value = '';
+    showCategoriesMode();
   }
   if (view === 'subscribe') {
     renderPlanCards();
@@ -388,10 +391,34 @@ function setIcon(btn, dark) {
 }
 
 /* =============================================
-   SHOP — Categories & Products
+   FAVORITES
+   ============================================= */
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem('period_favs') || '[]'); } catch { return []; }
+}
+function saveFavorites(favs) {
+  try { localStorage.setItem('period_favs', JSON.stringify(favs)); } catch {}
+}
+function isFavorite(id) { return getFavorites().includes(id); }
+function toggleFavorite(id) {
+  let favs = getFavorites();
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    showToast('Removed from favorites');
+  } else {
+    favs.push(id);
+    showToast('❤️ Saved to favorites');
+  }
+  saveFavorites(favs);
+  renderProductGrid();
+}
+
+/* =============================================
+   SHOP — Category Grid & Products
    ============================================= */
 function filteredProducts() {
   return PRODUCTS.filter(p => {
+    if (state.activeCategory === 'favorites') return getFavorites().includes(p.id);
     const catOk = state.activeCategory === 'all' || p.category === state.activeCategory;
     const q = state.searchQuery.toLowerCase();
     const srchOk = !q || p.name.toLowerCase().includes(q) || p.cat_label.toLowerCase().includes(q) || p.features.some(f => f.toLowerCase().includes(q));
@@ -399,39 +426,121 @@ function filteredProducts() {
   });
 }
 
-function renderCategories() {
+/* Show the category browse grid */
+function showCategoriesMode() {
+  state.shopMode = 'categories';
+  state.activeCategory = 'all';
+  $('categoryGrid').style.display = '';
+  $('shopBreadcrumb').style.display = 'none';
+  if ($('filterBar')) $('filterBar').style.display = 'none';
+  if ($('sectionHeader')) $('sectionHeader').style.display = 'none';
+  $('productGrid').style.display = 'none';
+  renderCategoryGrid();
+}
+
+/* Switch to products view for a specific category */
+function showProductsMode(catId) {
+  state.shopMode = 'products';
+  state.activeCategory = catId;
+  $('categoryGrid').style.display = 'none';
+  $('shopBreadcrumb').style.display = '';
+  if ($('filterBar')) $('filterBar').style.display = '';
+  if ($('sectionHeader')) $('sectionHeader').style.display = '';
+  $('productGrid').style.display = '';
+
+  // Set breadcrumb title
+  const cat = CATEGORIES.find(c => c.id === catId);
+  const bcLabel = catId === 'favorites' ? '❤️ My Favorites' : (cat ? cat.icon + ' ' + cat.label : catId);
+  if ($('shopBcTitle')) $('shopBcTitle').textContent = bcLabel;
+  if ($('sectionTitle')) $('sectionTitle').textContent = catId === 'favorites' ? 'My Favorites' : (cat?.label || 'Products');
+
+  renderFilterPills();
+  renderProductGrid();
+}
+
+/* Render category cards grid */
+function renderCategoryGrid() {
+  const grid = $('categoryGrid');
+  if (!grid) return;
+
+  const favs = getFavorites();
+  const favCard = favs.length
+    ? [{ id:'favorites', label:'My Favorites', icon:'❤️', count: favs.length }]
+    : [];
+
+  const cats = CATEGORIES.filter(c => c.id !== 'all').map(c => ({
+    ...c, count: PRODUCTS.filter(p => p.category === c.id).length
+  }));
+
+  const allCards = [...favCard, ...cats];
+
+  grid.innerHTML = allCards.map(c => `
+    <button class="cat-card" data-cat="${c.id}" role="listitem" aria-label="Browse ${c.label} \u2014 ${c.count} item${c.count !== 1 ? 's' : ''}">
+      <span class="cat-card-icon">${c.icon}</span>
+      <span class="cat-card-name">${c.label}</span>
+      <span class="cat-card-count">${c.count} item${c.count !== 1 ? 's' : ''}</span>
+    </button>`).join('');
+
+  grid.querySelectorAll('.cat-card').forEach(card => {
+    card.addEventListener('click', () => showProductsMode(card.dataset.cat));
+  });
+}
+
+/* Render filter pills (shown inside products mode) */
+function renderFilterPills() {
   const bar = $('filterPills');
-  bar.innerHTML = CATEGORIES.map(c => `
+  if (!bar) return;
+  const cats = CATEGORIES.filter(c => c.id !== 'all');
+  // Add favorites pill if user has favorites
+  const favs = getFavorites();
+  const favPill = favs.length
+    ? [{ id:'favorites', label:'Favorites', icon:'❤️' }]
+    : [];
+  const pills = [...favPill, ...cats];
+
+  bar.innerHTML = pills.map(c => `
     <button class="pill ${state.activeCategory === c.id ? 'active':''}" data-cat="${c.id}" role="listitem">
       <span aria-hidden="true">${c.icon}</span> ${c.label}
     </button>`).join('');
   bar.querySelectorAll('.pill').forEach(p => {
     p.addEventListener('click', () => {
       state.activeCategory = p.dataset.cat;
-      renderCategories(); renderProductGrid();
+      if ($('sectionTitle')) $('sectionTitle').textContent = p.dataset.cat === 'favorites' ? 'My Favorites' : (CATEGORIES.find(c => c.id === p.dataset.cat)?.label || 'Products');
+      renderFilterPills();
+      renderProductGrid();
     });
   });
 }
 
+/* Render product cards (called when in products mode) */
 function renderProductGrid() {
   const grid  = $('productGrid');
   const count = $('productCount');
   const prods = filteredProducts();
-  count.textContent = prods.length + ' item' + (prods.length !== 1 ? 's' : '');
+  if (count) count.textContent = prods.length + ' item' + (prods.length !== 1 ? 's' : '');
 
   if (!prods.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><div class="empty-sub">Try a different search or category</div></div>`;
+    const emptyMsg = state.activeCategory === 'favorites'
+      ? '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No favorites yet</div><div class="empty-sub">Tap the ♥ on any product to save it here</div></div>'
+      : '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><div class="empty-sub">Try a different search or category</div></div>';
+    grid.innerHTML = emptyMsg;
     return;
   }
 
   grid.innerHTML = prods.map(p => {
     const inCart = state.cart[p.id] > 0;
+    const faved  = isFavorite(p.id);
     return `
       <div class="product-card" data-id="${p.id}" role="listitem button" tabindex="0" aria-label="View ${p.name}">
         <div class="product-img" data-cat="${p.category}">
           <span aria-hidden="true">${p.emoji}</span>
           ${p.badge ? `<span class="product-img-badge">${p.badge}</span>` : ''}
-          <span class="product-eta" aria-label="Estimated delivery ${p.eta}">🛵 ${p.eta}</span>
+          <span class="product-eta" aria-label="Estimated delivery ${p.eta}">🛯 ${p.eta}</span>
+          <button class="fav-btn ${faved ? 'active' : ''}" data-fav="${p.id}" aria-label="${faved ? 'Remove from favorites' : 'Save to favorites'}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="${faved ? '#ef4444' : 'none'}" stroke="${faved ? '#ef4444' : 'currentColor'}" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
         </div>
         <div class="product-body">
           <div class="product-name">${p.name}</div>
@@ -449,11 +558,17 @@ function renderProductGrid() {
   }).join('');
 
   grid.querySelectorAll('.product-card').forEach(card => {
-    card.addEventListener('click', e => { if (e.target.closest('[data-add]')) return; openProductModal(+card.dataset.id); });
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-add]') || e.target.closest('[data-fav]')) return;
+      openProductModal(+card.dataset.id);
+    });
     card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') openProductModal(+card.dataset.id); });
   });
   grid.querySelectorAll('[data-add]').forEach(btn => {
     btn.addEventListener('click', e => { e.stopPropagation(); addToCart(+btn.dataset.add); });
+  });
+  grid.querySelectorAll('[data-fav]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); toggleFavorite(+btn.dataset.fav); });
   });
 }
 
@@ -718,7 +833,7 @@ function placeOrder() {
   state.cart = {};
   updateCartBadge();
   renderCart();
-  renderProductGrid();
+  if (state.shopMode === 'products') renderProductGrid();
   closeCart();
 
   $('orderSuccess').classList.add('open');
@@ -826,7 +941,15 @@ function init() {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
       state.searchQuery = searchInput.value.trim();
-      renderProductGrid();
+      if (state.searchQuery && state.shopMode === 'categories') {
+        // Auto-switch to 'all products' mode when user starts searching
+        state.activeCategory = 'all';
+        showProductsMode('all');
+        if ($('shopBcTitle')) $('shopBcTitle').textContent = '🔍 Search Results';
+        if ($('sectionTitle')) $('sectionTitle').textContent = 'Search Results';
+      } else if (state.shopMode === 'products') {
+        renderProductGrid();
+      }
     }, 200);
   });
 
@@ -892,9 +1015,12 @@ function init() {
 
   // Holistic shop shortcut
   if ($('cardHolistic')) $('cardHolistic').addEventListener('click', () => {
-    state.activeCategory = 'holistic';
     navigate('shop');
+    showProductsMode('holistic');
   });
+
+  // Back to categories from products
+  if ($('shopBackCat')) $('shopBackCat').addEventListener('click', showCategoriesMode);
 
   // Legal modal
   if ($('openPrivacy'))    $('openPrivacy').addEventListener('click',   () => openLegal('privacy'));
@@ -905,6 +1031,18 @@ function init() {
   // Apple Pay + Google Pay (express checkout)
   if ($('applePayBtn'))  $('applePayBtn').addEventListener('click',  () => handleExpressCheckout('apple'));
   if ($('googlePayBtn')) $('googlePayBtn').addEventListener('click', () => handleExpressCheckout('google'));
+
+  // Monthly upsell (post-order)
+  if ($('upsellYes')) $('upsellYes').addEventListener('click', () => {
+    $('orderSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('subscribe');
+  });
+  if ($('upsellNo')) $('upsellNo').addEventListener('click', () => {
+    $('orderSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('home');
+  });
 
   // Fetch live trends + init tracker button state
   fetchTrends();

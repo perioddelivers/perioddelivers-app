@@ -17,6 +17,12 @@
 <body>
 
 <!-- ===== HEADER ===== -->
+<!-- ===== TRENDING HEADER STRIP (global — all views) ===== -->
+<div class="trending-strip" id="trendingStrip" aria-label="Trending this week">
+  <span class="trending-label">🔥 Trending</span>
+  <div class="trending-pills" id="trendingPills"><!-- filled by JS --></div>
+</div>
+
 <header class="header" role="banner">
   <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" style="flex-shrink:0"></button>
 
@@ -90,12 +96,6 @@
       </button>
     </div>
   </section>
-
-  <!-- Trending This Week -->
-  <div class="trending-strip" id="trendingStrip" aria-label="Trending this week">
-    <span class="trending-label">🔥 Trending</span>
-    <div class="trending-pills" id="trendingPills"><!-- filled by JS --></div>
-  </div>
 
   <!-- Mode Cards -->
   <div class="mode-cards" role="list">
@@ -259,19 +259,31 @@
     </div>
   </div>
 
-  <!-- Category filters -->
-  <nav class="filter-bar" aria-label="Product categories">
+  <!-- CATEGORY GRID — default shop view -->
+  <div class="category-grid" id="categoryGrid" role="list" aria-label="Browse categories"></div>
+
+  <!-- BREADCRUMB — shown when a category is selected -->
+  <div class="shop-breadcrumb" id="shopBreadcrumb" style="display:none">
+    <button class="shop-back-cat-btn" id="shopBackCat">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      All Categories
+    </button>
+    <span class="shop-bc-title" id="shopBcTitle"></span>
+  </div>
+
+  <!-- Category filter pills — shown in products mode -->
+  <nav class="filter-bar" id="filterBar" aria-label="Product categories" style="display:none">
     <div class="filter-pills" id="filterPills" role="list"></div>
   </nav>
 
-  <!-- Section header -->
-  <div class="section-header">
-    <h2 class="section-title">All Products</h2>
+  <!-- Section header — shown in products mode -->
+  <div class="section-header" id="sectionHeader" style="display:none">
+    <h2 class="section-title" id="sectionTitle">Products</h2>
     <span class="section-count" id="productCount" aria-live="polite"></span>
   </div>
 
-  <!-- Product grid -->
-  <div class="product-grid" id="productGrid" role="list" aria-label="Products"></div>
+  <!-- Product grid — shown in products mode -->
+  <div class="product-grid" id="productGrid" role="list" aria-label="Products" style="display:none"></div>
 
 </div><!-- /shopView -->
 
@@ -506,6 +518,17 @@
       </svg>
       Back to Home
     </button>
+
+    <!-- Monthly upsell — shown after any order -->
+    <div class="monthly-upsell" id="monthlyUpsell">
+      <div class="upsell-divider"></div>
+      <p class="upsell-question">Make this a monthly delivery? 👑</p>
+      <p class="upsell-sub">Never run out again. We’ll send your essentials every month — cancel anytime.</p>
+      <div class="upsell-btns">
+        <button class="upsell-yes" id="upsellYes">Yes, set it up ✨</button>
+        <button class="upsell-no" id="upsellNo">Not right now</button>
+      </div>
+    </div>
   </div>
 </div>
 
