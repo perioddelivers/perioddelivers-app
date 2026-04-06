@@ -2338,12 +2338,61 @@ document.addEventListener('DOMContentLoaded', () => {
    HOW IT WORKS JUMP BUTTON
    ============================================================= */
 document.addEventListener('DOMContentLoaded', () => {
+  // ── How It Works jump ──
   const howBtn = $('heroHowBtn');
   if (howBtn) {
     howBtn.addEventListener('click', () => {
       const section = document.querySelector('.how-section');
       if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  }
+
+  // ── My Tracker hero pill → scroll to feature cards, then open tracker ──
+  const heroTrackerBtn = $('heroTrackerBtn');
+  if (heroTrackerBtn) {
+    heroTrackerBtn.addEventListener('click', () => {
+      const spotlight = $('featureSpotlight');
+      if (spotlight) {
+        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Small delay so scroll completes before action fires
+        setTimeout(() => {
+          if (isNewsletterSubscribed()) navigate('tracker');
+          else showNewsletterModal();
+        }, 420);
+      } else {
+        if (isNewsletterSubscribed()) navigate('tracker');
+        else showNewsletterModal();
+      }
+    });
+  }
+
+  // ── Newsletter hero pill → scroll to feature cards, then open modal ──
+  const heroNewsletterBtn = $('heroNewsletterBtn');
+  if (heroNewsletterBtn) {
+    heroNewsletterBtn.addEventListener('click', () => {
+      const spotlight = $('featureSpotlight');
+      if (spotlight) {
+        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => showNewsletterModal(), 420);
+      } else {
+        showNewsletterModal();
+      }
+    });
+  }
+
+  // ── Feature card: Tracker button ──
+  const featureTrackerBtn = $('featureTrackerBtn');
+  if (featureTrackerBtn) {
+    featureTrackerBtn.addEventListener('click', () => {
+      if (isNewsletterSubscribed()) navigate('tracker');
+      else showNewsletterModal();
+    });
+  }
+
+  // ── Feature card: Newsletter button ──
+  const featureNewsletterBtn = $('featureNewsletterBtn');
+  if (featureNewsletterBtn) {
+    featureNewsletterBtn.addEventListener('click', showNewsletterModal);
   }
 });
 

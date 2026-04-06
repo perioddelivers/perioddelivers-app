@@ -85,11 +85,23 @@
     </div>
     <p class="hero-tagline" id="heroTagline">Delivered when you need it.</p>
     <p class="hero-sub" id="heroSub">On-demand delivery wherever you are, or a monthly care package curated just for you.</p>
-    <button class="hero-how-btn" id="heroHowBtn" aria-label="Jump to How It Works section">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-      How It Works
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-    </button>
+    <div class="hero-quick-links">
+      <button class="hero-how-btn" id="heroHowBtn" aria-label="Jump to How It Works section">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        How It Works
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </button>
+      <button class="hero-how-btn hero-how-btn--tracker" id="heroTrackerBtn" aria-label="Open my period tracker">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        My Tracker
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="hero-how-btn hero-how-btn--nl" id="heroNewsletterBtn" aria-label="Subscribe to newsletter">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Newsletter
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
     <div class="hero-cta-pair">
       <button class="cta-primary" id="heroOrderNow">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -158,6 +170,41 @@
     </button>
 
   </div>
+
+  <!-- Feature Spotlight: Tracker + Newsletter Cards -->
+  <section class="feature-spotlight" id="featureSpotlight" aria-label="Period tracker and newsletter">
+    <div class="feature-spotlight-grid">
+
+      <!-- Tracker Card -->
+      <div class="feature-spot-card feature-spot-card--tracker">
+        <div class="fsc-top">
+          <span class="fsc-icon" aria-hidden="true">📊</span>
+          <div class="fsc-eyebrow">Free · Always Available</div>
+        </div>
+        <h3 class="fsc-title">Period Tracker</h3>
+        <p class="fsc-desc">Log your cycle, predict your phases, and get reminders via push or text — know what's coming before it arrives.</p>
+        <button class="fsc-btn" id="featureTrackerBtn">
+          Open My Tracker
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Newsletter Card -->
+      <div class="feature-spot-card feature-spot-card--newsletter">
+        <div class="fsc-top">
+          <span class="fsc-icon" aria-hidden="true">📬</span>
+          <div class="fsc-eyebrow fsc-eyebrow--gold">Free · Monthly · Curated</div>
+        </div>
+        <h3 class="fsc-title">Stay in the Loop</h3>
+        <p class="fsc-desc">Monthly cycle education, trending products, and exclusive drops — sent to your inbox. Tracker unlocked instantly when you join.</p>
+        <button class="fsc-btn fsc-btn--nl" id="featureNewsletterBtn">
+          Subscribe Free
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
 
   <!-- How It Works -->
   <section class="how-section" aria-label="How it works">
