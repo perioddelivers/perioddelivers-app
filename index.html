@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <link rel="stylesheet" href="styles.css"/>
   <!-- Apply saved version before render to prevent picker flash -->
-  <script>(function(){var v=localStorage.getItem('period_version');if(v==='teen'||v==='adult')document.documentElement.setAttribute('data-version',v);})();</script>
+  <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;if(v==='teen'||v==='adult')document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
 <body>
 

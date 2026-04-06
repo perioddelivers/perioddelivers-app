@@ -172,9 +172,17 @@ function applyVersionContent(version) {
   if ($('pickerTitle')) $('pickerTitle').textContent  = c.pickerTitle;
 }
 
+function setVersionCookie(v) {
+  document.cookie = 'period_version=' + v + ';max-age=31536000;path=/;SameSite=Lax';
+}
+function getVersionCookie() {
+  var m = document.cookie.match(/period_version=([^;]+)/);
+  return m ? m[1] : null;
+}
+
 function setVersion(version) {
   state.version = version;
-  localStorage.setItem('period_version', version);
+  setVersionCookie(version);
   document.documentElement.setAttribute('data-version', version);
   applyVersionContent(version);
 }
@@ -200,7 +208,7 @@ function dismissVersionPicker() {
 }
 
 function initVersion() {
-  const stored = localStorage.getItem('period_version');
+  const stored = getVersionCookie();
   if (stored === 'teen' || stored === 'adult') {
     setVersion(stored);
     // Head script already set data-version, CSS hides picker — force display:none as backup
