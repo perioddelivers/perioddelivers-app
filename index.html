@@ -164,6 +164,32 @@
     </div>
   </section>
 
+  <!-- Community Impact Counter -->
+  <section class="impact-section" id="impactSection" aria-label="Community impact">
+    <div class="impact-inner">
+      <div class="impact-eyebrow">💜 Together We Give Back</div>
+      <h2 class="impact-heading">Fighting Period Poverty,<br>One Order at a Time.</h2>
+      <div class="impact-counters">
+        <div class="impact-stat">
+          <div class="impact-num" id="impactKits">0</div>
+          <div class="impact-lbl">Kits Donated<br>to Local Schools</div>
+        </div>
+        <div class="impact-vline" aria-hidden="true"></div>
+        <div class="impact-stat">
+          <div class="impact-num" id="impactStudents">0</div>
+          <div class="impact-lbl">Students<br>Supported</div>
+        </div>
+        <div class="impact-vline" aria-hidden="true"></div>
+        <div class="impact-stat">
+          <div class="impact-num" id="impactRoundup">$0</div>
+          <div class="impact-lbl">Rounded Up<br>for Period Orgs</div>
+        </div>
+      </div>
+      <p class="impact-sub">Partners: <a class="impact-link" href="https://period.org" target="_blank" rel="noopener">Period.org</a> &amp; <a class="impact-link" href="https://www.daysforgirls.org" target="_blank" rel="noopener">Days for Girls</a> &amp; Cleveland City Schools</p>
+      <button class="impact-cta-btn" id="impactDonateBtn">Donate a Kit — $14.99 →</button>
+    </div>
+  </section>
+
   <!-- Newsletter + Tracker CTA -->
   <section class="nl-home-cta" id="nlHomeCta" aria-label="Newsletter and tracker">
     <div class="nl-home-inner">
@@ -498,6 +524,34 @@
       <span class="cart-subtotal-amt" id="cartTotal">$0.00</span>
     </div>
     <p class="cart-note">Delivery fee $4.99 · Free over $35 · Tax at checkout</p>
+
+    <!-- Give Back Section -->
+    <div class="give-back-section" id="giveBackSection">
+      <div class="give-back-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#A855F7" stroke="none"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+        <span class="give-back-title">Give Back</span>
+      </div>
+      <label class="give-back-row" for="roundUpToggle">
+        <div class="give-back-row-info">
+          <span class="give-back-row-label">Round up for period poverty</span>
+          <span class="give-back-row-sub" id="roundUpAmt">+$0.01</span>
+        </div>
+        <div class="give-back-toggle-wrap">
+          <input type="checkbox" id="roundUpToggle" class="give-back-chk">
+          <span class="give-back-pill"></span>
+        </div>
+      </label>
+      <label class="give-back-row" for="donateKitToggle">
+        <div class="give-back-row-info">
+          <span class="give-back-row-label">Donate a kit to a Cleveland school</span>
+          <span class="give-back-row-sub">+$14.99</span>
+        </div>
+        <div class="give-back-toggle-wrap">
+          <input type="checkbox" id="donateKitToggle" class="give-back-chk">
+          <span class="give-back-pill"></span>
+        </div>
+      </label>
+    </div>
 
     <!-- Express Checkout -->
     <div class="express-checkout">
@@ -897,6 +951,24 @@
 
     <p class="vp-note">you can always switch later · your choice, your control</p>
 
+  </div>
+</div>
+
+<!-- ===== ONBOARDING QUIZ ===== -->
+<div class="quiz-overlay" id="quizOverlay" role="dialog" aria-modal="true" aria-label="Personalization Quiz" style="display:none">
+  <div class="quiz-card" id="quizCard">
+    <div class="quiz-top-bar">
+      <div class="quiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1">
+        <div class="quiz-progress-fill" id="quizProgressFill"></div>
+      </div>
+      <button class="quiz-skip-btn" id="quizSkipBtn" aria-label="Skip quiz">Skip</button>
+    </div>
+    <div class="quiz-body" id="quizBody">
+      <!-- rendered by JS -->
+    </div>
+    <div class="quiz-footer">
+      <button class="quiz-next-btn" id="quizNextBtn" disabled>Continue →</button>
+    </div>
   </div>
 </div>
 

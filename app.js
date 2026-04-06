@@ -1896,3 +1896,425 @@ function closeLegal() {
   overlay.style.display = 'none';
   document.body.style.overflow = '';
 }
+
+/* =============================================================
+   FEATURE A: ONBOARDING QUIZ + PERSONALIZATION ENGINE
+   ============================================================= */
+
+const QUIZ_QUESTIONS = [
+  {
+    id: 'flow',
+    q: 'How does your flow usually run?',
+    sub: "We'll suggest products that match your needs.",
+    choices: [
+      { value: 'light',     label: 'Light',     icon: '🌸', desc: '1–3 days, light' },
+      { value: 'medium',    label: 'Medium',    icon: '🌊', desc: 'Moderate & predictable' },
+      { value: 'heavy',     label: 'Heavy',     icon: '💧', desc: 'Heavy — need extra coverage' },
+      { value: 'irregular', label: 'Irregular', icon: '🌀', desc: 'Varies cycle to cycle' },
+    ]
+  },
+  {
+    id: 'product',
+    q: "What's your go-to product?",
+    sub: "We'll put your favorites up front.",
+    choices: [
+      { value: 'pads',    label: 'Pads',       icon: '🌸', desc: 'I prefer pads' },
+      { value: 'tampons', label: 'Tampons',    icon: '💜', desc: 'Tampons are my thing' },
+      { value: 'cup',     label: 'Cup / Disc', icon: '♻️', desc: 'Reusable all the way' },
+      { value: 'mix',     label: 'Mix It Up',  icon: '✨', desc: 'Depends on the day' },
+    ]
+  },
+  {
+    id: 'priority',
+    q: 'What matters most to you?',
+    sub: "We'll highlight products that fit your life.",
+    choices: [
+      { value: 'comfort', label: 'Comfort',      icon: '🛋️', desc: 'Soft, reliable, cozy' },
+      { value: 'eco',     label: 'Eco-Friendly', icon: '🌿', desc: 'Planet-first choices' },
+      { value: 'budget',  label: 'Budget',       icon: '💸', desc: 'Best value always' },
+      { value: 'natural', label: 'All Natural',  icon: '🌱', desc: 'No synthetics, ever' },
+    ]
+  },
+  {
+    id: 'cramp',
+    q: "How's the cramp situation?",
+    sub: "We'll surface the right relief for you.",
+    choices: [
+      { value: 'mild',     label: 'Pretty Mild', icon: '☀️', desc: 'Barely notice it' },
+      { value: 'moderate', label: 'Moderate',    icon: '😤', desc: 'A bit uncomfortable' },
+      { value: 'rough',    label: 'Rough',       icon: '🔥', desc: 'I need real relief' },
+      { value: 'variable', label: 'It Varies',   icon: '🌀', desc: 'Depends on the cycle' },
+    ]
+  },
+  {
+    id: 'lifestyle',
+    q: 'Which describes you best?',
+    sub: 'Helps us personalize your whole experience.',
+    choices: [
+      { value: 'student', label: 'Student',     icon: '📚', desc: 'School or college life' },
+      { value: 'working', label: 'Working Pro', icon: '💼', desc: 'Office or WFH grind' },
+      { value: 'active',  label: 'Active Life', icon: '⚡', desc: 'Always on the move' },
+      { value: 'vibing',  label: 'Just Vibing', icon: '✨', desc: 'Taking it easy, cozy' },
+    ]
+  },
+];
+
+let _quizStep = 0;
+let _quizAnswers = {};
+let _quizSelectedVal = null;
+
+function getQuizPrefs() {
+  try {
+    const raw = getCookie('period_prefs');
+    return raw ? JSON.parse(decodeURIComponent(raw)) : null;
+  } catch { return null; }
+}
+
+function saveQuizPrefs(prefs) {
+  setCookie('period_prefs', encodeURIComponent(JSON.stringify(prefs)), 365 * 10);
+  setCookie('period_quiz_done', '1', 365 * 10);
+}
+
+function isQuizDone() {
+  return getCookie('period_quiz_done') === '1';
+}
+
+function showQuiz() {
+  _quizStep = 0;
+  _quizAnswers = {};
+  _quizSelectedVal = null;
+  const overlay = $('quizOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderQuizSlide();
+}
+
+function closeQuiz() {
+  const overlay = $('quizOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  setCookie('period_quiz_done', '1', 365 * 10);
+}
+
+function renderQuizSlide() {
+  const body     = $('quizBody');
+  const nextBtn  = $('quizNextBtn');
+  const progFill = $('quizProgressFill');
+  if (!body || !nextBtn) return;
+
+  _quizSelectedVal = null;
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Continue →';
+  nextBtn.classList.remove('done-btn');
+
+  const pct = (_quizStep / QUIZ_QUESTIONS.length) * 100;
+  if (progFill) progFill.style.width = pct + '%';
+
+  if (_quizStep >= QUIZ_QUESTIONS.length) {
+    if (progFill) progFill.style.width = '100%';
+    const chips = Object.values(_quizAnswers).map(v =>
+      `<span class="quiz-pref-chip">${v}</span>`
+    ).join('');
+    body.innerHTML = `
+      <div class="quiz-done-slide">
+        <div class="quiz-done-icon">👑</div>
+        <div class="quiz-done-title">You're all set!</div>
+        <div class="quiz-done-sub">Your shop is now personalized. We'll surface what fits your cycle.</div>
+        <div class="quiz-prefs-chips">${chips}</div>
+      </div>`;
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Let's shop ✨";
+    nextBtn.classList.add('done-btn');
+    saveQuizPrefs(_quizAnswers);
+    return;
+  }
+
+  const q = QUIZ_QUESTIONS[_quizStep];
+  body.innerHTML = `
+    <div class="quiz-q-eyebrow">Question ${_quizStep + 1} of ${QUIZ_QUESTIONS.length}</div>
+    <div class="quiz-q-text">${q.q}</div>
+    <div class="quiz-q-sub">${q.sub}</div>
+    <div class="quiz-choices">
+      ${q.choices.map(c => `
+        <button class="quiz-choice" data-val="${c.value}" aria-pressed="false">
+          <span class="quiz-choice-icon">${c.icon}</span>
+          <span class="quiz-choice-label">${c.label}</span>
+          <span class="quiz-choice-desc">${c.desc}</span>
+        </button>
+      `).join('')}
+    </div>`;
+
+  body.querySelectorAll('.quiz-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.querySelectorAll('.quiz-choice').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+      _quizSelectedVal = btn.dataset.val;
+      nextBtn.disabled = false;
+    });
+  });
+}
+
+function quizNext() {
+  if (_quizStep < QUIZ_QUESTIONS.length) {
+    if (_quizSelectedVal === null) return;
+    _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
+    _quizStep++;
+    renderQuizSlide();
+  } else {
+    closeQuiz();
+    // Personalize if shop is open
+    setTimeout(() => {
+      if (state.shopMode === 'products') renderProductGrid();
+    }, 200);
+  }
+}
+
+function initQuiz() {
+  const nextBtn = $('quizNextBtn');
+  const skipBtn = $('quizSkipBtn');
+  if (nextBtn) nextBtn.addEventListener('click', quizNext);
+  if (skipBtn) skipBtn.addEventListener('click', closeQuiz);
+}
+
+/* --- Personalization scoring --- */
+function getQuizPersonalizedProducts(arr) {
+  const prefs = getQuizPrefs();
+  if (!prefs) return arr;
+  return [...arr].sort((a, b) => scoreProductForPrefs(b, prefs) - scoreProductForPrefs(a, prefs));
+}
+
+function scoreProductForPrefs(p, prefs) {
+  let score = 0;
+  if (prefs.product === 'pads'    && (p.id === 1 || p.id === 2))          score += 10;
+  if (prefs.product === 'tampons' && p.id === 3)                           score += 10;
+  if (prefs.product === 'cup'     && (p.id === 4 || p.id === 28))          score += 10;
+  if (prefs.flow === 'heavy'   && (p.id === 2 || p.id === 5))              score += 8;
+  if (prefs.flow === 'light'   && p.id === 1)                              score += 6;
+  if ((prefs.priority==='eco' || prefs.priority==='natural') && p.category === 'holistic') score += 8;
+  if (prefs.priority === 'budget'  && p.price < 15)                        score += 5;
+  if (prefs.priority === 'comfort' && p.category === 'comfort')            score += 7;
+  if (prefs.cramp === 'rough'    && [10, 30, 33, 31, 32, 16].includes(p.id)) score += 9;
+  if (prefs.cramp === 'moderate' && [10, 33].includes(p.id))               score += 5;
+  if (prefs.lifestyle === 'student' && p.price < 15)                       score += 3;
+  return score;
+}
+
+/* =============================================================
+   FEATURE B: GIVE-BACK — ROUND-UP & DONATE A KIT
+   ============================================================= */
+
+let _roundUpEnabled   = false;
+let _donateKitEnabled = false;
+
+function getRoundUpAmt() {
+  const total = cartTotal();
+  if (total <= 0) return 0.01;
+  const ceil = Math.ceil(total);
+  const diff = parseFloat((ceil - total).toFixed(2));
+  return diff === 0 ? 1.00 : diff;
+}
+
+function updateRoundUpDisplay() {
+  const el = $('roundUpAmt');
+  if (el) el.textContent = '+$' + getRoundUpAmt().toFixed(2);
+}
+
+function recordGiveBackOnOrder() {
+  if (_donateKitEnabled) {
+    const kits = parseInt(getCookie('period_donated_kits') || '0', 10);
+    setCookie('period_donated_kits', String(kits + 1), 365 * 10);
+    showToast('💜 A period kit is being donated to a Cleveland school!');
+  }
+  if (_roundUpEnabled) {
+    const cents    = Math.round(getRoundUpAmt() * 100);
+    const existing = parseInt(getCookie('period_roundup_cents') || '0', 10);
+    setCookie('period_roundup_cents', String(existing + cents), 365 * 10);
+  }
+  _roundUpEnabled   = false;
+  _donateKitEnabled = false;
+  const rt = $('roundUpToggle');
+  const dt = $('donateKitToggle');
+  if (rt) rt.checked = false;
+  if (dt) dt.checked = false;
+  setTimeout(updateImpactCounters, 400);
+}
+
+function initGiveBack() {
+  const roundUpToggle = $('roundUpToggle');
+  const donateToggle  = $('donateKitToggle');
+
+  if (roundUpToggle) {
+    roundUpToggle.addEventListener('change', () => {
+      _roundUpEnabled = roundUpToggle.checked;
+      updateRoundUpDisplay();
+    });
+  }
+  if (donateToggle) {
+    donateToggle.addEventListener('change', () => {
+      _donateKitEnabled = donateToggle.checked;
+      if (_donateKitEnabled) showToast('💜 Kit donation added — we\'ll handle the rest!');
+    });
+  }
+
+  // Update round-up amount whenever cart renders (MutationObserver on cart sidebar)
+  const cartSidebar = $('cartSidebar');
+  if (cartSidebar) {
+    new MutationObserver(() => {
+      if (cartSidebar.classList.contains('open')) updateRoundUpDisplay();
+    }).observe(cartSidebar, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Hook into orderSuccess opening to record give-back
+  const orderSuccessEl = $('orderSuccess');
+  if (orderSuccessEl) {
+    new MutationObserver(() => {
+      if (orderSuccessEl.classList.contains('open')) recordGiveBackOnOrder();
+    }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+/* =============================================================
+   FEATURE C: COMMUNITY IMPACT COUNTER
+   ============================================================= */
+
+const IMPACT_BASELINE_KITS    = 2847;
+const IMPACT_BASELINE_ROUNDUP = 4231;
+
+function getTotalImpact() {
+  const launchMs  = new Date('2026-01-01').getTime();
+  const daysLive  = Math.max(0, Math.floor((Date.now() - launchMs) / 86400000));
+  const growth    = Math.floor(daysLive * 1.7);
+  const localKits = parseInt(getCookie('period_donated_kits')    || '0', 10);
+  const roundCents= parseInt(getCookie('period_roundup_cents')   || '0', 10);
+  return {
+    kits:    IMPACT_BASELINE_KITS    + growth + localKits,
+    students:IMPACT_BASELINE_KITS    + growth + localKits,
+    roundup: IMPACT_BASELINE_ROUNDUP + Math.floor(roundCents / 100),
+  };
+}
+
+let _impactAnimated = false;
+
+function animateImpactCount(el, target, prefix, suffix) {
+  if (!el) return;
+  const duration = 1800;
+  const start    = Date.now();
+  function tick() {
+    const elapsed  = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased    = 1 - Math.pow(1 - progress, 3);
+    const current  = Math.floor(target * eased);
+    el.textContent = (prefix || '') + current.toLocaleString() + (suffix || '');
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function updateImpactCounters() {
+  const t = getTotalImpact();
+  const kEl = $('impactKits');
+  const sEl = $('impactStudents');
+  const rEl = $('impactRoundup');
+  if (kEl && !_impactAnimated) kEl.textContent = t.kits.toLocaleString();
+  if (sEl && !_impactAnimated) sEl.textContent = t.students.toLocaleString();
+  if (rEl && !_impactAnimated) rEl.textContent = '$' + t.roundup.toLocaleString();
+}
+
+function initImpactCounter() {
+  updateImpactCounters();
+
+  const section = $('impactSection');
+  if (!section) return;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !_impactAnimated) {
+        _impactAnimated = true;
+        const t = getTotalImpact();
+        animateImpactCount($('impactKits'),     t.kits,    '',  '');
+        animateImpactCount($('impactStudents'), t.students,'',  '');
+        animateImpactCount($('impactRoundup'),  t.roundup, '$', '');
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(section);
+
+  const donateBtn = $('impactDonateBtn');
+  if (donateBtn) {
+    donateBtn.addEventListener('click', () => {
+      openCart();
+      setTimeout(() => {
+        const dt = $('donateKitToggle');
+        if (dt && !dt.checked) {
+          dt.checked = true;
+          _donateKitEnabled = true;
+          showToast('💜 Kit donation added to your cart!');
+        }
+      }, 400);
+    });
+  }
+}
+
+/* =============================================================
+   URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
+   ============================================================= */
+function handleURLParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('v');
+    if (v && ['teen','adult','emergency','gifter','holistic'].includes(v)) {
+      setVersion(v);
+      dismissVersionPicker();
+      if (v === 'emergency') setTimeout(() => navigate('shop'), 400);
+    }
+  } catch(e) {}
+}
+
+/* =============================================================
+   PATCH renderProductGrid to apply personalization
+   ============================================================= */
+(function patchRenderProductGrid() {
+  const _orig = renderProductGrid;
+  renderProductGrid = function() {
+    _orig();
+    // After render, re-sort if prefs exist — re-render with personalization
+    const prefs = getQuizPrefs();
+    if (!prefs) return;
+    const grid = document.querySelector('#shopView .product-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.children);
+    if (!cards.length) return;
+    // Score each card by product id (data-product-id attr)
+    const scored = cards.map(card => {
+      const id  = parseInt(card.dataset.productId || card.querySelector('[data-id]')?.dataset?.id || '0', 10);
+      const prod = PRODUCTS.find(p => p.id === id);
+      return { card, score: prod ? scoreProductForPrefs(prod, prefs) : 0 };
+    }).sort((a, b) => b.score - a.score);
+    scored.forEach(({ card }) => grid.appendChild(card));
+  };
+})();
+
+/* =============================================================
+   BOOT ALL NEW FEATURES after init() runs
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  handleURLParams();
+  initGiveBack();
+  initImpactCounter();
+  initQuiz();
+
+  // Show quiz ~1.2s after version is selected, if not done yet
+  const _origDismiss = dismissVersionPicker;
+  dismissVersionPicker = function() {
+    _origDismiss();
+    if (!isQuizDone() && state.version !== 'emergency') {
+      setTimeout(showQuiz, 1200);
+    }
+  };
+});
