@@ -37,6 +37,58 @@ const PLANS = {
   royal:     { name:'Royal',     price:54.99, slots:15 },
 };
 
+/* =============================================
+   VERSION CONTENT MAPS
+   ============================================= */
+const CONTENT = {
+  teen: {
+    heroTagline:         'period, pooh. we got you. \u{1F451}',
+    heroSub:             "get what you need, when you need it. no judgment \u2014 periodt.",
+    heroOrderNowText:    'Shop Now',
+    heroCarePackageText: 'Get My Box',
+    card1Title:          'Get It Now',
+    card1Desc:           'Delivered to your door in under an hour. Like DoorDash but for your care \u2014 periodt.',
+    card2Title:          'My Monthly for My Monthly',
+    card2Desc:           'Pick your plan, choose your faves, and get your care package every month. period, pooh \u2728',
+    howTitle:            'how it works \u{1F451}',
+    step1Name:           'Browse & Pick',
+    step1Desc:           'Shop our full menu \u2014 period care, intimate wellness, skincare & more. Whatever you need.',
+    step2Name:           'Order Placed',
+    step2Desc:           'We link up with our supplier partners and get your order moving. Periodt.',
+    step3Name:           'At Your Door',
+    step3Desc:           '30\u201360 mins for on-demand, or on your date for your monthly box. No stress \u2014 period, pooh.',
+    trustBadges:         ['\ud83d\udd12 Discreet AF', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Only', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
+    subEyebrow:          'Monthly Drop',
+    subTitle:            'my monthly<br><span>for my monthly.</span>',
+    subSub:              "pick what you want, choose your plan, get it every month. period, pooh \u2014 we got you.",
+    plansLabel:          'step 1 \u2014 pick your plan',
+    pickerTitle:         'step 2 \u2014 build your box',
+  },
+  adult: {
+    heroTagline:         'Your care. Your schedule.',
+    heroSub:             'On-demand delivery in under an hour, or a monthly care package built around your routine.',
+    heroOrderNowText:    'Order Now',
+    heroCarePackageText: 'Care Package',
+    card1Title:          'Order Now',
+    card1Desc:           'Get feminine care products delivered to your door in under an hour \u2014 fast, discreet, and reliable when you need it.',
+    card2Title:          'Care Package',
+    card2Desc:           'A monthly subscription built around you. Choose your plan, select your products, and we handle the rest.',
+    howTitle:            'How It Works',
+    step1Name:           'Browse & Select',
+    step1Desc:           'Shop our curated catalog \u2014 period care, intimate wellness, skincare, hygiene, and more.',
+    step2Name:           'Place Your Order',
+    step2Desc:           'We connect with our supplier partners and arrange fast delivery directly to you.',
+    step3Name:           'Delivered to You',
+    step3Desc:           '30\u201360 minutes for on-demand orders, or on your chosen delivery date for Care Packages.',
+    trustBadges:         ['\ud83d\udd12 Secure & Discreet', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Products', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
+    subEyebrow:          'Monthly Subscription',
+    subTitle:            'Your personal<br><span>care package.</span>',
+    subSub:              'Pick a plan, choose what goes inside, and receive it every month \u2014 on your schedule.',
+    plansLabel:          'Step 1 \u2014 Choose Your Plan',
+    pickerTitle:         'Step 2 \u2014 Build Your Box',
+  }
+};
+
 const CAT_GRADIENTS = {
   period:   'linear-gradient(135deg,#1A0D2E,#3D1A6E)',
   intimate: 'linear-gradient(135deg,#0D1020,#1F1050)',
@@ -50,6 +102,7 @@ const CAT_GRADIENTS = {
    ============================================= */
 let state = {
   view:            'home',
+  version:         null,       // 'teen' | 'adult'
   cart:            {},          // { id: qty }
   careBox:         {},          // { id: qty } for subscription
   activeCategory:  'all',
@@ -77,6 +130,94 @@ function showToast(msg) {
   t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* =============================================
+   VERSION MANAGEMENT
+   ============================================= */
+function applyVersionContent(version) {
+  const c = CONTENT[version];
+  if (!c) return;
+
+  // Hero
+  if ($('heroTagline'))         $('heroTagline').textContent         = c.heroTagline;
+  if ($('heroSub'))             $('heroSub').textContent             = c.heroSub;
+  if ($('heroOrderNowText'))    $('heroOrderNowText').textContent    = c.heroOrderNowText;
+  if ($('heroCarePackageText')) $('heroCarePackageText').textContent = c.heroCarePackageText;
+
+  // Mode cards
+  if ($('card1Title')) $('card1Title').textContent = c.card1Title;
+  if ($('card1Desc'))  $('card1Desc').textContent  = c.card1Desc;
+  if ($('card2Title')) $('card2Title').textContent = c.card2Title;
+  if ($('card2Desc'))  $('card2Desc').textContent  = c.card2Desc;
+
+  // How it works
+  if ($('howTitle'))  $('howTitle').textContent  = c.howTitle;
+  if ($('step1Name')) $('step1Name').textContent = c.step1Name;
+  if ($('step1Desc')) $('step1Desc').textContent = c.step1Desc;
+  if ($('step2Name')) $('step2Name').textContent = c.step2Name;
+  if ($('step2Desc')) $('step2Desc').textContent = c.step2Desc;
+  if ($('step3Name')) $('step3Name').textContent = c.step3Name;
+  if ($('step3Desc')) $('step3Desc').textContent = c.step3Desc;
+
+  // Trust badges
+  const strip = $('trustStrip');
+  if (strip) strip.innerHTML = c.trustBadges.map(b => `<div class="trust-badge" role="listitem">${b}</div>`).join('');
+
+  // Subscribe section
+  if ($('subEyebrow'))  $('subEyebrow').textContent  = c.subEyebrow;
+  if ($('subTitle'))    $('subTitle').innerHTML       = c.subTitle;
+  if ($('subSub'))      $('subSub').textContent       = c.subSub;
+  if ($('plansLabel'))  $('plansLabel').textContent   = c.plansLabel;
+  if ($('pickerTitle')) $('pickerTitle').textContent  = c.pickerTitle;
+}
+
+function setVersion(version) {
+  state.version = version;
+  localStorage.setItem('period_version', version);
+  document.documentElement.setAttribute('data-version', version);
+  applyVersionContent(version);
+}
+
+function showVersionPicker() {
+  const picker = $('versionPicker');
+  if (!picker) return;
+  picker.style.display    = 'flex';
+  picker.style.opacity    = '1';
+  picker.style.transition = 'none';
+  document.body.style.overflow = 'hidden';
+}
+
+function dismissVersionPicker() {
+  const picker = $('versionPicker');
+  if (!picker) return;
+  picker.style.transition = 'opacity 450ms ease';
+  picker.style.opacity    = '0';
+  setTimeout(() => {
+    picker.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 450);
+}
+
+function initVersion() {
+  const stored = localStorage.getItem('period_version');
+  if (stored === 'teen' || stored === 'adult') {
+    setVersion(stored);
+    // Head script already set data-version, CSS hides picker — force display:none as backup
+    const picker = $('versionPicker');
+    if (picker) picker.style.display = 'none';
+  } else {
+    // First visit — show the picker
+    document.body.style.overflow = 'hidden';
+  }
+
+  const pickTeen  = $('pickTeen');
+  const pickAdult = $('pickAdult');
+  const switchBtn = $('switchModeBtn');
+
+  if (pickTeen)  pickTeen.addEventListener('click',  () => { setVersion('teen');  dismissVersionPicker(); });
+  if (pickAdult) pickAdult.addEventListener('click', () => { setVersion('adult'); dismissVersionPicker(); });
+  if (switchBtn) switchBtn.addEventListener('click', showVersionPicker);
 }
 
 /* =============================================
@@ -445,6 +586,7 @@ function registerSW() {
    INIT — Wire all events
    ============================================= */
 function init() {
+  initVersion();
   initTheme();
   registerSW();
 
