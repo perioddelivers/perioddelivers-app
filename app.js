@@ -337,7 +337,12 @@ function initVersion() {
 
   if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
   if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
-  if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); });
+  if (pickEmergency) pickEmergency.addEventListener('click', () => {
+    setVersion('emergency');
+    dismissVersionPicker();
+    // Emergency = no time to browse — go straight to products
+    setTimeout(() => { navigate('shop'); showProductsMode('all'); }, 460);
+  });
   if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
   if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
   if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
@@ -353,10 +358,14 @@ function navigate(view) {
   window.scrollTo({ top:0, behavior:'instant' });
 
   if (view === 'shop') {
-    // Reset to category browse mode each time shop is opened
     state.searchQuery = '';
     if ($('searchInput')) $('searchInput').value = '';
-    showCategoriesMode();
+    // Emergency mode skips categories — show all products immediately
+    if (state.version === 'emergency') {
+      showProductsMode('all');
+    } else {
+      showCategoriesMode();
+    }
   }
   if (view === 'subscribe') {
     renderPlanCards();
