@@ -388,6 +388,8 @@ function navigate(view) {
   if (view === 'tracker') {
     trackerDisplayMonth = null;  // reset to today's month on entry
     renderTracker();
+    // Fire 5-second tutorial on first-ever visit
+    setTimeout(showTrackerTutorial, 300);
   }
 }
 
@@ -2332,6 +2334,108 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(showQuiz, 1200);
     }
   };
+});
+
+/* =============================================================
+   TRACKER TUTORIAL (5-second, 4-step, first-time only)
+   ============================================================= */
+const TUTORIAL_STEPS = [
+  {
+    emoji: '\uD83D\uDCC5',
+    title: 'Tap a date',
+    desc:  'Tap any date on the calendar to log when your period starts. Red dots = days you tracked. That\u2019s literally it \u2014 we handle the rest!'
+  },
+  {
+    emoji: '\uD83C\uDF38',
+    title: 'Check your phase',
+    desc:  'The card at the top tells you where you are in your cycle \u2014 period, ovulation, fertile window, or luteal. Your body has patterns, now you\u2019ll know them.'
+  },
+  {
+    emoji: '\uD83D\uDC9C',
+    title: 'Read the legend',
+    desc:  'The color key at the bottom explains every dot: red = period days you logged, purple = predicted, teal = ovulation window. No guessing.'
+  },
+  {
+    emoji: '\uD83D\uDD14',
+    title: 'Set your reminder',
+    desc:  'Scroll down and set a push or text reminder \u2014 so you\u2019re NEVER caught off guard again. Pick push or text. Best thing you can do for yourself, fr.'
+  }
+];
+
+const TUT_STEP_MS = 1250;   // 1.25s per step = 5s total
+let _tutStep = 0;
+let _tutIntervalId = null;
+let _tutStepStart  = 0;
+
+function showTrackerTutorial() {
+  const overlay = $('trackerTutorial');
+  if (!overlay) return;
+  if (getCookie('period_tracker_tutorial')) return;
+  _tutStep = 0;
+  overlay.classList.remove('hidden');
+  _renderTutStep();
+  _startTutTimer();
+}
+
+function _renderTutStep() {
+  const s = TUTORIAL_STEPS[_tutStep];
+  if (!s) return;
+  $('tutEmoji').textContent = s.emoji;
+  $('tutTitle').textContent = s.title;
+  $('tutDesc').textContent  = s.desc;
+  // Progress fill reset
+  const fill = $('tutProgressFill');
+  if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; fill.offsetHeight; fill.style.transition = ''; }
+  // Update dots
+  document.querySelectorAll('.tut-dot').forEach((d, i) => d.classList.toggle('active', i === _tutStep));
+  // Re-trigger card animation
+  const card = $('tutCard');
+  if (card) { card.style.animation = 'none'; card.offsetHeight; card.style.animation = ''; }
+}
+
+function _startTutTimer() {
+  clearInterval(_tutIntervalId);
+  _tutStepStart = Date.now();
+  _tutIntervalId = setInterval(() => {
+    const elapsed = Date.now() - _tutStepStart;
+    const pct     = Math.min(100, (elapsed / TUT_STEP_MS) * 100);
+    const fill    = $('tutProgressFill');
+    if (fill) fill.style.width = pct + '%';
+    if (elapsed >= TUT_STEP_MS) _advanceTutorial();
+  }, 30);
+}
+
+function _advanceTutorial() {
+  clearInterval(_tutIntervalId);
+  _tutStep++;
+  if (_tutStep >= TUTORIAL_STEPS.length) {
+    _dismissTutorial();
+  } else {
+    _renderTutStep();
+    _startTutTimer();
+  }
+}
+
+function _dismissTutorial() {
+  clearInterval(_tutIntervalId);
+  const overlay = $('trackerTutorial');
+  if (!overlay) return;
+  overlay.style.opacity    = '0';
+  overlay.style.transition = 'opacity 0.4s';
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    overlay.style.opacity    = '';
+    overlay.style.transition = '';
+  }, 420);
+  document.cookie = 'period_tracker_tutorial=done;max-age=31536000;path=/;SameSite=Lax';
+}
+
+// Wire tutorial buttons once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const card     = $('tutCard');
+  const skipBtn  = $('tutSkipBtn');
+  if (card)    card.addEventListener('click',    (e) => { if (e.target !== skipBtn) _advanceTutorial(); });
+  if (skipBtn) skipBtn.addEventListener('click', (e) => { e.stopPropagation(); _dismissTutorial(); });
 });
 
 /* =============================================================

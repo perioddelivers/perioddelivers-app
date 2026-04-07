@@ -3611,6 +3611,128 @@ div#legalModal::before {
 }
 
 /* ==========================================================
+   TRACKER TUTORIAL OVERLAY
+   ========================================================== */
+.tracker-tutorial {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.90);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  padding: 24px;
+  animation: tutFadeIn 0.4s ease;
+}
+.tracker-tutorial.hidden {
+  display: none !important;
+}
+@keyframes tutFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tut-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 0 0 24px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.tut-card-inner {
+  padding: 0 28px;
+}
+/* Progress bar across the very top */
+.tut-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 28px;
+  border-radius: 0;
+}
+.tut-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.05s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+.tut-step-emoji {
+  display: block;
+  font-size: 56px;
+  line-height: 1;
+  margin: 0 auto 18px;
+  animation: tutEmojiPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tutEmojiPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.tut-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 10px;
+  padding: 0 24px;
+  animation: tutSlideUp 0.3s ease;
+}
+.tut-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 22px;
+  padding: 0 24px;
+  animation: tutSlideUp 0.35s ease;
+}
+@keyframes tutSlideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: none;             opacity: 1; }
+}
+.tut-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.tut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.25s, transform 0.25s;
+}
+.tut-dot.active {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+.tut-tap-hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  margin: 0 0 14px;
+  letter-spacing: 0.04em;
+}
+.tut-skip-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+.tut-skip-btn:hover { color: var(--text); }
+
+/* ==========================================================
    HOLISTIC & NATURAL CARD — hidden on ALL home screens
    (holistic experience lives in the version picker, not as a home card)
    ========================================================== */

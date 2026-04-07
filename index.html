@@ -858,6 +858,24 @@
   <!-- Calendar grid -->
   <div class="tracker-cal-grid" id="trackerCalGrid" role="grid" aria-label="Period calendar"></div>
 
+  <!-- 5-Second Tutorial Overlay (first-time only) -->
+  <div class="tracker-tutorial hidden" id="trackerTutorial" role="dialog" aria-modal="true" aria-label="How to use your tracker">
+    <div class="tut-card" id="tutCard">
+      <div class="tut-progress-bar"><div class="tut-progress-fill" id="tutProgressFill"></div></div>
+      <span class="tut-step-emoji" id="tutEmoji" aria-hidden="true">📅</span>
+      <h3 class="tut-title" id="tutTitle">Tap a date</h3>
+      <p class="tut-desc" id="tutDesc">Tap any date on the calendar to log when your period starts. That’s it — we do the rest!</p>
+      <div class="tut-dots" aria-hidden="true">
+        <span class="tut-dot active"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+      </div>
+      <p class="tut-tap-hint">Tap to continue</p>
+      <button class="tut-skip-btn" id="tutSkipBtn" type="button">Skip tutorial</button>
+    </div>
+  </div>
+
   <!-- Legend -->
   <div class="tracker-legend">
     <div class="tleg-item"><span class="tleg-dot tleg-logged"></span> Period</div>
