@@ -2883,7 +2883,36 @@ function showQuiz() {
   if (!overlay) return;
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  renderQuizSlide();
+  showQuizUrgencyCheck();
+}
+
+function showQuizUrgencyCheck() {
+  const body    = $('quizBody');
+  const nextBtn = $('quizNextBtn');
+  const progFill = $('quizProgressFill');
+  if (!body || !nextBtn) return;
+
+  if (progFill) progFill.style.width = '0%';
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Continue →';
+  nextBtn.classList.remove('done-btn');
+
+  body.innerHTML = `
+    <div class="quiz-urgency-card">
+      <div class="quiz-urgency-icon">⚡</div>
+      <div class="quiz-urgency-title">Quick check — do you need something right now?</div>
+      <div class="quiz-urgency-sub">We want to personalize your experience, but if you're in a pinch we'll get you sorted first.</div>
+      <div class="quiz-urgency-btns">
+        <button class="quiz-urgency-yes" id="quizUrgencyYes">🚨 Yes — I need it now</button>
+        <button class="quiz-urgency-no" id="quizUrgencyNo">No — I'm good, let's personalize ✨</button>
+      </div>
+      <p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>
+    </div>`;
+
+  const yesBtn = document.getElementById('quizUrgencyYes');
+  const noBtn  = document.getElementById('quizUrgencyNo');
+  if (yesBtn) yesBtn.addEventListener('click', () => { closeQuiz(); setTimeout(() => navigate('shop'), 200); });
+  if (noBtn)  noBtn.addEventListener('click',  () => { renderQuizSlide(); });
 }
 
 function closeQuiz() {
