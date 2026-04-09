@@ -2437,6 +2437,87 @@ function logPeriodEnd() {
 }
 
 /* =============================================
+   SYMPTOM LOGGING
+   ============================================= */
+const SYMPTOMS = [
+  { id:'cramps',  label:'Cramps',        icon:'🔥' },
+  { id:'mood',    label:'Mood',          icon:'💭', options:['Happy 😊','Sad 😢','Anxious 😰','Irritable 😤'] },
+  { id:'bloating',label:'Bloating',      icon:'🌊' },
+  { id:'headache',label:'Headache',      icon:'🤕' },
+  { id:'energy',  label:'Energy',        icon:'⚡', options:['High ✨','Medium 😐','Low 😴'] },
+  { id:'cravings',label:'Cravings',      icon:'🍫' },
+  { id:'sleep',   label:'Sleep Quality', icon:'🌙', options:['Great 😴','Okay 😐','Poor 😩'] },
+];
+
+function getSymptomsData() {
+  try {
+    const m = document.cookie.match(/period_symptoms=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : {};
+  } catch { return {}; }
+}
+
+function saveSymptomsData(data) {
+  document.cookie = 'period_symptoms=' + encodeURIComponent(JSON.stringify(data)) + ';max-age=978307200;path=/;SameSite=Lax';
+}
+
+function logSymptom(dateStr, symptomId, value) {
+  const data = getSymptomsData();
+  if (!data[dateStr]) data[dateStr] = {};
+  if (data[dateStr][symptomId] === value) {
+    delete data[dateStr][symptomId];
+    showToast('Symptom removed');
+  } else {
+    data[dateStr][symptomId] = value;
+    showToast('Symptom logged 💜');
+  }
+  saveSymptomsData(data);
+  renderSymptomLog(dateStr);
+}
+
+function renderSymptomLog(dateStr) {
+  const container = $('symptomLogSection');
+  if (!container) return;
+  const data = getSymptomsData();
+  const todaySymptoms = data[dateStr] || {};
+
+  container.innerHTML = `
+    <div class="symptom-header">
+      <div class="symptom-title">🌸 How are you feeling today?</div>
+      <div class="symptom-date">${dateStr}</div>
+    </div>
+    <div class="symptom-grid">
+      ${SYMPTOMS.map(s => {
+        const logged = todaySymptoms[s.id];
+        if (s.options) {
+          return `<div class="symptom-card ${logged ? 'logged' : ''}">
+            <div class="symptom-icon">${s.icon}</div>
+            <div class="symptom-label">${s.label}</div>
+            <div class="symptom-options">
+              ${s.options.map(opt => `
+                <button class="symptom-opt ${logged === opt ? 'active' : ''}"
+                  onclick="logSymptom('${dateStr}','${s.id}','${opt}')">
+                  ${opt}
+                </button>`).join('')}
+            </div>
+          </div>`;
+        }
+        return `<button class="symptom-card symptom-card--toggle ${logged ? 'logged' : ''}"
+          onclick="logSymptom('${dateStr}','${s.id}',true)">
+          <div class="symptom-icon">${s.icon}</div>
+          <div class="symptom-label">${s.label}</div>
+          ${logged ? '<div class="symptom-check">✓</div>' : ''}
+        </button>`;
+      }).join('')}
+    </div>`;
+}
+
+function initSymptomLog() {
+  const section = $('symptomLogSection');
+  if (!section) return;
+  renderSymptomLog(todayStr());
+}
+
+/* =============================================
    PERIOD REMINDER SYSTEM
    ============================================= */
 
