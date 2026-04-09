@@ -5818,3 +5818,21 @@ div#legalModal::before {
 }
 
 /* ====================
+/* =============================================
+   TRACKER WIDGET CARD — Home Page
+   ============================================= */
+.tracker-widget-card {
+  margin: 1rem var(--sp-4) 0;
+  background: var(--surface-2);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--r-xl);
+  padding: var(--sp-4);
+  overflow: hidden;
+}
+.tracker-widget-locked {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.tw-lock-icon { font-size: 1.5rem; flex-shrink: 0; }
+.tw-lock-text { flex:
