@@ -5845,3 +5845,11 @@ div#legalModal::before {
 }
 .tw-lock-icon { font-size: 1.5rem; flex-shrink: 0; }
 .tw-lock-text { flex:
+
+ /* =============================================
+   URGENT MODE — for non-emergency versions
+   ============================================= */
+.delivery-banner--urgent {
+  background: linear-gradient(135deg, rgba(220,38,38,0.15), rgba(239,68,68,0.05));
+  border-color: rgba(220,38,38,0.3);
+}              
