@@ -1968,26 +1968,7 @@ function getWeeklySlang(version) {
 
 function renderTrendingStrip() {
   const strip = $('trendingStrip');
-  const pills = $('trendingPills');
-  if (!strip || !pills) return;
-
-  const v      = state.version || 'adult';
-  const focus  = (_trends.weeklyFocus || {})[v];
-  const trendIds = _trends.trendingProductIds || [];
-  const items  = [];
-
-  if (focus) items.push(`<div class="trending-pill trending-pill--focus">${focus.label}</div>`);
-
-  const slang = getWeeklySlang(v);
-  if (slang) items.push(`<div class="trending-pill"><span class="fire">✦</span> ${slang}</div>`);
-
-  trendIds.slice(0, 4).forEach(id => {
-    const p = PRODUCTS.find(x => x.id === id);
-    if (p) items.push(`<div class="trending-pill">${p.emoji} ${p.name.split(' ').slice(0,2).join(' ')}</div>`);
-  });
-
-  pills.innerHTML = items.join('');
-  strip.style.display = 'flex';
+  if (strip) strip.style.display = 'none';
 }
 
 /* =============================================
