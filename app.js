@@ -1394,6 +1394,22 @@ function init() {
     if (ml) ml.textContent = MN[month] + ' ' + year;
   });
   if ($('logStart')) $('logStart').addEventListener('click', logPeriodStart);
+   // Seed date button
+  if ($('seedDateBtn')) $('seedDateBtn').addEventListener('click', () => {
+    const input = $('seedDateInput');
+    if (!input || !input.value) { showToast('Pick a date first'); return; }
+    const dateStr = input.value;
+    if (dateStr > todayStr()) { showToast("Date can't be in the future"); return; }
+    const data = getTrackerData();
+    const alreadyExists = data.cycles.some(c => c.s === dateStr);
+    if (alreadyExists) { showToast('That date is already logged'); return; }
+    data.cycles.push({ s: dateStr, e: null });
+    data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
+    data.avgLength = calcAvgCycleLength(data.cycles);
+    setTrackerData(data);
+    renderTracker();
+    showToast('Last period date saved ✓ Predictions updated!');
+  });
   if ($('logEnd'))   $('logEnd').addEventListener('click', logPeriodEnd);
 
   // Reminder buttons (wired in initReminders)
