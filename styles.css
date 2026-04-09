@@ -3627,7 +3627,8 @@ div#legalModal::before {
   margin-bottom: var(--sp-3);
 }
 
-.hero-how-btn {
+.hero-how-btn {cursor: pointer;
+pointer-events: auto;}
   display: flex;   /* visible in all versions */
   align-items: center;
   gap: var(--sp-2);
@@ -5674,3 +5675,11 @@ div#legalModal::before {
 .cart-footer {
   padding-bottom: calc(var(--sp-4, 1rem) + env(safe-area-inset-bottom, 0px));
 }
+.quiz-urgency-card { display:flex;flex-direction:column;align-items:center;text-align:center;gap:1rem;padding:.5rem 0; }
+.quiz-urgency-icon { font-size:2.5rem; }
+.quiz-urgency-title { font-family:var(--font-display);font-size:var(--text-lg);font-weight:700;color:var(--text-primary);line-height:1.3; }
+.quiz-urgency-sub { font-size:var(--text-sm);color:var(--text-muted);line-height:1.6; }
+.quiz-urgency-btns { display:flex;flex-direction:column;gap:.75rem;width:100%;margin-top:.25rem; }
+.quiz-urgency-yes { width:100%;padding:.9rem 1.25rem;background:linear-gradient(135deg,#F87171,#DC2626);color:white;border:none;border-radius:var(--r-full);font-size:var(--text-sm);font-weight:700;cursor:pointer; }
+.quiz-urgency-no { width:100%;padding:.9rem 1.25rem;background:var(--surface-2);color:var(--text-primary);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:var(--text-sm);font-weight:600;cursor:pointer; }
+.quiz-urgency-note { font-size:.75rem;color:var(--text-muted);line-height:1.5;margin-top:.25rem; }
