@@ -2384,8 +2384,24 @@ function renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today) {
 
 function logDateFromCalendar(dateStr) {
   const data = getTrackerData();
-  const alreadyLogged = data.cycles.some(c => dateStr >= c.s && dateStr <= (c.e || c.s));
-  if (alreadyLogged) { showToast('Already logged'); return; }
+  const existingIdx = data.cycles.findIndex(c => dateStr >= c.s && dateStr <= (c.e || c.s));
+
+  if (existingIdx > -1) {
+    // Date already logged — show edit/delete options
+    const cycle = data.cycles[existingIdx];
+    const action = window.confirm(
+      `📅 ${dateStr} is already logged.\n\nClick OK to DELETE this entry.\nClick Cancel to keep it.`
+    );
+    if (action) {
+      data.cycles.splice(existingIdx, 1);
+      data.avgLength = calcAvgCycleLength(data.cycles);
+      setTrackerData(data);
+      renderTracker();
+      showToast('Entry deleted ✓');
+    }
+    return;
+  }
+
   data.cycles.push({ s: dateStr, e: null });
   data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
   data.avgLength = calcAvgCycleLength(data.cycles);
