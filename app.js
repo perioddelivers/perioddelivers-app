@@ -2797,15 +2797,16 @@ function closeLegal() {
    ============================================================= */
 
 const QUIZ_QUESTIONS = [
-  {
+ {
     id: 'flow',
     q: 'How does your flow usually run?',
     sub: "We'll suggest products that match your needs.",
     choices: [
-      { value: 'light',     label: 'Light',     icon: '🌸', desc: '1–3 days, light' },
-      { value: 'medium',    label: 'Medium',    icon: '🌊', desc: 'Moderate & predictable' },
-      { value: 'heavy',     label: 'Heavy',     icon: '💧', desc: 'Heavy — need extra coverage' },
-      { value: 'irregular', label: 'Irregular', icon: '🌀', desc: 'Varies cycle to cycle' },
+      { value: 'first',     label: 'First Time', icon: '🌸', desc: 'Just getting started' },
+      { value: 'light',     label: 'Light',      icon: '🍃', desc: '1–3 days, light' },
+      { value: 'medium',    label: 'Medium',     icon: '💧', desc: 'Moderate & predictable' },
+      { value: 'heavy',     label: 'Heavy',      icon: '🌊', desc: 'Heavy — need extra coverage' },
+      { value: 'irregular', label: 'Irregular',  icon: '🌀', desc: 'Varies cycle to cycle' },
     ]
   },
   {
