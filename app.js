@@ -443,10 +443,12 @@ function applyVersionContent(version) {
 
 function setVersionCookie(v) {
   document.cookie = 'period_version=' + v + ';max-age=31536000;path=/;SameSite=Lax';
+  try { localStorage.setItem('period_version_backup', v); } catch(e) {}
 }
 function getVersionCookie() {
   var m = document.cookie.match(/period_version=([^;]+)/);
-  return m ? m[1] : null;
+  if (m) return m[1];
+  try { return localStorage.getItem('period_version_backup'); } catch(e) { return null; }
 }
 
 function setVersion(version) {
