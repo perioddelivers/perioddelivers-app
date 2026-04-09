@@ -2814,12 +2814,12 @@ const QUIZ_QUESTIONS = [
     q: "What's your go-to product?",
     sub: "We'll put your favorites up front.",
     choices: [
-      { value: 'pads',    label: 'Pads',       icon: '🌸', desc: 'I prefer pads' },
-      { value: 'tampons', label: 'Tampons',    icon: '💜', desc: 'Tampons are my thing' },
-      { value: 'cup',     label: 'Cup / Disc', icon: '♻️', desc: 'Reusable all the way' },
-      { value: 'mix',     label: 'Mix It Up',  icon: '✨', desc: 'Depends on the day' },
+      { value: 'pads',    label: 'Pads',             icon: '🌸', desc: 'I prefer pads' },
+      { value: 'tampons', label: 'Tampons',           icon: '💜', desc: 'Tampons are my thing' },
+      { value: 'cup',     label: 'Cup / Disc',        icon: '♻️', desc: 'Reusable all the way' },
+      { value: 'underwear', label: 'Period Underwear', icon: '👙', desc: 'Leak-proof undies' },
+      { value: 'mix',     label: 'Mix It Up',         icon: '✨', desc: 'Depends on the day' },
     ]
-  },
   {
     id: 'priority',
     q: 'What matters most to you?',
