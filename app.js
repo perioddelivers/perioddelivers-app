@@ -518,6 +518,17 @@ function initVersion() {
 /* =============================================
    NAVIGATION
    ============================================= */
+if (view === 'cycleScoopView') {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    const scoopEl = document.getElementById('cycleScoopView');
+    if (scoopEl) scoopEl.classList.add('active');
+    state.view = 'cycleScoopView';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+    return;
+  }
 function navigate(view) {
   $$('.view').forEach(v => v.classList.remove('active'));
   $(`${view}View`).classList.add('active');
