@@ -2286,7 +2286,9 @@ function renderTracker() {
   const today      = todayStr();
   const nextPeriod = getNextPeriodDate(cycles, avgLength);
   const v          = state.version || 'adult';
-  const lastCycle  = cycles.length ? cycles[cycles.length - 1] : null;
+  // Optional: seed with last period date if not yet tracked
+  const seedSection = $('trackerSeedSection');
+  if (seedSection) seedSection.style.display = cycles.length ? 'none' : '';
 
   // ---- Phase card ----
   if (lastCycle) {
