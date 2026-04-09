@@ -1261,7 +1261,22 @@ function init() {
   $('homeLogo')      .addEventListener('click', () => navigate('home'));
    // Init symptom log
   initSymptomLog();
-  $('heroOrderNow')  .addEventListener('click', () => navigate('shop'));
+  $('heroOrderNow').addEventListener('click', () => {
+    navigate('shop');
+    setTimeout(() => {
+      if (state.version === 'emergency') {
+        renderEmergencyShop();
+      } else if ($('heroOrderNowText') && ($('heroOrderNowText').textContent.includes('Urgent') || $('heroOrderNowText').textContent.includes('NOW') || $('heroOrderNowText').textContent.includes('Natural'))) {
+        const banner = document.querySelector('.delivery-banner');
+        if (banner) banner.classList.add('delivery-banner--urgent');
+        const deliveryTime = document.querySelector('.delivery-time');
+        if (deliveryTime) deliveryTime.textContent = 'Under 30 min delivery';
+        const deliveryLabel = document.querySelector('.delivery-label');
+        if (deliveryLabel) deliveryLabel.textContent = '🚨 Urgent Delivery';
+        showCategoriesMode();
+      }
+    }, 100);
+  });
   $('heroCarePackage').addEventListener('click', () => {
     if (state.version === 'gifter') {
       const choice = confirm('Would you like to send a one-time gift?\n\nClick OK for a One-Time Gift Order\nClick Cancel for a Monthly Gift Subscription');
