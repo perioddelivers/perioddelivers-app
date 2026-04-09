@@ -3627,9 +3627,10 @@ div#legalModal::before {
   margin-bottom: var(--sp-3);
 }
 
-.hero-how-btn {cursor: pointer;
-pointer-events: auto;}
-  display: flex;   /* visible in all versions */
+.hero-how-btn {
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
   align-items: center;
   gap: var(--sp-2);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -3639,8 +3640,7 @@ pointer-events: auto;}
   padding: var(--sp-2) var(--sp-4);
   font-size: var(--text-sm);
   font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 0;   /* row handles spacing now */
+  margin-bottom: 0;
   transition: background 0.2s, transform 0.15s;
   width: fit-content;
   align-self: center;
