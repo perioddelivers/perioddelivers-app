@@ -1257,6 +1257,8 @@ function init() {
 
   // Home navigation
   $('homeLogo')      .addEventListener('click', () => navigate('home'));
+   // Init symptom log
+  initSymptomLog();
   $('heroOrderNow')  .addEventListener('click', () => navigate('shop'));
   $('heroCarePackage').addEventListener('click', () => navigate('subscribe'));
   $('cardOrderNow')  .addEventListener('click', () => navigate('shop'));
