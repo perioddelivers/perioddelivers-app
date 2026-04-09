@@ -5654,3 +5654,17 @@ div#legalModal::before {
   width: 100%;
   letter-spacing: 0.3px;
 }
+
+/* ── iOS SAFE AREA (iPhone home indicator) ── */
+.home-footer {
+  padding-bottom: calc(var(--sp-12, 3rem) + env(safe-area-inset-bottom, 0px));
+}
+#pwaInstallBanner {
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+.cart-sheet {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.cart-footer {
+  padding-bottom: calc(var(--sp-4, 1rem) + env(safe-area-inset-bottom, 0px));
+}
