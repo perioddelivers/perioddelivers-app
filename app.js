@@ -2152,6 +2152,46 @@ function updateTrackerBtn() {
     btn.classList.remove('unlocked');
     if (lock) lock.style.display = '';
   }
+  updateTrackerWidget();
+}
+
+function updateTrackerWidget() {
+  const locked   = $('trackerWidgetLocked');
+  const unlocked = $('trackerWidgetUnlocked');
+  const ftbLock  = $('ftbLock');
+  const subscribed = isNewsletterSubscribed();
+
+  if (locked)   locked.style.display   = subscribed ? 'none' : '';
+  if (unlocked) unlocked.style.display = subscribed ? ''     : 'none';
+  if (ftbLock)  ftbLock.style.display  = subscribed ? 'none' : '';
+
+  if (!subscribed) return;
+
+  // Populate widget with tracker data
+  const data      = getTrackerData();
+  const { cycles } = data;
+  const avgLength  = calcAvgCycleLength(cycles);
+  const today      = todayStr();
+  const nextPeriod = getNextPeriodDate(cycles, avgLength);
+  const lastCycle  = cycles.length ? cycles[cycles.length - 1] : null;
+
+  if (lastCycle) {
+    const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
+    if ($('twEmoji'))     $('twEmoji').textContent     = emoji;
+    if ($('twPhaseName')) $('twPhaseName').textContent = phase + ' Phase · Day ' + day;
+    if ($('twPhaseDay'))  $('twPhaseDay').textContent  = 'Tap to open your tracker';
+    if ($('twNext') && nextPeriod) {
+      const dtu = daysBetween(today, nextPeriod);
+      $('twNext').textContent = dtu > 0 ? '🩸 Next period in ' + dtu + ' days'
+        : dtu === 0 ? '🩸 Period expected today'
+        : '🩸 Period may be late — bodies vary';
+    }
+  } else {
+    if ($('twEmoji'))     $('twEmoji').textContent     = '🌸';
+    if ($('twPhaseName')) $('twPhaseName').textContent = 'Log a period to begin';
+    if ($('twPhaseDay'))  $('twPhaseDay').textContent  = 'Tap to open your tracker';
+    if ($('twNext'))      $('twNext').textContent      = '';
+  }
 }
 
 /* =============================================
