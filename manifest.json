@@ -1,8 +1,8 @@
 {
-  "name": ". — Feminine Care",
+  "name": ". \u2014 Feminine Care",
   "short_name": ".",
   "description": "Premium feminine care. Period.",
-  "start_url": "/",
+  "start_url": "https://perioddelivers.com",
   "display": "standalone",
   "background_color": "#080610",
   "theme_color": "#080610",
@@ -20,5 +20,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "https://perioddelivers.com"
 }
