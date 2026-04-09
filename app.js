@@ -1575,12 +1575,14 @@ const FIREBASE_CONFIG = {
 };
 
 let _firebaseDb = null;
+let _firebaseFs = null;
 (function initFirebase() {
   if (!FIREBASE_CONFIG) return;
   try {
     if (typeof firebase === 'undefined') return;
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _firebaseDb = firebase.database();
+    _firebaseFs = firebase.firestore();
   } catch(e) { console.warn('[Period.] Firebase init failed:', e); }
 })();
 
