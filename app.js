@@ -2112,7 +2112,7 @@ function subscribeNewsletter() {
 
   setNLCookie(email, stage);
   updateTrackerBtn();
-
+updateTrackerWidget();
   // Save subscriber to Firestore
   if (_firebaseFs) {
     _firebaseFs.collection('subscribers').add({
