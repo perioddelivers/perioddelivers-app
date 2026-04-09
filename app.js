@@ -1262,7 +1262,19 @@ function init() {
    // Init symptom log
   initSymptomLog();
   $('heroOrderNow')  .addEventListener('click', () => navigate('shop'));
-  $('heroCarePackage').addEventListener('click', () => navigate('subscribe'));
+  $('heroCarePackage').addEventListener('click', () => {
+    if (state.version === 'gifter') {
+      const choice = confirm('Would you like to send a one-time gift?\n\nClick OK for a One-Time Gift Order\nClick Cancel for a Monthly Gift Subscription');
+      if (choice) {
+        navigate('shop');
+        showToast('Browse products and add to cart for a one-time gift 💝');
+      } else {
+        navigate('subscribe');
+      }
+    } else {
+      navigate('subscribe');
+    }
+  });
   $('cardOrderNow')  .addEventListener('click', () => navigate('shop'));
   $('cardCarePackage').addEventListener('click', () => navigate('subscribe'));
 
