@@ -3265,13 +3265,13 @@ function initGiveBack() {
    FEATURE C: COMMUNITY IMPACT COUNTER
    ============================================================= */
 
-const IMPACT_BASELINE_KITS    = 2847;
-const IMPACT_BASELINE_ROUNDUP = 4231;
+const IMPACT_BASELINE_KITS    = 0;
+const IMPACT_BASELINE_ROUNDUP = 0;
 
 function getTotalImpact() {
   const launchMs  = new Date('2026-01-01').getTime();
   const daysLive  = Math.max(0, Math.floor((Date.now() - launchMs) / 86400000));
-  const growth    = Math.floor(daysLive * 1.7);
+  const growth    = 0; // Will grow with real orders only
   const localKits = parseInt(getCookie('period_donated_kits')    || '0', 10);
   const roundCents= parseInt(getCookie('period_roundup_cents')   || '0', 10);
   return {
