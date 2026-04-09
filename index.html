@@ -1342,7 +1342,18 @@
       <div class="rem-status" id="remSmsStatus" style="display:none"></div>
     </div>
   </div>
+<!-- Seed section — shown only if no cycles logged yet -->
+  <div id="trackerSeedSection" style="display:none" class="tracker-seed-section">
+    <div class="seed-title">📅 Have a recent period date?</div>
+    <p class="seed-sub">Optional — helps us predict your next cycle right away.</p>
+    <div class="seed-row">
+      <input type="date" id="seedDateInput" class="seed-input" aria-label="Last period start date"/>
+      <button class="seed-btn" id="seedDateBtn">Use this date</button>
+    </div>
+  </div>
 
+  <!-- Symptom log section -->
+  <div id="symptomLogSection" class="symptom-log-section"></div>
   <!-- Log buttons -->
   <div class="tracker-log-row">
     <button class="tracker-log-btn tracker-log-start" id="logStart" type="button">
