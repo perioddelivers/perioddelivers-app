@@ -2003,6 +2003,16 @@ function getDeviceId() {
   return id;
 }
 
+function getCookie(name) {
+  const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function setCookie(name, val, days) {
+  const exp = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(val) + '; expires=' + exp + '; path=/; SameSite=Lax';
+}
+
 function setNLCookie(email, stage) {
   document.cookie = 'period_nl=' + encodeURIComponent(email + '|' + stage) + ';max-age=946080000;path=/;SameSite=Lax';
 }
