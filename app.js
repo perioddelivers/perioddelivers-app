@@ -4,48 +4,54 @@
    PRODUCT DATA
    ============================================= */
 const PRODUCTS = [
-  { id:1,  name:'Ultra-Thin Organic Pads',       sub:'Regular flow · 20 ct',    category:'period',  cat_label:'Period Care', emoji:'🌸', price:8.99,  badge:'Best Seller', eta:'~35 min', desc:'100% certified organic cotton pads with superior absorption. Fragrance-free and dermatologist-tested for sensitive skin.', features:['Organic Cotton','Fragrance-Free','No Plastic Core','Breathable'] },
-  { id:2,  name:'Overnight Pads with Wings',      sub:'Heavy flow · 14 ct',      category:'period',  cat_label:'Period Care', emoji:'🌙', price:10.49, badge:null,          eta:'~35 min', desc:'Extra-long coverage for full-night protection. Wings keep pad in place. 360° leak guard. Unscented and ultra-soft.', features:['Extra Long','Full Coverage','Stay-Put Wings','Leak Guard'] },
-  { id:3,  name:'Organic Tampons Variety',        sub:'Reg/Super · 18 ct',       category:'period',  cat_label:'Period Care', emoji:'💜', price:9.99,  badge:'New',         eta:'~40 min', desc:'Plastic-free organic cotton tampons in a mixed pack. BPA-free and septic-safe with a smooth plastic-free applicator.', features:['Organic Cotton','Plastic-Free','BPA-Free','Septic Safe'] },
-  { id:4,  name:'Menstrual Cup',                  sub:'Medical silicone · S/L',  category:'period',  cat_label:'Period Care', emoji:'♻️', price:24.99, badge:'Eco Choice',   eta:'~50 min', desc:'Reusable medical-grade silicone cup. Holds 3× more than a tampon. Lasts up to 10 years — zero waste.', features:['Reusable','Medical Grade','12hr Hold','Zero Waste'] },
-  { id:5,  name:'Period Panties',                 sub:'Bikini style · XS–3XL',   category:'period',  cat_label:'Period Care', emoji:'👙', price:18.99, badge:null,          eta:'~45 min', desc:'4-layer leak-proof underwear. Absorbs up to 2 tampons worth. Machine washable.', features:['4-Layer Tech','Machine Wash','All Sizes','Super Soft'] },
-  { id:6,  name:'Gentle Feminine Wash',           sub:'pH-balanced · 8 fl oz',   category:'intimate',cat_label:'Intimate Care',emoji:'🫧', price:11.99, badge:'Top Rated',    eta:'~35 min', desc:'pH-balanced daily intimate wash. Free from sulfates, parabens, and artificial fragrances. Maintains natural microbiome.', features:['pH-Balanced','Sulfate-Free','Derm. Tested','Daily Use'] },
-  { id:7,  name:'Intimate Moisturizing Gel',      sub:'Hormone-free · 1.7 fl oz',category:'intimate',cat_label:'Intimate Care',emoji:'✨', price:16.99, badge:null,          eta:'~35 min', desc:'Natural intimate moisturizer with hyaluronic acid and aloe vera. Relieves dryness. Hormone-free, latex-safe.', features:['Hyaluronic Acid','Aloe Vera','Hormone-Free','Latex Safe'] },
-  { id:8,  name:'Probiotic Feminine Capsules',    sub:'Vaginal health · 30 caps', category:'wellness',cat_label:'Wellness',    emoji:'🌿', price:22.99, badge:'Dr. Rec.',      eta:'~55 min', desc:'10 billion CFU lactobacillus blend for vaginal and urinary tract health. Shelf stable, no refrigeration needed.', features:['10B CFU','Clinically Studied','Vaginal Health','UTI Support'] },
-  { id:9,  name:'Iron & Folate Supplement',       sub:"Women's formula · 60 caps",category:'wellness',cat_label:'Wellness',    emoji:'💊', price:19.99, badge:null,          eta:'~55 min', desc:"Women's iron supplement with folate, B12, and vitamin C. Gentle on the stomach. Ideal for cycle recovery.", features:['Iron + Folate','Vitamin C','Gentle Formula','B12 Added'] },
-  { id:10, name:'Cramp Relief Heat Patches',      sub:'8-hour heat · 5 patches',  category:'wellness',cat_label:'Wellness',    emoji:'🌡️',price:13.99, badge:'Popular',       eta:'~40 min', desc:'Air-activated heat patches worn on clothing. 8 hours of gentle warmth for menstrual cramp relief. No batteries.', features:['8-Hour Heat','Adhesive Back','Discreet','Air-Activated'] },
-  { id:11, name:'Natural Deodorant Spray',        sub:'Lavender & Sage · 3.4 oz', category:'hygiene', cat_label:'Hygiene',     emoji:'🌾', price:12.49, badge:null,          eta:'~35 min', desc:'Aluminum-free deodorant with baking soda and magnesium. 24-hour freshness. Subtle lavender + sage scent.', features:['Aluminum-Free','24hr Fresh','Natural Scent','Sensitive Skin'] },
-  { id:12, name:'Hydrating Body Oil',             sub:'Rose & Argan · 4 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🌹', price:21.99, badge:'Luxury',       eta:'~45 min', desc:'Lightweight argan, jojoba, and rosehip blend. Absorbs quickly, no greasy residue. Leaves skin silky smooth.', features:['Argan Oil','Rosehip','Non-Greasy','Fast Absorb'] },
-  { id:13, name:'Brightening Vitamin C Serum',   sub:'15% Ascorbic · 1 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🍊', price:28.99, badge:'Fan Fave',      eta:'~45 min', desc:'15% vitamin C serum with ferulic acid and vitamin E. Fades dark spots, evens tone, boosts collagen.', features:['15% Vit C','Ferulic Acid','Brightening','Anti-Aging'] },
-  { id:14, name:'Ingrown Hair Serum',             sub:'Bikini + body · 2 fl oz',  category:'skincare',cat_label:'Skincare',    emoji:'🧴', price:15.99, badge:null,          eta:'~45 min', desc:'Salicylic acid serum to target and prevent ingrown hairs in sensitive areas. Aloe and centella asiatica soothe skin.', features:['Salicylic Acid','Aloe Vera','Centella','All Skin Types'] },
-  { id:15, name:'Intimate Wipes Travel Pack',     sub:'Fragrance-free · 30 ct',   category:'hygiene', cat_label:'Hygiene',     emoji:'🧻', price:7.99,  badge:null,          eta:'~30 min', desc:'Individually wrapped flushable wipes. pH-balanced for intimate use. Perfect for on-the-go. Alcohol & paraben-free.', features:['Flushable','pH-Balanced','Travel Size','No Alcohol'] },
-  { id:16, name:'Hormone Balance Tea',            sub:'Raspberry leaf · 20 bags', category:'wellness',cat_label:'Wellness',    emoji:'🍵', price:14.99, badge:'Natural',       eta:'~50 min', desc:'Herbal blend with red raspberry leaf, vitex, and spearmint. Supports hormonal balance and eases PMS symptoms.', features:['Raspberry Leaf','Vitex Berry','Spearmint','Caffeine-Free'] },
+  { id:1,  name:'Ultra-Thin Organic Pads',       sub:'Regular flow · 20 ct',    category:'period',  cat_label:'Period Care', emoji:'🌸', price:8.99,  badge:'Best Seller', eta:'1–3 days', desc:'100% certified organic cotton pads with superior absorption. Fragrance-free and dermatologist-tested for sensitive skin.', features:['Organic Cotton','Fragrance-Free','No Plastic Core','Breathable'] },
+  { id:2,  name:'Overnight Pads with Wings',      sub:'Heavy flow · 14 ct',      category:'period',  cat_label:'Period Care', emoji:'🌙', price:10.49, badge:null,          eta:'1–3 days', desc:'Extra-long coverage for full-night protection. Wings keep pad in place. 360° leak guard. Unscented and ultra-soft.', features:['Extra Long','Full Coverage','Stay-Put Wings','Leak Guard'] },
+  { id:3,  name:'Organic Tampons Variety',        sub:'Reg/Super · 18 ct',       category:'period',  cat_label:'Period Care', emoji:'💜', price:9.99,  badge:'New',         eta:'1–3 days', desc:'Plastic-free organic cotton tampons in a mixed pack. BPA-free and septic-safe with a smooth plastic-free applicator.', features:['Organic Cotton','Plastic-Free','BPA-Free','Septic Safe'] },
+  { id:4,  name:'Menstrual Cup',                  sub:'Medical silicone · S/L',  category:'period',  cat_label:'Period Care', emoji:'♻️', price:24.99, badge:'Eco Choice',   eta:'1–3 days', desc:'Reusable medical-grade silicone cup. Holds 3× more than a tampon. Lasts up to 10 years — zero waste.', features:['Reusable','Medical Grade','12hr Hold','Zero Waste'] },
+  { id:5,  name:'Period Panties',                 sub:'Bikini style · XS–3XL',   category:'period',  cat_label:'Period Care', emoji:'👙', price:18.99, badge:null,          eta:'1–3 days', desc:'4-layer leak-proof underwear. Absorbs up to 2 tampons worth. Machine washable.', features:['4-Layer Tech','Machine Wash','All Sizes','Super Soft'] },
+  { id:6,  name:'Gentle Feminine Wash',           sub:'pH-balanced · 8 fl oz',   category:'intimate',cat_label:'Intimate Care',emoji:'🫧', price:11.99, badge:'Top Rated',    eta:'1–3 days', desc:'pH-balanced daily intimate wash. Free from sulfates, parabens, and artificial fragrances. Maintains natural microbiome.', features:['pH-Balanced','Sulfate-Free','Derm. Tested','Daily Use'] },
+  { id:7,  name:'Intimate Moisturizing Gel',      sub:'Hormone-free · 1.7 fl oz',category:'intimate',cat_label:'Intimate Care',emoji:'✨', price:16.99, badge:null,          eta:'1–3 days', desc:'Natural intimate moisturizer with hyaluronic acid and aloe vera. Relieves dryness. Hormone-free, latex-safe.', features:['Hyaluronic Acid','Aloe Vera','Hormone-Free','Latex Safe'] },
+  { id:8,  name:'Probiotic Feminine Capsules',    sub:'Vaginal health · 30 caps', category:'wellness',cat_label:'Wellness',    emoji:'🌿', price:22.99, badge:'Dr. Rec.',      eta:'1–3 days', desc:'10 billion CFU lactobacillus blend for vaginal and urinary tract health. Shelf stable, no refrigeration needed.', features:['10B CFU','Clinically Studied','Vaginal Health','UTI Support'] },
+  { id:9,  name:'Iron & Folate Supplement',       sub:"Women's formula · 60 caps",category:'wellness',cat_label:'Wellness',    emoji:'💊', price:19.99, badge:null,          eta:'1–3 days', desc:"Women's iron supplement with folate, B12, and vitamin C. Gentle on the stomach. Ideal for cycle recovery.", features:['Iron + Folate','Vitamin C','Gentle Formula','B12 Added'] },
+  { id:10, name:'Cramp Relief Heat Patches',      sub:'8-hour heat · 5 patches',  category:'wellness',cat_label:'Wellness',    emoji:'🌡️',price:13.99, badge:'Popular',       eta:'1–3 days', desc:'Air-activated heat patches worn on clothing. 8 hours of gentle warmth for menstrual cramp relief. No batteries.', features:['8-Hour Heat','Adhesive Back','Discreet','Air-Activated'] },
+  { id:11, name:'Natural Deodorant Spray',        sub:'Lavender & Sage · 3.4 oz', category:'hygiene', cat_label:'Hygiene',     emoji:'🌾', price:12.49, badge:null,          eta:'1–3 days', desc:'Aluminum-free deodorant with baking soda and magnesium. 24-hour freshness. Subtle lavender + sage scent.', features:['Aluminum-Free','24hr Fresh','Natural Scent','Sensitive Skin'] },
+  { id:12, name:'Hydrating Body Oil',             sub:'Rose & Argan · 4 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🌹', price:21.99, badge:'Luxury',       eta:'1–3 days', desc:'Lightweight argan, jojoba, and rosehip blend. Absorbs quickly, no greasy residue. Leaves skin silky smooth.', features:['Argan Oil','Rosehip','Non-Greasy','Fast Absorb'] },
+  { id:13, name:'Brightening Vitamin C Serum',   sub:'15% Ascorbic · 1 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🍊', price:28.99, badge:'Fan Fave',      eta:'1–3 days', desc:'15% vitamin C serum with ferulic acid and vitamin E. Fades dark spots, evens tone, boosts collagen.', features:['15% Vit C','Ferulic Acid','Brightening','Anti-Aging'] },
+  { id:14, name:'Ingrown Hair Serum',             sub:'Bikini + body · 2 fl oz',  category:'skincare',cat_label:'Skincare',    emoji:'🧴', price:15.99, badge:null,          eta:'1–3 days', desc:'Salicylic acid serum to target and prevent ingrown hairs in sensitive areas. Aloe and centella asiatica soothe skin.', features:['Salicylic Acid','Aloe Vera','Centella','All Skin Types'] },
+  { id:15, name:'Intimate Wipes Travel Pack',     sub:'Fragrance-free · 30 ct',   category:'hygiene', cat_label:'Hygiene',     emoji:'🧻', price:7.99,  badge:null,          eta:'1–3 days', desc:'Individually wrapped flushable wipes. pH-balanced for intimate use. Perfect for on-the-go. Alcohol & paraben-free.', features:['Flushable','pH-Balanced','Travel Size','No Alcohol'] },
+  { id:16, name:'Hormone Balance Tea',            sub:'Raspberry leaf · 20 bags', category:'wellness',cat_label:'Wellness',    emoji:'🍵', price:14.99, badge:'Natural',       eta:'1–3 days', desc:'Herbal blend with red raspberry leaf, vitex, and spearmint. Supports hormonal balance and eases PMS symptoms.', features:['Raspberry Leaf','Vitex Berry','Spearmint','Caffeine-Free'] },
   // --- Emergency Kit ---
   { id:17, name:'Emergency Period Kit',          sub:'Pads + liners + wipes',         category:'period',   cat_label:'Period Care',     emoji:'🚨', price:14.99, badge:'Fastest',   eta:'~20 min', desc:'Pre-packed emergency kit: organic pads (regular + overnight), pantiliners, and intimate wipes. Everything you need, right now. No thinking required.', features:['Ready to Go','Fast Delivery','Organic Pads','Wipes Included'] },
   // --- Undies & Bottoms ---
-  { id:18, name:'Cotton Brief Essentials 5-Pack',sub:'XS–XL · soft & breathable',      category:'clothing', cat_label:'Undies & Bottoms',emoji:'🧥', price:12.99, badge:'Must Have', eta:'~25 min', desc:'Ultra-soft 100% cotton briefs in a 5-pack. Perfect for emergencies or everyday comfort. Tagless waistband, full coverage. XS–XL.', features:['100% Cotton','Full Coverage','Tagless','5-Pack'] },
-  { id:19, name:'High-Waist Cotton Briefs 3-Pack',sub:'XS–3XL · all sizes',            category:'clothing', cat_label:'Undies & Bottoms',emoji:'👙', price:18.99, badge:null,       eta:'~40 min', desc:'High-rise waist for extra coverage and comfort. Buttery-soft cotton, wide waistband, perfect for period days or anytime you want something cozy.', features:['High-Waist','Extra Coverage','Wide Band','3-Pack'] },
-  { id:20, name:'Cozy Lounge Leggings',          sub:'One size fits most',              category:'clothing', cat_label:'Undies & Bottoms',emoji:'👖', price:27.99, badge:null,       eta:'~50 min', desc:'Ultra-soft brushed interior lounge leggings with a wide comfort waistband. Dark wash, no see-through, perfect for period days at home or on the go.', features:['Brushed Interior','Wide Band','Dark Wash','Full Length'] },
-  { id:21, name:'Classic Biker Shorts',          sub:'High-waist · 5" inseam',             category:'clothing', cat_label:'Undies & Bottoms',emoji:'⚡',    price:22.99, badge:'Top Pick',   eta:'~45 min', desc:'High-waist compression biker shorts. No ride-up, no chafing. Perfect under dresses or on their own. Double-layered for confidence.', features:['Compression','No Ride-Up','Double Layer','High Waist'] },
+  { id:18, name:'Cotton Brief Essentials 5-Pack',sub:'XS–XL · soft & breathable',      category:'clothing', cat_label:'Undies & Bottoms',emoji:'🧥', price:12.99, badge:'Must Have', eta:'1–3 days', desc:'Ultra-soft 100% cotton briefs in a 5-pack. Perfect for emergencies or everyday comfort. Tagless waistband, full coverage. XS–XL.', features:['100% Cotton','Full Coverage','Tagless','5-Pack'] },
+  { id:19, name:'High-Waist Cotton Briefs 3-Pack',sub:'XS–3XL · all sizes',            category:'clothing', cat_label:'Undies & Bottoms',emoji:'👙', price:18.99, badge:null,       eta:'1–3 days', desc:'High-rise waist for extra coverage and comfort. Buttery-soft cotton, wide waistband, perfect for period days or anytime you want something cozy.', features:['High-Waist','Extra Coverage','Wide Band','3-Pack'] },
+  { id:20, name:'Cozy Lounge Leggings',          sub:'One size fits most',              category:'clothing', cat_label:'Undies & Bottoms',emoji:'👖', price:27.99, badge:null,       eta:'1–3 days', desc:'Ultra-soft brushed interior lounge leggings with a wide comfort waistband. Dark wash, no see-through, perfect for period days at home or on the go.', features:['Brushed Interior','Wide Band','Dark Wash','Full Length'] },
+  { id:21, name:'Classic Biker Shorts',          sub:'High-waist · 5" inseam',             category:'clothing', cat_label:'Undies & Bottoms',emoji:'⚡',    price:22.99, badge:'Top Pick',   eta:'1–3 days', desc:'High-waist compression biker shorts. No ride-up, no chafing. Perfect under dresses or on their own. Double-layered for confidence.', features:['Compression','No Ride-Up','Double Layer','High Waist'] },
   // --- Sweets ---
-  { id:22, name:'Dark Chocolate Assortment',     sub:'Sea salt & almond · 3.5 oz',         category:'candy',    cat_label:'Sweets',          emoji:'🍫', price:11.99, badge:'Fan Fave',   eta:'~40 min', desc:'Rich 70% dark chocolate bark with sea salt and roasted almonds. Mood-lifting, antioxidant-rich, and honestly just delicious. Period approved.', features:['70% Dark Cocoa','Sea Salt','Antioxidants','Mood Boost'] },
-  { id:23, name:'Gummy Candy Mix',               sub:'Sweet + sour · assorted',             category:'candy',    cat_label:'Sweets',          emoji:'🍮', price:8.99,  badge:null,       eta:'~35 min', desc:'A satisfying mix of sweet and sour gummies — fruity bears, worms, peach rings, and more. The craving is real and we are not judging.', features:['Assorted Flavors','Sweet + Sour','Shareable','Resealable Bag'] },
-  { id:24, name:'Salted Caramel Cocoa Kit',      sub:'2 cocoa packets + caramel',        category:'candy',    cat_label:'Sweets',          emoji:'☕',    price:13.99, badge:null,       eta:'~45 min', desc:'Rich hot cocoa mix with a salted caramel drizzle pack. Just add hot water or milk. Cozy in a cup — perfect for period evenings on the couch.', features:['Rich Cocoa','Salted Caramel','Just Add Milk','2 Servings'] },
+  { id:22, name:'Dark Chocolate Assortment',     sub:'Sea salt & almond · 3.5 oz',         category:'candy',    cat_label:'Sweets',          emoji:'🍫', price:11.99, badge:'Fan Fave',   eta:'1–3 days', desc:'Rich 70% dark chocolate bark with sea salt and roasted almonds. Mood-lifting, antioxidant-rich, and honestly just delicious. Period approved.', features:['70% Dark Cocoa','Sea Salt','Antioxidants','Mood Boost'] },
+  { id:23, name:'Gummy Candy Mix',               sub:'Sweet + sour · assorted',             category:'candy',    cat_label:'Sweets',          emoji:'🍮', price:8.99,  badge:null,       eta:'1–3 days', desc:'A satisfying mix of sweet and sour gummies — fruity bears, worms, peach rings, and more. The craving is real and we are not judging.', features:['Assorted Flavors','Sweet + Sour','Shareable','Resealable Bag'] },
+  { id:24, name:'Salted Caramel Cocoa Kit',      sub:'2 cocoa packets + caramel',        category:'candy',    cat_label:'Sweets',          emoji:'☕',    price:13.99, badge:null,       eta:'1–3 days', desc:'Rich hot cocoa mix with a salted caramel drizzle pack. Just add hot water or milk. Cozy in a cup — perfect for period evenings on the couch.', features:['Rich Cocoa','Salted Caramel','Just Add Milk','2 Servings'] },
   // --- Cozy Picks ---
-  { id:25, name:'Sheet Face Mask Set',           sub:'Hydrating + brightening · 5-pack',    category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧖', price:15.99, badge:null,       eta:'~40 min', desc:'5-pack K-beauty sheet masks: hyaluronic acid, vitamin C brightening, centella calming, collagen firming, and charcoal pore-cleanse.', features:['5 Variety Masks','K-Beauty','Single Use','All Skin Types'] },
-  { id:26, name:'Cozy Fuzzy Socks 3-Pack',       sub:'Ultra-plush · one size',              category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧦', price:13.99, badge:'So Cozy',   eta:'~35 min', desc:'Thick cloud-soft fuzzy socks in 3 neutral shades. Non-slip sole, wide cuff, machine washable. You deserve the softest socks on your hardest days.', features:['Ultra-Plush','Non-Slip Sole','Machine Wash','3 Colors'] },
-  { id:27, name:'Lavender Calm Roller',          sub:'Aromatherapy · 10 mL roller',         category:'comfort',  cat_label:'Cozy Picks',      emoji:'💜', price:14.99, badge:null,       eta:'~40 min', desc:'Essential oil blend — lavender, chamomile and eucalyptus — in a ready-to-use roller ball. Apply to pulse points for calm and stress relief.', features:['Lavender + Chamomile','Roller Ball','Pulse Points','Calming Blend'] },
+  { id:25, name:'Sheet Face Mask Set',           sub:'Hydrating + brightening · 5-pack',    category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧖', price:15.99, badge:null,       eta:'1–3 days', desc:'5-pack K-beauty sheet masks: hyaluronic acid, vitamin C brightening, centella calming, collagen firming, and charcoal pore-cleanse.', features:['5 Variety Masks','K-Beauty','Single Use','All Skin Types'] },
+  { id:26, name:'Cozy Fuzzy Socks 3-Pack',       sub:'Ultra-plush · one size',              category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧦', price:13.99, badge:'So Cozy',   eta:'1–3 days', desc:'Thick cloud-soft fuzzy socks in 3 neutral shades. Non-slip sole, wide cuff, machine washable. You deserve the softest socks on your hardest days.', features:['Ultra-Plush','Non-Slip Sole','Machine Wash','3 Colors'] },
+  { id:27, name:'Lavender Calm Roller',          sub:'Aromatherapy · 10 mL roller',         category:'comfort',  cat_label:'Cozy Picks',      emoji:'💜', price:14.99, badge:null,       eta:'1–3 days', desc:'Essential oil blend — lavender, chamomile and eucalyptus — in a ready-to-use roller ball. Apply to pulse points for calm and stress relief.', features:['Lavender + Chamomile','Roller Ball','Pulse Points','Calming Blend'] },
   // --- Holistic & Natural ---
-  { id:28, name:'Reusable Menstrual Disc',         sub:'Medical silicone · one size',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🌀', price:29.99, badge:'Zero Waste',  eta:'~50 min', desc:'Soft medical-grade silicone disc. Sits at the vaginal fornix — holds 4× more than a tampon. Reusable for years. Period sex safe.', features:['Medical Silicone','12-hr Wear','Reusable','Period-Sex Safe'] },
-  { id:29, name:'Organic Cloth Pads Set',          sub:'Washable · 5-pack assorted',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌿', price:34.99, badge:'Top Pick',    eta:'~45 min', desc:'Soft organic cotton washable pads — regular, heavy, and night sizes. Snap-wing design, leak-proof inner layer. Lasts 3–5 years.', features:['100% Organic Cotton','Washable','5-Pack Mix','Snap Wing'] },
-  { id:30, name:'CBD Period Relief Salve',         sub:'50mg broad-spectrum · 2 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🫚', price:32.99, badge:'Natural',     eta:'~50 min', desc:'Broad-spectrum CBD with arnica and clary sage in a beeswax base. Rub directly on the lower abdomen for targeted cramp and tension relief. Third-party tested.', features:['50mg CBD','Arnica','Clary Sage','3rd-Party Tested'] },
-  { id:31, name:'Castor Oil Ritual Kit',           sub:'Cold-pressed + flannel pack',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🧴', price:26.99, badge:null,         eta:'~55 min', desc:'Cold-pressed organic castor oil with a reusable flannel pack. Apply to abdomen with gentle heat to ease cramps and bloating. A beloved holistic ritual.', features:['Cold-Pressed','Organic','Reusable Pack','Anti-Bloat'] },
-  { id:32, name:'Magnesium Body Lotion',           sub:'Period + PMS relief · 6 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌸', price:22.99, badge:'PMS Relief',   eta:'~45 min', desc:'Transdermal magnesium glycinate lotion. Absorbed through the skin for fast cramp, bloat, and mood relief. Fragrance-free, paraben-free.', features:['Magnesium Glycinate','Transdermal','Fragrance-Free','Fast Absorption'] },
-  { id:33, name:'Cramp Bark Herbal Tea',           sub:'Red raspberry leaf blend · 20 bags',  category:'holistic', cat_label:'Holistic & Natural', emoji:'🍵', price:16.99, badge:'Herbalist Pick',eta:'~50 min', desc:'Potent blend of cramp bark, red raspberry leaf, ginger root, and passionflower. Targets uterine cramps and eases PMS tension naturally. Caffeine-free.', features:['Cramp Bark','Raspberry Leaf','Ginger','Caffeine-Free'] },
-  { id:34, name:'Clary Sage Period Mist',          sub:'Aromatherapy · 4 oz spray',           category:'holistic', cat_label:'Holistic & Natural', emoji:'🌾', price:18.99, badge:null,         eta:'~45 min', desc:'Pure clary sage, lavender, and geranium in distilled witch hazel. Mist over lower abdomen or pulse points to support hormonal calm and cycle flow.', features:['Clary Sage','Geranium','Witch Hazel','Hormone-Supportive'] },
-  { id:35, name:'Natural Sea Sponge Tampon',       sub:'Ethically harvested · 2-pack',        category:'holistic', cat_label:'Holistic & Natural', emoji:'🧽', price:19.99, badge:'Plastic-Free', eta:'~55 min', desc:'100% natural sea sponge — a traditional tampon alternative. Moistened and inserted like a tampon. Rinse, reuse, compost when done. Truly zero waste.', features:['100% Natural','Reusable','Compostable','Plastic-Free'] },
-  { id:36, name:'Organic Period Underwear (2-pk)', sub:'Heavy flow · XS–3XL',                 category:'holistic', cat_label:'Holistic & Natural', emoji:'🌱', price:42.99, badge:'Best Seller',  eta:'~50 min', desc:'GOTS-certified organic cotton period underwear — heavy flow capacity, no synthetic liners. Tagless, breathable, and kind to sensitive skin. 2-pack.', features:['GOTS Certified','Organic Cotton','Heavy Flow','All Sizes'] },
-  { id:37, name:'Beeswax Cramp Relief Balm',       sub:'Lavender + clove · 1 oz tin',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🍯', price:15.99, badge:null,         eta:'~40 min', desc:'Traditional beeswax salve with clove, lavender, and peppermint oil. Warm into skin for localized cramp and back pain relief. 100% natural ingredients.', features:['Beeswax Base','Clove + Clary Sage','Peppermint','100% Natural'] },
+  { id:28, name:'Reusable Menstrual Disc',         sub:'Medical silicone · one size',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🌀', price:29.99, badge:'Zero Waste',  eta:'1–3 days', desc:'Soft medical-grade silicone disc. Sits at the vaginal fornix — holds 4× more than a tampon. Reusable for years. Period sex safe.', features:['Medical Silicone','12-hr Wear','Reusable','Period-Sex Safe'] },
+  { id:29, name:'Organic Cloth Pads Set',          sub:'Washable · 5-pack assorted',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌿', price:34.99, badge:'Top Pick',    eta:'1–3 days', desc:'Soft organic cotton washable pads — regular, heavy, and night sizes. Snap-wing design, leak-proof inner layer. Lasts 3–5 years.', features:['100% Organic Cotton','Washable','5-Pack Mix','Snap Wing'] },
+  { id:30, name:'CBD Period Relief Salve',         sub:'50mg broad-spectrum · 2 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🫚', price:32.99, badge:'Natural',     eta:'1–3 days', desc:'Broad-spectrum CBD with arnica and clary sage in a beeswax base. Rub directly on the lower abdomen for targeted cramp and tension relief. Third-party tested.', features:['50mg CBD','Arnica','Clary Sage','3rd-Party Tested'] },
+  { id:31, name:'Castor Oil Ritual Kit',           sub:'Cold-pressed + flannel pack',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🧴', price:26.99, badge:null,         eta:'1–3 days', desc:'Cold-pressed organic castor oil with a reusable flannel pack. Apply to abdomen with gentle heat to ease cramps and bloating. A beloved holistic ritual.', features:['Cold-Pressed','Organic','Reusable Pack','Anti-Bloat'] },
+  { id:32, name:'Magnesium Body Lotion',           sub:'Period + PMS relief · 6 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌸', price:22.99, badge:'PMS Relief',   eta:'1–3 days', desc:'Transdermal magnesium glycinate lotion. Absorbed through the skin for fast cramp, bloat, and mood relief. Fragrance-free, paraben-free.', features:['Magnesium Glycinate','Transdermal','Fragrance-Free','Fast Absorption'] },
+  { id:33, name:'Cramp Bark Herbal Tea',           sub:'Red raspberry leaf blend · 20 bags',  category:'holistic', cat_label:'Holistic & Natural', emoji:'🍵', price:16.99, badge:'Herbalist Pick',eta:'1–3 days', desc:'Potent blend of cramp bark, red raspberry leaf, ginger root, and passionflower. Targets uterine cramps and eases PMS tension naturally. Caffeine-free.', features:['Cramp Bark','Raspberry Leaf','Ginger','Caffeine-Free'] },
+  { id:34, name:'Clary Sage Period Mist',          sub:'Aromatherapy · 4 oz spray',           category:'holistic', cat_label:'Holistic & Natural', emoji:'🌾', price:18.99, badge:null,         eta:'1–3 days', desc:'Pure clary sage, lavender, and geranium in distilled witch hazel. Mist over lower abdomen or pulse points to support hormonal calm and cycle flow.', features:['Clary Sage','Geranium','Witch Hazel','Hormone-Supportive'] },
+  { id:35, name:'Natural Sea Sponge Tampon',       sub:'Ethically harvested · 2-pack',        category:'holistic', cat_label:'Holistic & Natural', emoji:'🧽', price:19.99, badge:'Plastic-Free', eta:'1–3 days', desc:'100% natural sea sponge — a traditional tampon alternative. Moistened and inserted like a tampon. Rinse, reuse, compost when done. Truly zero waste.', features:['100% Natural','Reusable','Compostable','Plastic-Free'] },
+  { id:36, name:'Organic Period Underwear (2-pk)', sub:'Heavy flow · XS–3XL',                 category:'holistic', cat_label:'Holistic & Natural', emoji:'🌱', price:42.99, badge:'Best Seller',  eta:'1–3 days', desc:'GOTS-certified organic cotton period underwear — heavy flow capacity, no synthetic liners. Tagless, breathable, and kind to sensitive skin. 2-pack.', features:['GOTS Certified','Organic Cotton','Heavy Flow','All Sizes'] },
+  { id:37, name:'Beeswax Cramp Relief Balm',       sub:'Lavender + clove · 1 oz tin',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🍯', price:15.99, badge:null,         eta:'1–3 days', desc:'Traditional beeswax salve with clove, lavender, and peppermint oil. Warm into skin for localized cramp and back pain relief. 100% natural ingredients.', features:['Beeswax Base','Clove + Clary Sage','Peppermint','100% Natural'] },
+  { id:38, name:'Classic Comfort Bear',        sub:'Plush · Medium · 12"',          category:'cuddles', cat_label:'Cuddles', emoji:'🧸', price:19.99, badge:'New',        eta:'1–3 days', desc:'Ultra-soft minky plush bear — made for squeezing on hard days. Machine washable. The right size to actually hug.', features:['Ultra-Soft Minky','Machine Wash','Medium 12"','Perfect Hug'] },
+  { id:39, name:'Microwavable Plush Bunny',    sub:'Lavender scented · Heatable',   category:'cuddles', cat_label:'Cuddles', emoji:'🐰', price:28.99, badge:'Fan Fave',   eta:'1–3 days', desc:'Cute plush bunny with a removable heat insert. Microwave for 90 seconds for gentle, soothing warmth. Lavender-scented filling for relaxation. Great for cramps.', features:['Microwavable','Lavender Scent','Soothing Heat','Washable Cover'] },
+  { id:40, name:'Weighted Comfort Blanket',    sub:'5 lb · 48"x72" · Glass beads', category:'cuddles', cat_label:'Cuddles', emoji:'🛏', price:49.99, badge:null,          eta:'1–3 days', desc:'5-pound weighted blanket with glass bead filling. Gentle deep-pressure sensation eases anxiety and promotes calm. Soft minky top, cool cotton back.', features:['5 lb Weight','Glass Beads','Anxiety Relief','Minky + Cotton'] },
+  { id:41, name:'Plush Sherpa Throw Blanket', sub:'50"x60" · Cloud-soft',           category:'cuddles', cat_label:'Cuddles', emoji:'🌥', price:34.99, badge:'Popular',     eta:'1–3 days', desc:'Incredibly soft double-sided throw — silky satin on one side, fluffy sherpa on the other. Built for period days on the couch. Machine washable.', features:['Double-Sided','Sherpa + Satin','Couch Perfect','Machine Wash'] },
+  { id:42, name:'Mini Squishy Axolotl',        sub:'Squishy · 8" · Pastel pink',    category:'cuddles', cat_label:'Cuddles', emoji:'💗', price:14.99, badge:'Trending',    eta:'1–3 days', desc:'Adorable squishy axolotl in pastel pink. Super squishable and stress-relieving. The perfect desk or bedside buddy for hard days.', features:['Squishy Fill','Stress Relief','Pastel Pink','Desk Buddy'] },
+  { id:43, name:'Comfort Care Gift Bundle',    sub:'Bear + blanket + cocoa kit',     category:'cuddles', cat_label:'Cuddles', emoji:'🎁', price:54.99, badge:'Gift Ready',  eta:'1–3 days', desc:'The ultimate comfort gift — a plush teddy bear, a mini sherpa throw, and our salted caramel cocoa kit, all in one gift box. Order it for yourself or send the love.', features:['Gift Boxed','3-Piece Set','Bear + Blanket + Cocoa','Same-Day Delivery'] },
 ];
 
 const CATEGORIES = [
@@ -58,6 +64,7 @@ const CATEGORIES = [
   { id:'clothing', label:'Undies & Bottoms', icon:'👙' },
   { id:'candy',    label:'Sweets',           icon:'🍫' },
   { id:'comfort',  label:'Cozy Picks',       icon:'✨' },
+  { id:'cuddles',  label:'Cuddles',           icon:'🧸' },
   { id:'holistic', label:'Holistic & Natural', icon:'🌿' },
 ];
 
@@ -66,6 +73,60 @@ const PLANS = {
   essential: { name:'Essential', price:34.99, slots:6  },
   royal:     { name:'Royal',     price:54.99, slots:9  },
 };
+
+
+/* =============================================
+   PRICING ENGINE — Promo Codes + Dynamic Fees
+   ============================================= */
+const PROMO_CODES = {
+  'WELCOME20': { type:'percent',  value:20,   label:'20% off — welcome gift 🎉' },
+  'PERIOD10':  { type:'percent',  value:10,   label:'10% off your order'         },
+  'FREESHIP':  { type:'shipping', value:0,    label:'Free delivery 🛵'           },
+  'ROYAL5':    { type:'fixed',    value:5.00, label:'$5 off your order 👑'       },
+};
+
+function getDeliveryFee(subtotal) {
+  if (state.appliedPromo && state.appliedPromo.type === 'shipping') return 0;
+  return subtotal >= 35 ? 0 : 4.99;
+}
+
+function getOrderTotal() {
+  const subtotal = cartTotal();
+  const delivery = getDeliveryFee(subtotal);
+  const promo    = state.appliedPromo;
+  let   discount = 0;
+  if (promo) {
+    if (promo.type === 'percent') discount = +(subtotal * promo.value / 100).toFixed(2);
+    if (promo.type === 'fixed')   discount = Math.min(promo.value, subtotal);
+  }
+  const total = Math.max(0, +(subtotal - discount + delivery).toFixed(2));
+  return { subtotal, delivery, discount, total };
+}
+
+function applyPromoCode() {
+  const input = $('promoInput');
+  const code  = input ? input.value.trim().toUpperCase() : '';
+  if (!code) { showToast('Enter a promo code first ✨'); return; }
+  const promo = PROMO_CODES[code];
+  if (!promo) {
+    showToast("That code isn't valid — try again");
+    if (input) {
+      input.style.borderColor = 'var(--error, #F87171)';
+      setTimeout(() => { input.style.borderColor = ''; }, 2000);
+    }
+    return;
+  }
+  state.appliedPromo = { ...promo, code };
+  if (input) input.value = '';
+  showToast(promo.label + ' applied!');
+  renderCart();
+}
+
+function removePromoCode() {
+  state.appliedPromo = null;
+  renderCart();
+  showToast('Promo removed');
+}
 
 /* =============================================
    VERSION CONTENT MAPS
@@ -76,8 +137,8 @@ const CONTENT = {
     heroSub:             "get what you need, when you need it. no judgment \u2014 periodt.",
     heroOrderNowText:    'Urgent',
     heroCarePackageText: 'Get My Box',
-    card1Title:          'Urgent',
-    card1Desc:           'Need it right now? We got you. Pads, liners, wipes \u2014 delivered wherever you are in under an hour. No cap. periodt. \u{1F6A8}',
+    card1Title:          'Order Now',
+    card1Desc:           'need it? we got you. pads, liners, wipes, skincare, comfort — order in the app, delivered to your door. periodt. 🛒',
     card2Title:          'My Monthly for My Monthly',
     card2Desc:           'Pick your plan, choose your faves, and get your care package every month. period, pooh \u2728',
     howTitle:            'how it works \u{1F451}',
@@ -86,7 +147,7 @@ const CONTENT = {
     step2Name:           'Order Placed',
     step2Desc:           'We link up with our supplier partners and get your order moving. Periodt.',
     step3Name:           'Right to You',
-    step3Desc:           '30\u201360 mins for on-demand, or on your date for your monthly box. Home, school, office \u2014 no stress, period, pooh.',
+    step3Desc:           '1–3 days for standard orders, or on your date for your monthly box. Home, school, office — no stress, period, pooh.',
     trustBadges:         ['\ud83d\udd12 Discreet AF', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Only', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
     subEyebrow:          'Monthly Drop',
     subTitle:            'my monthly<br><span>for my monthly.</span>',
@@ -96,11 +157,11 @@ const CONTENT = {
   },
   adult: {
     heroTagline:         'Your care. Your schedule.',
-    heroSub:             'On-demand delivery in under an hour, or a monthly care package built around your routine.',
+    heroSub:             'Delivered to your door in 1–3 days, or a curated monthly care package — built around your routine.',
     heroOrderNowText:    'Urgent',
     heroCarePackageText: 'Care Package',
-    card1Title:          'Urgent',
-    card1Desc:           'Need it now? Products delivered directly to you in under an hour \u2014 fast, discreet, no hassle.',
+    card1Title:          'Order Now',
+    card1Desc:           'Need something? Browse our full catalog — period care, wellness, skincare, comfort. Ordered in the app, delivered to your door in 1–3 days.',
     card2Title:          'Care Package',
     card2Desc:           'A monthly subscription built around you. Choose your plan, select your products, and we handle the rest.',
     howTitle:            'How It Works',
@@ -109,7 +170,7 @@ const CONTENT = {
     step2Name:           'Place Your Order',
     step2Desc:           'We connect with our supplier partners and arrange fast delivery directly to you.',
     step3Name:           'Delivered to You',
-    step3Desc:           '30\u201360 minutes for on-demand orders, or on your chosen delivery date for Care Packages \u2014 home, office, school, wherever you are.',
+    step3Desc:           '1–3 days for standard orders, or on your chosen delivery date for Care Packages — home, office, school, wherever you are.',
     trustBadges:         ['\ud83d\udd12 Secure & Discreet', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Products', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
     subEyebrow:          'Monthly Subscription',
     subTitle:            'Your personal<br><span>care package.</span>',
@@ -134,7 +195,7 @@ const CONTENT = {
     step2Desc:           "One tap, done. We route your order to the nearest supplier for the fastest possible delivery.",
     step3Name:           'On the Way \u2014 Fast',
     step3Desc:           "Under 30 minutes for emergency orders. Delivered to home, school, or office \u2014 discreet packaging. No judgment. Ever.",
-    trustBadges:         ['\U0001F6A8 Under 30 Min', '\U0001F4E6 Discreet Pack', '\U0001F9F7 Always Stocked', '\u26a1 Order Fast', '\U0001F49C No Judgment'],
+    trustBadges:         ['\u{1F6A8} Under 30 Min', '\u{1F4E6} Discreet Pack', '\u{1F9F7} Always Stocked', '\u26a1 Order Fast', '\u{1F49C} No Judgment'],
     subEyebrow:          'Never Get Caught Off Guard',
     subTitle:            'Set up<br><span>auto-delivery.</span>',
     subSub:              "Pick a plan and your essentials ship every month \u2014 automatically. Always covered, no stress.",
@@ -157,7 +218,7 @@ const CONTENT = {
     step2Name:           'Order on Your Terms',
     step2Desc:           'We connect with our natural supplier partners — no warehouses, no synthetics in the supply chain.',
     step3Name:           'Right to You',
-    step3Desc:           'Delivered in eco-conscious packaging \u2014 home, office, or wherever you are. 30\u201360 min on-demand or on your monthly schedule.',
+    step3Desc:           'Delivered in eco-conscious packaging — home, office, or wherever you are. 1–3 days standard, or on your monthly schedule.',
     trustBadges:         ['🌿 100% Natural', '♻️ Zero Waste', '🧪 Third-Party Tested', '🌱 No Synthetics', '💚 Toxin-Free'],
     subEyebrow:          'Monthly Natural Box',
     subTitle:            'My Natural<br><span>Monthly.</span>',
@@ -167,12 +228,12 @@ const CONTENT = {
   },
 
   gifter: {
-    heroTagline:         'show up for her. \U0001F451',
+    heroTagline:         'show up for her. \u{1F451}',
     heroSub:             "let's be real \u2014 it's not the most fun week. but you showing up? that changes everything.",
     heroOrderNowText:    'Urgent',
     heroCarePackageText: 'Monthly Gift Box',
     card1Title:          'Urgent',
-    card1Desc:           "Rough week? Get her what she needs right now. Chocolate, cozy socks, heating patches, period care \u2014 built and delivered today.",
+    card1Desc:           "Rough week? Get her what she needs. Chocolate, cozy socks, heating patches, period care — curated and delivered to her door in 1–3 days.",
     card2Title:          'Monthly Gift Box',
     card2Desc:           "Set it up once and she gets a thoughtful delivery every month \u2014 right before or during her cycle. She'll know exactly how much you care.",
     howTitle:            'How It Works',
@@ -181,13 +242,99 @@ const CONTENT = {
     step2Name:           'Add a Sweet Note',
     step2Desc:           "Personalize your gift and we handle the rest \u2014 packaged with care and discretion.",
     step3Name:           'Delivered to Her',
-    step3Desc:           "Discreet delivery right to her \u2014 home, office, school, wherever she is. Same-day or monthly, so she always knows you're thinking of her.",
-    trustBadges:         ['\U0001F381 Gift-Ready', '\U0001F36B Sweets Included', '\U0001F48C Personal Note', '\U0001F680 Same-Day Delivery', "\U0001F451 She'll Love It"],
+    step3Desc:           "Delivered right to her door in 1–3 days — home, office, school, wherever she is. Or set up a monthly subscription so she always knows you're thinking of her.",
+    trustBadges:         ['\u{1F381} Gift-Ready', '\u{1F36B} Sweets Included', '\u{1F48C} Personal Note', '\u{1F680} Same-Day Delivery', "\u{1F451} She'll Love It"],
     subEyebrow:          'Monthly Gift Box',
     subTitle:            'Send love<br><span>every month.</span>',
     subSub:              "Set up a recurring gift box \u2014 she gets a thoughtful delivery every cycle or on whatever schedule you set.",
     plansLabel:          'Step 1 \u2014 Choose a Gift Plan',
     pickerTitle:         'Step 2 \u2014 Pick What She Gets',
+  }
+};
+
+/* =============================================
+   WHY PERIOD — Version-specific appeal content
+   ============================================= */
+const WHY_PERIOD = {
+  teen: {
+    headline: "Why Period. hits different 👑",
+    tagline: "periodt, Pooh — we built this FOR you. Not DoorDash. Not a brand. You.",
+    cards: [
+      { icon:"💜", label:"For Real Though",   title:"Built for YOU. Not the app store.",
+        body:"We didn't start this to compete with DoorDash. We started it because someone we love was that girl — in the bathroom, panicking, completely alone. DoorDash is a food app. We are YOUR app. That is not the same thing, period." },
+      { icon:"💡", label:"The Logic",          title:"Same products. Smarter. Cheaper monthly.",
+        body:"Same brands as DoorDash — but we learn the difference between your regular day and your 'I bled through everything' day. We quiz you, remember your preferences, and shop FOR you. DoorDash just shows you everything and hopes you figure it out. We don't do that." },
+      { icon:"🤝", label:"Community",          title:"Your whole squad deserves you in the room.",
+        body:"Every order rounds up for girls who can't afford what you're ordering. When you buy from Period., a girl somewhere gets what she needs too. No girl should have to figure this out alone — and with us, she doesn't have to." },
+      { icon:"👑", label:"Real Talk",           title:"DoorDash brings fries. We bring freedom.",
+        body:"They deliver pads AND pizza AND 2am everything else. We do ONE thing. We made it our whole personality. We know your flow type better than your last situationship. We researched all the organic options. We are completely at peace with this. Period, Pooh. 👑" }
+    ],
+    cta: "Shop My Way",
+    footer: "1–3 Day Delivery · Price-matched · No judgment · Always stocked"
+  },
+  adult: {
+    headline: "Why Period. instead of DoorDash",
+    tagline: "Built for women who've been figuring it out alone long enough.",
+    cards: [
+      { icon:"💜", label:"The Why",             title:"You've been taking care of everyone. Let us take care of this.",
+        body:"The founder of Period. grew up in a house where no one talked about feminine care. Her grandmother didn't know how to bring it up. Her sister tried but was figuring it out herself. They all just winged it. Period. exists so no woman — at any age — has to wing it again." },
+      { icon:"💡", label:"The Logic",          title:"Price-matched. Personalized. 30–40% cheaper monthly.",
+        body:"Every product is price-matched to or below what you'd pay elsewhere. Our subscription saves you 30–40% monthly. A 5-question quiz learns your flow type and preferences so you're never scrolling through products you don't need. That level of personalization doesn't exist anywhere else." },
+      { icon:"🤝", label:"Community",          title:"Your routine becomes someone else's resource.",
+        body:"Every order rounds up for period poverty organizations. Every purchase contributes to kits donated to Cleveland schools and shelters. You take care of yourself. We help you take care of someone else. That's the whole model — and it's why we built this instead of just becoming another delivery app." },
+      { icon:"😂", label:"Let's Be Real",      title:"They deliver tampons AND hot wings. We only do one thing.",
+        body:"DoorDash delivers period care. They also deliver pizza, 2am snacks, and everything else imaginable. They don't know your flow type. They don't know if you need organic. They don't know that heavy cramps mean you need the CBD salve AND the magnesium AND the dark chocolate. We do. We're specifically, earnestly excellent at this one thing." }
+    ],
+    cta: "Shop My Essentials",
+    footer: "1–3 Day Delivery · Price-matched · Monthly subscription available · Always discreet"
+  },
+  emergency: {
+    headline: "You're okay. We've got you.",
+    tagline: "Fast, clear, no judgment. That's the whole thing.",
+    cards: [
+      { icon:"💜", label:"Right Now",          title:"Take a breath. Help is on the way.",
+        body:"Whatever just happened — you are okay. Period. was built specifically for this moment. Not for browsing. Not for comparing options. For right now, when you need something fast and you cannot think about anything else." },
+      { icon:"⚡", label:"How Fast",           title:"One tap. Under 30 minutes. Anywhere.",
+        body:"School, office, home, your friend's house — we deliver to wherever you are in under 30 minutes. Emergency kit is pre-packed with everything you need. One tap. Done. No account required." },
+      { icon:"🤝", label:"Not Alone",          title:"You are not the only person who has been here.",
+        body:"Thousands of people have used this same button. You are not dramatic. You are not unprepared. You are human. This happens to everyone. And help is always one tap away — that's exactly why we built this." },
+      { icon:"✅", label:"After This",         title:"Set it so this never happens again.",
+        body:"Once you're settled — when you're calm — consider setting up a monthly care package. It ships automatically so you're always stocked. We'll offer it to you after your order. No pressure right now. Just — we've got you." }
+    ],
+    cta: "Get It Now",
+    footer: "Under 30 min · Discreet packaging · No judgment · Always available"
+  },
+  gifter: {
+    headline: "Why Period. for gifting",
+    tagline: "The most powerful thing you can do is show up.",
+    cards: [
+      { icon:"💜", label:"Why It Matters",     title:"Most people forget. You remembered.",
+        body:"The fact that you thought of her today — that you noticed she might be having a rough week — changes everything. We built Period. to make showing up for someone as easy as possible, because the gesture itself is what matters most." },
+      { icon:"💡", label:"The Simple Truth",   title:"3 minutes. Something she'll remember forever.",
+        body:"Pick what she gets, set a delivery time, add a personal note. Three minutes of your time equals a box of care that arrives when she needs it most. A food app can send snacks. Only Period. sends a whole moment." },
+      { icon:"🤝", label:"Give Back",          title:"Your gift doubles.",
+        body:"For every gift order, Period. rounds up and donates a care kit to a local school or shelter. You show up for her. We show up for someone who needed it just as much. One gift, two people taken care of." },
+      { icon:"😂", label:"Real Talk",           title:"Flowers say 'I care.' This says 'I REALLY care.'",
+        body:"Flowers are lovely. But chocolate, cozy socks, her favorite pads, cramp patches, and a handwritten note that says 'I've got you' — that's a completely different message. We make it easy to be THAT person. And she will absolutely tell her friends about you." }
+    ],
+    cta: "Build Her Gift",
+    footer: "Same-day delivery · Personal gift notes · Monthly gifting available"
+  },
+  holistic: {
+    headline: "Why Period. for clean care",
+    tagline: "Your body is not a chemistry experiment. We treat it that way.",
+    cards: [
+      { icon:"💜", label:"The Standard",       title:"Clean ingredients shouldn't require a PhD.",
+        body:"We vet every holistic product so you don't have to read ingredient lists at midnight. No vague 'natural fragrance.' No greenwashing. Every item in our natural catalog is third-party tested, ingredient-transparent, and curated for real purity — not just a clean-sounding label." },
+      { icon:"💡", label:"The Logic",          title:"All-natural. Verified. All in one place.",
+        body:"Finding genuine clean alternatives normally means jumping between 10 websites, each with different standards. Period.'s holistic catalog is one curated, vetted collection — organic pads, reusable cups, CBD relief, castor oil kits, herbal teas, magnesium — fully clean. One place." },
+      { icon:"🤝", label:"Beyond You",         title:"Your choice ripples outward.",
+        body:"Choosing natural reduces your body's chemical load. Choosing reusable reduces plastic waste. Choosing Period. rounds up for girls who can't afford any of it. Your care is intentional — and it counts for you, for the environment, for the community." },
+      { icon:"😂", label:"Being Honest",       title:"We researched all of this. We have opinions. We're fine.",
+        body:"Conventional options come wrapped in bleached rayon with plastic cores. We will send you a castor oil ritual kit, cramp bark herbal tea, GOTS-certified organic cotton pads, and a lavender calm roller. We have deep feelings about clean period care. We are completely at peace with this. 🌿" }
+    ],
+    cta: "Shop Natural",
+    footer: "Third-party tested · Zero-waste options · Delivered to you · Always clean"
   }
 };
 
@@ -208,7 +355,7 @@ const CAT_GRADIENTS = {
    ============================================= */
 let state = {
   view:            'home',
-  version:         null,       // 'teen' | 'adult'
+  version:         null,       // 'teen' | 'adult' | 'emergency' | 'gifter' | 'holistic'
   cart:            {},          // { id: qty }
   careBox:         {},          // { id: qty } for subscription
   activeCategory:  'all',
@@ -218,6 +365,9 @@ let state = {
   openProduct:     null,
   selectedPlan:    null,
   deliveryAddress: '',
+  appliedPromo:       null,   // { type, value, label, code } | null
+  _stripeCard:        null,   // Stripe Card Element instance
+  _stripeCardMounted: false,
 };
 
 /* =============================================
@@ -391,6 +541,9 @@ function navigate(view) {
     // Fire 5-second tutorial on first-ever visit
     setTimeout(showTrackerTutorial, 300);
   }
+  if (view === 'community') {
+    initCommunity();
+  }
 }
 
 /* =============================================
@@ -429,6 +582,13 @@ function saveFavorites(favs) {
   try {
     document.cookie = 'period_favs=' + encodeURIComponent(JSON.stringify(favs)) + ';max-age=946080000;path=/;SameSite=Lax';
   } catch {}
+  // Also persist to Firestore so favorites survive cookie clears
+  if (_firebaseFs) {
+    _firebaseFs.collection('favorites').doc(getDeviceId()).set({
+      items:      favs,
+      updated_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore favorites save failed:', e));
+  }
 }
 function isFavorite(id) { return getFavorites().includes(id); }
 function toggleFavorite(id) {
@@ -712,7 +872,35 @@ function renderCart() {
     }));
   }
 
-  $('cartTotal').textContent = fmt(cartTotal());
+  // Dynamic pricing breakdown
+  const _pricing = getOrderTotal();
+  const _el = id => document.getElementById(id);
+
+  if (_el('breakdownSubtotal')) _el('breakdownSubtotal').textContent = fmt(_pricing.subtotal);
+
+  if (_el('breakdownDelivery')) {
+    _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE 🎉' : fmt(_pricing.delivery);
+    _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
+  }
+
+  if (_el('breakdownDiscountRow')) {
+    const _hasDisc = _pricing.discount > 0;
+    _el('breakdownDiscountRow').style.display = _hasDisc ? '' : 'none';
+    if (_hasDisc) {
+      if (_el('breakdownDiscount')) _el('breakdownDiscount').textContent = '−' + fmt(_pricing.discount);
+      if (_el('breakdownDiscountLabel') && state.appliedPromo)
+        _el('breakdownDiscountLabel').textContent = 'Discount (' + state.appliedPromo.code + ')';
+    }
+  }
+
+  if (_el('cartTotal')) _el('cartTotal').textContent = fmt(_pricing.total);
+
+  // Promo row toggle
+  const _hasPromo = !!state.appliedPromo;
+  if (_el('promoInputWrap'))  _el('promoInputWrap').style.display  = _hasPromo ? 'none' : '';
+  if (_el('promoAppliedRow')) _el('promoAppliedRow').style.display = _hasPromo ? '' : 'none';
+  if (_hasPromo && _el('promoAppliedLabel')) _el('promoAppliedLabel').textContent = state.appliedPromo.label;
+
   $('cartItemCount').textContent = cartCount() + ' item' + (cartCount()!==1?'s':'');
 }
 
@@ -795,8 +983,46 @@ function selectPlan(id) {
   $('subscribeBtnPrice').textContent = fmt(plan.price);
   state.pickerFilter = 'all';  // reset filter on plan change
   updateSubscribeBtn();
+  renderSmartSuggestions();
   renderPickerFilter();
   renderPickerGrid();
+}
+
+function renderSmartSuggestions() {
+  const favIds = getFavorites();
+  const box    = $('smartSuggestions');
+  const row    = $('smartSuggestRow');
+  if (!box || !row) return;
+
+  const favProducts = PRODUCTS.filter(p => favIds.includes(p.id));
+  if (!favProducts.length) {
+    box.style.display = 'none';
+    return;
+  }
+
+  const plan = PLANS[state.selectedPlan];
+  const slots = plan ? plan.slots : 0;
+  const used  = careBoxCount();
+
+  row.innerHTML = favProducts.map(p => {
+    const selected = state.careBox[p.id] > 0;
+    const full     = !selected && used >= slots;
+    return `<button class="smart-chip ${selected ? 'selected' : ''} ${full ? 'disabled' : ''}"
+              data-suggest="${p.id}" ${full ? 'disabled' : ''}
+              aria-pressed="${selected}" aria-label="${selected ? 'Remove' : 'Add'} ${p.name}">
+      <span class="chip-emoji" aria-hidden="true">${p.emoji}</span>
+      <span class="chip-name">${p.name}</span>
+    </button>`;
+  }).join('');
+
+  box.style.display = 'block';
+
+  row.querySelectorAll('[data-suggest]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleCareItem(+btn.dataset.suggest);
+      renderSmartSuggestions(); // re-render chips after toggle
+    });
+  });
 }
 
 function renderPickerFilter() {
@@ -872,6 +1098,7 @@ function toggleCareItem(id) {
     state.careBox[id] = 1;
   }
   renderPickerGrid();
+  renderSmartSuggestions();
   updateSubscribeBtn();
 }
 
@@ -893,33 +1120,81 @@ function updateSubscribeBtn() {
    EXPRESS CHECKOUT — Apple Pay & Google Pay
    ============================================= */
 function handleExpressCheckout(provider) {
-  // Validate cart has items
   const itemCount = Object.values(state.cart).reduce((s, n) => s + n, 0);
-  if (itemCount === 0) {
-    showToast('Add items to your cart first ✨');
-    return;
-  }
+  if (itemCount === 0) { showToast('Add items to your cart first ✨'); return; }
 
   const label = provider === 'apple' ? 'Apple Pay' : 'Google Pay';
 
-  // When Stripe is connected (Day 2), this will trigger the native payment sheet.
-  // For now, simulate the express checkout flow.
-  showToast(`${label} — payment goes live on launch day 🚀`);
+  if (_stripe) {
+    // Real Stripe Payment Request — Apple Pay / Google Pay native sheet
+    const { total, delivery } = getOrderTotal();
+    const pr = _stripe.paymentRequest({
+      country: 'US', currency: 'usd',
+      total: { label: 'Period. Order', amount: Math.round(total * 100) },
+      requestPayerEmail: true, requestPayerName: true, requestShipping: true,
+      shippingOptions: [{
+        id: 'local', label: 'Local Delivery (~45 min)',
+        detail: 'Via our partner network',
+        amount: Math.round(delivery * 100)
+      }]
+    });
+    pr.on('paymentmethod', ev => {
+      // TODO: call your backend to confirm PaymentIntent, then:
+      ev.complete('success');
+      state.cart = {}; state.appliedPromo = null;
+      updateCartBadge(); renderCart(); closeCart();
+      $('orderSuccess').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    pr.canMakePayment().then(result => {
+      if (result) { pr.show(); }
+      else {
+        showToast(`${label} not available on this device — try card checkout`);
+        openStripeCheckout();
+      }
+    });
+    return;
+  }
 
-  // Simulate brief processing then complete order
-  setTimeout(() => {
-    placeOrder();
-  }, 900);
+  // Pre-launch: friendly feedback + complete pre-order
+  showToast(`${label} activates at launch 🚀`);
+  setTimeout(() => placeOrder(), 900);
 }
 
 function placeOrder() {
-  // Clear cart and show success
-  state.cart = {};
+  const { subtotal, delivery, discount, total } = getOrderTotal();
+
+  if (subtotal > 0 && subtotal < 15) {
+    showToast(`Minimum order is $15.00 — add ${fmt(15 - subtotal)} more`);
+    return;
+  }
+
+  // Stripe connected → open secure checkout modal
+  if (_stripe) { openStripeCheckout(); return; }
+
+  // Pre-launch: save order to Firestore + show success
+  const orderItems = Object.entries(state.cart).map(([id, qty]) => ({ id, qty }));
+  if (_firebaseFs && orderItems.length) {
+    _firebaseFs.collection('orders').add({
+      items:      orderItems,
+      subtotal,
+      delivery,
+      discount,
+      total,
+      promo:      state.appliedPromo ? state.appliedPromo.code : null,
+      type:       state.version || 'adult',
+      device_id:  getDeviceId(),
+      address:    state.deliveryAddress || null,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore order save failed:', e));
+  }
+
+  state.cart         = {};
+  state.appliedPromo = null;
   updateCartBadge();
   renderCart();
   if (state.shopMode === 'products') renderProductGrid();
   closeCart();
-
   $('orderSuccess').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -929,6 +1204,18 @@ function confirmSubscribe() {
   if (!plan) return;
   $('subscribeSuccessEta').textContent = `👑 ${plan.name} Plan — ${fmt(plan.price)}/month`;
   $('subscribeSuccessSub').textContent = `Your first ${plan.name} care package (${careBoxCount()} items) ships within 3–5 business days. You'll receive a confirmation shortly.`;
+
+  // Save subscription to Firestore
+  if (_firebaseFs && plan) {
+    _firebaseFs.collection('subscriptions').add({
+      plan:       plan.name,
+      price:      plan.price,
+      items:      Object.entries(state.careBox || {}).map(([id, qty]) => ({ id, qty })),
+      version:    state.version || 'adult',
+      device_id:  getDeviceId(),
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore subscription save failed:', e));
+  }
 
   state.careBox = {};
   state.selectedPlan = null;
@@ -1039,13 +1326,23 @@ function init() {
 
   // Keyboard ESC
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal(); closeCart(); closeAddressModal(); closeNewsletterModal(); }
+    if (e.key === 'Escape') { closeModal(); closeCart(); closeAddressModal(); closeNewsletterModal(); closeWhyModal(); if ($('nicknameModal') && $('nicknameModal').classList.contains('open')) { $('nicknameModal').classList.remove('open'); $('nicknameOverlay').classList.remove('open'); } }
   });
 
   // Newsletter
   if ($('openNewsletterBtn'))  $('openNewsletterBtn').addEventListener('click', showNewsletterModal);
   if ($('nlCloseBtn'))         $('nlCloseBtn').addEventListener('click', closeNewsletterModal);
   if ($('nlSubmitBtn'))        $('nlSubmitBtn').addEventListener('click', subscribeNewsletter);
+
+  // Promo code
+  if ($('promoApplyBtn'))  $('promoApplyBtn').addEventListener('click', applyPromoCode);
+  if ($('promoRemoveBtn')) $('promoRemoveBtn').addEventListener('click', removePromoCode);
+  if ($('promoInput'))     $('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyPromoCode(); });
+
+  // Stripe checkout modal
+  if ($('coBackBtn'))  $('coBackBtn').addEventListener('click',  closeStripeCheckout);
+  if ($('coOverlay'))  $('coOverlay').addEventListener('click',  closeStripeCheckout);
+  if ($('coPayBtn'))   $('coPayBtn').addEventListener('click',   processStripePayment);
   if ($('nlOpenTracker'))      $('nlOpenTracker').addEventListener('click', () => { closeNewsletterModal(); navigate('tracker'); });
   if ($('newsletterModal'))    $('newsletterModal').addEventListener('click', e => { if (e.target === $('newsletterModal')) closeNewsletterModal(); });
   if ($('nlEmailInput'))       $('nlEmailInput').addEventListener('keydown', e => { if (e.key === 'Enter') subscribeNewsletter(); });
@@ -1116,6 +1413,20 @@ function init() {
   if ($('applePayBtn'))  $('applePayBtn').addEventListener('click',  () => handleExpressCheckout('apple'));
   if ($('googlePayBtn')) $('googlePayBtn').addEventListener('click', () => handleExpressCheckout('google'));
 
+  // Why Period modal
+  if ($('heroWhyBtn'))   $('heroWhyBtn').addEventListener('click', openWhyModal);
+  if ($('whyCloseBtn'))  $('whyCloseBtn').addEventListener('click', closeWhyModal);
+  if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
+  if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
+
+  if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
+  if ($('commPostBtn'))   $('commPostBtn').addEventListener('click', submitCommPost);
+  if ($('commInput'))     $('commInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitCommPost(); } });
+  if ($('nicknameConfirm')) $('nicknameConfirm').addEventListener('click', confirmNickname);
+  if ($('nicknameInput'))   $('nicknameInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmNickname(); });
+  if ($('navCommunity'))  $('navCommunity').addEventListener('click', () => navigate('community'));
+  if ($('heroCommBar'))   $('heroCommBar').addEventListener('click', () => navigate('community'));
+
   // Monthly upsell (post-order)
   if ($('upsellYes')) $('upsellYes').addEventListener('click', () => {
     $('orderSuccess').classList.remove('open');
@@ -1137,6 +1448,440 @@ function init() {
   updateCartBadge();
 }
 
+/* =============================================
+   STRIPE CHECKOUT MODAL
+   ============================================= */
+function openStripeCheckout() {
+  const items = Object.entries(state.cart).filter(([,q]) => q > 0);
+  if (!items.length) { showToast('Add items to your cart first ✨'); return; }
+
+  const { subtotal, delivery, discount, total } = getOrderTotal();
+
+  // Build order summary
+  const sumEl = $('coSummary');
+  if (sumEl) {
+    const itemLines = items.map(([id, qty]) => {
+      const p = PRODUCTS.find(p => p.id === +id);
+      return `<div class="co-sum-row"><span>${p.emoji} ${p.name}${qty > 1 ? ` ×${qty}` : ''}</span><span>${fmt(p.price * qty)}</span></div>`;
+    }).join('');
+    const promoLine = (discount > 0 && state.appliedPromo)
+      ? `<div class="co-sum-row co-sum-discount"><span>Code: ${state.appliedPromo.code}</span><span>−${fmt(discount)}</span></div>`
+      : '';
+    const delivLine = delivery === 0
+      ? `<div class="co-sum-row co-sum-free"><span>Delivery</span><span>FREE 🎉</span></div>`
+      : `<div class="co-sum-row"><span>Delivery 🛵</span><span>${fmt(delivery)}</span></div>`;
+    sumEl.innerHTML = `
+      <div class="co-sum-items">${itemLines}</div>
+      <div class="co-sum-divider"></div>
+      ${promoLine}${delivLine}
+      <div class="co-sum-row co-sum-total"><span>Total</span><span>${fmt(total)}</span></div>`;
+  }
+
+  const payAmt = $('coPayAmt');
+  if (payAmt) payAmt.textContent = fmt(total);
+
+  // Mount Stripe Card Element (once per session)
+  if (_stripe && !state._stripeCardMounted) {
+    const elements = _stripe.elements();
+    state._stripeCard = elements.create('card', {
+      style: {
+        base: {
+          color: '#F3F0FF',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSize: '16px',
+          '::placeholder': { color: '#7C69A0' }
+        },
+        invalid: { color: '#F87171' }
+      }
+    });
+    state._stripeCard.mount('#stripeCardElement');
+    state._stripeCard.addEventListener('change', ev => {
+      const err = $('stripeCardError');
+      if (err) err.textContent = ev.error ? ev.error.message : '';
+    });
+    state._stripeCardMounted = true;
+  }
+
+  const modal   = $('coModal');
+  const overlay = $('coOverlay');
+  if (modal)   { modal.style.display = ''; setTimeout(() => modal.classList.add('open'), 10); }
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStripeCheckout() {
+  const modal = $('coModal'), overlay = $('coOverlay');
+  if (modal)   modal.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  setTimeout(() => { if (modal) modal.style.display = 'none'; }, 300);
+  document.body.style.overflow = '';
+}
+
+async function processStripePayment() {
+  if (!_stripe || !state._stripeCard) return;
+  const btn = $('coPayBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = 'Processing…'; }
+
+  try {
+    const cardName = ($('coCardName') || {}).value || '';
+    // ── PRODUCTION FLOW ──────────────────────────────────────────
+    // 1. POST to your backend → create a Stripe PaymentIntent
+    //    Returns: { clientSecret: 'pi_xxx_secret_xxx' }
+    // 2. const { error, paymentIntent } = await _stripe.confirmCardPayment(
+    //      clientSecret,
+    //      { payment_method: { card: state._stripeCard, billing_details: { name: cardName } } }
+    //    );
+    // 3. If error → show err.message; else → placeOrder()
+    // ─────────────────────────────────────────────────────────────
+    throw new Error('BACKEND_NEEDED'); // remove once backend is wired
+  } catch(e) {
+    const errEl = $('stripeCardError');
+    if (errEl) errEl.textContent = e.message === 'BACKEND_NEEDED'
+      ? 'Connect your Stripe backend to process payments (see code comments).'
+      : (e.message || 'Payment failed — try again');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `Pay <span id="coPayAmt">${$('coPayAmt')?.textContent || ''}</span>`;
+    }
+  }
+}
+
+/* =================================================================
+   FIREBASE CONFIG  —  Community Posts Storage
+   =================================================================
+   HOW TO SET UP (takes about 10 minutes, totally free):
+
+   STEP 1 → Go to: https://console.firebase.google.com
+   STEP 2 → Click "Add project" → name it "period-app"
+   STEP 3 → Click the </> Web icon to add a web app
+   STEP 4 → Copy the firebaseConfig object they show you
+   STEP 5 → Paste it below, replacing "null" after FIREBASE_CONFIG =
+   STEP 6 → In Firebase: Build → Realtime Database → Create database
+             Choose "Start in test mode" (free Spark plan)
+
+   Until you set this up, community posts save to the user's device
+   (still works — Firebase just adds cross-device sharing later).
+   ================================================================= */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDjpDjka-euNeTPkwRE62lqojzGNzPSADI",
+  authDomain:        "period-delivers.firebaseapp.com",
+  projectId:         "period-delivers",
+  storageBucket:     "period-delivers.firebasestorage.app",
+  messagingSenderId: "1076074649022",
+  appId:             "1:1076074649022:web:3538dcd4b424bde16095ef"
+};
+
+let _firebaseDb = null;
+(function initFirebase() {
+  if (!FIREBASE_CONFIG) return;
+  try {
+    if (typeof firebase === 'undefined') return;
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _firebaseDb = firebase.database();
+  } catch(e) { console.warn('[Period.] Firebase init failed:', e); }
+})();
+
+/* =================================================================
+   EMAILJS CONFIG  —  Newsletter Send (Free: 200 emails/month)
+   =================================================================
+   HOW TO SET UP (takes about 5 minutes, totally free):
+
+   STEP 1 → Go to: https://www.emailjs.com → Create free account
+   STEP 2 → Email Services → Add Service → connect your Gmail
+   STEP 3 → Email Templates → Create Template
+             Subject: "Welcome to the . community! 💜"
+             Body: paste the template below
+   STEP 4 → Copy your Service ID, Template ID, and Public Key
+   STEP 5 → Paste them below
+
+   --- NEWSLETTER TEMPLATE (paste into EmailJS template body) ---
+   Hi there!
+
+   Welcome to the . community. 💜
+
+   You just unlocked your free Period Tracker — use it to log
+   your cycle, predict your next period, and get gentle reminders.
+
+   Every month you'll receive:
+   • Cycle education tailored to your phase
+   • Trending product picks
+   • Community support + exclusive drops
+
+   Shop now: https://perioddelivers.com
+
+   With love,
+   The . Team  |  Period. LLC — Cleveland, OH
+   Unsubscribe: reply "unsubscribe" to this email
+   ---------------------------------------------------------------
+
+   Until you set this up, subscribers are saved and you can
+   email them manually from your dashboard.
+   ================================================================= */
+const EMAILJS_CONFIG = {
+  serviceId:  'service_915qjs4',
+  templateId: 'template_22llltm',
+  publicKey:  'QcMi8VDsTqRYe59_D'
+};
+
+/* =================================================================
+   STRIPE CONFIG  —  Card Payments, Apple Pay, Google Pay
+   =================================================================
+   HOW TO ACTIVATE (10 min — free Stripe account):
+
+   STEP 1 → https://dashboard.stripe.com/register → create account
+   STEP 2 → Add your bank account (needed for payouts)
+   STEP 3 → Dashboard → Developers → API Keys
+   STEP 4 → Copy Publishable Key (starts with pk_live_... or pk_test_...)
+   STEP 5 → Replace null below:
+             { publishableKey: 'pk_live_...' }
+
+   Apple Pay + Google Pay: go live automatically once domain is verified.
+   Stripe Dashboard → Settings → Payment Methods → Apple Pay → Add domain
+   ================================================================= */
+const STRIPE_CONFIG = null; // ← { publishableKey: 'pk_live_...' }
+
+let _stripe = null;
+if (STRIPE_CONFIG && typeof Stripe !== 'undefined') {
+  try { _stripe = Stripe(STRIPE_CONFIG.publishableKey); }
+  catch(e) { console.warn('[Period.] Stripe init failed:', e); }
+}
+
+
+if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+  emailjs.init(EMAILJS_CONFIG.publicKey);
+}
+
+/* =============================================
+   COMMUNITY — NICKNAME + GREETING + DISCUSSION
+   ============================================= */
+
+const COMMUNITY_NICKNAME_KEY = 'period_nickname';
+const COMMUNITY_POSTS_KEY    = 'period_community_posts';
+
+const COMMUNITY_TOPICS = [
+  { id:'period-week',    title:'Period Week Talk',       emoji:'🩸', desc:'You\'re not alone this week. Share how you\'re feeling, ask for support, or just vent.' },
+  { id:'self-care',      title:'Self-Care Rituals',      emoji:'💆', desc:'What\'s working for you? Drop your go-to rituals, products, or comfort habits.' },
+  { id:'ask-anything',   title:'Ask Anything',           emoji:'💬', desc:'No question is too small. No judgment. We\'ve all been there.' },
+  { id:'wins',           title:'Wins & Encouragement',  emoji:'👑', desc:'Celebrate something — big or tiny. Uplift someone who needs it today.' },
+  { id:'reviews',        title:'Product Reviews',        emoji:'⭐', desc:'Which products are actually worth it? Help the community shop smarter.' },
+];
+
+const COMMUNITY_SEED = {
+  'period-week': [
+    { id:'s1', author:'Anonymous Queen',   time:'3h ago',  text:'Genuinely crying at a commercial right now and I have zero explanation. We are in it today 😭 Anyone else?', likes:24 },
+    { id:'s2', author:'TheaRose',          time:'5h ago',  text:'Day 2 is always my worst. Heat patches + dark chocolate + this app = survival kit. That is my entire plan today.', likes:18 },
+    { id:'s3', author:'JoyfulCycles',      time:'1d ago',  text:'Reminder that feeling EVERYTHING this week is literally hormonal — estrogen drops, serotonin drops with it. You are not being dramatic. You are being accurate. 💜', likes:41 },
+  ],
+  'self-care': [
+    { id:'s4', author:'NaturalQueen',      time:'2h ago',  text:'Castor oil pack on my lower abdomen last night + a heating pad on top. Slept through the whole night with no cramps for the first time in YEARS. Try it.', likes:35 },
+    { id:'s5', author:'WellnessWitch',     time:'6h ago',  text:'Magnesium glycinate two weeks before your period. Please trust me on this. It changed everything about my luteal phase.', likes:52 },
+  ],
+  'ask-anything': [
+    { id:'s6', author:'FirstTimer2024',    time:'1h ago',  text:'Is it normal for cramps to be worse in your 20s than they were as a teen? Mine have been SO much worse lately and I don\'t know if that\'s normal or if I should go to the doctor.', likes:7 },
+    { id:'s7', author:'CycleExpert',       time:'2h ago',  text:'@FirstTimer2024 Yes, and also no — worsening cramps can be normal hormonal shifts, but it can also be endometriosis or fibroids. If it\'s significantly worse, please see a doctor. You deserve to not be in that much pain. 💜', likes:19 },
+  ],
+  'wins': [
+    { id:'s8', author:'SundayQueen',       time:'4h ago',  text:'Got through a full workday on Day 1 without going home early for the FIRST time. A tiny win that felt enormous. Heating patch + 800mg ibuprofen + this community. Thank you.', likes:67 },
+    { id:'s9', author:'TamaraBee',         time:'8h ago',  text:'Finally made a doctor\'s appointment after years of just suffering through it. That alone felt like a win. Rooting for all of us 👑', likes:88 },
+  ],
+  'reviews': [
+    { id:'s10', author:'OrganicMaven',     time:'1d ago',  text:'The Organic Tampons Variety pack from here — 10/10. No irritation, no smell, they actually WORK. I\'ve switched fully.', likes:31 },
+    { id:'s11', author:'CuddleQueen',      time:'2d ago',  text:'The microwavable bunny is not a joke. I heated it up, held it against my lower back, fell asleep. Woke up with no cramps. SOLD.', likes:45 },
+  ],
+};
+
+let _commActiveTopic = null;
+
+function getNickname() {
+  const m = document.cookie.match(/period_nickname=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function setNickname(name) {
+  document.cookie = 'period_nickname=' + encodeURIComponent(name.trim()) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+function getTimeGreeting(name) {
+  const h = new Date().getHours();
+  const greets = h < 5
+    ? [`Still up, ${name}? We see you. Rest when you can. 💜`, `Late night, ${name}. Take care of yourself tonight.`]
+    : h < 12
+    ? [`Good morning, ${name}. You\'ve got this today. 💜`, `Morning, ${name}. Whatever this day holds — you\'re ready.`, `Rise and shine, ${name}. We\'re in your corner.`]
+    : h < 17
+    ? [`Hey ${name}. Hope your afternoon is treating you gently.`, `Good afternoon, ${name}. Taking care of yourself today? 💜`, `Hey ${name}. You\'re doing great — keep going.`]
+    : h < 21
+    ? [`Good evening, ${name}. Time to wind down a little. 💜`, `Hey ${name}. Hope today was kind to you.`, `Evening, ${name}. You deserve a moment to breathe.`]
+    : [`Good night, ${name}. Rest well — your body does its best work while you sleep. 💜`, `Hey ${name}. End of day rest is sacred. Take it.`];
+  return greets[Math.floor(Math.random() * greets.length)];
+}
+
+function getCommunityPosts(topicId) {
+  try {
+    const m = document.cookie.match(/period_community=([^;]+)/);
+    const all = m ? JSON.parse(decodeURIComponent(m[1])) : {};
+    return all[topicId] || [];
+  } catch { return []; }
+}
+
+function saveCommunityPost(topicId, text, author) {
+  try {
+    const cm = document.cookie.match(/period_community=([^;]+)/);
+    const all = cm ? JSON.parse(decodeURIComponent(cm[1])) : {};
+    if (!all[topicId]) all[topicId] = [];
+    const post = {
+      id: 'u' + Date.now(),
+      author: author || 'You',
+      time: 'just now',
+      text: text.trim(),
+      likes: 0,
+      isOwn: true,
+    };
+    all[topicId].unshift(post);
+    document.cookie = 'period_community=' + encodeURIComponent(JSON.stringify(all)) + ';max-age=946080000;path=/;SameSite=Lax';
+    // Also write to Firebase if configured (fire-and-forget)
+    if (_firebaseDb) {
+      const fbPost = Object.assign({}, post, { ts: Date.now() });
+      _firebaseDb.ref('community/' + topicId + '/' + post.id).set(fbPost)
+        .catch(e => console.warn('[Period.] Firebase write failed:', e));
+    }
+    return post;
+  } catch { return null; }
+}
+
+function renderCommunityHome() {
+  const name    = getNickname();
+  const greet   = $('commGreeting');
+  const topics  = $('commTopics');
+  const thread  = $('commThread');
+
+  if (thread)  thread.style.display  = 'none';
+  if (topics)  topics.style.display  = '';
+  if (greet)   greet.style.display   = '';
+  _commActiveTopic = null;
+
+  if (greet && name) {
+    const txt = $('commGreetingText');
+    if (txt) txt.textContent = getTimeGreeting(name);
+  }
+
+  const grid = $('commTopicGrid');
+  if (!grid) return;
+  grid.innerHTML = COMMUNITY_TOPICS.map(t => {
+    const seedCount  = (COMMUNITY_SEED[t.id] || []).length;
+    const userPosts  = getCommunityPosts(t.id).length;
+    const total      = seedCount + userPosts;
+    return `<button class="comm-topic-card" data-topic="${t.id}" onclick="openCommTopic('${t.id}')">
+      <span class="comm-topic-emoji" aria-hidden="true">${t.emoji}</span>
+      <div class="comm-topic-info">
+        <div class="comm-topic-title">${t.title}</div>
+        <div class="comm-topic-desc">${t.desc}</div>
+      </div>
+      <div class="comm-topic-count">${total}</div>
+    </button>`;
+  }).join('');
+}
+
+function openCommTopic(topicId) {
+  _commActiveTopic = topicId;
+  const topic   = COMMUNITY_TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+
+  const greet  = $('commGreeting');
+  const topics = $('commTopics');
+  const thread = $('commThread');
+  if (greet)  greet.style.display  = 'none';
+  if (topics) topics.style.display = 'none';
+  if (thread) thread.style.display = '';
+
+  const header = $('commThreadHeader');
+  if (header) header.textContent = topic.emoji + ' ' + topic.title;
+
+  renderCommPosts(topicId);
+}
+
+function renderCommPosts(topicId) {
+  const container = $('commPosts');
+  if (!container) return;
+
+  const seed  = (COMMUNITY_SEED[topicId] || []).map(p => ({...p, isOwn: false}));
+  const user  = getCommunityPosts(topicId);
+  const all   = [...user, ...seed];
+
+  container.innerHTML = all.map(p => `
+    <div class="comm-post ${p.isOwn ? 'comm-post--own' : ''}">
+      <div class="comm-post-header">
+        <span class="comm-post-author">${p.isOwn ? '👑 ' + p.author : p.author}</span>
+        <span class="comm-post-time">${p.time}</span>
+      </div>
+      <div class="comm-post-text">${p.text}</div>
+      <div class="comm-post-footer">
+        <button class="comm-like-btn" data-id="${p.id}" onclick="likePost('${topicId}','${p.id}',this)" aria-label="Like post">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="${p.liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          ${p.likes}
+        </button>
+      </div>
+    </div>`).join('') || '<p class="comm-empty">Be the first to post here. 💜</p>';
+
+  container.scrollTop = 0;
+}
+
+function likePost(topicId, postId, btn) {
+  if (!btn) return;
+  btn.classList.toggle('liked');
+  const heart = btn.querySelector('svg');
+  const liked = btn.classList.contains('liked');
+  if (heart) heart.setAttribute('fill', liked ? 'currentColor' : 'none');
+  const current = parseInt(btn.textContent.trim()) || 0;
+  btn.innerHTML = btn.innerHTML.replace(/\d+$/, liked ? current + 1 : Math.max(0, current - 1));
+}
+
+function submitCommPost() {
+  const input  = $('commInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const name = getNickname() || 'You';
+  saveCommunityPost(_commActiveTopic, text, name);
+  input.value = '';
+  renderCommPosts(_commActiveTopic);
+  showToast('Posted! 💜');
+}
+
+function initCommunity() {
+  const name = getNickname();
+  if (!name) {
+    // Show nickname prompt
+    const modal   = $('nicknameModal');
+    const overlay = $('nicknameOverlay');
+    if (modal) {
+      modal.style.display = 'flex';
+      if (overlay) overlay.style.display = 'block';
+      requestAnimationFrame(() => {
+        modal.classList.add('open');
+        if (overlay) overlay.classList.add('open');
+      });
+      setTimeout(() => {
+        const inp = $('nicknameInput');
+        if (inp) inp.focus();
+      }, 400);
+    }
+  } else {
+    renderCommunityHome();
+  }
+}
+
+function confirmNickname() {
+  const inp = $('nicknameInput');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) { inp.placeholder = 'Please enter a name first...'; return; }
+  setNickname(val);
+  const modal   = $('nicknameModal');
+  const overlay = $('nicknameOverlay');
+  if (modal)   { modal.classList.remove('open'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
+  if (overlay) { overlay.classList.remove('open'); setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+  renderCommunityHome();
+}
+
 document.addEventListener('DOMContentLoaded', init);
 
 /* =============================================
@@ -1153,12 +1898,14 @@ const TRENDS_DEFAULT = {
     adult:     { label: 'Cycle Syncing 2026',  desc: 'Match your life to your hormones' },
     emergency: { label: 'Always Prepared ⚡',  desc: 'Never get caught off guard again' },
     gifter:    { label: 'Gift the Glow-Up 💝', desc: 'What she actually wants this cycle' },
+    holistic:  { label: 'Clean Cycle Era 🌿',  desc: 'All-natural period care, curated for you' },
   },
   slang: {
     teen:      ["understood the assignment 💅","main character era ✨","it's giving wellness 🌸","slay, periodt 👑","LutealTok made me do it 🌙","cycle check queen 👑","that girl activated ✨","real for that, no cap 💜","hot girl healing era 🌸","understood the vibes 💅"],
     adult:     ["living in alignment 🌙","luteal phase supported 💜","cycle-synced and thriving","hormonal health era 🌿","radical softness, always","doing the work 👑","follicular energy activated ✨","in my wellness era 🌸","cycle-aware baddie 👑","aligned and unbothered 🌙"],
     emergency: ["we've got you, always ⚡","SOS handled 🚨","never caught off guard 💪","always stocked, always ready 🧷"],
     gifter:    ["show up for her 👑","she deserves it, periodt 💝","thoughtful queen energy 🎁","because you see her 💜"],
+    holistic:  ["clean cycle era 🌿","toxin-free and thriving","organic baddie energy 💚","zero waste, full power ♻️","plant-based and intentional 🌱","she cycles naturally 🌿"],
   },
   facts: {
     teen: [
@@ -1184,6 +1931,14 @@ const TRENDS_DEFAULT = {
     gifter: [
       { icon: '💝', text: "Research shows that receiving care packages during a menstrual cycle significantly reduces reported emotional distress. Showing up matters." },
       { icon: '🧠', text: "Dark chocolate contains magnesium — a mineral that's often deficient during the luteal phase and directly linked to PMS. That's why it's craved." },
+    ],
+    holistic: [
+      { icon: '🌿', text: "Conventional pads and tampons may contain pesticide residues, dioxins from bleaching, and synthetic fragrances. Organic and reusable alternatives eliminate this exposure entirely." },
+      { icon: '🌱', text: "The average person uses 10,000–16,000 disposable period products in their lifetime. Switching to reusable options reduces lifetime plastic waste by up to 99%." },
+      { icon: '🫚', text: "Castor oil applied topically to the lower abdomen has been used for centuries to relieve uterine cramping and bloating. The ricinoleic acid it contains has documented anti-inflammatory properties." },
+      { icon: '🍵', text: "Red raspberry leaf contains fragrine, a compound that tones the uterine muscle. Many herbalists recommend it in the luteal phase to reduce cramping and regulate flow." },
+      { icon: '🧪', text: "CBD (cannabidiol) applied topically interacts with the endocannabinoid receptors in pelvic tissue. Third-party tested CBD products show promise for localized cramp relief without systemic effects." },
+      { icon: '💚', text: "Magnesium glycinate is the most bioavailable form of magnesium. Studies show it reduces PMS symptoms by up to 40% when taken consistently in the second half of the cycle." },
     ],
   },
 };
@@ -1317,6 +2072,34 @@ function subscribeNewsletter() {
   setNLCookie(email, stage);
   updateTrackerBtn();
 
+  // Save subscriber to Firestore
+  if (_firebaseFs) {
+    _firebaseFs.collection('subscribers').add({
+      email,
+      stage,
+      version:   state.version || 'adult',
+      source:    'newsletter_modal',
+      device_id: getDeviceId(),
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore subscriber save failed:', e));
+  }
+
+  // Send welcome email via EmailJS if configured
+  if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+    emailjs.send(
+      EMAILJS_CONFIG.serviceId,
+      EMAILJS_CONFIG.templateId,
+      {
+        to_email:   email,
+        to_name:    'there',
+        life_stage: stage,
+        version:    state.version || 'adult',
+        store_url:  'https://perioddelivers.com',
+      },
+      EMAILJS_CONFIG.publicKey
+    ).catch(e => console.warn('[Period.] EmailJS send failed:', e));
+  }
+
   const fs = $('nlFormState'), ss = $('nlSuccessState');
   if (fs) fs.style.display = 'none';
   if (ss) ss.style.display = '';
@@ -1340,6 +2123,69 @@ function updateTrackerBtn() {
     btn.classList.remove('unlocked');
     if (lock) lock.style.display = '';
   }
+}
+
+/* =============================================
+   THE CHANGE, SIS — SHOP FOR THIS STAGE
+   ============================================= */
+function openShopForStage() {
+  navigate('shop');
+  // After navigation, go directly to the Wellness category
+  setTimeout(() => {
+    showProductsMode('wellness');
+    showToast('Showing Wellness products for your stage 💜');
+  }, 120);
+}
+
+/* =============================================
+   WHY PERIOD MODAL
+   ============================================= */
+function openWhyModal() {
+  const modal   = $('whyModal');
+  const overlay = $('whyOverlay');
+  if (!modal) return;
+  renderWhyModal();
+  modal.style.display   = 'flex';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    modal.classList.add('open');
+    overlay.classList.add('open');
+  });
+}
+
+function closeWhyModal() {
+  const modal   = $('whyModal');
+  const overlay = $('whyOverlay');
+  if (!modal) return;
+  modal.classList.remove('open');
+  overlay.classList.remove('open');
+  setTimeout(() => {
+    modal.style.display   = 'none';
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+function renderWhyModal() {
+  const v    = state.version || 'adult';
+  const data = WHY_PERIOD[v] || WHY_PERIOD.adult;
+  if ($('whyHeadline'))  $('whyHeadline').textContent  = data.headline;
+  if ($('whyTagline2'))  $('whyTagline2').textContent  = data.tagline;
+  if ($('whyFooterSub')) $('whyFooterSub').textContent = data.footer;
+  const btn = $('whyShopBtn');
+  if (btn) btn.textContent = data.cta;
+  const cards = $('whyCards');
+  if (!cards) return;
+  cards.innerHTML = data.cards.map((card, i) => `
+    <div class="why-card" style="animation-delay:${i * 90}ms">
+      <div class="why-card-top">
+        <span class="why-card-icon" aria-hidden="true">${card.icon}</span>
+        <span class="why-card-label">${card.label}</span>
+      </div>
+      <div class="why-card-title">${card.title}</div>
+      <div class="why-card-body">${card.body}</div>
+    </div>`).join('');
 }
 
 /* =============================================
@@ -1745,12 +2591,12 @@ function checkAndFireReminder() {
 const LEGAL = {
   privacy: {
     title: 'Privacy Policy',
-    lastUpdated: 'April 6, 2026',
+    lastUpdated: 'April 8, 2026',
     content: `
-      <p class="legal-updated">Last updated: April 6, 2026</p>
+      <p class="legal-updated">Last updated: April 8, 2026</p>
 
       <h3>Who We Are</h3>
-      <p>Periodt LLC ("we," "us," or "our") operates the . (Period) platform — a feminine care delivery and subscription service based in Cleveland, Ohio. We are the middleman between you and our supplier partners. We do not manufacture or warehouse products.</p>
+      <p>Period. LLC ("we," "us," or "our") operates the . (Period) platform — a feminine care delivery and subscription service based in Cleveland, Ohio. We are the middleman between you and our supplier partners. We do not manufacture or warehouse products.</p>
 
       <h3>Information We Collect</h3>
       <p><strong>You provide directly:</strong></p>
@@ -1799,7 +2645,7 @@ const LEGAL = {
         <li><strong>Opt-out</strong> — Unsubscribe from emails or SMS at any time</li>
         <li><strong>Correction</strong> — Update inaccurate information</li>
       </ul>
-      <p>To exercise any of these rights, email us at <a href="mailto:privacy@shopperiodt.com">privacy@shopperiodt.com</a>.</p>
+      <p>To exercise any of these rights, email us at <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a>.</p>
 
       <h3>Data Security</h3>
       <p>We use industry-standard encryption (HTTPS/TLS) for all data in transit. Payment data is handled exclusively by Stripe and never touches our servers. We regularly review our security practices.</p>
@@ -1808,21 +2654,21 @@ const LEGAL = {
       <p>We may update this policy from time to time. When we do, we'll update the "Last updated" date at the top and notify newsletter subscribers of material changes.</p>
 
       <h3>Contact Us</h3>
-      <p>Periodt LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:privacy@shopperiodt.com">privacy@shopperiodt.com</a></p>
+      <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a></p>
     `
   },
 
   terms: {
     title: 'Terms of Service',
-    lastUpdated: 'April 6, 2026',
+    lastUpdated: 'April 8, 2026',
     content: `
-      <p class="legal-updated">Last updated: April 6, 2026</p>
+      <p class="legal-updated">Last updated: April 8, 2026</p>
 
       <h3>Agreement to Terms</h3>
-      <p>By accessing or using the . (Period) platform operated by Periodt LLC ("we," "us," "our"), you agree to these Terms of Service. If you do not agree, please do not use our service. You must be at least 13 years old to use this platform.</p>
+      <p>By accessing or using the . (Period) platform operated by Period. LLC ("we," "us," "our"), you agree to these Terms of Service. If you do not agree, please do not use our service. You must be at least 13 years old to use this platform.</p>
 
       <h3>What We Do</h3>
-      <p>Periodt LLC is a middleman service. We connect customers with third-party supplier partners for feminine care, wellness, and related products. We do not manufacture, store, or ship products ourselves. We coordinate on-demand delivery through third-party courier services (DoorDash Drive, Uber Direct) and monthly subscription fulfillment through our supplier network.</p>
+      <p>Period. LLC is a middleman service. We connect customers with third-party supplier partners for feminine care, wellness, and related products. We do not manufacture, store, or ship products ourselves. We coordinate on-demand delivery through third-party courier services (DoorDash Drive, Uber Direct) and monthly subscription fulfillment through our supplier network.</p>
 
       <h3>Orders and Payment</h3>
       <ul>
@@ -1842,9 +2688,11 @@ const LEGAL = {
       <h3>Subscriptions</h3>
       <ul>
         <li>Monthly care package subscriptions are billed on a recurring basis on your chosen plan date.</li>
-        <li>You may cancel your subscription at any time before the next billing date. Cancellations take effect the following billing cycle.</li>
+        <li><strong>Cancel anytime — no calls, no hassle, one tap.</strong> Tap "Manage or cancel subscription" on your confirmation screen, or email <a href="mailto:cancel@perioddelivers.com" color="#A855F7">cancel@perioddelivers.com</a> and we will cancel immediately. No questions asked.</li>
+        <li>To avoid being charged for the next cycle, cancel before your monthly billing date. Cancellations confirmed via email within 24 hours.</li>
         <li>We do not offer refunds for subscription boxes that have already shipped.</li>
-        <li>You may swap items in your box at any time before your monthly cutoff date.</li>
+        <li>You may swap items in your box at any time before your monthly cutoff date (3 days before billing).</li>
+        <li>You will receive an email reminder 3 days before each billing date with a direct cancel link.</li>
       </ul>
 
       <h3>Returns and Refunds</h3>
@@ -1863,7 +2711,7 @@ const LEGAL = {
       </ul>
 
       <h3>Intellectual Property</h3>
-      <p>The . (Period) name, crown logo, app design, copy, and all original content are owned by Periodt LLC. You may not copy, reproduce, or use our brand assets without written permission. All rights reserved.</p>
+      <p>The . (Period) name, crown logo, app design, copy, and all original content are owned by Period. LLC. You may not copy, reproduce, or use our brand assets without written permission. All rights reserved.</p>
 
       <h3>Prohibited Uses</h3>
       <p>You agree not to:</p>
@@ -1875,7 +2723,7 @@ const LEGAL = {
       </ul>
 
       <h3>Limitation of Liability</h3>
-      <p>To the fullest extent permitted by Ohio law, Periodt LLC is not liable for indirect, incidental, or consequential damages arising from use of our service, including delivery delays, product allergic reactions (please review product ingredients), or third-party service failures. Our total liability for any claim shall not exceed the amount you paid for the specific order in question.</p>
+      <p>To the fullest extent permitted by Ohio law, Period. LLC is not liable for indirect, incidental, or consequential damages arising from use of our service, including delivery delays, product allergic reactions (please review product ingredients), or third-party service failures. Our total liability for any claim shall not exceed the amount you paid for the specific order in question.</p>
 
       <h3>Health Disclaimer</h3>
       <p>Products sold through our platform are not intended to diagnose, treat, cure, or prevent any medical condition. The period tracker and health content on this platform are for informational purposes only and do not constitute medical advice. Consult a healthcare provider for medical concerns.</p>
@@ -1887,7 +2735,7 @@ const LEGAL = {
       <p>We may update these Terms at any time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll notify subscribers of material changes.</p>
 
       <h3>Contact Us</h3>
-      <p>Periodt LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:legal@shopperiodt.com">legal@shopperiodt.com</a></p>
+      <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:legal@perioddelivers.com">legal@perioddelivers.com</a></p>
     `
   }
 };
@@ -2511,7 +3359,7 @@ function getReviews() {
   } catch { return []; }
 }
 
-function saveReview(emoji, label) {
+function saveReview(emoji, label, text) {
   const reviews = getReviews();
   reviews.push({ emoji, label, ts: Date.now(), v: state.version });
   // Keep last 50 reviews
@@ -2532,6 +3380,10 @@ function initReviewPrompt() {
   const row      = $('reviewEmojiRow');
   const thanks   = $('reviewThanks');
   const thanksEm = $('reviewThanksEmoji');
+  const textBox  = $('reviewTextBox');
+  const textIn   = $('reviewTextInput');
+  const submitBtn= $('reviewSubmitBtn');
+  const skipBtn  = $('reviewSkipBtn');
 
   if (!prompt || !row) return;
 
@@ -2541,27 +3393,61 @@ function initReviewPrompt() {
     return;
   }
 
+  // Determine if this version gets text feedback
+  const v = state.version || 'adult';
+  const hasTextFeedback = (v === 'adult' || v === 'holistic');
+
+  let selectedEmoji = null;
+  let selectedLabel = null;
+
+  function showThanks() {
+    row.style.display = 'none';
+    if (textBox) textBox.style.display = 'none';
+    if (thanksEm) thanksEm.textContent = selectedEmoji;
+    if (thanks)   thanks.style.display = 'flex';
+    document.querySelector('.review-prompt-q').textContent = selectedLabel + '!';
+  }
+
   // Wire emoji buttons
   row.querySelectorAll('.review-emoji-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const emoji = btn.dataset.emoji;
-      const label = btn.dataset.label;
+      selectedEmoji = btn.dataset.emoji;
+      selectedLabel = btn.dataset.label;
 
       // Mark selected
       row.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
 
-      // Save and show thanks
-      saveReview(emoji, label);
-
-      setTimeout(() => {
-        row.style.display = 'none';
-        if (thanksEm)  thanksEm.textContent = emoji;
-        if (thanks)    thanks.style.display = 'flex';
-        document.querySelector('.review-prompt-q').textContent = label + '!';
-      }, 300);
+      if (hasTextFeedback) {
+        // Slide in the text box for adult / holistic
+        if (textBox) {
+          textBox.style.display = 'block';
+          if (textIn) { textIn.value = ''; textIn.focus(); }
+        }
+      } else {
+        // Teen — immediate thanks, no text
+        saveReview(selectedEmoji, selectedLabel, '');
+        setTimeout(showThanks, 300);
+      }
     });
   });
+
+  // Submit with text
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      const text = textIn ? textIn.value.trim() : '';
+      saveReview(selectedEmoji, selectedLabel, text);
+      showThanks();
+    });
+  }
+
+  // Skip (submit with no text)
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => {
+      saveReview(selectedEmoji, selectedLabel, '');
+      showThanks();
+    });
+  }
 }
 
 // Re-init review prompt every time the order success modal opens
@@ -2582,10 +3468,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (prompt)  prompt.style.display = '';
-      if (row)     row.style.display = 'flex';
+      if (row)     { row.style.display = 'flex'; }
       if (thanks)  thanks.style.display = 'none';
       if (promptQ) promptQ.textContent = 'How are you feeling about us?';
       row?.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
+      const tb = $('reviewTextBox');
+      const ti = $('reviewTextInput');
+      if (tb) { tb.style.display = 'none'; }
+      if (ti) { ti.value = ''; }
+      initReviewPrompt();
     }
   }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
 
@@ -2613,5 +3504,311 @@ document.addEventListener('DOMContentLoaded', () => {
       const section = $('impactSection');
       if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  }
+});
+
+/* =====================================================
+   AGE GATE — check on load, store answer in cookie
+   ===================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap       = document.getElementById('ageGateWrap');
+  const askScreen  = document.getElementById('ageGateAsk');
+  const blocked    = document.getElementById('ageGateBlocked');
+  const yesBtn     = document.getElementById('ageGateYes');
+  const noBtn      = document.getElementById('ageGateNo');
+
+  if (!wrap) return;
+
+  const COOKIE = 'period_age_ok';
+
+  function getCookie(name) {
+    const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return m ? m[1] : null;
+  }
+  function setCookie(name, val, days) {
+    const exp = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + val + '; expires=' + exp + '; path=/; SameSite=Lax';
+  }
+
+  function dismissGate() {
+    wrap.style.opacity = '0';
+    wrap.style.transition = 'opacity .3s ease';
+    setTimeout(() => { wrap.style.display = 'none'; }, 300);
+    document.body.style.overflow = '';
+  }
+
+  // Already verified
+  if (getCookie(COOKIE) === 'yes') {
+    wrap.style.display = 'none';
+    return;
+  }
+
+  // Show gate
+  wrap.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  yesBtn.addEventListener('click', () => {
+    setCookie(COOKIE, 'yes', 365);
+    dismissGate();
+  });
+
+  noBtn.addEventListener('click', () => {
+    askScreen.style.display = 'none';
+    blocked.style.display   = 'flex';
+    // Do NOT store — show gate again next visit so parent can verify
+  });
+});
+
+/* =====================================================
+   MANAGE / CANCEL SUBSCRIPTION modal
+   ===================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const manageBtn = document.getElementById('manageSubBtn');
+  if (!manageBtn) return;
+
+  manageBtn.addEventListener('click', () => {
+    // Build a simple inline cancel confirmation overlay
+    const existing = document.getElementById('cancelSubOverlay');
+    if (existing) { existing.remove(); }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'cancelSubOverlay';
+    overlay.style.cssText = `
+      position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.85);
+      display:flex;align-items:center;justify-content:center;padding:1.5rem;
+      animation:ageFadeIn .25s ease;
+    `;
+    overlay.innerHTML = `
+      <div style="background:#1a1625;border:1px solid #333;border-radius:20px;padding:2rem 1.5rem;
+                  max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1rem;">
+        <div style="font-size:2rem;">👑</div>
+        <h2 style="color:#fff;font-size:1.2rem;font-weight:700;margin:0;">Manage Your Subscription</h2>
+        <p style="color:#aaa;font-size:.9rem;line-height:1.6;margin:0;">
+          To cancel or change your plan, email us at
+          <a href="mailto:cancel@perioddelivers.com"
+             style="color:#A855F7;text-decoration:none;font-weight:600;">cancel@perioddelivers.com</a>
+          and we'll take care of it within 24 hours — no questions asked.
+        </p>
+        <p style="color:#888;font-size:.8rem;margin:0;">
+          Or call/text <a href="tel:+12162501993" style="color:#D4AF37;font-weight:600;">(216) 250-1993</a>
+        </p>
+        <button id="cancelSubClose" style="
+          margin-top:.5rem;width:100%;padding:.8rem;
+          background:linear-gradient(135deg,#A855F7,#7C3AED);
+          color:#fff;border:none;border-radius:12px;
+          font-size:.95rem;font-weight:600;cursor:pointer;">
+          Got it
+        </button>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    document.getElementById('cancelSubClose').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  });
+});
+
+/* =============================================================
+   THE CYCLE SCOOP — Facts, FAQ, Teen Rotating Facts
+   Add new facts to PERIOD_FACTS array to expand the library.
+   ============================================================= */
+
+const PERIOD_FACTS = [
+  { emoji:'💜', text:'Your whole period is only about 2–3 tablespoons of blood total. It just FEELS like more.', tag:'Body' },
+  { emoji:'🍫', text:'Chocolate cravings on your period? Your body is literally asking for magnesium. The craving is real AND scientific.', tag:'Body' },
+  { emoji:'😅', text:'You can\'t lose a tampon inside you. It can only go so far. Your cervix is a closed door. Periodt.', tag:'Myths' },
+  { emoji:'⚡', text:'Some athletes actually train harder during their follicular phase — right after their period ends. Your cycle is a superpower, not a setback.', tag:'Body' },
+  { emoji:'👑', text:'The average person has about 450 periods in their lifetime. That\'s a lot of reasons to have Period. in your corner.', tag:'Fun' },
+  { emoji:'🌡️', text:'Heat relaxes your uterine muscles — that\'s the literal science behind why a heating pad helps with cramps.', tag:'Body' },
+  { emoji:'🧠', text:'PMS is real — the hormone shift before your period actually affects serotonin, your "happy chemical." You\'re not overreacting.', tag:'Body' },
+  { emoji:'✨', text:'Period blood isn\'t dirty. It\'s the same blood in your veins plus uterine lining. Clean, natural, completely normal.', tag:'Myths' },
+  { emoji:'🏃‍♀️', text:'Exercise actually helps with cramps. Your body releases endorphins — natural painkillers — when you move. Even a short walk counts.', tag:'Wellness' },
+  { emoji:'🌊', text:'Irregular periods are super common in the first few years of having your cycle. Your body is still figuring out its rhythm — and that\'s okay.', tag:'Body' },
+  { emoji:'👃', text:'Your sense of smell actually gets sharper around ovulation. Like, scientifically measurable sharper. Bodies are wild.', tag:'Fun' },
+  { emoji:'😤', text:'Stress can delay your period. Your brain and your cycle are directly connected — when life is a lot, your body feels it too.', tag:'Body' },
+  { emoji:'🏊‍♀️', text:'You can absolutely swim, run, dance, compete, and do anything else on your period. Your cycle doesn\'t get to cancel your life.', tag:'Myths' },
+  { emoji:'🎨', text:'The follicular phase (right after your period) is when most people feel their most creative and focused. Plan your big moments then.', tag:'Body' },
+  { emoji:'🩸', text:'Period underwear can absorb as much as 4 tampons worth of flow — with nothing extra needed. Technology did that.', tag:'Products' },
+  { emoji:'🌿', text:'Menstrual cups are made of medical-grade silicone and can be worn for up to 12 hours. One cup can last years.', tag:'Products' },
+  { emoji:'💊', text:'Iron levels drop during your period — that\'s part of why you feel more tired. Iron-rich foods (or supplements) actually help.', tag:'Wellness' },
+  { emoji:'😴', text:'The luteal phase (before your period) is when your body temperature rises slightly and sleep gets harder. It\'s hormonal, not in your head.', tag:'Body' },
+  { emoji:'🍵', text:'Red raspberry leaf tea has been used for centuries to ease cramps and support uterine health. Some things just work.', tag:'Wellness' },
+  { emoji:'📅', text:'Your cycle length is counted from Day 1 of your period to Day 1 of your next period — not just the bleeding days. Knowing that changes everything.', tag:'Body' },
+  { emoji:'💙', text:'Blood clots during your period are normal up to about the size of a quarter. Your body is doing exactly what it\'s supposed to.', tag:'Body' },
+  { emoji:'🌙', text:'Melatonin (your sleep hormone) is affected by your cycle. Some people genuinely sleep better or worse depending on their phase.', tag:'Body' },
+];
+
+const FAQ_DATA = [
+  { q:'How long does a period usually last?',
+    a:'Most periods last between 3 and 7 days. The first couple of days tend to be the heaviest, then it lightens up. If yours is consistently shorter or longer, that can just be your normal — but it\'s worth mentioning to a doctor if it\'s over 7 days.' },
+  { q:'Why do I get cramps?',
+    a:'Your uterus contracts to push out its lining — and those contractions are what cause cramps. Heat, light movement, and hydration all genuinely help. If your cramps are severe enough to stop you from doing things, that\'s worth talking to a doctor about.' },
+  { q:'What\'s the difference between pads, tampons, and cups?',
+    a:'Pads sit in your underwear and absorb outside your body — great starting point. Tampons are inserted and absorb inside — comfortable once you get the hang of them. Menstrual cups are reusable silicone cups that collect instead of absorb. There\'s no "right" choice — it\'s personal.' },
+  { q:'What is PMS?',
+    a:'PMS (premenstrual syndrome) is a group of symptoms that show up in the 1–2 weeks before your period — mood shifts, cravings, bloating, fatigue, feeling more emotional. It\'s caused by hormone changes and it\'s very real. You\'re not imagining it.' },
+  { q:'Why is my period irregular?',
+    a:'Irregular periods are incredibly common, especially in the first few years. Stress, diet changes, illness, and major life events can all shift your cycle. Tracking your period (use the tracker here) helps you start to understand your own pattern.' },
+  { q:'Can I exercise on my period?',
+    a:'Yes — and it often helps. Movement releases endorphins, which can ease cramps and improve your mood. You don\'t have to push through anything that hurts, but gentle movement like walking, yoga, or stretching can genuinely make you feel better.' },
+  { q:'What\'s a "normal" amount of blood?',
+    a:'Most people lose 2–6 tablespoons of blood per period total — which sounds like a lot but is actually pretty small. Needing to change a pad or tampon every 1–2 hours consistently, or soaking through overnight, is worth mentioning to a doctor.' },
+  { q:'Is it okay to skip a period?',
+    a:'Missing a period can happen for lots of reasons — stress, sudden weight changes, illness, intense exercise. If it\'s a one-time thing and you\'re not sexually active, it\'s often nothing. If it happens regularly or there\'s any chance of pregnancy, talk to a healthcare provider.' },
+  { q:'What should I bring with me so I\'m never caught off guard?',
+    a:'A mini period kit in your bag goes a long way: 2 pads or tampons (or your preferred product), a small pack of wipes, a pair of spare underwear (just in case), and a pain reliever if you use one. And of course — Period. is always a tap away.' },
+  { q:'How do I know what flow level I am?',
+    a:'Light flow: can go 4–6 hours between changes. Medium: 2–4 hours. Heavy: needing to change every 1–2 hours. Most people are heaviest on days 1–2 and lighter toward the end. A "super" or "overnight" product is made for heavy flow days.' },
+];
+
+// ── Teen rotating facts ──────────────────────────────────────────
+let teenFactIndex  = 0;
+let teenFactTimer  = null;
+
+function renderTeenFact(idx) {
+  const fact     = PERIOD_FACTS[idx];
+  const emoji    = $('teenFactEmoji');
+  const text     = $('teenFactText');
+  const dotsEl   = $('tfcDots');
+  if (!fact || !emoji || !text) return;
+
+  emoji.textContent = fact.emoji;
+  text.textContent  = fact.text;
+
+  if (dotsEl) {
+    dotsEl.innerHTML = PERIOD_FACTS.map((_, i) =>
+      `<span class="tfc-dot ${i===idx?'active':''}" aria-hidden="true"></span>`
+    ).join('');
+  }
+}
+
+function startTeenFactRotation() {
+  if (teenFactTimer) clearInterval(teenFactTimer);
+  // Start at a random fact each visit
+  teenFactIndex = Math.floor(Math.random() * PERIOD_FACTS.length);
+  renderTeenFact(teenFactIndex);
+  teenFactTimer = setInterval(() => {
+    teenFactIndex = (teenFactIndex + 1) % PERIOD_FACTS.length;
+    const inner = $('teenFactInner');
+    if (inner) {
+      inner.style.opacity = '0';
+      inner.style.transform = 'translateY(6px)';
+      setTimeout(() => {
+        renderTeenFact(teenFactIndex);
+        inner.style.opacity = '1';
+        inner.style.transform = 'translateY(0)';
+      }, 280);
+    }
+  }, 7000); // rotate every 7 seconds
+}
+
+function stopTeenFactRotation() {
+  if (teenFactTimer) { clearInterval(teenFactTimer); teenFactTimer = null; }
+}
+
+// ── The Tea, Period. view ─────────────────────────────────────────────
+function renderScoopFacts() {
+  const grid = $('scoopFactsGrid');
+  if (!grid) return;
+  grid.innerHTML = PERIOD_FACTS.map((f, i) => `
+    <div class="scoop-fact-card" role="listitem" data-fact-idx="${i}" tabindex="0"
+         aria-label="${f.text}">
+      <div class="sfc-tag">${f.tag}</div>
+      <div class="sfc-emoji" aria-hidden="true">${f.emoji}</div>
+      <p class="sfc-text">${f.text}</p>
+    </div>`).join('');
+
+  // Tap to "save" (visual highlight toggle)
+  grid.querySelectorAll('.scoop-fact-card').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('saved'));
+    card.addEventListener('keydown', e => {
+      if (e.key==='Enter'||e.key===' ') card.classList.toggle('saved');
+    });
+  });
+}
+
+function renderScoopFaq() {
+  const list = $('faqList');
+  if (!list) return;
+  list.innerHTML = FAQ_DATA.map((item, i) => `
+    <div class="faq-item" id="faqItem${i}">
+      <button class="faq-q" aria-expanded="false" aria-controls="faqAnswer${i}">
+        <span>${item.q}</span>
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a" id="faqAnswer${i}" hidden>
+        <p>${item.a}</p>
+      </div>
+    </div>`).join('');
+
+  list.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      // Close all others
+      list.querySelectorAll('.faq-q').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        const ans = document.getElementById(b.getAttribute('aria-controls'));
+        if (ans) ans.hidden = true;
+        b.closest('.faq-item')?.classList.remove('open');
+      });
+      if (!expanded) {
+        btn.setAttribute('aria-expanded', 'true');
+        const ans = document.getElementById(btn.getAttribute('aria-controls'));
+        if (ans) ans.hidden = false;
+        btn.closest('.faq-item')?.classList.add('open');
+      }
+    });
+  });
+}
+
+function initCycleScoopTabs() {
+  const tabs = $$('[data-scoop-tab]');
+  if (!tabs.length) return;
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      const which = tab.dataset.scoopTab;
+      const factsPanel = $('scoopFactsPanel');
+      const faqPanel   = $('scoopFaqPanel');
+      if (factsPanel) factsPanel.style.display = which==='facts' ? 'block' : 'none';
+      if (faqPanel)   faqPanel.style.display   = which==='faq'   ? 'block' : 'none';
+    });
+  });
+}
+
+// ── Navigation wiring ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // The Tea, Period. nav buttons
+  const openScoop = () => {
+    navigate('cycleScoopView');
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+  };
+  const heroScoop   = $('heroScoopBtn');
+  const teenScoop   = $('teenScoopLink');
+  const scoopBack   = $('cycleScoopBack');
+  if (heroScoop)  heroScoop.addEventListener('click', openScoop);
+  if (teenScoop)  teenScoop.addEventListener('click', openScoop);
+  if (scoopBack)  scoopBack.addEventListener('click', () => navigate('home'));
+
+  // Freak Out Guide order button
+  const freakOrder = $('freakOrderBtn');
+  if (freakOrder) freakOrder.addEventListener('click', () => navigate('emergency'));
+
+  // Start teen rotation when home is visible AND version is teen
+  const homeEl = $('homeView');
+  if (homeEl) {
+    const observer = new MutationObserver(() => {
+      if (homeEl.classList.contains('active') && state.version === 'teen') {
+        startTeenFactRotation();
+      } else {
+        stopTeenFactRotation();
+      }
+    });
+    observer.observe(homeEl, { attributes: true, attributeFilter: ['class'] });
+    // Also start immediately if already on home + teen
+    if (state.version === 'teen') startTeenFactRotation();
   }
 });

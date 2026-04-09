@@ -11,10 +11,44 @@
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <link rel="stylesheet" href="styles.css"/>
+
+  <!-- Stripe.js (card payments, Apple Pay, Google Pay) -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- Firebase SDK (free Spark plan — community posts) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <!-- EmailJS SDK (free — newsletter sends) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <!-- Apply saved version before render to prevent picker flash -->
   <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;if(v==='teen'||v==='adult'||v==='emergency'||v==='gifter')document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
 <body>
+
+<!-- =====================================================
+     AGE GATE — shown on first visit, stored in localStorage
+     ===================================================== -->
+<div id="ageGateWrap" role="dialog" aria-modal="true" aria-label="Age verification" style="display:none">
+  <!-- Screen 1: Ask -->
+  <div id="ageGateAsk" class="age-gate-screen">
+    <div class="age-gate-logo" aria-hidden="true">.</div>
+    <h1 class="age-gate-heading">Before we begin</h1>
+    <p class="age-gate-body">This platform is for users 13 and older. Are you 13 or older?</p>
+    <div class="age-gate-btns">
+      <button class="age-gate-yes" id="ageGateYes">Yes, I'm 13 or older</button>
+      <button class="age-gate-no"  id="ageGateNo">No, I'm under 13</button>
+    </div>
+  </div>
+  <!-- Screen 2: Under 13 redirect -->
+  <div id="ageGateBlocked" class="age-gate-screen" style="display:none">
+    <div class="age-gate-logo" aria-hidden="true">.</div>
+    <h1 class="age-gate-heading">Thank you for being honest.</h1>
+    <p class="age-gate-body">Please ask a parent or guardian to help with your order. They can reach us at <a href="mailto:support@perioddelivers.com" class="age-gate-link">support@perioddelivers.com</a>.</p>
+  </div>
+</div>
 
 <!-- ===== HEADER ===== -->
 <!-- ===== TRENDING HEADER STRIP (global — all views) ===== -->
@@ -28,21 +62,8 @@
 
   <!-- Crown + Dot brand mark (center) -->
   <button class="brand-mark" id="homeLogo" aria-label="Go to home">
-    <!-- Crown SVG (gold) -->
-    <svg class="crown-svg" viewBox="0 0 48 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <!-- Crown silhouette -->
-      <path d="M3 26 L3 16 L12.5 20 L24 4 L35.5 20 L45 16 L45 26 Z" fill="#C9941A"/>
-      <!-- Band highlight -->
-      <rect x="3" y="22" width="42" height="4" rx="2" fill="#B07D10"/>
-      <!-- Gem dots at tips -->
-      <circle cx="3"  cy="15" r="3.5" fill="#F5D060"/>
-      <circle cx="24" cy="3.5" r="3.5" fill="#F5D060"/>
-      <circle cx="45" cy="15" r="3.5" fill="#F5D060"/>
-      <!-- Crown sparkle -->
-      <circle cx="3"  cy="15" r="1.5" fill="white" opacity="0.6"/>
-      <circle cx="24" cy="3.5" r="1.5" fill="white" opacity="0.6"/>
-      <circle cx="45" cy="15" r="1.5" fill="white" opacity="0.6"/>
-    </svg>
+    <!-- Crown image -->
+    <img class="crown-svg" src="crown.png" alt="" aria-hidden="true">
     <!-- The dot — always black, gold glow on dark -->
     <span class="brand-dot" aria-label="Period store">.</span>
   </button>
@@ -71,20 +92,19 @@
   <!-- Hero -->
   <section class="home-hero" aria-label="Welcome">
     <div class="hero-brand-mark" aria-hidden="true">
-      <svg class="hero-crown-svg" viewBox="0 0 64 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 34 L4 20 L16 26 L32 4 L48 26 L60 20 L60 34 Z" fill="#C9941A"/>
-        <rect x="4" y="28" width="56" height="6" rx="3" fill="#B07D10"/>
-        <circle cx="4"  cy="19" r="5" fill="#F5D060"/>
-        <circle cx="32" cy="4"  r="5" fill="#F5D060"/>
-        <circle cx="60" cy="19" r="5" fill="#F5D060"/>
-        <circle cx="4"  cy="19" r="2" fill="white" opacity="0.7"/>
-        <circle cx="32" cy="4"  r="2" fill="white" opacity="0.7"/>
-        <circle cx="60" cy="19" r="2" fill="white" opacity="0.7"/>
-      </svg>
+      <img class="hero-crown-svg" src="crown.png" alt="" aria-hidden="true">
       <span class="hero-dot">.</span>
     </div>
     <p class="hero-tagline" id="heroTagline">Delivered when you need it.</p>
     <p class="hero-sub" id="heroSub">On-demand delivery wherever you are, or a monthly care package curated just for you.</p>
+
+    <!-- Community quick-access bar -->
+    <button class="comm-hero-bar" id="heroCommBar" aria-label="Join our community — Connect, Share, Support">
+      <span class="comm-hero-icon" aria-hidden="true">💜</span>
+      <span class="comm-hero-text">Connect · Share · Support</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+
     <div class="hero-quick-links">
       <button class="hero-how-btn" id="heroHowBtn" aria-label="Jump to How It Works section">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -99,6 +119,16 @@
       <button class="hero-how-btn hero-how-btn--nl" id="heroNewsletterBtn" aria-label="Subscribe to newsletter">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Newsletter
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="hero-how-btn hero-scoop-btn" id="heroScoopBtn" aria-label="The Tea, Period. — facts and FAQs">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        The Tea, Period.
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="hero-how-btn hero-why-btn" id="heroWhyBtn" aria-label="Why choose Period. over other delivery apps">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Why Period.
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </div>
@@ -142,7 +172,7 @@
     <button class="mode-card mode-card--gold" id="cardOrderNow" role="listitem" aria-label="Order on demand">
       <div class="mode-card-icon">⚡</div>
       <div class="mode-card-title" id="card1Title">Order Now</div>
-      <div class="mode-card-desc" id="card1Desc">Get feminine care products delivered right to you in under an hour — home, school, office — like DoorDash, but for your care.</div>
+      <div class="mode-card-desc" id="card1Desc">Get what you need. Period care, wellness essentials, and more — delivered to your door in 1–3 days.</div>
       <div class="mode-card-link">
         Shop products
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -170,6 +200,291 @@
     </button>
 
   </div>
+
+
+  <!-- ═══ TEEN-ONLY: Your Body, No Cap ═══ -->
+  <section class="teen-body-section teen-only" id="teenBodySection" aria-label="Your cycle explained">
+    <div class="teen-sec-header">
+      <div class="teen-eyebrow">No Cap 💜</div>
+      <h2 class="teen-sec-title">Your Body, Explained.</h2>
+      <p class="teen-sec-sub">Your cycle has 4 phases every month. Here's what's actually going on — in English, not textbook.</p>
+    </div>
+    <div class="teen-phase-row" role="list">
+
+      <div class="teen-phase-card tpc--menstrual" role="listitem">
+        <div class="tpc-vibe">😤</div>
+        <div class="tpc-pill">Days 1–5</div>
+        <div class="tpc-name">The Drop</div>
+        <p class="tpc-desc">Your body is doing its thing and yeah, it can feel like A LOT. Cramps, low energy, just wanting to stay in bed — all of it is normal. Rest is not lazy right now, fr.</p>
+        <div class="tpc-want">Period care · Heat patches · Cuddles</div>
+      </div>
+
+      <div class="teen-phase-card tpc--follicular" role="listitem">
+        <div class="tpc-vibe">✨</div>
+        <div class="tpc-pill">Days 6–13</div>
+        <div class="tpc-name">The Glow Up</div>
+        <p class="tpc-desc">After your period ends, your energy comes back like it never left. You might feel clearer, more creative, maybe even kind of unstoppable. Enjoy it — this is YOUR week.</p>
+        <div class="tpc-want">Skincare · Wellness · Supplements</div>
+      </div>
+
+      <div class="teen-phase-card tpc--ovulation" role="listitem">
+        <div class="tpc-vibe">👑</div>
+        <div class="tpc-pill">Days 14–17</div>
+        <div class="tpc-name">Main Character Era</div>
+        <p class="tpc-desc">This is your peak week. Most confident, most energized, most social. Got a presentation? A hard conversation? Something scary coming up? THIS is the week to do it.</p>
+        <div class="tpc-want">Intimate care · Hygiene · Fresh scents</div>
+      </div>
+
+      <div class="teen-phase-card tpc--luteal" role="listitem">
+        <div class="tpc-vibe">🌙</div>
+        <div class="tpc-pill">Days 18–28</div>
+        <div class="tpc-name">The Wind Down</div>
+        <p class="tpc-desc">Your body starts slowing back down. PMS can creep in — mood swings, cravings, feeling more emotional. It's not you being "dramatic." It's literally your hormones. Give yourself grace.</p>
+        <div class="tpc-want">Sweets · Cuddles · Calm roller</div>
+      </div>
+
+    </div>
+    <p class="teen-edu-note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Everyone's cycle is different — these are general ranges. Use your tracker to learn yours.
+    </p>
+  </section>
+
+  <!-- ═══ TEEN-ONLY: Did You Know? Rotating Facts ═══ -->
+  <section class="teen-facts-section teen-only" id="teenFactsSection" aria-label="Period facts">
+    <div class="teen-sec-header">
+      <div class="teen-eyebrow">The Tea ☕</div>
+      <h2 class="teen-sec-title">Did You Know?</h2>
+    </div>
+    <div class="teen-fact-card" id="teenFactCard" aria-live="polite">
+      <div class="tfc-inner" id="teenFactInner">
+        <div class="tfc-emoji" id="teenFactEmoji">💜</div>
+        <p class="tfc-text" id="teenFactText">Loading...</p>
+      </div>
+    </div>
+    <div class="tfc-dots" id="tfcDots" aria-hidden="true"></div>
+    <p class="teen-facts-cta">Want more? <button class="teen-scoop-link" id="teenScoopLink">See all facts in The Tea, Period. 🍵 →</button></p>
+  </section>
+
+  <!-- ═══ TEEN-ONLY: Freak Out Guide ═══ -->
+  <section class="teen-freak-section teen-only" id="teenFreakSection" aria-label="What to do when your period starts unexpectedly">
+    <div class="teen-sec-header">
+      <div class="teen-eyebrow">We Got You 💜</div>
+      <h2 class="teen-sec-title">Period Just Started.<br>Didn't Expect It?</h2>
+      <p class="teen-sec-sub">Breathe. This is one of the most normal things that can happen. Here's exactly what to do.</p>
+    </div>
+    <ol class="freak-steps" aria-label="Steps to take">
+      <li class="freak-step">
+        <div class="freak-num">1</div>
+        <div class="freak-content">
+          <div class="freak-title">First — breathe.</div>
+          <p class="freak-desc">You are safe. This is normal. You are not the first person this has ever happened to, and you won't be the last. Nobody is looking at you. You've got this.</p>
+        </div>
+      </li>
+      <li class="freak-step">
+        <div class="freak-num">2</div>
+        <div class="freak-content">
+          <div class="freak-title">Get to the bathroom.</div>
+          <p class="freak-desc">Ask to use the restroom. You don't have to explain why. "Can I use the bathroom?" is enough.</p>
+        </div>
+      </li>
+      <li class="freak-step">
+        <div class="freak-num">3</div>
+        <div class="freak-content">
+          <div class="freak-title">No products? Toilet paper works.</div>
+          <p class="freak-desc">Fold a few layers and place it in your underwear. It's a temporary fix — but it WORKS. It'll hold you over until you can get what you actually need.</p>
+        </div>
+      </li>
+      <li class="freak-step">
+        <div class="freak-num">4</div>
+        <div class="freak-content">
+          <div class="freak-title">Ask someone.</div>
+          <p class="freak-desc">School nurse, a teacher, a friend. Most people will help you — no judgment, no questions. You'd do the same for them.</p>
+        </div>
+      </li>
+      <li class="freak-step freak-step--cta">
+        <div class="freak-num">5</div>
+        <div class="freak-content">
+          <div class="freak-title">Need products delivered right now?</div>
+          <p class="freak-desc">We can get it to you — wherever you are.</p>
+          <button class="freak-order-btn" id="freakOrderBtn">Order Now — Fast Delivery</button>
+        </div>
+      </li>
+    </ol>
+    <p class="teen-edu-note freak-disclaimer">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      General education only — not medical advice. For personal health questions, talk to a trusted adult or healthcare provider.
+    </p>
+  </section>
+
+  <!-- ═══ ADULT-ONLY: Cycle Phase Education ═══ -->
+  <section class="cycle-edu-section adult-only" id="cycleEduSection" aria-label="Menstrual cycle phases">
+    <div class="cycle-edu-header">
+      <div class="cycle-edu-eyebrow">Know Your Cycle</div>
+      <h2 class="cycle-edu-title">Your 4 Phases, Explained.</h2>
+      <p class="cycle-edu-sub">Your body follows a rhythm every month. Understanding it makes everything feel less like a surprise.</p>
+    </div>
+    <div class="cycle-phase-row" role="list">
+
+      <div class="cycle-phase-card" role="listitem">
+        <div class="phase-pill phase-pill--menstrual">Days 1–5</div>
+        <div class="phase-name">Menstrual</div>
+        <div class="phase-keyword">Release</div>
+        <p class="phase-desc">Your body is shedding. Energy is low — and that's not a flaw. Rest is productive right now, not lazy. This is where the cycle resets.</p>
+        <div class="phase-products">Period care &middot; Heat patches &middot; Cuddles</div>
+      </div>
+
+      <div class="cycle-phase-card" role="listitem">
+        <div class="phase-pill phase-pill--follicular">Days 6–13</div>
+        <div class="phase-name">Follicular</div>
+        <div class="phase-keyword">Rise</div>
+        <p class="phase-desc">Estrogen climbs and so does your clarity. Energy returns, focus sharpens. A great phase for planning, creating, and tackling what felt impossible last week.</p>
+        <div class="phase-products">Wellness &middot; Supplements &middot; Skincare</div>
+      </div>
+
+      <div class="cycle-phase-card cycle-phase-card--peak" role="listitem">
+        <div class="phase-pill phase-pill--ovulation">Days 14–17</div>
+        <div class="phase-name">Ovulation</div>
+        <div class="phase-keyword">Peak</div>
+        <p class="phase-desc">You're at your most confident and energized. This is the window to have hard conversations, show up boldly, and say the things you've been meaning to say.</p>
+        <div class="phase-products">Intimate care &middot; Hygiene &middot; Deodorant</div>
+      </div>
+
+      <div class="cycle-phase-card" role="listitem">
+        <div class="phase-pill phase-pill--luteal">Days 18–28</div>
+        <div class="phase-name">Luteal</div>
+        <div class="phase-keyword">Wind Down</div>
+        <p class="phase-desc">Your body is preparing. PMS can show up here — mood shifts, cravings, fatigue. Honor it. It's not weakness, it's communication. Comfort your body through it.</p>
+        <div class="phase-products">Sweets &middot; Cuddles &middot; Calm roller</div>
+      </div>
+
+    </div>
+    <p class="cycle-edu-note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Everyone's cycle is different. These are general ranges. Use your tracker to learn yours.
+    </p>
+  </section>
+
+  <!-- ═══ ADULT-ONLY: Voices We Love ═══ -->
+  <section class="voices-section adult-only" id="voicesSection" aria-label="Featured educators and advocates">
+    <div class="voices-header">
+      <div class="voices-eyebrow">Community &amp; Education</div>
+      <h2 class="voices-title">Voices We Love</h2>
+      <p class="voices-sub">Real people, real education. We're building relationships with advocates and educators who speak your language.</p>
+    </div>
+    <div class="voices-row">
+
+      <div class="voice-card">
+        <div class="voice-avatar" aria-hidden="true">&#x1F4A9;&#x2728;</div>
+        <div class="voice-info">
+          <div class="voice-name">Period Educator</div>
+          <div class="voice-handle">@coming.soon</div>
+          <p class="voice-bio">Cycle health, hormone education, and the conversations your doctor didn't have time for.</p>
+        </div>
+        <div class="voice-tag">Partnering Soon</div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-avatar" aria-hidden="true">&#x1F331;&#x2728;</div>
+        <div class="voice-info">
+          <div class="voice-name">Holistic Wellness</div>
+          <div class="voice-handle">@coming.soon</div>
+          <p class="voice-bio">Natural cycle care, herbal remedies, and living in sync with your body's rhythm.</p>
+        </div>
+        <div class="voice-tag">Partnering Soon</div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-avatar" aria-hidden="true">&#x1F9E0;&#x2728;</div>
+        <div class="voice-info">
+          <div class="voice-name">Mental Health &amp; Cycle</div>
+          <div class="voice-handle">@coming.soon</div>
+          <p class="voice-bio">The connection between your hormones and your mood — destigmatized, demystified, and delivered with grace.</p>
+        </div>
+        <div class="voice-tag">Partnering Soon</div>
+      </div>
+
+    </div>
+    <p class="voices-suggest">Know someone we should feature?
+      <a class="voices-suggest-link" href="mailto:support@perioddelivers.com?subject=Creator Feature Suggestion">Tell us</a>
+    </p>
+  </section>
+
+  <!-- ═══ ADULT-ONLY: The Change, Sis ═══ -->
+  <section class="change-sis-section adult-only" id="changeSisSection" aria-label="Perimenopause and menopause education">
+    <div class="change-sis-header">
+      <div class="change-sis-eyebrow">For Every Stage of You</div>
+      <h2 class="change-sis-title">The Change, Sis 💜</h2>
+      <p class="change-sis-sub">Nobody warned us. Nobody taught us. That ends here. If something feels off — your moods, your sleep, your mind — you're not losing it. You're shifting.</p>
+    </div>
+
+    <div class="change-sis-row" role="list">
+
+      <!-- Card 1: Your Mind -->
+      <div class="change-card" role="listitem">
+        <div class="change-card-icon" aria-hidden="true">🧠</div>
+        <div class="change-pill change-pill--mind">MENTAL HEALTH</div>
+        <div class="change-card-title">It's Not Just "In Your Head"</div>
+        <p class="change-card-body">Anxiety you can't explain. Sudden depression. Crying out of nowhere. Raging one minute, empty the next. This is real, and it has a name.</p>
+        <ul class="change-card-list">
+          <li>Mood swings &amp; irritability</li>
+          <li>Anxiety &amp; panic attacks</li>
+          <li>Depression &amp; low mood</li>
+          <li>Brain fog &amp; forgetfulness</li>
+          <li>Feeling unlike yourself</li>
+          <li>Sleep issues &rarr; mental exhaustion</li>
+        </ul>
+      </div>
+
+      <!-- Card 2: Your Body -->
+      <div class="change-card" role="listitem">
+        <div class="change-card-icon" aria-hidden="true">🔥</div>
+        <div class="change-pill change-pill--body">PHYSICAL CHANGES</div>
+        <div class="change-card-title">What Nobody Told You to Expect</div>
+        <p class="change-card-body">Hot flashes at 3am. Periods that show up whenever they feel like it. A body that suddenly feels unfamiliar. You're not falling apart — you're in transition.</p>
+        <ul class="change-card-list">
+          <li>Hot flashes &amp; night sweats</li>
+          <li>Irregular or skipped periods</li>
+          <li>Sleep disruptions</li>
+          <li>Weight &amp; metabolism changes</li>
+          <li>Joint pain &amp; fatigue</li>
+          <li>Heart palpitations</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: The Stages -->
+      <div class="change-card" role="listitem">
+        <div class="change-card-icon" aria-hidden="true">📅</div>
+        <div class="change-pill change-pill--stages">KNOW YOUR PHASE</div>
+        <div class="change-card-title">Know Where You Are</div>
+        <p class="change-card-body">This isn't one moment — it's a journey. And it can start earlier than you think, even in your mid-30s.</p>
+        <div class="change-stage">
+          <span class="change-stage-label">Perimenopause</span>
+          <span class="change-stage-desc">The lead-up. Hormones fluctuating, cycles changing. Can last 4–10 years.</span>
+        </div>
+        <div class="change-stage">
+          <span class="change-stage-label">Menopause</span>
+          <span class="change-stage-desc">12 months with no period. Usually between ages 45–55.</span>
+        </div>
+        <div class="change-stage">
+          <span class="change-stage-label">Postmenopause</span>
+          <span class="change-stage-desc">Life after. Symptoms ease for most. This chapter is yours.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- You're Not Alone callout -->
+    <div class="change-sis-note">
+      <span class="change-sis-note-icon" aria-hidden="true">💜</span>
+      <p class="change-sis-note-text">Whether you're in a shelter, a hospital, a prison, or your own home — this information belongs to you. Your body deserves to be understood. <strong>You deserve to be understood.</strong></p>
+    </div>
+
+    <!-- Shop CTA -->
+    <button class="change-sis-shop-btn" onclick="openShopForStage()" aria-label="Shop wellness products for perimenopause and menopause">
+      Shop for This Stage &nbsp;🛒
+    </button>
+  </section>
 
   <!-- Feature Spotlight: Tracker + Newsletter Cards -->
   <section class="feature-spotlight" id="featureSpotlight" aria-label="Period tracker and newsletter">
@@ -231,7 +546,7 @@
         <div class="how-step-num">3</div>
         <div class="how-step-text">
           <div class="how-step-name" id="step3Name">Delivered to Your Door</div>
-          <div class="how-step-desc" id="step3Desc">Expect your order in 30–60 minutes for on-demand, or on your chosen date for Care Packages.</div>
+          <div class="how-step-desc" id="step3Desc">Expect your order in 1–3 days for standard orders, or on your chosen date for Care Packages.</div>
         </div>
       </div>
 
@@ -288,30 +603,72 @@
   <div class="home-footer">
     <div class="trust-strip" id="trustStrip" role="list" aria-label="Store highlights">
       <div class="trust-badge" role="listitem">🔒 Secure &amp; Discreet</div>
-      <div class="trust-badge" role="listitem">⚡ Under 1 Hour</div>
+      <div class="trust-badge" role="listitem">⚡ Urgent Under 30 Min</div>
       <div class="trust-badge" role="listitem">🌿 Natural Products</div>
       <div class="trust-badge" role="listitem">↩️ Easy Returns</div>
       <div class="trust-badge" role="listitem">👑 Supplier Direct</div>
     </div>
-    <button class="switch-mode-btn" id="switchModeBtn" aria-label="Switch experience mode">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-            switch experience
-    </button>
     <button class="tracker-access-btn" id="trackerAccessBtn" aria-label="My period tracker">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span id="trackerBtnText">my tracker</span>
       <span class="tlock" id="trackerLock" aria-hidden="true">🔒</span>
     </button>
+    <!-- Backup contact line — update phone number before launch -->
+    <div class="backup-contact-line">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.12.96.36 1.9.71 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.55-.55a2 2 0 012.11-.45c.9.35 1.85.59 2.81.71A2 2 0 0122 14.92z"/></svg>
+      For <strong>urgent orders only</strong> — if the app is down, text or call <a href="tel:+12162501993" class="backup-tel" id="backupPhone">(216) 250-1993</a>
+    </div>
     <div class="legal-footer-links">
       <button class="legal-link" id="openPrivacy">Privacy Policy</button>
       <span class="legal-dot" aria-hidden="true">&middot;</span>
       <button class="legal-link" id="openTerms">Terms of Service</button>
       <span class="legal-dot" aria-hidden="true">&middot;</span>
-      <span class="legal-copy">&copy; 2026 Periodt LLC &mdash; Cleveland, OH</span>
+      <span class="legal-copy">&copy; 2026 Period. LLC &mdash; Cleveland, OH</span>
     </div>
   </div>
 
 </div><!-- /homeView -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  THE CYCLE SCOOP — FAQ + Period Facts (all versions)       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="view" id="cycleScoopView" aria-label="The Tea, Period.">
+
+  <!-- Header -->
+  <div class="scoop-header">
+    <button class="back-btn" id="cycleScoopBack" aria-label="Go back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="scoop-title-wrap">
+      <h1 class="scoop-title">The Tea, Period. 🍵</h1>
+      <p class="scoop-sub">Facts, answers, and everything they forgot to teach you.</p>
+    </div>
+  </div>
+
+  <!-- Tab switcher -->
+  <div class="scoop-tabs" role="tablist" aria-label="The Tea, Period. sections">
+    <button class="scoop-tab active" id="tabFacts"   role="tab" aria-selected="true"  data-scoop-tab="facts">Period Facts</button>
+    <button class="scoop-tab"        id="tabFaq"     role="tab" aria-selected="false" data-scoop-tab="faq">Got Questions?</button>
+  </div>
+
+  <!-- ── FACTS PANEL ── -->
+  <div class="scoop-panel" id="scoopFactsPanel" role="tabpanel" aria-labelledby="tabFacts">
+    <p class="scoop-panel-note">New facts added regularly. Tap any card to save it.</p>
+    <div class="scoop-facts-grid" id="scoopFactsGrid" aria-label="Period facts"></div>
+  </div>
+
+  <!-- ── FAQ PANEL ── -->
+  <div class="scoop-panel" id="scoopFaqPanel" role="tabpanel" aria-labelledby="tabFaq" style="display:none">
+    <p class="scoop-panel-note">Real questions. Honest answers. No judgment.</p>
+    <div class="faq-list" id="faqList" aria-label="Frequently asked questions"></div>
+    <p class="teen-edu-note" style="margin-top:1.5rem">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      General education only — not medical advice. Talk to a trusted adult or healthcare provider for personal health questions.
+    </p>
+  </div>
+
+</div><!-- /cycleScoopView -->
+
 
 
 <!-- ===================================================
@@ -337,7 +694,7 @@
       <div class="delivery-icon" aria-hidden="true">🛵</div>
       <div>
         <div class="delivery-label">On-Demand Delivery</div>
-        <div class="delivery-time">30–60 min estimated</div>
+        <div class="delivery-time">1–3 day delivery</div>
         <div class="delivery-fee">$4.99 delivery · Free over $35</div>
       </div>
     </div>
@@ -523,10 +880,19 @@
       <h2 class="picker-title" id="pickerTitle">Step 2 — Build Your Box</h2>
       <div class="picker-slots" id="pickerSlots">0 / 0 selected</div>
     </div>
+    <!-- Smart Suggestions — based on favorited items -->
+    <div id="smartSuggestions" style="display:none" aria-live="polite">
+      <div class="smart-suggest-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        Based on what you love
+      </div>
+      <div class="smart-suggest-row" id="smartSuggestRow"></div>
+    </div>
+
     <div class="picker-filter-bar" id="pickerFilterBar" role="group" aria-label="Filter by category"></div>
     <p class="picker-hint">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Tap a product to add it to your care package. You can change selections anytime.
+      Tap a product to add it to your box. Selections can be changed anytime before subscribing.
     </p>
     <div class="picker-grid" id="pickerGrid" role="list" aria-label="Choose products for your box"></div>
   </div>
@@ -591,13 +957,40 @@
   <div class="cart-footer">
     <div class="cart-delivery-row">
       <span>🛵</span>
-      Estimated delivery: <strong>30–60 min</strong>
+      Estimated delivery: <strong>1–3 days</strong> · Urgent orders under 30 min
     </div>
-    <div class="cart-subtotal">
-      <span class="cart-subtotal-label">Total · <span id="cartItemCount">0 items</span></span>
-      <span class="cart-subtotal-amt" id="cartTotal">$0.00</span>
+    <!-- Promo Code -->
+    <div class="promo-row" id="promoRow">
+      <div class="promo-input-wrap" id="promoInputWrap">
+        <input type="text" id="promoInput" class="promo-input" placeholder="Promo code" autocomplete="off" autocapitalize="characters" maxlength="20" aria-label="Enter promo code">
+        <button class="promo-apply-btn" id="promoApplyBtn">Apply</button>
+      </div>
+      <div class="promo-applied-row" id="promoAppliedRow" style="display:none" aria-live="polite">
+        <span class="promo-tag-icon">🏷️</span>
+        <span class="promo-applied-label" id="promoAppliedLabel"></span>
+        <button class="promo-remove-btn" id="promoRemoveBtn" aria-label="Remove promo code">✕</button>
+      </div>
     </div>
-    <p class="cart-note">Delivery fee $4.99 · Free over $35 · Tax at checkout</p>
+
+    <!-- Price Breakdown -->
+    <div class="price-breakdown">
+      <div class="price-row">
+        <span class="price-row-label">Subtotal · <span id="cartItemCount">0 items</span></span>
+        <span class="price-row-val" id="breakdownSubtotal">$0.00</span>
+      </div>
+      <div class="price-row" id="breakdownDeliveryRow">
+        <span class="price-row-label">Delivery 🛵</span>
+        <span class="price-row-val" id="breakdownDelivery">$4.99</span>
+      </div>
+      <div class="price-row price-row--discount" id="breakdownDiscountRow" style="display:none">
+        <span class="price-row-label" id="breakdownDiscountLabel">Discount</span>
+        <span class="price-row-val price-row-val--discount" id="breakdownDiscount">−$0.00</span>
+      </div>
+      <div class="price-row price-row--total">
+        <span class="price-row-label">Total</span>
+        <span class="price-row-val price-row-val--total" id="cartTotal">$0.00</span>
+      </div>
+    </div>
 
     <!-- Give Back Section -->
     <div class="give-back-section" id="giveBackSection">
@@ -682,12 +1075,26 @@
       <div class="review-prompt-divider"></div>
       <p class="review-prompt-q">How are you feeling about us?</p>
       <div class="review-emoji-row" id="reviewEmojiRow">
-        <button class="review-emoji-btn" data-emoji="😍" data-label="Love it!" aria-label="Love it">&#x1F60D;</button>
-        <button class="review-emoji-btn" data-emoji="😊" data-label="Good"     aria-label="Good">&#x1F60A;</button>
-        <button class="review-emoji-btn" data-emoji="😐" data-label="Okay"     aria-label="Okay">&#x1F610;</button>
-        <button class="review-emoji-btn" data-emoji="😕" data-label="Meh"      aria-label="Meh">&#x1F615;</button>
-        <button class="review-emoji-btn" data-emoji="👎" data-label="Not great" aria-label="Not great">&#x1F44E;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F60D;" data-label="Love it!" aria-label="Love it">&#x1F60D;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F60A;" data-label="Good"     aria-label="Good">&#x1F60A;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F610;" data-label="Okay"     aria-label="Okay">&#x1F610;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F615;" data-label="Meh"      aria-label="Meh">&#x1F615;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F44E;" data-label="Not great" aria-label="Not great">&#x1F44E;</button>
       </div>
+
+      <!-- Text feedback — adult & holistic only, slides in after emoji tap -->
+      <div class="review-text-box" id="reviewTextBox" style="display:none" aria-live="polite">
+        <label class="review-text-label" for="reviewTextInput">Tell us more <span class="review-optional">(optional)</span></label>
+        <textarea id="reviewTextInput" class="review-textarea"
+          rows="3" maxlength="400"
+          placeholder="What did you love? What could be better?"
+          aria-label="Write your feedback (optional)"></textarea>
+        <div class="review-text-actions">
+          <button class="review-submit-btn" id="reviewSubmitBtn">Submit</button>
+          <button class="review-skip-btn"  id="reviewSkipBtn">Skip</button>
+        </div>
+      </div>
+
       <div class="review-thanks" id="reviewThanks" style="display:none">
         <span class="review-thanks-emoji" id="reviewThanksEmoji"></span>
         <span class="review-thanks-text">Thanks for the feedback!</span>
@@ -720,6 +1127,11 @@
       </svg>
       Back to Home
     </button>
+    <!-- Cancel / Manage — FTC one-tap cancel requirement -->
+    <div class="manage-sub-row">
+      <span class="manage-sub-hint">Need to change your mind?</span>
+      <button class="manage-sub-link" id="manageSubBtn">Manage or cancel subscription</button>
+    </div>
   </div>
 </div>
 
@@ -753,12 +1165,7 @@
     </button>
 
     <div class="nl-brand-mark" aria-hidden="true">
-      <svg class="nl-crown" viewBox="0 0 64 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 34 L4 20 L16 26 L32 4 L48 26 L60 20 L60 34 Z" fill="#C9941A"/>
-        <rect x="4" y="28" width="56" height="6" rx="3" fill="#B07D10"/>
-        <circle cx="4"  cy="19" r="5" fill="#F5D060"/><circle cx="32" cy="4"  r="5" fill="#F5D060"/><circle cx="60" cy="19" r="5" fill="#F5D060"/>
-        <circle cx="4"  cy="19" r="2" fill="white" opacity="0.7"/><circle cx="32" cy="4"  r="2" fill="white" opacity="0.7"/><circle cx="60" cy="19" r="2" fill="white" opacity="0.7"/>
-      </svg>
+      <img class="nl-crown" src="crown.png" alt="" aria-hidden="true">
       <span class="nl-dot">.</span>
     </div>
 
@@ -973,21 +1380,90 @@
 
 </div><!-- /trackerView -->
 
+<!-- ===== COMMUNITY VIEW ===== -->
+<div class="view" id="communityView">
+
+  <!-- Greeting bar -->
+  <div class="comm-greeting" id="commGreeting">
+    <div class="comm-greeting-inner">
+      <p class="comm-greeting-text" id="commGreetingText">Welcome to the community. 💜</p>
+    </div>
+  </div>
+
+  <!-- Topic grid header -->
+  <div class="comm-header">
+    <h2 class="comm-title">Our Community</h2>
+    <p class="comm-subtitle">A space to connect, share, and support each other.</p>
+    <p class="comm-phase-note">Posts are private to your device right now — real-time community is coming soon. 💜</p>
+  </div>
+
+  <!-- Topic cards -->
+  <div class="comm-topics" id="commTopics">
+    <div class="comm-topic-grid" id="commTopicGrid"><!-- filled by JS --></div>
+  </div>
+
+  <!-- Thread view (shown when topic opened) -->
+  <div class="comm-thread" id="commThread" style="display:none">
+    <div class="comm-thread-topbar">
+      <button class="comm-back-btn" id="commBackBtn" aria-label="Back to topics">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Topics
+      </button>
+      <span class="comm-thread-header" id="commThreadHeader"></span>
+    </div>
+    <div class="comm-posts" id="commPosts"></div>
+    <div class="comm-compose">
+      <textarea class="comm-input" id="commInput" placeholder="Share something with the community... (Enter to post)" rows="2" maxlength="500"></textarea>
+      <button class="comm-post-btn" id="commPostBtn" aria-label="Post">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /communityView -->
+
+<!-- ===== WHY PERIOD MODAL ===== -->
+<div class="why-overlay" id="whyOverlay" aria-hidden="true" style="display:none"></div>
+<div class="why-modal" id="whyModal" role="dialog" aria-modal="true" aria-label="Why Period.?" style="display:none">
+  <div class="why-modal-header">
+    <div class="why-modal-logo" aria-hidden="true">
+      <img src="crown.png" alt="" aria-hidden="true" style="width:28px;height:auto;">
+      <span class="why-modal-dot">.</span>
+    </div>
+    <button class="why-close-btn" id="whyCloseBtn" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="why-modal-body">
+    <h2 class="why-headline" id="whyHeadline"></h2>
+    <p class="why-tagline2" id="whyTagline2"></p>
+    <div class="why-cards" id="whyCards"></div>
+    <div class="why-cta-block">
+      <button class="why-shop-btn" id="whyShopBtn">Shop Now</button>
+      <p class="why-footer-sub" id="whyFooterSub"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NICKNAME SETUP MODAL ===== -->
+<div class="nickname-overlay" id="nicknameOverlay" style="display:none"></div>
+<div class="nickname-modal" id="nicknameModal" role="dialog" aria-modal="true" aria-label="Set your name" style="display:none">
+  <div class="nickname-inner">
+    <div class="nickname-crown" aria-hidden="true">👑</div>
+    <h2 class="nickname-title">Welcome to the community</h2>
+    <p class="nickname-sub">What should we call you? Just a first name or nickname — you choose.</p>
+    <input class="nickname-input" id="nicknameInput" type="text" placeholder="Your name or nickname..." maxlength="24" autocomplete="off"/>
+    <button class="nickname-confirm-btn" id="nicknameConfirm">Enter the Community</button>
+    <p class="nickname-privacy">Only visible to you on this device. 💜</p>
+  </div>
+</div>
+
 
 <div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience">
   <div class="vp-inner">
 
     <div class="vp-brand" aria-hidden="true">
-      <svg class="vp-crown" viewBox="0 0 64 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 34 L4 20 L16 26 L32 4 L48 26 L60 20 L60 34 Z" fill="#C9941A"/>
-        <rect x="4" y="28" width="56" height="6" rx="3" fill="#B07D10"/>
-        <circle cx="4"  cy="19" r="5" fill="#F5D060"/>
-        <circle cx="32" cy="4"  r="5" fill="#F5D060"/>
-        <circle cx="60" cy="19" r="5" fill="#F5D060"/>
-        <circle cx="4"  cy="19" r="2" fill="white" opacity="0.7"/>
-        <circle cx="32" cy="4"  r="2" fill="white" opacity="0.7"/>
-        <circle cx="60" cy="19" r="2" fill="white" opacity="0.7"/>
-      </svg>
+      <img class="vp-crown" src="crown.png" alt="" aria-hidden="true">
       <span class="vp-dot">.</span>
     </div>
 
@@ -1092,7 +1568,58 @@
     </button>
   </div>
   <div class="legal-modal-body" id="legalModalBody"></div>
+  <div class="legal-modal-footer">
+    <a href="legal.pdf" target="_blank" class="legal-download-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </a>
+    <span class="legal-copy-small">&copy; 2026 Period. LLC &middot; Cleveland, OH</span>
+  </div>
 </div>
 
+
+<!-- ===== STRIPE CHECKOUT MODAL ===== -->
+<div class="co-overlay" id="coOverlay" aria-hidden="true"></div>
+<div class="co-modal" id="coModal" role="dialog" aria-modal="true" aria-label="Secure checkout" style="display:none">
+  <div class="co-header">
+    <button class="icon-btn co-back-btn" id="coBackBtn" aria-label="Back to cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <h2 class="co-title">Checkout</h2>
+    <div style="width:32px"></div>
+  </div>
+  <div class="co-body">
+    <!-- Order Summary -->
+    <div class="co-summary" id="coSummary"></div>
+
+    <!-- Card Form (active when STRIPE_CONFIG is set) -->
+    <div class="co-card-section">
+      <div class="co-section-label">Card Details</div>
+      <div class="co-field-wrap">
+        <label class="co-label" for="coCardName">Name on card</label>
+        <input type="text" id="coCardName" class="co-input" placeholder="Destiny Holloway" autocomplete="cc-name">
+      </div>
+      <div class="co-field-wrap">
+        <label class="co-label">Card number</label>
+        <div id="stripeCardElement" class="co-stripe-element"></div>
+        <div id="stripeCardError" class="co-stripe-error" aria-live="polite"></div>
+      </div>
+      <button class="co-pay-btn" id="coPayBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Pay <span id="coPayAmt"></span>
+      </button>
+    </div>
+  </div>
+  <div class="co-footer-trust">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+    </svg>
+    Payments secured by Stripe · SSL encrypted
+  </div>
+</div>
 </body>
 </html>
