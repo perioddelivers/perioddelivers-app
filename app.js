@@ -2974,8 +2974,9 @@ const QUIZ_QUESTIONS = [
       { value: 'tampons', label: 'Tampons',           icon: '💜', desc: 'Tampons are my thing' },
       { value: 'cup',     label: 'Cup / Disc',        icon: '♻️', desc: 'Reusable all the way' },
       { value: 'underwear', label: 'Period Underwear', icon: '👙', desc: 'Leak-proof undies' },
-      { value: 'mix',     label: 'Mix It Up',         icon: '✨', desc: 'Depends on the day' },
+     { value: 'mix',     label: 'Mix It Up',         icon: '✨', desc: 'Depends on the day' },
     ]
+  },
   {
     id: 'priority',
     q: 'What matters most to you?',
