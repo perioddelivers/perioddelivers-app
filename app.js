@@ -1345,7 +1345,10 @@ function init() {
   if ($('coPayBtn'))   $('coPayBtn').addEventListener('click',   processStripePayment);
   if ($('nlOpenTracker'))      $('nlOpenTracker').addEventListener('click', () => { closeNewsletterModal(); navigate('tracker'); });
   if ($('newsletterModal'))    $('newsletterModal').addEventListener('click', e => { if (e.target === $('newsletterModal')) closeNewsletterModal(); });
-  if ($('nlEmailInput'))       $('nlEmailInput').addEventListener('keydown', e => { if (e.key === 'Enter') subscribeNewsletter(); });
+  if ($('nlEmailInput')) {
+    $('nlEmailInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); subscribeNewsletter(); } });
+    $('nlEmailInput').addEventListener('keyup',   e => { if (e.key === 'Enter') { e.preventDefault(); subscribeNewsletter(); } });
+  }
 
   // Newsletter life-stage buttons (use event delegation)
   const stageRow = $('nlStageRow');
@@ -1648,7 +1651,7 @@ if (STRIPE_CONFIG && typeof Stripe !== 'undefined') {
 
 
 if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
-  emailjs.init(EMAILJS_CONFIG.publicKey);
+  try { emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey }); } catch(e) { console.warn('[Period.] EmailJS init failed:', e); }
 }
 
 /* =============================================
@@ -2086,18 +2089,24 @@ function subscribeNewsletter() {
 
   // Send welcome email via EmailJS if configured
   if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
-    emailjs.send(
-      EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.templateId,
-      {
-        to_email:   email,
-        to_name:    'there',
-        life_stage: stage,
-        version:    state.version || 'adult',
-        store_url:  'https://perioddelivers.com',
-      },
-      EMAILJS_CONFIG.publicKey
-    ).catch(e => console.warn('[Period.] EmailJS send failed:', e));
+    try {
+      const ejPromise = emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        {
+          to_email:   email,
+          to_name:    'there',
+          life_stage: stage,
+          version:    state.version || 'adult',
+          store_url:  'https://perioddelivers.com',
+        }
+      );
+      if (ejPromise && typeof ejPromise.catch === 'function') {
+        ejPromise.catch(e => console.warn('[Period.] EmailJS send failed:', e));
+      }
+    } catch(e) {
+      console.warn('[Period.] EmailJS send failed:', e);
+    }
   }
 
   const fs = $('nlFormState'), ss = $('nlSuccessState');
