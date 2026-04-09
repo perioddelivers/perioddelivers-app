@@ -147,7 +147,37 @@
       </button>
     </div>
   </section>
+<!-- Tracker Widget Card — shown on home page -->
+<div class="tracker-widget-card" id="trackerWidgetCard">
+  <!-- Locked state -->
+  <div class="tracker-widget-locked" id="trackerWidgetLocked">
+    <div class="tw-lock-icon">🔒</div>
+    <div class="tw-lock-text">
+      <div class="tw-lock-title">Unlock Your Period Tracker</div>
+      <div class="tw-lock-sub">Sign up for the free newsletter to unlock</div>
+    </div>
+    <button class="tw-unlock-btn" id="twUnlockBtn">Unlock Free</button>
+  </div>
+  <!-- Unlocked state -->
+  <div class="tracker-widget-unlocked" id="trackerWidgetUnlocked" style="display:none">
+    <div class="tw-phase-row">
+      <span class="tw-phase-emoji" id="twEmoji">🌸</span>
+      <div>
+        <div class="tw-phase-name" id="twPhaseName">Log a period to begin</div>
+        <div class="tw-phase-day" id="twPhaseDay">Tap to open your tracker</div>
+      </div>
+    </div>
+    <div class="tw-next" id="twNext"></div>
+    <button class="tw-log-btn" id="twLogBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Quick Log Today
+    </button>
+  </div>
+</div>
 
+<!-- Floating Tracker Button -->
+<button class="floating-tracker-btn" id="floatingTrackerBtn" aria-label="Open tracker">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentC
   <!-- Impact Strip -->
   <button class="impact-strip" id="impactStrip" aria-label="See our community impact">
     <span class="impact-strip-item">
