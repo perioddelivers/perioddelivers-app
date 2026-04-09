@@ -1369,6 +1369,24 @@ function init() {
 
   // Tracker back / calendar nav / log buttons
   if ($('trackerBack')) $('trackerBack').addEventListener('click', () => navigate('home'));
+   // Tracker widget buttons
+  if ($('twUnlockBtn')) $('twUnlockBtn').addEventListener('click', showNewsletterModal);
+  if ($('twLogBtn')) $('twLogBtn').addEventListener('click', () => {
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    logPeriodStart();
+    updateTrackerWidget();
+  });
+  if ($('trackerWidgetCard')) $('trackerWidgetCard').addEventListener('click', (e) => {
+    if (e.target.closest('#twUnlockBtn') || e.target.closest('#twLogBtn')) return;
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    navigate('tracker');
+  });
+
+  // Floating tracker button
+  if ($('floatingTrackerBtn')) $('floatingTrackerBtn').addEventListener('click', () => {
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    navigate('tracker');
+  });
   if ($('trackerPrev')) $('trackerPrev').addEventListener('click', () => {
     if (!trackerDisplayMonth) return;
     let { year, month } = trackerDisplayMonth;
