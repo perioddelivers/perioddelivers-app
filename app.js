@@ -3812,3 +3812,87 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.version === 'teen') startTeenFactRotation();
   }
 });
+
+// ── PWA INSTALL BANNER ──
+(function() {
+  const DISMISSED_KEY = 'period_pwa_dismissed';
+  const INSTALLED_KEY = 'period_pwa_installed';
+
+  // Don't show if already installed (standalone) or dismissed permanently
+  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) return;
+  if (localStorage.getItem(INSTALLED_KEY)) return;
+  if (localStorage.getItem(DISMISSED_KEY) > Date.now()) return;
+
+  const banner   = document.getElementById('pwaInstallBanner');
+  const closeBtn = document.getElementById('pwaBannerClose');
+  const subText  = document.getElementById('pwaBannerSub');
+  const steps    = document.getElementById('pwaBannerSteps');
+  const mainBtn  = document.getElementById('pwaBannerBtn');
+
+  const ua       = navigator.userAgent;
+  const isIOS    = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid= /android/i.test(ua);
+
+  let deferredPrompt = null;
+
+  function showBanner() {
+    if (!banner) return;
+    banner.style.display = 'block';
+  }
+
+  function hideBanner(permanent) {
+    if (!banner) return;
+    banner.style.display = 'none';
+    if (permanent) {
+      // Dismiss for 30 days
+      localStorage.setItem(DISMISSED_KEY, Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+  }
+
+  if (isIOS) {
+    // iOS: show manual steps — can only install from Safari
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+    if (!isSafari) {
+      // On iOS but not Safari — different message
+      subText.textContent = 'Open this page in Safari to install the free app.';
+      steps.innerHTML = '<span class="pwa-step">1. Copy the link</span><span class="pwa-step-arrow">›</span><span class="pwa-step">2. Open Safari</span><span class="pwa-step-arrow">›</span><span class="pwa-step">3. Paste & install</span>';
+      mainBtn.style.display = 'none';
+    } else {
+      subText.textContent = 'Tap the share button below, then "Add to Home Screen."';
+      steps.innerHTML = '<span class="pwa-step">1. Tap Share ⬆</span><span class="pwa-step-arrow">›</span><span class="pwa-step">2. Add to Home Screen</span><span class="pwa-step-arrow">›</span><span class="pwa-step">3. Tap Add</span>';
+      mainBtn.textContent = 'Got it — I\'ll follow the steps';
+      mainBtn.onclick = function() { hideBanner(true); };
+    }
+    // Show after 3 seconds
+    setTimeout(showBanner, 3000);
+
+  } else if (isAndroid) {
+    // Android: use native beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      subText.textContent = 'Install the free app in one tap — no App Store needed.';
+      steps.innerHTML = '';
+      mainBtn.textContent = 'Install Free App';
+      mainBtn.onclick = async function() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          localStorage.setItem(INSTALLED_KEY, '1');
+          hideBanner(false);
+        }
+        deferredPrompt = null;
+      };
+      setTimeout(showBanner, 3000);
+    });
+
+  } else {
+    // Desktop fallback — don't show
+    return;
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = function() { hideBanner(true); };
+  }
+})();
