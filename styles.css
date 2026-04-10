@@ -5849,7 +5849,10 @@ div#legalModal::before {
 .tracker-widget-locked {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--sp-3);
+  text-align: center;
+  flex-wrap: wrap;
 }
 .tw-lock-icon { font-size: 1.5rem; flex-shrink: 0; }
 .tw-lock-text { flex:
