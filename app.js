@@ -544,7 +544,6 @@ function navigate(view) {
     initCycleScoopTabs();
     return;
   }
-function navigate(view) {
   $$('.view').forEach(v => v.classList.remove('active'));
   $(`${view}View`).classList.add('active');
   state.view = view;
