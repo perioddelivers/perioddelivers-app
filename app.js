@@ -515,13 +515,25 @@ function initVersion() {
 
   // Header version badge
   const versionBadge = $('versionBadge');
-  if (versionBadge) versionBadge.addEventListener('click', showVersionPicker);
+ if (versionBadge) versionBadge.addEventListener('click', showVersionPicker);
+  }
 }
 
 /* =============================================
    NAVIGATION
    ============================================= */
-if (view === 'cycleScoopView') {
+function navigate(view) {
+  if (view === 'cycleScoopView') {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    const scoopEl = document.getElementById('cycleScoopView');
+    if (scoopEl) scoopEl.classList.add('active');
+    state.view = 'cycleScoopView';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+    return;
+  }
     $$('.view').forEach(v => v.classList.remove('active'));
     const scoopEl = document.getElementById('cycleScoopView');
     if (scoopEl) scoopEl.classList.add('active');
