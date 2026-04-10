@@ -5855,7 +5855,10 @@ div#legalModal::before {
   flex-wrap: wrap;
 }
 .tw-lock-icon { font-size: 1.5rem; flex-shrink: 0; }
-.tw-lock-text { flex:
+.tw-lock-text {
+  flex: 1;
+  min-width: 0;
+}
 
  /* =============================================
    URGENT MODE — for non-emergency versions
