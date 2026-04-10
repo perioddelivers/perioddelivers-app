@@ -3143,9 +3143,7 @@ function renderQuizSlide() {
   if (!body || !nextBtn) return;
 
   _quizSelectedVal = null;
-  nextBtn.disabled = true;
-  nextBtn.textContent = 'Continue →';
-  nextBtn.classList.remove('done-btn');
+  nextBtn.style.display = 'none';
 
   const pct = (_quizStep / QUIZ_QUESTIONS.length) * 100;
   if (progFill) progFill.style.width = pct + '%';
@@ -3162,12 +3160,56 @@ function renderQuizSlide() {
         <div class="quiz-done-sub">Your shop is now personalized. We'll surface what fits your cycle.</div>
         <div class="quiz-prefs-chips">${chips}</div>
       </div>`;
+    nextBtn.style.display = 'block';
     nextBtn.disabled = false;
     nextBtn.textContent = "Let's shop ✨";
     nextBtn.classList.add('done-btn');
     saveQuizPrefs(_quizAnswers);
     return;
   }
+
+  const q = QUIZ_QUESTIONS[_quizStep];
+  const showBack = _quizStep > 0;
+  body.innerHTML = `
+    <div class="quiz-q-eyebrow">
+      ${showBack ? `<button class="quiz-back-btn" id="quizBackBtn">← back</button>` : ''}
+      <span>Question ${_quizStep + 1} of ${QUIZ_QUESTIONS.length}</span>
+      ${_quizStep === 0 ? '<span class="quiz-hint">no cap, takes 30 sec ✨</span>' : ''}
+    </div>
+    <div class="quiz-q-text">${q.q}</div>
+    <div class="quiz-q-sub">${q.sub}</div>
+    <div class="quiz-choices">
+      ${q.choices.map(c => `
+        <button class="quiz-choice" data-val="${c.value}" aria-pressed="false">
+          <span class="quiz-choice-icon">${c.icon}</span>
+          <span class="quiz-choice-label">${c.label}</span>
+        </button>
+      `).join('')}
+    </div>`;
+
+  if (showBack) {
+    const backBtn = document.getElementById('quizBackBtn');
+    if (backBtn) backBtn.addEventListener('click', () => {
+      _quizStep--;
+      renderQuizSlide();
+    });
+  }
+
+  body.querySelectorAll('.quiz-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.querySelectorAll('.quiz-choice').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+      _quizSelectedVal = btn.dataset.val;
+      _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
+      _quizStep++;
+      setTimeout(() => renderQuizSlide(), 400);
+    });
+  });
+}
 
   const q = QUIZ_QUESTIONS[_quizStep];
   body.innerHTML = `
