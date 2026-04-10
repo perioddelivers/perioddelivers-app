@@ -5842,6 +5842,9 @@ div#legalModal::before {
   border-radius: var(--r-xl);
   padding: var(--sp-4);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
 }
 .tracker-widget-locked {
   display: flex;
