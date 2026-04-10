@@ -5867,3 +5867,12 @@ div#legalModal::before {
   background: linear-gradient(135deg, rgba(220,38,38,0.15), rgba(239,68,68,0.05));
   border-color: rgba(220,38,38,0.3);
 }              
+
+.vp-quiz-hint {
+  font-size: var(--text-xs);
+  color: rgba(237,232,250,.5);
+  text-align: center;
+  margin-top: calc(-1 * var(--sp-2));
+  margin-bottom: var(--sp-3);
+  font-style: italic;
+}
