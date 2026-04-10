@@ -488,8 +488,12 @@ function initVersion() {
     if (picker) picker.style.display = 'none';
   } else {
     // First visit — show the picker
+    const picker = $('versionPicker');
+    if (picker) {
+      picker.style.display = 'flex';
+      picker.style.opacity = '1';
+    }
     document.body.style.overflow = 'hidden';
-  }
 
   const pickTeen      = $('pickTeen');
   const pickAdult     = $('pickAdult');
