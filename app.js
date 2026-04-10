@@ -483,39 +483,29 @@ function initVersion() {
   const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic'];
   if (validVersions.includes(stored)) {
     setVersion(stored);
-    // Head script already set data-version, CSS hides picker — force display:none as backup
     const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
   } else {
-    // First visit — show the picker
     const picker = $('versionPicker');
     if (picker) {
       picker.style.display = 'flex';
       picker.style.opacity = '1';
     }
     document.body.style.overflow = 'hidden';
-
-  const pickTeen      = $('pickTeen');
-  const pickAdult     = $('pickAdult');
-  const pickEmergency = $('pickEmergency');
-  const pickGifter    = $('pickGifter');
-  const pickHolistic  = $('pickHolistic');
-  const switchBtn     = $('switchModeBtn');
-
- if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); showQuiz(); });
-  if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
-  if (pickEmergency) pickEmergency.addEventListener('click', () => {
-    setVersion('emergency');
-    dismissVersionPicker();
-    setTimeout(() => navigate('shop'), 460);
-  });
-  if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
-  if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
-  if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
-
-  // Header version badge
-  const versionBadge = $('versionBadge');
- if (versionBadge) versionBadge.addEventListener('click', showVersionPicker);
+    const pickTeen      = $('pickTeen');
+    const pickAdult     = $('pickAdult');
+    const pickEmergency = $('pickEmergency');
+    const pickGifter    = $('pickGifter');
+    const pickHolistic  = $('pickHolistic');
+    const switchBtn     = $('switchModeBtn');
+    if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
+    if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
+    if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
+    if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
+    if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
+    if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
+    const versionBadge = $('versionBadge');
+    if (versionBadge)  versionBadge.addEventListener('click', showVersionPicker);
   }
 }
 
@@ -523,6 +513,17 @@ function initVersion() {
    NAVIGATION
    ============================================= */
 function navigate(view) {
+  if (view === 'cycleScoopView') {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    const scoopEl = document.getElementById('cycleScoopView');
+    if (scoopEl) scoopEl.classList.add('active');
+    state.view = 'cycleScoopView';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+    return;
+  }
   if (view === 'cycleScoopView') {
     $$('.view').forEach(v => v.classList.remove('active'));
     const scoopEl = document.getElementById('cycleScoopView');
