@@ -498,12 +498,11 @@ function initVersion() {
   const pickHolistic  = $('pickHolistic');
   const switchBtn     = $('switchModeBtn');
 
-  if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
+ if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); showQuiz(); });
   if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
   if (pickEmergency) pickEmergency.addEventListener('click', () => {
     setVersion('emergency');
     dismissVersionPicker();
-    // Emergency = no time to browse — go straight to urgent shop
     setTimeout(() => navigate('shop'), 460);
   });
   if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
