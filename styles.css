@@ -1327,6 +1327,7 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
   font-size: clamp(1.75rem, 6vw, 2.25rem);
   font-weight: 600; color: #EDE8FA;
   letter-spacing: -.01em; line-height: 1.1;
+  margin-bottom: var(--sp-3);
 }
 .vp-sub {
   font-size: var(--text-sm); color: rgba(237,232,250,.4);
