@@ -632,9 +632,10 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
   padding: var(--sp-8) var(--sp-4) var(--sp-12);
 }
 .trust-strip {
-  display: flex;gap: var(--sp-3);
-  overflow-x: auto;scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
   padding-bottom: var(--sp-2);
 }
 .trust-strip::-webkit-scrollbar{display:none}
