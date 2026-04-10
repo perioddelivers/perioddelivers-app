@@ -3447,7 +3447,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initImpactCounter();
   initQuiz();
 
-  // Show quiz ~1.2s after version is selected, if not done yet
+// Show quiz ~1.2s after version is selected, if not done yet
   const _origDismiss = dismissVersionPicker;
   dismissVersionPicker = function() {
     _origDismiss();
@@ -3455,7 +3455,71 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(showQuiz, 1200);
     }
   };
+
+  // Show quick check BEFORE experience picker on first visit
+  const ageOk = document.cookie.match(/period_age_ok=yes/);
+  const versionSet = getVersionCookie();
+  if (ageOk && !versionSet) {
+    showQuickCheckBeforePicker();
+  }
 });
+
+function showQuickCheckBeforePicker() {
+  const picker = $('versionPicker');
+  if (picker) picker.style.display = 'none';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'quickCheckOverlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(8,6,16,0.97);
+    display:flex;align-items:center;justify-content:center;
+    padding:1.5rem;
+  `;
+  overlay.innerHTML = `
+    <div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="font-size:2.5rem;">⚡</div>
+      <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#EDE8FA;line-height:1.3;">
+        real quick — do you need something RIGHT now?
+      </div>
+      <div style="font-size:0.875rem;color:rgba(237,232,250,0.6);line-height:1.6;">
+        we want to set up your experience but if you're in a pinch, we'll get you sorted first.
+      </div>
+      <button id="quickCheckYes" style="
+        width:100%;padding:1rem;
+        background:linear-gradient(135deg,#F87171,#DC2626);
+        color:white;border:none;border-radius:999px;
+        font-size:0.95rem;font-weight:700;cursor:pointer;">
+        🚨 yes — i need it NOW
+      </button>
+      <button id="quickCheckNo" style="
+        width:100%;padding:1rem;
+        background:rgba(237,232,250,0.08);
+        color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);
+        border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">
+        no — let's set up my experience ✨
+      </button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('quickCheckYes').addEventListener('click', () => {
+    overlay.remove();
+    setVersion('emergency');
+    navigate('shop');
+  });
+
+  document.getElementById('quickCheckNo').addEventListener('click', () => {
+    overlay.remove();
+    const picker = $('versionPicker');
+    if (picker) {
+      picker.style.display = 'flex';
+      picker.style.opacity = '1';
+    }
+    document.body.style.overflow = 'hidden';
+  });
+}
 
 /* =============================================================
    TRACKER TUTORIAL (5-second, 4-step, first-time only)
