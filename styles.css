@@ -1330,8 +1330,11 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
   margin-bottom: var(--sp-3);
 }
 .vp-sub {
-  font-size: var(--text-sm); color: rgba(237,232,250,.4);
-  margin-top: calc(-1 * var(--sp-2));
+  font-size: var(--text-sm); color: #EDE8FA;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: var(--sp-5);
+  opacity: 0.75;
 }
 
 .vp-cards {
