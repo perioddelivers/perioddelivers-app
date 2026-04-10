@@ -5898,3 +5898,12 @@ div#legalModal::before {
 }
 .quiz-choice-icon { font-size: 1.25rem; }
 .quiz-choice-desc { display: none; }
+
+.vp-card-audience {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(237,232,250,0.6);
+  margin-bottom: var(--sp-1);
+}
