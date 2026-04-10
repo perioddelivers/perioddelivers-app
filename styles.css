@@ -5876,3 +5876,25 @@ div#legalModal::before {
   margin-bottom: var(--sp-3);
   font-style: italic;
 }
+
+/* Center last odd quiz choice */
+.quiz-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: center;
+}
+.quiz-choice {
+  flex: 1 1 calc(50% - var(--sp-2));
+  max-width: calc(50% - var(--sp-2));
+}
+.quiz-choices .quiz-choice:last-child:nth-child(odd) {
+  flex: 0 1 calc(50% - var(--sp-2));
+  margin: 0 auto;
+}
+
+.quiz-choice {
+  padding: var(--sp-2) var(--sp-3);
+}
+.quiz-choice-icon { font-size: 1.25rem; }
+.quiz-choice-desc { display: none; }
