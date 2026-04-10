@@ -545,9 +545,10 @@ function navigate(view) {
     initCycleScoopTabs();
     return;
   }
-  $$('.view').forEach(v => v.classList.remove('active'));
-  $(`${view}View`).classList.add('active');
-  state.view = view;
+function navigate(view) {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    $(`${view}View`).classList.add('active');
+    state.view = view;
   window.scrollTo({ top:0, behavior:'instant' });
 
   if (view === 'shop') {
