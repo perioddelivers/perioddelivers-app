@@ -5907,3 +5907,25 @@ div#legalModal::before {
   color: rgba(237,232,250,0.6);
   margin-bottom: var(--sp-1);
 }
+
+.quiz-back-btn {
+  background: none;
+  border: none;
+  color: rgba(237,232,250,0.5);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  margin-right: auto;
+}
+.quiz-hint {
+  font-size: 0.75rem;
+  color: rgba(237,232,250,0.4);
+  font-style: italic;
+  margin-left: auto;
+}
+.quiz-q-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+}
