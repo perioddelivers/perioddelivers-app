@@ -1,5 +1,6 @@
 'use strict';
 
+
 /* =============================================
    PRODUCT DATA
    ============================================= */
@@ -54,6 +55,7 @@ const PRODUCTS = [
   { id:43, name:'Comfort Care Gift Bundle',    sub:'Bear + blanket + cocoa kit',     category:'cuddles', cat_label:'Cuddles', emoji:'🎁', price:54.99, badge:'Gift Ready',  eta:'1–3 days', desc:'The ultimate comfort gift — a plush teddy bear, a mini sherpa throw, and our salted caramel cocoa kit, all in one gift box. Order it for yourself or send the love.', features:['Gift Boxed','3-Piece Set','Bear + Blanket + Cocoa','Same-Day Delivery'] },
 ];
 
+
 const CATEGORIES = [
   { id:'all',      label:'All',              icon:'✦' },
   { id:'period',   label:'Period Care',      icon:'🌸' },
@@ -68,11 +70,14 @@ const CATEGORIES = [
   { id:'holistic', label:'Holistic & Natural', icon:'🌿' },
 ];
 
+
 const PLANS = {
   starter:   { name:'Starter',   price:19.99, slots:3  },
   essential: { name:'Essential', price:34.99, slots:6  },
   royal:     { name:'Royal',     price:54.99, slots:9  },
 };
+
+
 
 
 /* =============================================
@@ -85,10 +90,12 @@ const PROMO_CODES = {
   'ROYAL5':    { type:'fixed',    value:5.00, label:'$5 off your order 👑'       },
 };
 
+
 function getDeliveryFee(subtotal) {
   if (state.appliedPromo && state.appliedPromo.type === 'shipping') return 0;
   return subtotal >= 35 ? 0 : 4.99;
 }
+
 
 function getOrderTotal() {
   const subtotal = cartTotal();
@@ -102,6 +109,7 @@ function getOrderTotal() {
   const total = Math.max(0, +(subtotal - discount + delivery).toFixed(2));
   return { subtotal, delivery, discount, total };
 }
+
 
 function applyPromoCode() {
   const input = $('promoInput');
@@ -122,11 +130,13 @@ function applyPromoCode() {
   renderCart();
 }
 
+
 function removePromoCode() {
   state.appliedPromo = null;
   renderCart();
   showToast('Promo removed');
 }
+
 
 /* =============================================
    VERSION CONTENT MAPS
@@ -179,6 +189,7 @@ const CONTENT = {
     pickerTitle:         'Step 2 \u2014 Build Your Box',
   },
 
+
   emergency: {
     heroTagline:         "we've got you. right now.",
     heroSub:             "pads, underwear, essentials \u2014 wherever you are in under 30 minutes. no fluff. just fast.",
@@ -202,6 +213,7 @@ const CONTENT = {
     plansLabel:          'Step 1 \u2014 Choose Your Plan',
     pickerTitle:         'Step 2 \u2014 Build Your Box',
   },
+
 
   holistic: {
     heroTagline:         'your body, your way. 🌿',
@@ -227,6 +239,7 @@ const CONTENT = {
     pickerTitle:         'Step 2 — Build Your Natural Box',
   },
 
+
   gifter: {
     heroTagline:         'show up for her. \u{1F451}',
     heroSub:             "let's be real \u2014 it's not the most fun week. but you showing up? that changes everything.",
@@ -251,6 +264,7 @@ const CONTENT = {
     pickerTitle:         'Step 2 \u2014 Pick What She Gets',
   }
 };
+
 
 /* =============================================
    WHY PERIOD — Version-specific appeal content
@@ -338,6 +352,7 @@ const WHY_PERIOD = {
   }
 };
 
+
 const CAT_GRADIENTS = {
   period:   'linear-gradient(135deg,#1A0D2E,#3D1A6E)',
   intimate: 'linear-gradient(135deg,#0D1020,#1F1050)',
@@ -349,6 +364,7 @@ const CAT_GRADIENTS = {
   comfort:  'linear-gradient(135deg,#0D0A1A,#1A1240)',
   holistic: 'linear-gradient(135deg,#0A1A0D,#0E2E15)',
 };
+
 
 /* =============================================
    STATE
@@ -370,17 +386,21 @@ let state = {
   _stripeCardMounted: false,
 };
 
+
 /* =============================================
    UTILITIES
    ============================================= */
 const $  = id  => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
 
+
 const fmt = p => '$' + p.toFixed(2);
+
 
 function cartCount()  { return Object.values(state.cart).reduce((s,v) => s+v, 0); }
 function cartTotal()  { return Object.entries(state.cart).reduce((s,[id,q]) => { const p=PRODUCTS.find(p=>p.id===+id); return s+(p?p.price*q:0); }, 0); }
 function careBoxCount(){ return Object.values(state.careBox).reduce((s,v) => s+v, 0); }
+
 
 function showToast(msg) {
   const t = $('toast');
@@ -390,6 +410,7 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+
 /* =============================================
    VERSION MANAGEMENT
    ============================================= */
@@ -397,17 +418,20 @@ function applyVersionContent(version) {
   const c = CONTENT[version];
   if (!c) return;
 
+
   // Hero
   if ($('heroTagline'))         $('heroTagline').textContent         = c.heroTagline;
   if ($('heroSub'))             $('heroSub').textContent             = c.heroSub;
   if ($('heroOrderNowText'))    $('heroOrderNowText').textContent    = c.heroOrderNowText;
   if ($('heroCarePackageText')) $('heroCarePackageText').textContent = c.heroCarePackageText;
 
+
   // Mode cards
   if ($('card1Title')) $('card1Title').textContent = c.card1Title;
   if ($('card1Desc'))  $('card1Desc').textContent  = c.card1Desc;
   if ($('card2Title')) $('card2Title').textContent = c.card2Title;
   if ($('card2Desc'))  $('card2Desc').textContent  = c.card2Desc;
+
 
   // How it works
   if ($('howTitle'))  $('howTitle').textContent  = c.howTitle;
@@ -418,9 +442,11 @@ function applyVersionContent(version) {
   if ($('step3Name')) $('step3Name').textContent = c.step3Name;
   if ($('step3Desc')) $('step3Desc').textContent = c.step3Desc;
 
+
   // Trust badges
   const strip = $('trustStrip');
   if (strip) strip.innerHTML = c.trustBadges.map(b => `<div class="trust-badge" role="listitem">${b}</div>`).join('');
+
 
   // Subscribe section
   if ($('subEyebrow'))  $('subEyebrow').textContent  = c.subEyebrow;
@@ -428,6 +454,7 @@ function applyVersionContent(version) {
   if ($('subSub'))      $('subSub').textContent       = c.subSub;
   if ($('plansLabel'))  $('plansLabel').textContent   = c.plansLabel;
   if ($('pickerTitle')) $('pickerTitle').textContent  = c.pickerTitle;
+
 
   // Version badge in header
   const badgeLabels = {
@@ -441,6 +468,7 @@ function applyVersionContent(version) {
   if (badgeText) badgeText.textContent = badgeLabels[version] || 'Choose';
 }
 
+
 function setVersionCookie(v) {
   document.cookie = 'period_version=' + v + ';max-age=31536000;path=/;SameSite=Lax';
   try { localStorage.setItem('period_version_backup', v); } catch(e) {}
@@ -451,12 +479,14 @@ function getVersionCookie() {
   try { return localStorage.getItem('period_version_backup'); } catch(e) { return null; }
 }
 
+
 function setVersion(version) {
   state.version = version;
   setVersionCookie(version);
   document.documentElement.setAttribute('data-version', version);
   applyVersionContent(version);
 }
+
 
 function showVersionPicker() {
   const picker = $('versionPicker');
@@ -466,6 +496,7 @@ function showVersionPicker() {
   picker.style.transition = 'none';
   document.body.style.overflow = 'hidden';
 }
+
 
 function dismissVersionPicker() {
   const picker = $('versionPicker');
@@ -478,19 +509,14 @@ function dismissVersionPicker() {
   }, 450);
 }
 
+
 function initVersionPicker() {
   const picker = $('versionPicker');
-  if (picker) {
-    picker.style.display = 'flex';
-    picker.style.opacity = '1';
-  }
+  if (picker) { picker.style.display = 'flex'; picker.style.opacity = '1'; }
   document.body.style.overflow = 'hidden';
-  const pickTeen      = $('pickTeen');
-  const pickAdult     = $('pickAdult');
-  const pickEmergency = $('pickEmergency');
-  const pickGifter    = $('pickGifter');
-  const pickHolistic  = $('pickHolistic');
-  const switchBtn     = $('switchModeBtn');
+  const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
+  const pickEmergency = $('pickEmergency'), pickGifter = $('pickGifter');
+  const pickHolistic = $('pickHolistic'), switchBtn = $('switchModeBtn');
   if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
   if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
   if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
@@ -509,7 +535,6 @@ function initVersion() {
     const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
   } else {
-    // First visit — show quick check first, THEN picker
     const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
     setTimeout(showQuickCheckBeforePicker, 400);
@@ -519,49 +544,22 @@ function initVersion() {
 function showQuickCheckBeforePicker() {
   const overlay = document.createElement('div');
   overlay.id = 'quickCheckOverlay';
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9999;
-    background:rgba(8,6,16,0.97);
-    display:flex;align-items:center;justify-content:center;
-    padding:1.5rem;
-  `;
-  overlay.innerHTML = `
-    <div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;">
-      <div style="font-size:2.5rem;">⚡</div>
-      <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#EDE8FA;line-height:1.3;">
-        real quick — do you need something RIGHT now?
-      </div>
-      <div style="font-size:0.875rem;color:rgba(237,232,250,0.6);line-height:1.6;">
-        we want to set up your experience but if you're in a pinch, we'll get you sorted first.
-      </div>
-      <button id="quickCheckYes" style="
-        width:100%;padding:1rem;
-        background:linear-gradient(135deg,#F87171,#DC2626);
-        color:white;border:none;border-radius:999px;
-        font-size:0.95rem;font-weight:700;cursor:pointer;">
-        🚨 yes — i need it NOW
-      </button>
-      <button id="quickCheckNo" style="
-        width:100%;padding:1rem;
-        background:rgba(237,232,250,0.08);
-        color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);
-        border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">
-        no — let's set up my experience ✨
-      </button>
-    </div>`;
-
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML =
+    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;">' +
+    '<div style="font-size:2.5rem;">⚡</div>' +
+    '<div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#EDE8FA;line-height:1.3;">real quick — do you need something RIGHT now?</div>' +
+    '<div style="font-size:0.875rem;color:rgba(237,232,250,0.6);line-height:1.6;">we want to set up your experience but if you're in a pinch, we'll get you sorted first.</div>' +
+    '<button id="quickCheckYes" style="width:100%;padding:1rem;background:linear-gradient(135deg,#F87171,#DC2626);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">?? yes — i need it NOW</button>' +
+    '<button id="quickCheckNo" style="width:100%;padding:1rem;background:rgba(237,232,250,0.08);color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">no — let's set up my experience ✨</button>' +
+    '</div>';
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
-
   document.getElementById('quickCheckYes').addEventListener('click', () => {
-    overlay.remove();
-    setVersion('emergency');
-    navigate('shop');
+    overlay.remove(); setVersion('emergency'); navigate('shop');
   });
-
   document.getElementById('quickCheckNo').addEventListener('click', () => {
-    overlay.remove();
-    initVersionPicker();
+    overlay.remove(); initVersionPicker();
   });
 }
 
@@ -580,22 +578,11 @@ function navigate(view) {
     initCycleScoopTabs();
     return;
   }
- 
-    $$('.view').forEach(v => v.classList.remove('active'));
-    const scoopEl = document.getElementById('cycleScoopView');
-    if (scoopEl) scoopEl.classList.add('active');
-    state.view = 'cycleScoopView';
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    renderScoopFacts();
-    renderScoopFaq();
-    initCycleScoopTabs();
-    return;
-  }
-function navigate(view) {
-    $$('.view').forEach(v => v.classList.remove('active'));
-    $(`${view}View`).classList.add('active');
-    state.view = view;
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $(`${view}View`).classList.add('active');
+  state.view = view;
   window.scrollTo({ top:0, behavior:'instant' });
+
 
   if (view === 'shop') {
     state.searchQuery = '';
@@ -621,6 +608,7 @@ function navigate(view) {
   }
 }
 
+
 /* =============================================
    THEME TOGGLE
    ============================================= */
@@ -637,12 +625,14 @@ function initTheme() {
   });
 }
 
+
 function setIcon(btn, dark) {
   btn.setAttribute('aria-label', 'Switch to ' + (dark ? 'light' : 'dark') + ' mode');
   btn.innerHTML = dark
     ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
     : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
 }
+
 
 /* =============================================
    FAVORITES
@@ -679,6 +669,7 @@ function toggleFavorite(id) {
   renderProductGrid();
 }
 
+
 /* =============================================
    SHOP — Category Grid & Products
    ============================================= */
@@ -692,10 +683,12 @@ function filteredProducts() {
   });
 }
 
+
 /* =============================================
    EMERGENCY SHOP — stripped-down urgent UI
    ============================================= */
 const EMERGENCY_IDS = [17, 18, 1, 15, 2]; // kit first, then add-ons
+
 
 function renderEmergencyShop() {
   // Hide all normal shop elements
@@ -706,10 +699,12 @@ function renderEmergencyShop() {
   if ($('sectionHeader')) $('sectionHeader').style.display = 'none';
   $('productGrid').style.display = 'none';
 
+
   // Render add-on items (everything except the kit hero)
   const addOns = EMERGENCY_IDS.slice(1)
     .map(id => PRODUCTS.find(p => p.id === id))
     .filter(Boolean);
+
 
   const items = $('emergencyItems');
   items.innerHTML = addOns.map(p => {
@@ -729,12 +724,14 @@ function renderEmergencyShop() {
       </div>`;
   }).join('');
 
+
   items.querySelectorAll('[data-add]').forEach(btn => {
     btn.addEventListener('click', () => {
       addToCart(+btn.dataset.add);
       renderEmergencyShop(); // re-render to update button states
     });
   });
+
 
   // Wire kit button (only once)
   const kitBtn = $('emergencyKitBtn');
@@ -743,6 +740,7 @@ function renderEmergencyShop() {
     openCart();
   };
 }
+
 
 /* Show the category browse grid */
 function showCategoriesMode() {
@@ -757,6 +755,7 @@ function showCategoriesMode() {
   renderCategoryGrid();
 }
 
+
 /* Switch to products view for a specific category */
 function showProductsMode(catId) {
   state.shopMode = 'products';
@@ -767,31 +766,38 @@ function showProductsMode(catId) {
   if ($('sectionHeader')) $('sectionHeader').style.display = '';
   $('productGrid').style.display = '';
 
+
   // Set breadcrumb title
   const cat = CATEGORIES.find(c => c.id === catId);
   const bcLabel = catId === 'favorites' ? '❤️ My Favorites' : (cat ? cat.icon + ' ' + cat.label : catId);
   if ($('shopBcTitle')) $('shopBcTitle').textContent = bcLabel;
   if ($('sectionTitle')) $('sectionTitle').textContent = catId === 'favorites' ? 'My Favorites' : (cat?.label || 'Products');
 
+
   renderFilterPills();
   renderProductGrid();
 }
+
 
 /* Render category cards grid */
 function renderCategoryGrid() {
   const grid = $('categoryGrid');
   if (!grid) return;
 
+
   const favs = getFavorites();
   const favCard = favs.length
     ? [{ id:'favorites', label:'My Favorites', icon:'❤️', count: favs.length }]
     : [];
 
+
   const cats = CATEGORIES.filter(c => c.id !== 'all').map(c => ({
     ...c, count: PRODUCTS.filter(p => p.category === c.id).length
   }));
 
+
   const allCards = [...favCard, ...cats];
+
 
   grid.innerHTML = allCards.map(c => `
     <button class="cat-card" data-cat="${c.id}" role="listitem" aria-label="Browse ${c.label} \u2014 ${c.count} item${c.count !== 1 ? 's' : ''}">
@@ -800,10 +806,12 @@ function renderCategoryGrid() {
       <span class="cat-card-count">${c.count} item${c.count !== 1 ? 's' : ''}</span>
     </button>`).join('');
 
+
   grid.querySelectorAll('.cat-card').forEach(card => {
     card.addEventListener('click', () => showProductsMode(card.dataset.cat));
   });
 }
+
 
 /* Render filter pills (shown inside products mode) */
 function renderFilterPills() {
@@ -816,6 +824,7 @@ function renderFilterPills() {
     ? [{ id:'favorites', label:'Favorites', icon:'❤️' }]
     : [];
   const pills = [...favPill, ...cats];
+
 
   bar.innerHTML = pills.map(c => `
     <button class="pill ${state.activeCategory === c.id ? 'active':''}" data-cat="${c.id}" role="listitem">
@@ -831,12 +840,14 @@ function renderFilterPills() {
   });
 }
 
+
 /* Render product cards (called when in products mode) */
 function renderProductGrid() {
   const grid  = $('productGrid');
   const count = $('productCount');
   const prods = filteredProducts();
   if (count) count.textContent = prods.length + ' item' + (prods.length !== 1 ? 's' : '');
+
 
   if (!prods.length) {
     const emptyMsg = state.activeCategory === 'favorites'
@@ -845,6 +856,7 @@ function renderProductGrid() {
     grid.innerHTML = emptyMsg;
     return;
   }
+
 
   grid.innerHTML = prods.map(p => {
     const inCart = state.cart[p.id] > 0;
@@ -876,6 +888,7 @@ function renderProductGrid() {
       </div>`;
   }).join('');
 
+
   grid.querySelectorAll('.product-card').forEach(card => {
     card.addEventListener('click', e => {
       if (e.target.closest('[data-add]') || e.target.closest('[data-fav]')) return;
@@ -891,6 +904,7 @@ function renderProductGrid() {
   });
 }
 
+
 /* =============================================
    CART
    ============================================= */
@@ -904,15 +918,18 @@ function addToCart(id) {
   if (state.openProduct === id) updateModalBtn();
 }
 
+
 function updateCartBadge() {
   const b = $('cartBadge'), c = cartCount();
   b.textContent = c;
   b.classList.toggle('visible', c > 0);
 }
 
+
 function renderCart() {
   const body  = $('cartBody');
   const items = Object.entries(state.cart).filter(([,q]) => q > 0);
+
 
   if (!items.length) {
     body.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><div class="cart-empty-text">Your cart is empty.<br>Browse products and add items to get started.</div></div>`;
@@ -934,6 +951,7 @@ function renderCart() {
         </div>`;
     }).join('');
 
+
     body.querySelectorAll('[data-inc]').forEach(b => b.addEventListener('click', () => {
       state.cart[b.dataset.inc] = (state.cart[b.dataset.inc]||0) + 1;
       renderCart(); updateCartBadge();
@@ -947,16 +965,20 @@ function renderCart() {
     }));
   }
 
+
   // Dynamic pricing breakdown
   const _pricing = getOrderTotal();
   const _el = id => document.getElementById(id);
 
+
   if (_el('breakdownSubtotal')) _el('breakdownSubtotal').textContent = fmt(_pricing.subtotal);
+
 
   if (_el('breakdownDelivery')) {
     _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE 🎉' : fmt(_pricing.delivery);
     _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
   }
+
 
   if (_el('breakdownDiscountRow')) {
     const _hasDisc = _pricing.discount > 0;
@@ -968,7 +990,9 @@ function renderCart() {
     }
   }
 
+
   if (_el('cartTotal')) _el('cartTotal').textContent = fmt(_pricing.total);
+
 
   // Promo row toggle
   const _hasPromo = !!state.appliedPromo;
@@ -976,11 +1000,14 @@ function renderCart() {
   if (_el('promoAppliedRow')) _el('promoAppliedRow').style.display = _hasPromo ? '' : 'none';
   if (_hasPromo && _el('promoAppliedLabel')) _el('promoAppliedLabel').textContent = state.appliedPromo.label;
 
+
   $('cartItemCount').textContent = cartCount() + ' item' + (cartCount()!==1?'s':'');
 }
 
+
 function openCart()  { $('cartSidebar').classList.add('open'); $('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; renderCart(); }
 function closeCart() { $('cartSidebar').classList.remove('open'); $('cartOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
 
 /* =============================================
    PRODUCT MODAL
@@ -989,6 +1016,7 @@ function openProductModal(id) {
   const p = PRODUCTS.find(p => p.id === id);
   if (!p) return;
   state.openProduct = id;
+
 
   $('modalHero').style.background = CAT_GRADIENTS[p.category];
   $('modalHeroEmoji').textContent  = p.emoji;
@@ -1000,10 +1028,12 @@ function openProductModal(id) {
   $('modalFeatures').innerHTML     = p.features.map(f => `<span class="feature-tag">${f}</span>`).join('');
   updateModalBtn();
 
+
   $('productModal').classList.add('open');
   $('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 
 function updateModalBtn() {
   const id = state.openProduct;
@@ -1016,12 +1046,14 @@ function updateModalBtn() {
     : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Add to Cart`;
 }
 
+
 function closeModal() {
   $('productModal').classList.remove('open');
   $('modalOverlay').classList.remove('open');
   document.body.style.overflow = '';
   state.openProduct = null;
 }
+
 
 /* =============================================
    SUBSCRIBE — Plans
@@ -1031,6 +1063,7 @@ function renderPlanCards() {
     const id = card.dataset.plan;
     card.classList.toggle('selected', state.selectedPlan === id);
 
+
     // Remove old listener by cloning
     const clone = card.cloneNode(true);
     card.parentNode.replaceChild(clone, card);
@@ -1039,9 +1072,11 @@ function renderPlanCards() {
   });
 }
 
+
 function selectPlan(id) {
   state.selectedPlan = id;
   state.careBox = {};      // reset selections on plan change
+
 
   // Update UI
   $$('.plan-card').forEach(c => {
@@ -1049,6 +1084,7 @@ function selectPlan(id) {
     c.classList.toggle('selected', selected);
     c.setAttribute('aria-checked', selected ? 'true' : 'false');
   });
+
 
   const plan = PLANS[id];
   $('pickerSection').style.display  = 'block';
@@ -1063,11 +1099,13 @@ function selectPlan(id) {
   renderPickerGrid();
 }
 
+
 function renderSmartSuggestions() {
   const favIds = getFavorites();
   const box    = $('smartSuggestions');
   const row    = $('smartSuggestRow');
   if (!box || !row) return;
+
 
   const favProducts = PRODUCTS.filter(p => favIds.includes(p.id));
   if (!favProducts.length) {
@@ -1075,9 +1113,11 @@ function renderSmartSuggestions() {
     return;
   }
 
+
   const plan = PLANS[state.selectedPlan];
   const slots = plan ? plan.slots : 0;
   const used  = careBoxCount();
+
 
   row.innerHTML = favProducts.map(p => {
     const selected = state.careBox[p.id] > 0;
@@ -1090,7 +1130,9 @@ function renderSmartSuggestions() {
     </button>`;
   }).join('');
 
+
   box.style.display = 'block';
+
 
   row.querySelectorAll('[data-suggest]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1100,19 +1142,23 @@ function renderSmartSuggestions() {
   });
 }
 
+
 function renderPickerFilter() {
   const bar = $('pickerFilterBar');
   if (!bar) return;
 
+
   // Build category list from products that exist
   const usedCats = [...new Set(PRODUCTS.map(p => p.category))];
   const tabs = CATEGORIES.filter(c => c.id === 'all' || usedCats.includes(c.id));
+
 
   bar.innerHTML = tabs.map(c => `
     <button class="picker-filter-tab ${state.pickerFilter === c.id ? 'active' : ''}"
             data-filter="${c.id}" aria-pressed="${state.pickerFilter === c.id}">
       <span aria-hidden="true">${c.icon}</span> ${c.label}
     </button>`).join('');
+
 
   bar.querySelectorAll('[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1123,17 +1169,21 @@ function renderPickerFilter() {
   });
 }
 
+
 function renderPickerGrid() {
   const plan  = PLANS[state.selectedPlan];
   const used  = careBoxCount();
   const slots = plan ? plan.slots : 0;
 
+
   $('pickerSlots').textContent = `${used} / ${slots} selected`;
   $('pickerSlots').classList.toggle('full', used >= slots);
+
 
   const filtered = state.pickerFilter === 'all'
     ? PRODUCTS
     : PRODUCTS.filter(p => p.category === state.pickerFilter);
+
 
   $('pickerGrid').innerHTML = filtered.length ? filtered.map(p => {
     const selected = state.careBox[p.id] > 0;
@@ -1154,17 +1204,20 @@ function renderPickerGrid() {
       </div>`;
   }).join('') : `<p class="picker-empty">No products in this category yet.</p>`;
 
+
   $$('[data-pick]').forEach(card => {
     card.addEventListener('click', () => toggleCareItem(+card.dataset.pick));
     card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') toggleCareItem(+card.dataset.pick); });
   });
 }
 
+
 function toggleCareItem(id) {
   const plan  = PLANS[state.selectedPlan];
   if (!plan) return;
   const isIn  = state.careBox[id] > 0;
   const count = careBoxCount();
+
 
   if (isIn) {
     delete state.careBox[id];
@@ -1177,6 +1230,7 @@ function toggleCareItem(id) {
   updateSubscribeBtn();
 }
 
+
 function updateSubscribeBtn() {
   const plan  = PLANS[state.selectedPlan];
   const used  = careBoxCount();
@@ -1188,6 +1242,7 @@ function updateSubscribeBtn() {
     : 'Select a plan to get started';
 }
 
+
 /* =============================================
    CHECKOUT / ORDER
    ============================================= */
@@ -1198,7 +1253,9 @@ function handleExpressCheckout(provider) {
   const itemCount = Object.values(state.cart).reduce((s, n) => s + n, 0);
   if (itemCount === 0) { showToast('Add items to your cart first ✨'); return; }
 
+
   const label = provider === 'apple' ? 'Apple Pay' : 'Google Pay';
+
 
   if (_stripe) {
     // Real Stripe Payment Request — Apple Pay / Google Pay native sheet
@@ -1231,21 +1288,98 @@ function handleExpressCheckout(provider) {
     return;
   }
 
+
   // Pre-launch: friendly feedback + complete pre-order
   showToast(`${label} activates at launch 🚀`);
   setTimeout(() => placeOrder(), 900);
 }
 
+
+/* =============================================
+   ORDER NOTES + NURSE NOTIFICATION + LOCATION
+   ============================================= */
+
+const NURSE_KEYWORDS = ['school', 'nurse', 'classroom', 'embarrassed', "can't get up", 'cant get up', 'student', 'teacher', 'office', 'period at school', 'accident at school'];
+const WORK_KEYWORDS  = ['work', 'office', 'desk', 'meeting', 'conference', 'floor', 'reception', 'colleague', 'embarrassed at work', 'accident at work'];
+
+function checkOrderNoteForFlag(note) {
+  if (!note) return null;
+  const lower = note.toLowerCase();
+  if (NURSE_KEYWORDS.some(k => lower.includes(k))) return 'school';
+  if (WORK_KEYWORDS.some(k => lower.includes(k))) return 'work';
+  return null;
+}
+
+function showDiscreetDeliveryPopup(type) {
+  const existing = document.getElementById('discreetPopup');
+  if (existing) existing.remove();
+  const msg = type === 'school'
+    ? "We've got you. ?? This happens to everyone — there's nothing to be embarrassed about. We'll make sure your order reaches you discreetly through your school nurse. Breathe."
+    : "It happens to the best of us. ?? No explanation needed. We'll make sure your delivery reaches you discreetly — wherever you are.";
+  const overlay = document.createElement('div');
+  overlay.id = 'discreetPopup';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.92);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML =
+    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;background:#1A0D2E;border-radius:20px;padding:2rem;border:1px solid rgba(168,85,247,0.3);">' +
+    '<div style="font-size:2.5rem;">??</div>' +
+    '<div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#EDE8FA;line-height:1.4;">' + msg + '</div>' +
+    '<button id="discreetOk" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it — thank you ??</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('discreetOk').addEventListener('click', () => overlay.remove());
+}
+
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { reject('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      err => reject(err.message)
+    );
+  });
+}
+
+async function autoPopulateLocation() {
+  const btn = document.getElementById('useLocationBtn');
+  const input = document.getElementById('addressInput') || $('addressInput');
+  if (btn) { btn.textContent = 'Getting location...'; btn.disabled = true; }
+  try {
+    const pos = await getUserLocation();
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.lat}&lon=${pos.lng}&format=json`);
+    const data = await res.json();
+    const addr = data.display_name || `${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`;
+    if (input) input.value = addr;
+    state.deliveryAddress = addr;
+    if ($('addressPill')) {
+      $('addressPill').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + addr.split(',')[0];
+    }
+    showToast('Location detected ✓');
+  } catch(e) {
+    showToast('Could not get location — please enter manually');
+  }
+  if (btn) { btn.textContent = '?? Use My Location'; btn.disabled = false; }
+}
+
+function calcDistanceFee(distanceMiles) {
+  if (distanceMiles <= 2) return 0;
+  if (distanceMiles <= 5) return 3;
+  if (distanceMiles <= 10) return 5;
+  return 7;
+}
+
 function placeOrder() {
   const { subtotal, delivery, discount, total } = getOrderTotal();
+
 
   if (subtotal > 0 && subtotal < 15) {
     showToast(`Minimum order is $15.00 — add ${fmt(15 - subtotal)} more`);
     return;
   }
 
+
   // Stripe connected → open secure checkout modal
   if (_stripe) { openStripeCheckout(); return; }
+
 
   // Pre-launch: save order to Firestore + show success
   const orderItems = Object.entries(state.cart).map(([id, qty]) => ({ id, qty }));
@@ -1264,6 +1398,7 @@ function placeOrder() {
     }).catch(e => console.warn('[Period.] Firestore order save failed:', e));
   }
 
+
   state.cart         = {};
   state.appliedPromo = null;
   updateCartBadge();
@@ -1274,11 +1409,13 @@ function placeOrder() {
   document.body.style.overflow = 'hidden';
 }
 
+
 function confirmSubscribe() {
   const plan = PLANS[state.selectedPlan];
   if (!plan) return;
   $('subscribeSuccessEta').textContent = `👑 ${plan.name} Plan — ${fmt(plan.price)}/month`;
   $('subscribeSuccessSub').textContent = `Your first ${plan.name} care package (${careBoxCount()} items) ships within 3–5 business days. You'll receive a confirmation shortly.`;
+
 
   // Save subscription to Firestore
   if (_firebaseFs && plan) {
@@ -1292,11 +1429,13 @@ function confirmSubscribe() {
     }).catch(e => console.warn('[Period.] Firestore subscription save failed:', e));
   }
 
+
   state.careBox = {};
   state.selectedPlan = null;
   $('subscribeSuccess').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 
 /* =============================================
    ADDRESS MODAL
@@ -1313,6 +1452,7 @@ function closeAddressModal() {
   document.body.style.overflow = '';
 }
 
+
 /* =============================================
    PWA
    ============================================= */
@@ -1322,6 +1462,7 @@ function registerSW() {
   }
 }
 
+
 /* =============================================
    INIT — Wire all events
    ============================================= */
@@ -1329,6 +1470,7 @@ function init() {
   initVersion();
   initTheme();
   registerSW();
+
 
   // Home navigation
   $('homeLogo')      .addEventListener('click', () => navigate('home'));
@@ -1366,9 +1508,11 @@ function init() {
   $('cardOrderNow')  .addEventListener('click', () => navigate('shop'));
   $('cardCarePackage').addEventListener('click', () => navigate('subscribe'));
 
+
   // Back buttons
   $('shopBack')      .addEventListener('click', () => navigate('home'));
   $('subscribeBack') .addEventListener('click', () => navigate('home'));
+
 
   // Cart
   $('cartBtn')       .addEventListener('click', openCart);
@@ -1376,10 +1520,12 @@ function init() {
   $('cartOverlay')   .addEventListener('click', closeCart);
   $('checkoutBtn')   .addEventListener('click', placeOrder);
 
+
   // Product modal
   $('modalOverlay')  .addEventListener('click', closeModal);
   $('modalClose')    .addEventListener('click', closeModal);
   $('modalAddBtn')   .addEventListener('click', () => { if (state.openProduct) addToCart(state.openProduct); });
+
 
   // Order success
   $('orderSuccessClose').addEventListener('click', () => {
@@ -1388,6 +1534,7 @@ function init() {
     navigate('home');
   });
 
+
   // Subscribe
   $('subscribeBtn').addEventListener('click', confirmSubscribe);
   $('subscribeSuccessClose').addEventListener('click', () => {
@@ -1395,6 +1542,7 @@ function init() {
     document.body.style.overflow = '';
     navigate('home');
   });
+
 
   // Address modal
   $('addressPill').addEventListener('click', openAddressModal);
@@ -1408,6 +1556,7 @@ function init() {
     }
     closeAddressModal();
   });
+
 
   // Search
   const searchInput = $('searchInput');
@@ -1428,20 +1577,24 @@ function init() {
     }, 200);
   });
 
+
   // Keyboard ESC
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeModal(); closeCart(); closeAddressModal(); closeNewsletterModal(); closeWhyModal(); if ($('nicknameModal') && $('nicknameModal').classList.contains('open')) { $('nicknameModal').classList.remove('open'); $('nicknameOverlay').classList.remove('open'); } }
   });
+
 
   // Newsletter
   if ($('openNewsletterBtn'))  $('openNewsletterBtn').addEventListener('click', showNewsletterModal);
   if ($('nlCloseBtn'))         $('nlCloseBtn').addEventListener('click', closeNewsletterModal);
   if ($('nlSubmitBtn'))        $('nlSubmitBtn').addEventListener('click', subscribeNewsletter);
 
+
   // Promo code
   if ($('promoApplyBtn'))  $('promoApplyBtn').addEventListener('click', applyPromoCode);
   if ($('promoRemoveBtn')) $('promoRemoveBtn').addEventListener('click', removePromoCode);
   if ($('promoInput'))     $('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyPromoCode(); });
+
 
   // Stripe checkout modal
   if ($('coBackBtn'))  $('coBackBtn').addEventListener('click',  closeStripeCheckout);
@@ -1454,6 +1607,7 @@ function init() {
     $('nlEmailInput').addEventListener('keyup',   e => { if (e.key === 'Enter') { e.preventDefault(); subscribeNewsletter(); } });
   }
 
+
   // Newsletter life-stage buttons (use event delegation)
   const stageRow = $('nlStageRow');
   if (stageRow) stageRow.addEventListener('click', e => {
@@ -1463,11 +1617,13 @@ function init() {
     $$('.nl-stage-btn').forEach(b => b.classList.toggle('active', b === btn));
   });
 
+
   // Tracker access button
   if ($('trackerAccessBtn')) $('trackerAccessBtn').addEventListener('click', () => {
     if (isNewsletterSubscribed()) navigate('tracker');
     else showNewsletterModal();
   });
+
 
   // Tracker back / calendar nav / log buttons
   if ($('trackerBack')) $('trackerBack').addEventListener('click', () => navigate('home'));
@@ -1483,6 +1639,7 @@ function init() {
     if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
     navigate('tracker');
   });
+
 
   // Floating tracker button
   if ($('floatingTrackerBtn')) $('floatingTrackerBtn').addEventListener('click', () => {
@@ -1532,8 +1689,10 @@ function init() {
   });
   if ($('logEnd'))   $('logEnd').addEventListener('click', logPeriodEnd);
 
+
   // Reminder buttons (wired in initReminders)
   initReminders();
+
 
   // Holistic shop shortcut
   if ($('cardHolistic')) $('cardHolistic').addEventListener('click', () => {
@@ -1541,8 +1700,10 @@ function init() {
     showProductsMode('holistic');
   });
 
+
   // Back to categories from products
   if ($('shopBackCat')) $('shopBackCat').addEventListener('click', showCategoriesMode);
+
 
   // Legal modal
   if ($('openPrivacy'))    $('openPrivacy').addEventListener('click',   () => openLegal('privacy'));
@@ -1550,15 +1711,18 @@ function init() {
   if ($('legalModalClose')) $('legalModalClose').addEventListener('click', closeLegal);
   if ($('legalOverlay'))   $('legalOverlay').addEventListener('click',  closeLegal);
 
+
   // Apple Pay + Google Pay (express checkout)
   if ($('applePayBtn'))  $('applePayBtn').addEventListener('click',  () => handleExpressCheckout('apple'));
   if ($('googlePayBtn')) $('googlePayBtn').addEventListener('click', () => handleExpressCheckout('google'));
+
 
   // Why Period modal
   if ($('heroWhyBtn'))   $('heroWhyBtn').addEventListener('click', openWhyModal);
   if ($('whyCloseBtn'))  $('whyCloseBtn').addEventListener('click', closeWhyModal);
   if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
   if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
+
 
   if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
   if ($('commPostBtn'))   $('commPostBtn').addEventListener('click', submitCommPost);
@@ -1567,6 +1731,7 @@ function init() {
   if ($('nicknameInput'))   $('nicknameInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmNickname(); });
   if ($('navCommunity'))  $('navCommunity').addEventListener('click', () => navigate('community'));
   if ($('heroCommBar'))   $('heroCommBar').addEventListener('click', () => navigate('community'));
+
 
   // Monthly upsell (post-order)
   if ($('upsellYes')) $('upsellYes').addEventListener('click', () => {
@@ -1580,14 +1745,17 @@ function init() {
     navigate('home');
   });
 
+
   // Fetch live trends + init tracker button state
   fetchTrends();
   updateTrackerBtn();
+
 
   // Initial cart render
   renderCart();
   updateCartBadge();
 }
+
 
 /* =============================================
    STRIPE CHECKOUT MODAL
@@ -1596,7 +1764,47 @@ function openStripeCheckout() {
   const items = Object.entries(state.cart).filter(([,q]) => q > 0);
   if (!items.length) { showToast('Add items to your cart first ✨'); return; }
 
+
   const { subtotal, delivery, discount, total } = getOrderTotal();
+
+
+  // Order notes section — add before summary
+  const existingNotes = document.getElementById('orderNotesSection');
+  if (!existingNotes) {
+    const notesSection = document.createElement('div');
+    notesSection.id = 'orderNotesSection';
+    notesSection.style.cssText = 'margin-bottom:1rem;';
+    notesSection.innerHTML =
+      '<div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Add a note (optional)</div>' +
+      '<textarea id="orderNoteInput" placeholder="Any special delivery instructions? e.g. leave at door, call when arriving..." style="width:100%;height:80px;padding:0.75rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.875rem;color:var(--text-primary);resize:none;outline:none;" maxlength="300"></textarea>' +
+      '<div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:12px;border:1px solid rgba(168,85,247,0.2);">' +
+      '<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;flex:1;">' +
+      '<div style="position:relative;">' +
+      '<input type="checkbox" id="nurseDeliveryToggle" style="opacity:0;position:absolute;width:0;height:0;">' +
+      '<div id="nurseToggleUI" style="width:44px;height:24px;background:var(--surface-3,#333);border-radius:999px;transition:background 0.2s;position:relative;">' +
+      '<div id="nurseToggleThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>' +
+      '</div>' +
+      '</div>' +
+      '<div><div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">?? Discreet delivery — bring it to me</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-muted);">School nurse, work reception, or similar</div></div>' +
+      '</label>' +
+      '</div>';
+    const coBody = document.querySelector('.co-body');
+    if (coBody) coBody.insertBefore(notesSection, coBody.firstChild);
+
+    // Wire toggle
+    const toggle = document.getElementById('nurseDeliveryToggle');
+    const toggleUI = document.getElementById('nurseToggleUI');
+    const toggleThumb = document.getElementById('nurseToggleThumb');
+    if (toggle) {
+      toggle.addEventListener('change', () => {
+        const on = toggle.checked;
+        if (toggleUI) toggleUI.style.background = on ? '#A855F7' : 'var(--surface-3,#333)';
+        if (toggleThumb) toggleThumb.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+        if (on) showDiscreetDeliveryPopup('school');
+      });
+    }
+  }
 
   // Build order summary
   const sumEl = $('coSummary');
@@ -1618,8 +1826,10 @@ function openStripeCheckout() {
       <div class="co-sum-row co-sum-total"><span>Total</span><span>${fmt(total)}</span></div>`;
   }
 
+
   const payAmt = $('coPayAmt');
   if (payAmt) payAmt.textContent = fmt(total);
+
 
   // Mount Stripe Card Element (once per session)
   if (_stripe && !state._stripeCardMounted) {
@@ -1643,12 +1853,14 @@ function openStripeCheckout() {
     state._stripeCardMounted = true;
   }
 
+
   const modal   = $('coModal');
   const overlay = $('coOverlay');
   if (modal)   { modal.style.display = ''; setTimeout(() => modal.classList.add('open'), 10); }
   if (overlay) overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 
 function closeStripeCheckout() {
   const modal = $('coModal'), overlay = $('coOverlay');
@@ -1658,10 +1870,12 @@ function closeStripeCheckout() {
   document.body.style.overflow = '';
 }
 
+
 async function processStripePayment() {
   if (!_stripe || !state._stripeCard) return;
   const btn = $('coPayBtn');
   if (btn) { btn.disabled = true; btn.innerHTML = 'Processing…'; }
+
 
   try {
     const cardName = ($('coCardName') || {}).value || '';
@@ -1687,10 +1901,12 @@ async function processStripePayment() {
   }
 }
 
+
 /* =================================================================
    FIREBASE CONFIG  —  Community Posts Storage
    =================================================================
    HOW TO SET UP (takes about 10 minutes, totally free):
+
 
    STEP 1 → Go to: https://console.firebase.google.com
    STEP 2 → Click "Add project" → name it "period-app"
@@ -1699,6 +1915,7 @@ async function processStripePayment() {
    STEP 5 → Paste it below, replacing "null" after FIREBASE_CONFIG =
    STEP 6 → In Firebase: Build → Realtime Database → Create database
              Choose "Start in test mode" (free Spark plan)
+
 
    Until you set this up, community posts save to the user's device
    (still works — Firebase just adds cross-device sharing later).
@@ -1712,6 +1929,7 @@ const FIREBASE_CONFIG = {
   appId:             "1:1076074649022:web:3538dcd4b424bde16095ef"
 };
 
+
 let _firebaseDb = null;
 let _firebaseFs = null;
 (function initFirebase() {
@@ -1724,10 +1942,12 @@ let _firebaseFs = null;
   } catch(e) { console.warn('[Period.] Firebase init failed:', e); }
 })();
 
+
 /* =================================================================
    EMAILJS CONFIG  —  Newsletter Send (Free: 200 emails/month)
    =================================================================
    HOW TO SET UP (takes about 5 minutes, totally free):
+
 
    STEP 1 → Go to: https://www.emailjs.com → Create free account
    STEP 2 → Email Services → Add Service → connect your Gmail
@@ -1737,25 +1957,32 @@ let _firebaseFs = null;
    STEP 4 → Copy your Service ID, Template ID, and Public Key
    STEP 5 → Paste them below
 
+
    --- NEWSLETTER TEMPLATE (paste into EmailJS template body) ---
    Hi there!
 
+
    Welcome to the . community. 💜
+
 
    You just unlocked your free Period Tracker — use it to log
    your cycle, predict your next period, and get gentle reminders.
+
 
    Every month you'll receive:
    • Cycle education tailored to your phase
    • Trending product picks
    • Community support + exclusive drops
 
+
    Shop now: https://perioddelivers.com
+
 
    With love,
    The . Team  |  Period. LLC — Cleveland, OH
    Unsubscribe: reply "unsubscribe" to this email
    ---------------------------------------------------------------
+
 
    Until you set this up, subscribers are saved and you can
    email them manually from your dashboard.
@@ -1766,10 +1993,12 @@ const EMAILJS_CONFIG = {
   publicKey:  'QcMi8VDsTqRYe59_D'
 };
 
+
 /* =================================================================
    STRIPE CONFIG  —  Card Payments, Apple Pay, Google Pay
    =================================================================
    HOW TO ACTIVATE (10 min — free Stripe account):
+
 
    STEP 1 → https://dashboard.stripe.com/register → create account
    STEP 2 → Add your bank account (needed for payouts)
@@ -1778,10 +2007,12 @@ const EMAILJS_CONFIG = {
    STEP 5 → Replace null below:
              { publishableKey: 'pk_live_...' }
 
+
    Apple Pay + Google Pay: go live automatically once domain is verified.
    Stripe Dashboard → Settings → Payment Methods → Apple Pay → Add domain
    ================================================================= */
 const STRIPE_CONFIG = null; // ← { publishableKey: 'pk_live_...' }
+
 
 let _stripe = null;
 if (STRIPE_CONFIG && typeof Stripe !== 'undefined') {
@@ -1790,16 +2021,21 @@ if (STRIPE_CONFIG && typeof Stripe !== 'undefined') {
 }
 
 
+
+
 if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
   try { emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey }); } catch(e) { console.warn('[Period.] EmailJS init failed:', e); }
 }
+
 
 /* =============================================
    COMMUNITY — NICKNAME + GREETING + DISCUSSION
    ============================================= */
 
+
 const COMMUNITY_NICKNAME_KEY = 'period_nickname';
 const COMMUNITY_POSTS_KEY    = 'period_community_posts';
+
 
 const COMMUNITY_TOPICS = [
   { id:'period-week',    title:'Period Week Talk',       emoji:'🩸', desc:'You\'re not alone this week. Share how you\'re feeling, ask for support, or just vent.' },
@@ -1808,6 +2044,7 @@ const COMMUNITY_TOPICS = [
   { id:'wins',           title:'Wins & Encouragement',  emoji:'👑', desc:'Celebrate something — big or tiny. Uplift someone who needs it today.' },
   { id:'reviews',        title:'Product Reviews',        emoji:'⭐', desc:'Which products are actually worth it? Help the community shop smarter.' },
 ];
+
 
 const COMMUNITY_SEED = {
   'period-week': [
@@ -1833,7 +2070,9 @@ const COMMUNITY_SEED = {
   ],
 };
 
+
 let _commActiveTopic = null;
+
 
 function getNickname() {
   const m = document.cookie.match(/period_nickname=([^;]+)/);
@@ -1842,6 +2081,7 @@ function getNickname() {
 function setNickname(name) {
   document.cookie = 'period_nickname=' + encodeURIComponent(name.trim()) + ';max-age=946080000;path=/;SameSite=Lax';
 }
+
 
 function getTimeGreeting(name) {
   const h = new Date().getHours();
@@ -1857,6 +2097,7 @@ function getTimeGreeting(name) {
   return greets[Math.floor(Math.random() * greets.length)];
 }
 
+
 function getCommunityPosts(topicId) {
   try {
     const m = document.cookie.match(/period_community=([^;]+)/);
@@ -1864,6 +2105,7 @@ function getCommunityPosts(topicId) {
     return all[topicId] || [];
   } catch { return []; }
 }
+
 
 function saveCommunityPost(topicId, text, author) {
   try {
@@ -1890,21 +2132,25 @@ function saveCommunityPost(topicId, text, author) {
   } catch { return null; }
 }
 
+
 function renderCommunityHome() {
   const name    = getNickname();
   const greet   = $('commGreeting');
   const topics  = $('commTopics');
   const thread  = $('commThread');
 
+
   if (thread)  thread.style.display  = 'none';
   if (topics)  topics.style.display  = '';
   if (greet)   greet.style.display   = '';
   _commActiveTopic = null;
 
+
   if (greet && name) {
     const txt = $('commGreetingText');
     if (txt) txt.textContent = getTimeGreeting(name);
   }
+
 
   const grid = $('commTopicGrid');
   if (!grid) return;
@@ -1923,10 +2169,12 @@ function renderCommunityHome() {
   }).join('');
 }
 
+
 function openCommTopic(topicId) {
   _commActiveTopic = topicId;
   const topic   = COMMUNITY_TOPICS.find(t => t.id === topicId);
   if (!topic) return;
+
 
   const greet  = $('commGreeting');
   const topics = $('commTopics');
@@ -1935,19 +2183,24 @@ function openCommTopic(topicId) {
   if (topics) topics.style.display = 'none';
   if (thread) thread.style.display = '';
 
+
   const header = $('commThreadHeader');
   if (header) header.textContent = topic.emoji + ' ' + topic.title;
 
+
   renderCommPosts(topicId);
 }
+
 
 function renderCommPosts(topicId) {
   const container = $('commPosts');
   if (!container) return;
 
+
   const seed  = (COMMUNITY_SEED[topicId] || []).map(p => ({...p, isOwn: false}));
   const user  = getCommunityPosts(topicId);
   const all   = [...user, ...seed];
+
 
   container.innerHTML = all.map(p => `
     <div class="comm-post ${p.isOwn ? 'comm-post--own' : ''}">
@@ -1964,8 +2217,10 @@ function renderCommPosts(topicId) {
       </div>
     </div>`).join('') || '<p class="comm-empty">Be the first to post here. 💜</p>';
 
+
   container.scrollTop = 0;
 }
+
 
 function likePost(topicId, postId, btn) {
   if (!btn) return;
@@ -1976,6 +2231,7 @@ function likePost(topicId, postId, btn) {
   const current = parseInt(btn.textContent.trim()) || 0;
   btn.innerHTML = btn.innerHTML.replace(/\d+$/, liked ? current + 1 : Math.max(0, current - 1));
 }
+
 
 function submitCommPost() {
   const input  = $('commInput');
@@ -1988,6 +2244,7 @@ function submitCommPost() {
   renderCommPosts(_commActiveTopic);
   showToast('Posted! 💜');
 }
+
 
 function initCommunity() {
   const name = getNickname();
@@ -2012,6 +2269,7 @@ function initCommunity() {
   }
 }
 
+
 function confirmNickname() {
   const inp = $('nicknameInput');
   if (!inp) return;
@@ -2025,11 +2283,14 @@ function confirmNickname() {
   renderCommunityHome();
 }
 
+
 document.addEventListener('DOMContentLoaded', init);
+
 
 /* =============================================
    TRENDS SYSTEM
    ============================================= */
+
 
 // Bundled fallback — mirrors trends.json exactly
 const TRENDS_DEFAULT = {
@@ -2086,7 +2347,9 @@ const TRENDS_DEFAULT = {
   },
 };
 
+
 let _trends = TRENDS_DEFAULT;
+
 
 async function fetchTrends() {
   try {
@@ -2097,6 +2360,7 @@ async function fetchTrends() {
   populateNewsletterFact();
 }
 
+
 function getWeeklySlang(version) {
   const v   = version || state.version || 'adult';
   const arr = (_trends.slang || {})[v] || (_trends.slang || {}).adult || [''];
@@ -2104,14 +2368,17 @@ function getWeeklySlang(version) {
   return arr[idx];
 }
 
+
 function renderTrendingStrip() {
   const strip = $('trendingStrip');
   if (strip) strip.style.display = 'none';
 }
 
+
 /* =============================================
    NEWSLETTER SYSTEM
    ============================================= */
+
 
 function getDeviceId() {
   let id = localStorage.getItem('period_device_id');
@@ -2122,19 +2389,23 @@ function getDeviceId() {
   return id;
 }
 
+
 function getCookie(name) {
   const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
   return m ? decodeURIComponent(m[1]) : null;
 }
+
 
 function setCookie(name, val, days) {
   const exp = new Date(Date.now() + days * 864e5).toUTCString();
   document.cookie = name + '=' + encodeURIComponent(val) + '; expires=' + exp + '; path=/; SameSite=Lax';
 }
 
+
 function setNLCookie(email, stage) {
   document.cookie = 'period_nl=' + encodeURIComponent(email + '|' + stage) + ';max-age=946080000;path=/;SameSite=Lax';
 }
+
 
 function getNLCookie() {
   const m = document.cookie.match(/period_nl=([^;]+)/);
@@ -2143,9 +2414,12 @@ function getNLCookie() {
   return { email: parts[0], stage: parts[1] || 'adult' };
 }
 
+
 function isNewsletterSubscribed() { return getNLCookie() !== null; }
 
+
 let _nlSelectedStage = null;
+
 
 function populateNewsletterFact() {
   const v       = state.version || 'adult';
@@ -2158,22 +2432,27 @@ function populateNewsletterFact() {
   if ($('nlFactText')) $('nlFactText').textContent = fact.text;
 }
 
+
 function showNewsletterModal() {
   const modal = $('newsletterModal');
   if (!modal) return;
+
 
   // Reset to form state
   const fs = $('nlFormState'), ss = $('nlSuccessState');
   if (fs) fs.style.display = '';
   if (ss) ss.style.display = 'none';
 
+
   // Populate rotating fact
   populateNewsletterFact();
+
 
   // Pre-select stage matching current version
   const autoStage = (state.version === 'teen') ? 'teen' : 'adult';
   _nlSelectedStage = autoStage;
   $$('.nl-stage-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === autoStage));
+
 
   modal.style.display = 'flex';
   modal.style.opacity = '';
@@ -2181,6 +2460,7 @@ function showNewsletterModal() {
   document.body.style.overflow = 'hidden';
   setTimeout(() => { const inp = $('nlEmailInput'); if (inp) inp.focus(); }, 350);
 }
+
 
 function closeNewsletterModal() {
   const modal = $('newsletterModal');
@@ -2195,10 +2475,12 @@ function closeNewsletterModal() {
   }, 210);
 }
 
+
 function subscribeNewsletter() {
   const emailInput = $('nlEmailInput');
   const email = emailInput ? emailInput.value.trim() : '';
   const stage = _nlSelectedStage || 'adult';
+
 
   const valid = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!valid) {
@@ -2211,6 +2493,7 @@ function subscribeNewsletter() {
     showToast('Please enter a valid email address');
     return;
   }
+
 
   setNLCookie(email, stage);
   updateTrackerBtn();
@@ -2226,6 +2509,7 @@ updateTrackerWidget();
       created_at: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(e => console.warn('[Period.] Firestore subscriber save failed:', e));
   }
+
 
   // Send welcome email via EmailJS if configured
   if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
@@ -2249,9 +2533,11 @@ updateTrackerWidget();
     }
   }
 
+
   const fs = $('nlFormState'), ss = $('nlSuccessState');
   if (fs) fs.style.display = 'none';
   if (ss) ss.style.display = '';
+
 
   const msg = $('nlSuccessMsg');
   if (msg) {
@@ -2260,6 +2546,7 @@ updateTrackerWidget();
       : "Your period tracker is now unlocked. Welcome to the community.";
   }
 }
+
 
 function updateTrackerBtn() {
   const btn  = $('trackerAccessBtn');
@@ -2275,17 +2562,21 @@ function updateTrackerBtn() {
   updateTrackerWidget();
 }
 
+
 function updateTrackerWidget() {
   const locked   = $('trackerWidgetLocked');
   const unlocked = $('trackerWidgetUnlocked');
   const ftbLock  = $('ftbLock');
   const subscribed = isNewsletterSubscribed();
 
+
   if (locked)   locked.style.display   = subscribed ? 'none' : '';
   if (unlocked) unlocked.style.display = subscribed ? ''     : 'none';
   if (ftbLock)  ftbLock.style.display  = subscribed ? 'none' : '';
 
+
   if (!subscribed) return;
+
 
   // Populate widget with tracker data
   const data      = getTrackerData();
@@ -2294,6 +2585,7 @@ function updateTrackerWidget() {
   const today      = todayStr();
   const nextPeriod = getNextPeriodDate(cycles, avgLength);
   const lastCycle  = cycles.length ? cycles[cycles.length - 1] : null;
+
 
   if (lastCycle) {
     const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
@@ -2314,6 +2606,7 @@ function updateTrackerWidget() {
   }
 }
 
+
 /* =============================================
    THE CHANGE, SIS — SHOP FOR THIS STAGE
    ============================================= */
@@ -2325,6 +2618,7 @@ function openShopForStage() {
     showToast('Showing Wellness products for your stage 💜');
   }, 120);
 }
+
 
 /* =============================================
    WHY PERIOD MODAL
@@ -2343,6 +2637,7 @@ function openWhyModal() {
   });
 }
 
+
 function closeWhyModal() {
   const modal   = $('whyModal');
   const overlay = $('whyOverlay');
@@ -2355,6 +2650,7 @@ function closeWhyModal() {
     document.body.style.overflow = '';
   }, 300);
 }
+
 
 function renderWhyModal() {
   const v    = state.version || 'adult';
@@ -2377,9 +2673,11 @@ function renderWhyModal() {
     </div>`).join('');
 }
 
+
 /* =============================================
    PERIOD TRACKER
    ============================================= */
+
 
 function getTrackerData() {
   const m = document.cookie.match(/period_cycles=([^;]+)/);
@@ -2387,16 +2685,20 @@ function getTrackerData() {
   try { return JSON.parse(decodeURIComponent(m[1])); } catch (e) { return { cycles: [], avgLength: 28 }; }
 }
 
+
 function setTrackerData(data) {
   document.cookie = 'period_cycles=' + encodeURIComponent(JSON.stringify(data)) + ';max-age=978307200;path=/;SameSite=Lax';
 }
 
+
 let trackerDisplayMonth = null; // { year, month } — 0-indexed month
+
 
 function todayStr() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
+
 
 function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -2404,9 +2706,11 @@ function addDays(dateStr, n) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+
 function daysBetween(a, b) {
   return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
 }
+
 
 function calcAvgCycleLength(cycles) {
   if (cycles.length < 2) return 28;
@@ -2418,6 +2722,7 @@ function calcAvgCycleLength(cycles) {
   return lengths.length ? Math.round(lengths.reduce((a,b) => a+b, 0) / lengths.length) : 28;
 }
 
+
 function calcAvgDuration(cycles) {
   const complete = cycles.filter(c => c.s && c.e);
   if (!complete.length) return 5;
@@ -2425,10 +2730,12 @@ function calcAvgDuration(cycles) {
   return Math.round(durations.reduce((a,b) => a+b, 0) / durations.length);
 }
 
+
 function getNextPeriodDate(cycles, avgLength) {
   if (!cycles || !cycles.length) return null;
   return addDays(cycles[cycles.length - 1].s, avgLength);
 }
+
 
 function getCurrentPhase(startDate) {
   const day = daysBetween(startDate, todayStr()) + 1;
@@ -2438,6 +2745,7 @@ function getCurrentPhase(startDate) {
   if (day <= 16) return { phase: 'Ovulatory',  day, emoji: '✨' };
   return           { phase: 'Luteal',      day, emoji: '🌙' };
 }
+
 
 function getPhaseInfo(phase, version) {
   const teen = version === 'teen';
@@ -2456,6 +2764,7 @@ function getPhaseInfo(phase, version) {
   return tips[phase] || tips.Luteal;
 }
 
+
 function renderTracker() {
   const data       = getTrackerData();
   const { cycles } = data;
@@ -2468,6 +2777,7 @@ function renderTracker() {
   const seedSection = $('trackerSeedSection');
   if (seedSection) seedSection.style.display = cycles.length ? 'none' : '';
 
+
   // ---- Phase card ----
   if (lastCycle) {
     const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
@@ -2476,12 +2786,14 @@ function renderTracker() {
     if ($('tpcDay'))   $('tpcDay').textContent   = phase === 'Upcoming' ? 'Your next cycle is approaching' : `Cycle day ${day}`;
     if ($('tpcTip'))   $('tpcTip').textContent   = getPhaseInfo(phase, v);
 
+
     if ($('tpcNext') && nextPeriod) {
       const dtu = daysBetween(today, nextPeriod);
       $('tpcNext').textContent = dtu > 0 ? `🩸 Next period in ${dtu} days`
         : dtu === 0 ? '🩸 Period expected today'
         : '🩸 Period may be late — bodies vary';
     }
+
 
     // Edu card
     const fKey = v === 'teen' ? 'teen' : 'adult';
@@ -2501,10 +2813,12 @@ function renderTracker() {
     if ($('tpcTip'))   $('tpcTip').textContent   = '';
   }
 
+
   // ---- Stats ----
   if ($('tstatAvg'))      $('tstatAvg').textContent      = cycles.length >= 2 ? avgLength + ' days' : '—';
   if ($('tstatCount'))    $('tstatCount').textContent    = cycles.length || '—';
   if ($('tstatDuration')) $('tstatDuration').textContent = cycles.filter(c => c.e).length ? avgDur + ' days' : '—';
+
 
   // ---- Calendar ----
   if (!trackerDisplayMonth) {
@@ -2514,18 +2828,22 @@ function renderTracker() {
   renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today);
 }
 
+
 function renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today) {
   const { year, month } = trackerDisplayMonth;
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   if ($('trackerMonthLabel')) $('trackerMonthLabel').textContent = MONTHS[month] + ' ' + year;
 
+
   const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
 
   // Build date sets
   const loggedSet    = new Set();
   const predictedSet = new Set();
   const ovulationSet = new Set();
+
 
   cycles.forEach(c => {
     const end = c.e || c.s;
@@ -2533,17 +2851,21 @@ function renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today) {
     for (let i = 0; i <= 14 && d <= end; i++) { loggedSet.add(d); d = addDays(d, 1); }
   });
 
+
   if (nextPeriod) {
     const pd = avgDur || 5;
     for (let i = 0; i < pd; i++) predictedSet.add(addDays(nextPeriod, i));
     for (let i = -16; i <= -11; i++) ovulationSet.add(addDays(nextPeriod, i));
   }
 
+
   const grid = $('trackerCalGrid');
   if (!grid) return;
 
+
   let html = '';
   for (let i = 0; i < firstDay; i++) html += `<div class="tcal-day empty"></div>`;
+
 
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
@@ -2555,16 +2877,20 @@ function renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today) {
     html += `<div class="${cls.join(' ')}" data-date="${ds}" aria-label="${ds}">${d}</div>`;
   }
 
+
   grid.innerHTML = html;
+
 
   grid.querySelectorAll('.tcal-day:not(.empty)').forEach(day => {
     day.addEventListener('click', () => { if (day.dataset.date > todayStr()) { showToast("Can't log future dates"); return; } logDateFromCalendar(day.dataset.date); });
   });
 }
 
+
 function logDateFromCalendar(dateStr) {
   const data = getTrackerData();
   const existingIdx = data.cycles.findIndex(c => dateStr >= c.s && dateStr <= (c.e || c.s));
+
 
   if (existingIdx > -1) {
     // Date already logged — show edit/delete options
@@ -2582,6 +2908,7 @@ function logDateFromCalendar(dateStr) {
     return;
   }
 
+
   data.cycles.push({ s: dateStr, e: null });
   data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
   data.avgLength = calcAvgCycleLength(data.cycles);
@@ -2589,6 +2916,7 @@ function logDateFromCalendar(dateStr) {
   renderTracker();
   showToast('Period start logged ✓');
 }
+
 
 function logPeriodStart() {
   const data  = getTrackerData();
@@ -2603,6 +2931,7 @@ function logPeriodStart() {
   showToast('Period start logged ✓');
 }
 
+
 function logPeriodEnd() {
   const data  = getTrackerData();
   const today = todayStr();
@@ -2615,6 +2944,7 @@ function logPeriodEnd() {
   renderTracker();
   showToast('Period end logged ✓');
 }
+
 
 /* =============================================
    SYMPTOM LOGGING
@@ -2629,6 +2959,7 @@ const SYMPTOMS = [
   { id:'sleep',   label:'Sleep Quality', icon:'🌙', options:['Great 😴','Okay 😐','Poor 😩'] },
 ];
 
+
 function getSymptomsData() {
   try {
     const m = document.cookie.match(/period_symptoms=([^;]+)/);
@@ -2636,9 +2967,11 @@ function getSymptomsData() {
   } catch { return {}; }
 }
 
+
 function saveSymptomsData(data) {
   document.cookie = 'period_symptoms=' + encodeURIComponent(JSON.stringify(data)) + ';max-age=978307200;path=/;SameSite=Lax';
 }
+
 
 function logSymptom(dateStr, symptomId, value) {
   const data = getSymptomsData();
@@ -2654,11 +2987,13 @@ function logSymptom(dateStr, symptomId, value) {
   renderSymptomLog(dateStr);
 }
 
+
 function renderSymptomLog(dateStr) {
   const container = $('symptomLogSection');
   if (!container) return;
   const data = getSymptomsData();
   const todaySymptoms = data[dateStr] || {};
+
 
   container.innerHTML = `
     <div class="symptom-header">
@@ -2691,15 +3026,18 @@ function renderSymptomLog(dateStr) {
     </div>`;
 }
 
+
 function initSymptomLog() {
   const section = $('symptomLogSection');
   if (!section) return;
   renderSymptomLog(todayStr());
 }
 
+
 /* =============================================
    PERIOD REMINDER SYSTEM
    ============================================= */
+
 
 // Cookie: period_reminders = encodeURIComponent(JSON.stringify({browser:true, sms:'555-...', daysBefore:3}))
 function getReminderPrefs() {
@@ -2711,7 +3049,9 @@ function setReminderPrefs(prefs) {
   document.cookie = 'period_reminders=' + encodeURIComponent(JSON.stringify(prefs)) + ';max-age=946080000;path=/;SameSite=Lax';
 }
 
+
 let _reminderTab = 'browser'; // 'browser' | 'sms'
+
 
 function initReminders() {
   // Tab switching
@@ -2719,6 +3059,7 @@ function initReminders() {
   const tabSms     = $('remTabSms');
   const panelBrowser = $('remPanelBrowser');
   const panelSms     = $('remPanelSms');
+
 
   function switchRemTab(tab) {
     _reminderTab = tab;
@@ -2728,8 +3069,10 @@ function initReminders() {
     if (panelSms)       panelSms.style.display     = tab === 'sms'     ? '' : 'none';
   }
 
+
   if (tabBrowser) tabBrowser.addEventListener('click', () => switchRemTab('browser'));
   if (tabSms)     tabSms.addEventListener('click',     () => switchRemTab('sms'));
+
 
   // Days-before selector
   const daysRow = document.querySelectorAll('.rem-days-btn');
@@ -2738,22 +3081,27 @@ function initReminders() {
     btn.classList.add('active');
   }));
 
+
   // Enable browser notifications
   const enableBrowserBtn = $('remEnableBrowser');
   if (enableBrowserBtn) enableBrowserBtn.addEventListener('click', requestBrowserNotifications);
+
 
   // Save SMS
   const saveSmsBtn = $('remSaveSms');
   if (saveSmsBtn) saveSmsBtn.addEventListener('click', saveSmsReminder);
 
+
   // Restore saved prefs
   renderReminderState();
 }
+
 
 function getSelectedDaysBefore() {
   const active = document.querySelector('.rem-days-btn.active');
   return active ? parseInt(active.dataset.days, 10) : 3;
 }
+
 
 async function requestBrowserNotifications() {
   if (!('Notification' in window)) {
@@ -2776,12 +3124,14 @@ async function requestBrowserNotifications() {
   }
 }
 
+
 function saveBrowserReminder() {
   const prefs = getReminderPrefs();
   prefs.browser    = true;
   prefs.daysBefore = getSelectedDaysBefore();
   setReminderPrefs(prefs);
   renderReminderState();
+
 
   // Schedule a demo notification now to confirm it works
   const data     = getTrackerData();
@@ -2791,10 +3141,12 @@ function saveBrowserReminder() {
     ? `Your period is predicted around ${nextDate}. We'll remind you ${prefs.daysBefore} day${prefs.daysBefore!==1?'s':''} before.`
     : `Reminders set! Log a period start to activate predictions.`;
 
+
   new Notification('👑 . Period Reminders Active', { body: msg, icon: 'icon-192.png' });
   showToast(`Browser reminders set — ${prefs.daysBefore} days before`);
   checkAndFireReminder(); // check immediately in case reminder is due
 }
+
 
 function saveSmsReminder() {
   const input = $('remSmsInput');
@@ -2818,8 +3170,10 @@ function saveSmsReminder() {
   }
 }
 
+
 function renderReminderState() {
   const prefs = getReminderPrefs();
+
 
   // Browser tab status
   const browserStatus = $('remBrowserStatus');
@@ -2834,8 +3188,10 @@ function renderReminderState() {
     }
   }
 
+
   // Pre-select days
   document.querySelectorAll('.rem-days-btn').forEach(b => b.classList.toggle('active', +b.dataset.days === prefs.daysBefore));
+
 
   // SMS tab
   const smsStatus = $('remSmsStatus');
@@ -2847,21 +3203,25 @@ function renderReminderState() {
   }
 }
 
+
 // Check on app open whether a reminder notification should fire
 function checkAndFireReminder() {
   const prefs = getReminderPrefs();
   if (!prefs.browser || Notification.permission !== 'granted') return;
+
 
   const data     = getTrackerData();
   const avgLen   = calcAvgCycleLength(data.cycles);
   const nextDate = getNextPeriodDate(data.cycles, avgLen);
   if (!nextDate) return;
 
+
   const today     = todayStr();
   const daysUntil = daysBetween(today, nextDate);
   const lastFired = document.cookie.match(/period_notif_fired=([^;]+)/);
   const lastKey   = lastFired ? lastFired[1] : '';
   const fireKey   = nextDate + '-' + prefs.daysBefore;
+
 
   if (daysUntil === prefs.daysBefore && lastKey !== fireKey) {
     document.cookie = 'period_notif_fired=' + fireKey + ';max-age=86400;path=/;SameSite=Lax';
@@ -2872,9 +3232,11 @@ function checkAndFireReminder() {
   }
 }
 
+
 /* =============================================
    LEGAL — PRIVACY POLICY + TERMS OF SERVICE
    ============================================= */
+
 
 const LEGAL = {
   privacy: {
@@ -2883,8 +3245,10 @@ const LEGAL = {
     content: `
       <p class="legal-updated">Last updated: April 8, 2026</p>
 
+
       <h3>Who We Are</h3>
       <p>Period. LLC ("we," "us," or "our") operates the . (Period) platform — a feminine care delivery and subscription service based in Cleveland, Ohio. We are the middleman between you and our supplier partners. We do not manufacture or warehouse products.</p>
+
 
       <h3>Information We Collect</h3>
       <p><strong>You provide directly:</strong></p>
@@ -2900,6 +3264,7 @@ const LEGAL = {
         <li>Usage data — general analytics to improve the app (no personally identifiable information).</li>
       </ul>
 
+
       <h3>How We Use Your Information</h3>
       <ul>
         <li>To process and fulfill your orders</li>
@@ -2909,6 +3274,7 @@ const LEGAL = {
         <li>To improve our products and services</li>
         <li>To comply with legal obligations</li>
       </ul>
+
 
       <h3>Third-Party Services</h3>
       <p>We work with the following trusted partners who may process your data:</p>
@@ -2920,11 +3286,14 @@ const LEGAL = {
       </ul>
       <p>We do not sell your personal information to any third party. Ever.</p>
 
+
       <h3>Cookies</h3>
       <p>We use first-party cookies only to store your preferences locally (version selection, tracker data, cart). No advertising or cross-site tracking cookies are used. You can clear cookies in your browser settings at any time.</p>
 
+
       <h3>Children's Privacy</h3>
       <p>Our service is intended for users aged 13 and older. Users between 13–17 should have parental awareness when making purchases. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has submitted information, contact us immediately.</p>
+
 
       <h3>Your Rights</h3>
       <ul>
@@ -2935,16 +3304,20 @@ const LEGAL = {
       </ul>
       <p>To exercise any of these rights, email us at <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a>.</p>
 
+
       <h3>Data Security</h3>
       <p>We use industry-standard encryption (HTTPS/TLS) for all data in transit. Payment data is handled exclusively by Stripe and never touches our servers. We regularly review our security practices.</p>
 
+
       <h3>Changes to This Policy</h3>
       <p>We may update this policy from time to time. When we do, we'll update the "Last updated" date at the top and notify newsletter subscribers of material changes.</p>
+
 
       <h3>Contact Us</h3>
       <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a></p>
     `
   },
+
 
   terms: {
     title: 'Terms of Service',
@@ -2952,11 +3325,14 @@ const LEGAL = {
     content: `
       <p class="legal-updated">Last updated: April 8, 2026</p>
 
+
       <h3>Agreement to Terms</h3>
       <p>By accessing or using the . (Period) platform operated by Period. LLC ("we," "us," "our"), you agree to these Terms of Service. If you do not agree, please do not use our service. You must be at least 13 years old to use this platform.</p>
 
+
       <h3>What We Do</h3>
       <p>Period. LLC is a middleman service. We connect customers with third-party supplier partners for feminine care, wellness, and related products. We do not manufacture, store, or ship products ourselves. We coordinate on-demand delivery through third-party courier services (DoorDash Drive, Uber Direct) and monthly subscription fulfillment through our supplier network.</p>
+
 
       <h3>Orders and Payment</h3>
       <ul>
@@ -2966,12 +3342,14 @@ const LEGAL = {
         <li>Orders are confirmed via email. We reserve the right to cancel orders if a product becomes unavailable.</li>
       </ul>
 
+
       <h3>Delivery</h3>
       <ul>
         <li>On-demand delivery is estimated at 30–60 minutes. Actual times depend on your location, courier availability, and conditions outside our control.</li>
         <li>Delivery estimates are not guaranteed. We are not liable for delays caused by third-party couriers, weather, or other circumstances beyond our control.</li>
         <li>Delivery is available within our service area. We'll notify you if we can't fulfill delivery to your address.</li>
       </ul>
+
 
       <h3>Subscriptions</h3>
       <ul>
@@ -2983,6 +3361,7 @@ const LEGAL = {
         <li>You will receive an email reminder 3 days before each billing date with a direct cancel link.</li>
       </ul>
 
+
       <h3>Returns and Refunds</h3>
       <ul>
         <li>Due to the personal hygiene nature of our products, opened items cannot be returned.</li>
@@ -2991,6 +3370,7 @@ const LEGAL = {
         <li>Refunds are issued to the original payment method within 5–10 business days.</li>
       </ul>
 
+
       <h3>Your Account</h3>
       <ul>
         <li>You are responsible for keeping your delivery address and payment method up to date.</li>
@@ -2998,8 +3378,10 @@ const LEGAL = {
         <li>We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity.</li>
       </ul>
 
+
       <h3>Intellectual Property</h3>
       <p>The . (Period) name, crown logo, app design, copy, and all original content are owned by Period. LLC. You may not copy, reproduce, or use our brand assets without written permission. All rights reserved.</p>
+
 
       <h3>Prohibited Uses</h3>
       <p>You agree not to:</p>
@@ -3010,23 +3392,29 @@ const LEGAL = {
         <li>Harass, abuse, or harm other users or our team</li>
       </ul>
 
+
       <h3>Limitation of Liability</h3>
       <p>To the fullest extent permitted by Ohio law, Period. LLC is not liable for indirect, incidental, or consequential damages arising from use of our service, including delivery delays, product allergic reactions (please review product ingredients), or third-party service failures. Our total liability for any claim shall not exceed the amount you paid for the specific order in question.</p>
+
 
       <h3>Health Disclaimer</h3>
       <p>Products sold through our platform are not intended to diagnose, treat, cure, or prevent any medical condition. The period tracker and health content on this platform are for informational purposes only and do not constitute medical advice. Consult a healthcare provider for medical concerns.</p>
 
+
       <h3>Governing Law</h3>
       <p>These Terms are governed by the laws of the State of Ohio, United States. Any disputes shall be resolved in the courts of Cuyahoga County, Ohio.</p>
 
+
       <h3>Changes to Terms</h3>
       <p>We may update these Terms at any time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll notify subscribers of material changes.</p>
+
 
       <h3>Contact Us</h3>
       <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:legal@perioddelivers.com">legal@perioddelivers.com</a></p>
     `
   }
 };
+
 
 function openLegal(type) {
   const doc   = LEGAL[type];
@@ -3041,6 +3429,7 @@ function openLegal(type) {
   modal.scrollTop = 0;
 }
 
+
 function closeLegal() {
   const modal = $('legalModal');
   const overlay = $('legalOverlay');
@@ -3050,9 +3439,11 @@ function closeLegal() {
   document.body.style.overflow = '';
 }
 
+
 /* =============================================================
    FEATURE A: ONBOARDING QUIZ + PERSONALIZATION ENGINE
    ============================================================= */
+
 
 const QUIZ_QUESTIONS = [
  {
@@ -3114,9 +3505,11 @@ const QUIZ_QUESTIONS = [
   },
 ];
 
+
 let _quizStep = 0;
 let _quizAnswers = {};
 let _quizSelectedVal = null;
+
 
 function getQuizPrefs() {
   try {
@@ -3125,14 +3518,17 @@ function getQuizPrefs() {
   } catch { return null; }
 }
 
+
 function saveQuizPrefs(prefs) {
   setCookie('period_prefs', encodeURIComponent(JSON.stringify(prefs)), 365 * 10);
   setCookie('period_quiz_done', '1', 365 * 10);
 }
 
+
 function isQuizDone() {
   return getCookie('period_quiz_done') === '1';
 }
+
 
 function showQuiz() {
   _quizStep = 0;
@@ -3145,16 +3541,19 @@ function showQuiz() {
   showQuizUrgencyCheck();
 }
 
+
 function showQuizUrgencyCheck() {
   const body    = $('quizBody');
   const nextBtn = $('quizNextBtn');
   const progFill = $('quizProgressFill');
   if (!body || !nextBtn) return;
 
+
   if (progFill) progFill.style.width = '0%';
   nextBtn.disabled = true;
   nextBtn.textContent = 'Continue →';
   nextBtn.classList.remove('done-btn');
+
 
   body.innerHTML = `
     <div class="quiz-urgency-card">
@@ -3168,11 +3567,13 @@ function showQuizUrgencyCheck() {
       <p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>
     </div>`;
 
+
   const yesBtn = document.getElementById('quizUrgencyYes');
   const noBtn  = document.getElementById('quizUrgencyNo');
   if (yesBtn) yesBtn.addEventListener('click', () => { closeQuiz(); setTimeout(() => navigate('shop'), 200); });
   if (noBtn)  noBtn.addEventListener('click',  () => { renderQuizSlide(); });
 }
+
 
 function closeQuiz() {
   const overlay = $('quizOverlay');
@@ -3181,6 +3582,7 @@ function closeQuiz() {
   document.body.style.overflow = '';
   setCookie('period_quiz_done', '1', 365 * 10);
 }
+
 
 function renderQuizSlide() {
   const body     = $('quizBody');
@@ -3201,7 +3603,7 @@ function renderQuizSlide() {
     ).join('');
     body.innerHTML = `
       <div class="quiz-done-slide">
-        <div class="quiz-done-icon">👑</div>
+        <div class="quiz-done-icon">&#x1F451;</div>
         <div class="quiz-done-title">You're all set!</div>
         <div class="quiz-done-sub">Your shop is now personalized. We'll surface what fits your cycle.</div>
         <div class="quiz-prefs-chips">${chips}</div>
@@ -3218,27 +3620,24 @@ function renderQuizSlide() {
   const showBack = _quizStep > 0;
   body.innerHTML = `
     <div class="quiz-q-eyebrow">
-      ${showBack ? `<button class="quiz-back-btn" id="quizBackBtn">← back</button>` : ''}
+      ${showBack ? '<button class="quiz-back-btn" id="quizBackBtn">← back</button>' : ''}
       <span>Question ${_quizStep + 1} of ${QUIZ_QUESTIONS.length}</span>
       ${_quizStep === 0 ? '<span class="quiz-hint">no cap, takes 30 sec ✨</span>' : ''}
     </div>
     <div class="quiz-q-text">${q.q}</div>
     <div class="quiz-q-sub">${q.sub}</div>
     <div class="quiz-choices">
-      ${q.choices.map(c => `
-        <button class="quiz-choice" data-val="${c.value}" aria-pressed="false">
-          <span class="quiz-choice-icon">${c.icon}</span>
-          <span class="quiz-choice-label">${c.label}</span>
-        </button>
-      `).join('')}
+      ${q.choices.map(c =>
+        '<button class="quiz-choice" data-val="' + c.value + '" aria-pressed="false">' +
+        '<span class="quiz-choice-icon">' + c.icon + '</span>' +
+        '<span class="quiz-choice-label">' + c.label + '</span>' +
+        '</button>'
+      ).join('')}
     </div>`;
 
   if (showBack) {
     const backBtn = document.getElementById('quizBackBtn');
-    if (backBtn) backBtn.addEventListener('click', () => {
-      _quizStep--;
-      renderQuizSlide();
-    });
+    if (backBtn) backBtn.addEventListener('click', () => { _quizStep--; renderQuizSlide(); });
   }
 
   body.querySelectorAll('.quiz-choice').forEach(btn => {
@@ -3256,7 +3655,6 @@ function renderQuizSlide() {
     });
   });
 }
-
 function quizNext() {
   if (_quizStep < QUIZ_QUESTIONS.length) {
     if (_quizSelectedVal === null) return;
@@ -3272,6 +3670,7 @@ function quizNext() {
   }
 }
 
+
 function initQuiz() {
   const nextBtn = $('quizNextBtn');
   const skipBtn = $('quizSkipBtn');
@@ -3279,12 +3678,14 @@ function initQuiz() {
   if (skipBtn) skipBtn.addEventListener('click', closeQuiz);
 }
 
+
 /* --- Personalization scoring --- */
 function getQuizPersonalizedProducts(arr) {
   const prefs = getQuizPrefs();
   if (!prefs) return arr;
   return [...arr].sort((a, b) => scoreProductForPrefs(b, prefs) - scoreProductForPrefs(a, prefs));
 }
+
 
 function scoreProductForPrefs(p, prefs) {
   let score = 0;
@@ -3302,12 +3703,15 @@ function scoreProductForPrefs(p, prefs) {
   return score;
 }
 
+
 /* =============================================================
    FEATURE B: GIVE-BACK — ROUND-UP & DONATE A KIT
    ============================================================= */
 
+
 let _roundUpEnabled   = false;
 let _donateKitEnabled = false;
+
 
 function getRoundUpAmt() {
   const total = cartTotal();
@@ -3317,10 +3721,12 @@ function getRoundUpAmt() {
   return diff === 0 ? 1.00 : diff;
 }
 
+
 function updateRoundUpDisplay() {
   const el = $('roundUpAmt');
   if (el) el.textContent = '+$' + getRoundUpAmt().toFixed(2);
 }
+
 
 function recordGiveBackOnOrder() {
   if (_donateKitEnabled) {
@@ -3342,9 +3748,11 @@ function recordGiveBackOnOrder() {
   setTimeout(updateImpactCounters, 400);
 }
 
+
 function initGiveBack() {
   const roundUpToggle = $('roundUpToggle');
   const donateToggle  = $('donateKitToggle');
+
 
   if (roundUpToggle) {
     roundUpToggle.addEventListener('change', () => {
@@ -3359,6 +3767,7 @@ function initGiveBack() {
     });
   }
 
+
   // Update round-up amount whenever cart renders (MutationObserver on cart sidebar)
   const cartSidebar = $('cartSidebar');
   if (cartSidebar) {
@@ -3366,6 +3775,7 @@ function initGiveBack() {
       if (cartSidebar.classList.contains('open')) updateRoundUpDisplay();
     }).observe(cartSidebar, { attributes: true, attributeFilter: ['class'] });
   }
+
 
   // Hook into orderSuccess opening to record give-back
   const orderSuccessEl = $('orderSuccess');
@@ -3376,12 +3786,15 @@ function initGiveBack() {
   }
 }
 
+
 /* =============================================================
    FEATURE C: COMMUNITY IMPACT COUNTER
    ============================================================= */
 
+
 const IMPACT_BASELINE_KITS    = 0;
 const IMPACT_BASELINE_ROUNDUP = 0;
+
 
 function getTotalImpact() {
   const launchMs  = new Date('2026-01-01').getTime();
@@ -3396,7 +3809,9 @@ function getTotalImpact() {
   };
 }
 
+
 let _impactAnimated = false;
+
 
 function animateImpactCount(el, target, prefix, suffix) {
   if (!el) return;
@@ -3413,6 +3828,7 @@ function animateImpactCount(el, target, prefix, suffix) {
   requestAnimationFrame(tick);
 }
 
+
 function updateImpactCounters() {
   const t = getTotalImpact();
   const kEl = $('impactKits');
@@ -3423,11 +3839,14 @@ function updateImpactCounters() {
   if (rEl && !_impactAnimated) rEl.textContent = '$' + t.roundup.toLocaleString();
 }
 
+
 function initImpactCounter() {
   updateImpactCounters();
 
+
   const section = $('impactSection');
   if (!section) return;
+
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -3441,6 +3860,7 @@ function initImpactCounter() {
     });
   }, { threshold: 0.3 });
   observer.observe(section);
+
 
   const donateBtn = $('impactDonateBtn');
   if (donateBtn) {
@@ -3458,6 +3878,7 @@ function initImpactCounter() {
   }
 }
 
+
 /* =============================================================
    URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
    ============================================================= */
@@ -3472,6 +3893,7 @@ function handleURLParams() {
     }
   } catch(e) {}
 }
+
 
 /* =============================================================
    PATCH renderProductGrid to apply personalization
@@ -3497,6 +3919,7 @@ function handleURLParams() {
   };
 })();
 
+
 /* =============================================================
    BOOT ALL NEW FEATURES after init() runs
    ============================================================= */
@@ -3506,7 +3929,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initImpactCounter();
   initQuiz();
 
-// Show quiz ~1.2s after version is selected, if not done yet
+
+  // Show quiz ~1.2s after version is selected, if not done yet
   const _origDismiss = dismissVersionPicker;
   dismissVersionPicker = function() {
     _origDismiss();
@@ -3514,61 +3938,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(showQuiz, 1200);
     }
   };
-
 });
 
-  const overlay = document.createElement('div');
-  overlay.id = 'quickCheckOverlay';
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9999;
-    background:rgba(8,6,16,0.97);
-    display:flex;align-items:center;justify-content:center;
-    padding:1.5rem;
-  `;
-  overlay.innerHTML = `
-    <div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;">
-      <div style="font-size:2.5rem;">⚡</div>
-      <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#EDE8FA;line-height:1.3;">
-        real quick — do you need something RIGHT now?
-      </div>
-      <div style="font-size:0.875rem;color:rgba(237,232,250,0.6);line-height:1.6;">
-        we want to set up your experience but if you're in a pinch, we'll get you sorted first.
-      </div>
-      <button id="quickCheckYes" style="
-        width:100%;padding:1rem;
-        background:linear-gradient(135deg,#F87171,#DC2626);
-        color:white;border:none;border-radius:999px;
-        font-size:0.95rem;font-weight:700;cursor:pointer;">
-        🚨 yes — i need it NOW
-      </button>
-      <button id="quickCheckNo" style="
-        width:100%;padding:1rem;
-        background:rgba(237,232,250,0.08);
-        color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);
-        border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">
-        no — let's set up my experience ✨
-      </button>
-    </div>`;
-
-  document.body.appendChild(overlay);
-  document.body.style.overflow = 'hidden';
-
-  document.getElementById('quickCheckYes').addEventListener('click', () => {
-    overlay.remove();
-    setVersion('emergency');
-    navigate('shop');
-  });
-
-  document.getElementById('quickCheckNo').addEventListener('click', () => {
-    overlay.remove();
-    const picker = $('versionPicker');
-    if (picker) {
-      picker.style.display = 'flex';
-      picker.style.opacity = '1';
-    }
-    document.body.style.overflow = 'hidden';
-  });
-}
 
 /* =============================================================
    TRACKER TUTORIAL (5-second, 4-step, first-time only)
@@ -3596,10 +3967,12 @@ const TUTORIAL_STEPS = [
   }
 ];
 
+
 const TUT_STEP_MS = 1250;   // 1.25s per step = 5s total
 let _tutStep = 0;
 let _tutIntervalId = null;
 let _tutStepStart  = 0;
+
 
 function showTrackerTutorial() {
   const overlay = $('trackerTutorial');
@@ -3610,6 +3983,7 @@ function showTrackerTutorial() {
   _renderTutStep();
   _startTutTimer();
 }
+
 
 function _renderTutStep() {
   const s = TUTORIAL_STEPS[_tutStep];
@@ -3627,6 +4001,7 @@ function _renderTutStep() {
   if (card) { card.style.animation = 'none'; card.offsetHeight; card.style.animation = ''; }
 }
 
+
 function _startTutTimer() {
   clearInterval(_tutIntervalId);
   _tutStepStart = Date.now();
@@ -3639,6 +4014,7 @@ function _startTutTimer() {
   }, 30);
 }
 
+
 function _advanceTutorial() {
   clearInterval(_tutIntervalId);
   _tutStep++;
@@ -3649,6 +4025,7 @@ function _advanceTutorial() {
     _startTutTimer();
   }
 }
+
 
 function _dismissTutorial() {
   clearInterval(_tutIntervalId);
@@ -3664,6 +4041,7 @@ function _dismissTutorial() {
   document.cookie = 'period_tracker_tutorial=done;max-age=31536000;path=/;SameSite=Lax';
 }
 
+
 // Wire tutorial buttons once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   const card     = $('tutCard');
@@ -3671,6 +4049,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (card)    card.addEventListener('click',    (e) => { if (e.target !== skipBtn) _advanceTutorial(); });
   if (skipBtn) skipBtn.addEventListener('click', (e) => { e.stopPropagation(); _dismissTutorial(); });
 });
+
 
 /* =============================================================
    HOW IT WORKS JUMP BUTTON
@@ -3684,6 +4063,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
+
 
   // ── My Tracker hero pill → scroll to feature cards, then open tracker ──
   const heroTrackerBtn = $('heroTrackerBtn');
@@ -3704,6 +4084,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
   // ── Newsletter hero pill → scroll to feature cards, then open modal ──
   const heroNewsletterBtn = $('heroNewsletterBtn');
   if (heroNewsletterBtn) {
@@ -3718,6 +4099,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
   // ── Feature card: Tracker button ──
   const featureTrackerBtn = $('featureTrackerBtn');
   if (featureTrackerBtn) {
@@ -3727,6 +4109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
   // ── Feature card: Newsletter button ──
   const featureNewsletterBtn = $('featureNewsletterBtn');
   if (featureNewsletterBtn) {
@@ -3734,9 +4117,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
 /* =============================================================
    EMOJI REVIEW SYSTEM
    ============================================================= */
+
 
 function getReviews() {
   try {
@@ -3744,6 +4129,7 @@ function getReviews() {
     return raw ? JSON.parse(decodeURIComponent(raw)) : [];
   } catch { return []; }
 }
+
 
 function saveReview(emoji, label, text) {
   const reviews = getReviews();
@@ -3753,6 +4139,7 @@ function saveReview(emoji, label, text) {
   setCookie('period_reviews', encodeURIComponent(JSON.stringify(reviews)), 365 * 5);
 }
 
+
 function wasReviewedRecently() {
   const reviews = getReviews();
   if (!reviews.length) return false;
@@ -3760,6 +4147,7 @@ function wasReviewedRecently() {
   // Don't re-prompt within 7 days
   return (Date.now() - last.ts) < 7 * 24 * 60 * 60 * 1000;
 }
+
 
 function initReviewPrompt() {
   const prompt   = $('reviewPrompt');
@@ -3771,7 +4159,9 @@ function initReviewPrompt() {
   const submitBtn= $('reviewSubmitBtn');
   const skipBtn  = $('reviewSkipBtn');
 
+
   if (!prompt || !row) return;
+
 
   // Hide prompt if reviewed recently
   if (wasReviewedRecently()) {
@@ -3779,12 +4169,15 @@ function initReviewPrompt() {
     return;
   }
 
+
   // Determine if this version gets text feedback
   const v = state.version || 'adult';
   const hasTextFeedback = (v === 'adult' || v === 'holistic');
 
+
   let selectedEmoji = null;
   let selectedLabel = null;
+
 
   function showThanks() {
     row.style.display = 'none';
@@ -3794,15 +4187,18 @@ function initReviewPrompt() {
     document.querySelector('.review-prompt-q').textContent = selectedLabel + '!';
   }
 
+
   // Wire emoji buttons
   row.querySelectorAll('.review-emoji-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedEmoji = btn.dataset.emoji;
       selectedLabel = btn.dataset.label;
 
+
       // Mark selected
       row.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+
 
       if (hasTextFeedback) {
         // Slide in the text box for adult / holistic
@@ -3818,6 +4214,7 @@ function initReviewPrompt() {
     });
   });
 
+
   // Submit with text
   if (submitBtn) {
     submitBtn.addEventListener('click', () => {
@@ -3826,6 +4223,7 @@ function initReviewPrompt() {
       showThanks();
     });
   }
+
 
   // Skip (submit with no text)
   if (skipBtn) {
@@ -3836,10 +4234,12 @@ function initReviewPrompt() {
   }
 }
 
+
 // Re-init review prompt every time the order success modal opens
 document.addEventListener('DOMContentLoaded', () => {
   const orderSuccessEl = $('orderSuccess');
   if (!orderSuccessEl) return;
+
 
   new MutationObserver(() => {
     if (orderSuccessEl.classList.contains('open')) {
@@ -3848,6 +4248,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const row      = $('reviewEmojiRow');
       const thanks   = $('reviewThanks');
       const promptQ  = prompt?.querySelector('.review-prompt-q');
+
 
       if (wasReviewedRecently()) {
         if (prompt) prompt.style.display = 'none';
@@ -3866,8 +4267,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
 
+
   initReviewPrompt();
 });
+
 
 /* =============================================================
    IMPACT STRIP — sync numbers + scroll on click
@@ -3883,6 +4286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   syncImpactStrip();
 
+
   // Tap strip → smooth scroll to full impact section
   const strip = $('impactStrip');
   if (strip) {
@@ -3892,6 +4296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 
 /* =====================================================
    AGE GATE — check on load, store answer in cookie
@@ -3903,9 +4308,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const yesBtn     = document.getElementById('ageGateYes');
   const noBtn      = document.getElementById('ageGateNo');
 
+
   if (!wrap) return;
 
+
   const COOKIE = 'period_age_ok';
+
 
   function getCookie(name) {
     const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
@@ -3916,6 +4324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.cookie = name + '=' + val + '; expires=' + exp + '; path=/; SameSite=Lax';
   }
 
+
   function dismissGate() {
     wrap.style.opacity = '0';
     wrap.style.transition = 'opacity .3s ease';
@@ -3923,20 +4332,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   }
 
+
   // Already verified
   if (getCookie(COOKIE) === 'yes') {
     wrap.style.display = 'none';
     return;
   }
 
+
   // Show gate
   wrap.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
 
   yesBtn.addEventListener('click', () => {
     setCookie(COOKIE, 'yes', 365);
     dismissGate();
   });
+
 
   noBtn.addEventListener('click', () => {
     askScreen.style.display = 'none';
@@ -3945,6 +4358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
 /* =====================================================
    MANAGE / CANCEL SUBSCRIPTION modal
    ===================================================== */
@@ -3952,10 +4366,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const manageBtn = document.getElementById('manageSubBtn');
   if (!manageBtn) return;
 
+
   manageBtn.addEventListener('click', () => {
     // Build a simple inline cancel confirmation overlay
     const existing = document.getElementById('cancelSubOverlay');
     if (existing) { existing.remove(); }
+
 
     const overlay = document.createElement('div');
     overlay.id = 'cancelSubOverlay';
@@ -3988,15 +4404,18 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     document.body.appendChild(overlay);
 
+
     document.getElementById('cancelSubClose').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
   });
 });
 
+
 /* =============================================================
    THE CYCLE SCOOP — Facts, FAQ, Teen Rotating Facts
    Add new facts to PERIOD_FACTS array to expand the library.
    ============================================================= */
+
 
 const PERIOD_FACTS = [
   { emoji:'💜', text:'Your whole period is only about 2–3 tablespoons of blood total. It just FEELS like more.', tag:'Body' },
@@ -4023,6 +4442,7 @@ const PERIOD_FACTS = [
   { emoji:'🌙', text:'Melatonin (your sleep hormone) is affected by your cycle. Some people genuinely sleep better or worse depending on their phase.', tag:'Body' },
 ];
 
+
 const FAQ_DATA = [
   { q:'How long does a period usually last?',
     a:'Most periods last between 3 and 7 days. The first couple of days tend to be the heaviest, then it lightens up. If yours is consistently shorter or longer, that can just be your normal — but it\'s worth mentioning to a doctor if it\'s over 7 days.' },
@@ -4046,9 +4466,11 @@ const FAQ_DATA = [
     a:'Light flow: can go 4–6 hours between changes. Medium: 2–4 hours. Heavy: needing to change every 1–2 hours. Most people are heaviest on days 1–2 and lighter toward the end. A "super" or "overnight" product is made for heavy flow days.' },
 ];
 
+
 // ── Teen rotating facts ──────────────────────────────────────────
 let teenFactIndex  = 0;
 let teenFactTimer  = null;
+
 
 function renderTeenFact(idx) {
   const fact     = PERIOD_FACTS[idx];
@@ -4057,8 +4479,10 @@ function renderTeenFact(idx) {
   const dotsEl   = $('tfcDots');
   if (!fact || !emoji || !text) return;
 
+
   emoji.textContent = fact.emoji;
   text.textContent  = fact.text;
+
 
   if (dotsEl) {
     dotsEl.innerHTML = PERIOD_FACTS.map((_, i) =>
@@ -4066,6 +4490,7 @@ function renderTeenFact(idx) {
     ).join('');
   }
 }
+
 
 function startTeenFactRotation() {
   if (teenFactTimer) clearInterval(teenFactTimer);
@@ -4087,9 +4512,11 @@ function startTeenFactRotation() {
   }, 7000); // rotate every 7 seconds
 }
 
+
 function stopTeenFactRotation() {
   if (teenFactTimer) { clearInterval(teenFactTimer); teenFactTimer = null; }
 }
+
 
 // ── The Tea, Period. view ─────────────────────────────────────────────
 function renderScoopFacts() {
@@ -4103,6 +4530,7 @@ function renderScoopFacts() {
       <p class="sfc-text">${f.text}</p>
     </div>`).join('');
 
+
   // Tap to "save" (visual highlight toggle)
   grid.querySelectorAll('.scoop-fact-card').forEach(card => {
     card.addEventListener('click', () => card.classList.toggle('saved'));
@@ -4111,6 +4539,7 @@ function renderScoopFacts() {
     });
   });
 }
+
 
 function renderScoopFaq() {
   const list = $('faqList');
@@ -4125,6 +4554,7 @@ function renderScoopFaq() {
         <p>${item.a}</p>
       </div>
     </div>`).join('');
+
 
   list.querySelectorAll('.faq-q').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -4146,6 +4576,7 @@ function renderScoopFaq() {
   });
 }
 
+
 function initCycleScoopTabs() {
   const tabs = $$('[data-scoop-tab]');
   if (!tabs.length) return;
@@ -4163,6 +4594,7 @@ function initCycleScoopTabs() {
   });
 }
 
+
 // ── Navigation wiring ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // The Tea, Period. nav buttons
@@ -4179,9 +4611,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (teenScoop)  teenScoop.addEventListener('click', openScoop);
   if (scoopBack)  scoopBack.addEventListener('click', () => navigate('home'));
 
+
   // Freak Out Guide order button
   const freakOrder = $('freakOrderBtn');
   if (freakOrder) freakOrder.addEventListener('click', () => navigate('emergency'));
+
 
   // Start teen rotation when home is visible AND version is teen
   const homeEl = $('homeView');
@@ -4199,15 +4633,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
 // ── PWA INSTALL BANNER ──
 (function() {
   const DISMISSED_KEY = 'period_pwa_dismissed';
   const INSTALLED_KEY = 'period_pwa_installed';
 
+
   // Don't show if already installed (standalone) or dismissed permanently
   if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) return;
   if (localStorage.getItem(INSTALLED_KEY)) return;
   if (localStorage.getItem(DISMISSED_KEY) > Date.now()) return;
+
 
   const banner   = document.getElementById('pwaInstallBanner');
   const closeBtn = document.getElementById('pwaBannerClose');
@@ -4215,16 +4652,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const steps    = document.getElementById('pwaBannerSteps');
   const mainBtn  = document.getElementById('pwaBannerBtn');
 
+
   const ua       = navigator.userAgent;
   const isIOS    = /iphone|ipad|ipod/i.test(ua);
   const isAndroid= /android/i.test(ua);
 
+
   let deferredPrompt = null;
+
 
   function showBanner() {
     if (!banner) return;
     banner.style.display = 'block';
   }
+
 
   function hideBanner(permanent) {
     if (!banner) return;
@@ -4234,6 +4675,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem(DISMISSED_KEY, Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
   }
+
 
   if (isIOS) {
     // iOS: show manual steps — can only install from Safari
@@ -4251,6 +4693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Show after 3 seconds
     setTimeout(showBanner, 3000);
+
 
   } else if (isAndroid) {
     // Android: use native beforeinstallprompt
@@ -4273,10 +4716,12 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(showBanner, 3000);
     });
 
+
   } else {
     // Desktop fallback — don't show
     return;
   }
+
 
   if (closeBtn) {
     closeBtn.onclick = function() { hideBanner(true); };
