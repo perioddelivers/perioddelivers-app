@@ -11,28 +11,27 @@
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <link rel="stylesheet" href="styles.css"/>
-
-  <!-- Stripe.js (card payments, Apple Pay, Google Pay) -->
   <script src="https://js.stripe.com/v3/"></script>
-
-  <!-- Firebase SDK (free Spark plan — community posts) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-  <!-- EmailJS SDK (free — newsletter sends) -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-  <!-- Apply saved version before render to prevent picker flash -->
+  <style>
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform:translateY(-8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .change-sis-section { position:relative; }
+    .tracker-maybe-later-btn:hover { color:var(--text-primary) !important; background:var(--surface-2) !important; }
+    .cart-sidebar { display:flex; flex-direction:column; }
+    #cartBody { flex:1; overflow-y:auto; }
+    .cart-footer { flex-shrink:0; overflow-y:auto; max-height:65vh; }
+  </style>
   <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;if(v==='teen'||v==='adult'||v==='emergency'||v==='gifter')document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
 <body>
 
-<!-- =====================================================
-     AGE GATE — shown on first visit, stored in localStorage
-     ===================================================== -->
 <div id="ageGateWrap" role="dialog" aria-modal="true" aria-label="Age verification" style="display:none">
-  <!-- Screen 1: Ask -->
   <div id="ageGateAsk" class="age-gate-screen">
     <div class="age-gate-logo" aria-hidden="true">.</div>
     <h1 class="age-gate-heading">Before we begin</h1>
@@ -42,7 +41,6 @@
       <button class="age-gate-no"  id="ageGateNo">No, I'm under 13</button>
     </div>
   </div>
-  <!-- Screen 2: Under 13 redirect -->
   <div id="ageGateBlocked" class="age-gate-screen" style="display:none">
     <div class="age-gate-logo" aria-hidden="true">.</div>
     <h1 class="age-gate-heading">Thank you for being honest.</h1>
@@ -50,46 +48,30 @@
   </div>
 </div>
 
-<!-- ===== HEADER ===== -->
-<!-- ===== TRENDING HEADER STRIP (global — all views) ===== -->
 <div class="trending-strip" id="trendingStrip" aria-label="Trending this week">
-  <span class="trending-label">🔥 Trending</span>
-  <div class="trending-pills" id="trendingPills"><!-- filled by JS --></div>
+  <span class="trending-label">&#x1F525; Trending</span>
+  <div class="trending-pills" id="trendingPills"></div>
 </div>
 
 <header class="header" role="banner">
   <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" style="flex-shrink:0"></button>
-
-  <!-- Crown + Dot brand mark (center) -->
   <button class="brand-mark" id="homeLogo" aria-label="Go to home">
-    <!-- Crown image -->
     <img class="crown-svg" src="crown.png" alt="" aria-hidden="true">
-    <!-- The dot — always black, gold glow on dark -->
     <span class="brand-dot" aria-label="Period store">.</span>
   </button>
-
   <div class="header-actions" style="flex-shrink:0">
     <button class="version-badge" id="versionBadge" aria-label="Switch your experience">
       <span id="versionBadgeText">Choose</span>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
     </button>
     <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <path d="M16 10a4 4 0 01-8 0"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       <span class="cart-badge" id="cartBadge" aria-live="polite"></span>
     </button>
   </div>
 </header>
 
-<!-- ===================================================
-     HOME VIEW
-     =================================================== -->
 <div class="view active" id="homeView">
-
-  <!-- Hero -->
   <section class="home-hero" aria-label="Welcome">
     <div class="hero-brand-mark" aria-hidden="true">
       <img class="hero-crown-svg" src="crown.png" alt="" aria-hidden="true">
@@ -97,14 +79,11 @@
     </div>
     <p class="hero-tagline" id="heroTagline">Delivered when you need it.</p>
     <p class="hero-sub" id="heroSub">On-demand delivery wherever you are, or a monthly care package curated just for you.</p>
-
-    <!-- Community quick-access bar -->
-    <button class="comm-hero-bar" id="heroCommBar" aria-label="Join our community — Connect, Share, Support">
-      <span class="comm-hero-icon" aria-hidden="true">💜</span>
-      <span class="comm-hero-text">Connect · Share · Support</span>
+    <button class="comm-hero-bar" id="heroCommBar" aria-label="Join our community">
+      <span class="comm-hero-icon" aria-hidden="true">&#x1F49C;</span>
+      <span class="comm-hero-text">Connect &middot; Share &middot; Support</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
-
     <div class="hero-quick-links">
       <button class="hero-how-btn" id="heroHowBtn" aria-label="Jump to How It Works section">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -121,12 +100,12 @@
         Newsletter
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
-      <button class="hero-how-btn hero-scoop-btn" id="heroScoopBtn" aria-label="The Tea, Period. — facts and FAQs">
+      <button class="hero-how-btn hero-scoop-btn" id="heroScoopBtn" aria-label="The Tea, Period.">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
         The Tea, Period.
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
-      <button class="hero-how-btn hero-why-btn" id="heroWhyBtn" aria-label="Why choose Period. over other delivery apps">
+      <button class="hero-how-btn hero-why-btn" id="heroWhyBtn" aria-label="Why Period.">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Why Period.
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -134,63 +113,45 @@
     </div>
     <div class="hero-cta-pair">
       <button class="cta-primary" id="heroOrderNow">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span id="heroOrderNowText">Order Now</span>
       </button>
       <button class="cta-secondary" id="heroCarePackage">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
         <span id="heroCarePackageText">Care Package</span>
       </button>
     </div>
   </section>
-<!-- Tracker Widget Card — shown on home page -->
-<div class="tracker-widget-card" id="trackerWidgetCard">
-  <!-- Locked state -->
-  <div class="tracker-widget-locked" id="trackerWidgetLocked">
-    <div class="tw-lock-icon">🔒</div>
-    <div class="tw-lock-text">
-      <div class="tw-lock-title">Unlock Your Period Tracker</div>
-      <div class="tw-lock-sub">Sign up for the free newsletter to unlock</div>
-    </div>
-    <button class="tw-unlock-btn" id="twUnlockBtn">Unlock Free</button>
-  </div>
-  <!-- Unlocked state -->
-  <div class="tracker-widget-unlocked" id="trackerWidgetUnlocked" style="display:none">
-    <div class="tw-phase-row">
-      <span class="tw-phase-emoji" id="twEmoji">🌸</span>
-      <div>
-        <div class="tw-phase-name" id="twPhaseName">Log a period to begin</div>
-        <div class="tw-phase-day" id="twPhaseDay">Tap to open your tracker</div>
+
+  <div class="tracker-widget-card" id="trackerWidgetCard">
+    <div class="tracker-widget-locked" id="trackerWidgetLocked">
+      <div class="tw-lock-icon">&#x1F512;</div>
+      <div class="tw-lock-text">
+        <div class="tw-lock-title">Unlock Your Period Tracker</div>
+        <div class="tw-lock-sub">Sign up for the free newsletter to unlock</div>
       </div>
+      <button class="tw-unlock-btn" id="twUnlockBtn">Unlock Free</button>
     </div>
-    <div class="tw-next" id="twNext"></div>
-    <button class="tw-log-btn" id="twLogBtn">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      Quick Log Today
-    </button>
+    <div class="tracker-widget-unlocked" id="trackerWidgetUnlocked" style="display:none">
+      <div class="tw-phase-row">
+        <span class="tw-phase-emoji" id="twEmoji">&#x1F338;</span>
+        <div>
+          <div class="tw-phase-name" id="twPhaseName">Log a period to begin</div>
+          <div class="tw-phase-day" id="twPhaseDay">Tap to open your tracker</div>
+        </div>
+      </div>
+      <div class="tw-next" id="twNext"></div>
+      <button class="tw-log-btn" id="twLogBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Quick Log Today
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- Floating Tracker Button -->
-<!-- Floating Tracker Button — fixed position, outside content flow -->
-
-  <!-- Impact Strip -->
-
-  <!-- Impact Strip -->
   <button class="impact-strip" id="impactStrip" aria-label="See our community impact">
-    <span class="impact-strip-item">
-      <span class="impact-strip-num" id="stripKits">0</span>
-      <span class="impact-strip-lbl">kits donated</span>
-    </span>
+    <span class="impact-strip-item"><span class="impact-strip-num" id="stripKits">0</span><span class="impact-strip-lbl">kits donated</span></span>
     <span class="impact-strip-divider" aria-hidden="true"></span>
-    <span class="impact-strip-item">
-      <span class="impact-strip-num" id="stripRoundup">$0</span>
-      <span class="impact-strip-lbl">raised for period orgs</span>
-    </span>
+    <span class="impact-strip-item"><span class="impact-strip-num" id="stripRoundup">$0</span><span class="impact-strip-lbl">raised for period orgs</span></span>
     <span class="impact-strip-divider" aria-hidden="true"></span>
     <span class="impact-strip-item impact-strip-cta">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" fill="currentColor" stroke="none"/></svg>
@@ -198,158 +159,89 @@
     </span>
   </button>
 
-  <!-- Mode Cards -->
   <div class="mode-cards" role="list">
-
     <button class="mode-card mode-card--gold" id="cardOrderNow" role="listitem" aria-label="Order on demand">
-      <div class="mode-card-icon">⚡</div>
+      <div class="mode-card-icon">&#x26A1;</div>
       <div class="mode-card-title" id="card1Title">Order Now</div>
-      <div class="mode-card-desc" id="card1Desc">Get what you need. Period care, wellness essentials, and more — delivered to your door in 1–3 days.</div>
-      <div class="mode-card-link">
-        Shop products
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
+      <div class="mode-card-desc" id="card1Desc">Get what you need. Period care, wellness essentials, and more &mdash; delivered to your door in 1&ndash;3 days.</div>
+      <div class="mode-card-link">Shop products <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </button>
-
     <button class="mode-card mode-card--purple" id="cardCarePackage" role="listitem" aria-label="Subscribe to care package">
-      <div class="mode-card-icon">👑</div>
+      <div class="mode-card-icon">&#x1F451;</div>
       <div class="mode-card-title" id="card2Title">Care Package</div>
-      <div class="mode-card-desc" id="card2Desc">Choose your plan, pick your products, and receive a customized monthly box delivered right on time — every month.</div>
-      <div class="mode-card-link">
-        Subscribe
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
+      <div class="mode-card-desc" id="card2Desc">Choose your plan, pick your products, and receive a customized monthly box delivered right on time &mdash; every month.</div>
+      <div class="mode-card-link">Subscribe <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </button>
-
     <button class="mode-card mode-card--holistic" id="cardHolistic" role="listitem" aria-label="Shop holistic and natural products">
-      <div class="mode-card-icon">🌿</div>
+      <div class="mode-card-icon">&#x1F33F;</div>
       <div class="mode-card-title">Holistic &amp; Natural</div>
-      <div class="mode-card-desc">Menstrual discs, cloth pads, CBD salves, magnesium lotion, sea sponges — 100% clean, zero synthetic ingredients. Your cycle, your way.</div>
-      <div class="mode-card-link">
-        Shop natural
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
+      <div class="mode-card-desc">Menstrual discs, cloth pads, CBD salves, magnesium lotion, sea sponges &mdash; 100% clean, zero synthetic ingredients. Your cycle, your way.</div>
+      <div class="mode-card-link">Shop natural <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </button>
-
   </div>
 
-
-  <!-- ═══ TEEN-ONLY: Your Body, No Cap ═══ -->
   <section class="teen-body-section teen-only" id="teenBodySection" aria-label="Your cycle explained">
     <div class="teen-sec-header">
-      <div class="teen-eyebrow">No Cap 💜</div>
+      <div class="teen-eyebrow">No Cap &#x1F49C;</div>
       <h2 class="teen-sec-title">Your Body, Explained.</h2>
-      <p class="teen-sec-sub">Your cycle has 4 phases every month. Here's what's actually going on — in English, not textbook.</p>
+      <p class="teen-sec-sub">Your cycle has 4 phases every month. Here's what's actually going on &mdash; in English, not textbook.</p>
     </div>
     <div class="teen-phase-row" role="list">
-
       <div class="teen-phase-card tpc--menstrual" role="listitem">
-        <div class="tpc-vibe">😤</div>
-        <div class="tpc-pill">Days 1–5</div>
-        <div class="tpc-name">The Drop</div>
-        <p class="tpc-desc">Your body is doing its thing and yeah, it can feel like A LOT. Cramps, low energy, just wanting to stay in bed — all of it is normal. Rest is not lazy right now, fr.</p>
-        <div class="tpc-want">Period care · Heat patches · Cuddles</div>
+        <div class="tpc-vibe">&#x1F624;</div><div class="tpc-pill">Days 1&ndash;5</div><div class="tpc-name">The Drop</div>
+        <p class="tpc-desc">Your body is doing its thing and yeah, it can feel like A LOT. Cramps, low energy, just wanting to stay in bed &mdash; all of it is normal. Rest is not lazy right now, fr.</p>
+        <div class="tpc-want">Period care &middot; Heat patches &middot; Cuddles</div>
       </div>
-
       <div class="teen-phase-card tpc--follicular" role="listitem">
-        <div class="tpc-vibe">✨</div>
-        <div class="tpc-pill">Days 6–13</div>
-        <div class="tpc-name">The Glow Up</div>
-        <p class="tpc-desc">After your period ends, your energy comes back like it never left. You might feel clearer, more creative, maybe even kind of unstoppable. Enjoy it — this is YOUR week.</p>
-        <div class="tpc-want">Skincare · Wellness · Supplements</div>
+        <div class="tpc-vibe">&#x2728;</div><div class="tpc-pill">Days 6&ndash;13</div><div class="tpc-name">The Glow Up</div>
+        <p class="tpc-desc">After your period ends, your energy comes back like it never left. You might feel clearer, more creative, maybe even kind of unstoppable. Enjoy it &mdash; this is YOUR week.</p>
+        <div class="tpc-want">Skincare &middot; Wellness &middot; Supplements</div>
       </div>
-
       <div class="teen-phase-card tpc--ovulation" role="listitem">
-        <div class="tpc-vibe">👑</div>
-        <div class="tpc-pill">Days 14–17</div>
-        <div class="tpc-name">Main Character Era</div>
+        <div class="tpc-vibe">&#x1F451;</div><div class="tpc-pill">Days 14&ndash;17</div><div class="tpc-name">Main Character Era</div>
         <p class="tpc-desc">This is your peak week. Most confident, most energized, most social. Got a presentation? A hard conversation? Something scary coming up? THIS is the week to do it.</p>
-        <div class="tpc-want">Intimate care · Hygiene · Fresh scents</div>
+        <div class="tpc-want">Intimate care &middot; Hygiene &middot; Fresh scents</div>
       </div>
-
       <div class="teen-phase-card tpc--luteal" role="listitem">
-        <div class="tpc-vibe">🌙</div>
-        <div class="tpc-pill">Days 18–28</div>
-        <div class="tpc-name">The Wind Down</div>
-        <p class="tpc-desc">Your body starts slowing back down. PMS can creep in — mood swings, cravings, feeling more emotional. It's not you being "dramatic." It's literally your hormones. Give yourself grace.</p>
-        <div class="tpc-want">Sweets · Cuddles · Calm roller</div>
+        <div class="tpc-vibe">&#x1F319;</div><div class="tpc-pill">Days 18&ndash;28</div><div class="tpc-name">The Wind Down</div>
+        <p class="tpc-desc">Your body starts slowing back down. PMS can creep in &mdash; mood swings, cravings, feeling more emotional. It's not you being &ldquo;dramatic.&rdquo; It's literally your hormones. Give yourself grace.</p>
+        <div class="tpc-want">Sweets &middot; Cuddles &middot; Calm roller</div>
       </div>
-
     </div>
-    <p class="teen-edu-note">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Everyone's cycle is different — these are general ranges. Use your tracker to learn yours.
-    </p>
+    <p class="teen-edu-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Everyone's cycle is different &mdash; these are general ranges. Use your tracker to learn yours.</p>
   </section>
 
-  <!-- ═══ TEEN-ONLY: Did You Know? Rotating Facts ═══ -->
   <section class="teen-facts-section teen-only" id="teenFactsSection" aria-label="Period facts">
     <div class="teen-sec-header">
-      <div class="teen-eyebrow">The Tea ☕</div>
+      <div class="teen-eyebrow">The Tea &#x2615;</div>
       <h2 class="teen-sec-title">Did You Know?</h2>
     </div>
     <div class="teen-fact-card" id="teenFactCard" aria-live="polite">
       <div class="tfc-inner" id="teenFactInner">
-        <div class="tfc-emoji" id="teenFactEmoji">💜</div>
+        <div class="tfc-emoji" id="teenFactEmoji">&#x1F49C;</div>
         <p class="tfc-text" id="teenFactText">Loading...</p>
       </div>
     </div>
     <div class="tfc-dots" id="tfcDots" aria-hidden="true"></div>
-    <p class="teen-facts-cta">Want more? <button class="teen-scoop-link" id="teenScoopLink">See all facts in The Tea, Period. 🍵 →</button></p>
+    <p class="teen-facts-cta">Want more? <button class="teen-scoop-link" id="teenScoopLink">See all facts in The Tea, Period. &#x1F375; &rarr;</button></p>
   </section>
 
-  <!-- ═══ TEEN-ONLY: Freak Out Guide ═══ -->
   <section class="teen-freak-section teen-only" id="teenFreakSection" aria-label="What to do when your period starts unexpectedly">
     <div class="teen-sec-header">
-      <div class="teen-eyebrow">We Got You 💜</div>
+      <div class="teen-eyebrow">We Got You &#x1F49C;</div>
       <h2 class="teen-sec-title">Period Just Started.<br>Didn't Expect It?</h2>
       <p class="teen-sec-sub">Breathe. This is one of the most normal things that can happen. Here's exactly what to do.</p>
     </div>
     <ol class="freak-steps" aria-label="Steps to take">
-      <li class="freak-step">
-        <div class="freak-num">1</div>
-        <div class="freak-content">
-          <div class="freak-title">First — breathe.</div>
-          <p class="freak-desc">You are safe. This is normal. You are not the first person this has ever happened to, and you won't be the last. Nobody is looking at you. You've got this.</p>
-        </div>
-      </li>
-      <li class="freak-step">
-        <div class="freak-num">2</div>
-        <div class="freak-content">
-          <div class="freak-title">Get to the bathroom.</div>
-          <p class="freak-desc">Ask to use the restroom. You don't have to explain why. "Can I use the bathroom?" is enough.</p>
-        </div>
-      </li>
-      <li class="freak-step">
-        <div class="freak-num">3</div>
-        <div class="freak-content">
-          <div class="freak-title">No products? Toilet paper works.</div>
-          <p class="freak-desc">Fold a few layers and place it in your underwear. It's a temporary fix — but it WORKS. It'll hold you over until you can get what you actually need.</p>
-        </div>
-      </li>
-      <li class="freak-step">
-        <div class="freak-num">4</div>
-        <div class="freak-content">
-          <div class="freak-title">Ask someone.</div>
-          <p class="freak-desc">School nurse, a teacher, a friend. Most people will help you — no judgment, no questions. You'd do the same for them.</p>
-        </div>
-      </li>
-      <li class="freak-step freak-step--cta">
-        <div class="freak-num">5</div>
-        <div class="freak-content">
-          <div class="freak-title">Need products delivered right now?</div>
-          <p class="freak-desc">We can get it to you — wherever you are.</p>
-          <button class="freak-order-btn" id="freakOrderBtn">Order Now — Fast Delivery</button>
-        </div>
-      </li>
+      <li class="freak-step"><div class="freak-num">1</div><div class="freak-content"><div class="freak-title">First &mdash; breathe.</div><p class="freak-desc">You are safe. This is normal. You are not the first person this has ever happened to, and you won't be the last. Nobody is looking at you. You've got this.</p></div></li>
+      <li class="freak-step"><div class="freak-num">2</div><div class="freak-content"><div class="freak-title">Get to the bathroom.</div><p class="freak-desc">Ask to use the restroom. You don't have to explain why. "Can I use the bathroom?" is enough.</p></div></li>
+      <li class="freak-step"><div class="freak-num">3</div><div class="freak-content"><div class="freak-title">No products? Toilet paper works.</div><p class="freak-desc">Fold a few layers and place it in your underwear. It's a temporary fix &mdash; but it WORKS. It'll hold you over until you can get what you actually need.</p></div></li>
+      <li class="freak-step"><div class="freak-num">4</div><div class="freak-content"><div class="freak-title">Ask someone.</div><p class="freak-desc">School nurse, a teacher, a friend. Most people will help you &mdash; no judgment, no questions. You'd do the same for them.</p></div></li>
+      <li class="freak-step freak-step--cta"><div class="freak-num">5</div><div class="freak-content"><div class="freak-title">Need products delivered right now?</div><p class="freak-desc">We can get it to you &mdash; wherever you are.</p><button class="freak-order-btn" id="freakOrderBtn">Order Now &mdash; Fast Delivery</button></div></li>
     </ol>
-    <p class="teen-edu-note freak-disclaimer">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      General education only — not medical advice. For personal health questions, talk to a trusted adult or healthcare provider.
-    </p>
+    <p class="teen-edu-note freak-disclaimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> General education only &mdash; not medical advice. For personal health questions, talk to a trusted adult or healthcare provider.</p>
   </section>
 
-  <!-- ═══ ADULT-ONLY: Cycle Phase Education ═══ -->
   <section class="cycle-edu-section adult-only" id="cycleEduSection" aria-label="Menstrual cycle phases">
     <div class="cycle-edu-header">
       <div class="cycle-edu-eyebrow">Know Your Cycle</div>
@@ -357,47 +249,14 @@
       <p class="cycle-edu-sub">Your body follows a rhythm every month. Understanding it makes everything feel less like a surprise.</p>
     </div>
     <div class="cycle-phase-row" role="list">
-
-      <div class="cycle-phase-card" role="listitem">
-        <div class="phase-pill phase-pill--menstrual">Days 1–5</div>
-        <div class="phase-name">Menstrual</div>
-        <div class="phase-keyword">Release</div>
-        <p class="phase-desc">Your body is shedding. Energy is low — and that's not a flaw. Rest is productive right now, not lazy. This is where the cycle resets.</p>
-        <div class="phase-products">Period care &middot; Heat patches &middot; Cuddles</div>
-      </div>
-
-      <div class="cycle-phase-card" role="listitem">
-        <div class="phase-pill phase-pill--follicular">Days 6–13</div>
-        <div class="phase-name">Follicular</div>
-        <div class="phase-keyword">Rise</div>
-        <p class="phase-desc">Estrogen climbs and so does your clarity. Energy returns, focus sharpens. A great phase for planning, creating, and tackling what felt impossible last week.</p>
-        <div class="phase-products">Wellness &middot; Supplements &middot; Skincare</div>
-      </div>
-
-      <div class="cycle-phase-card cycle-phase-card--peak" role="listitem">
-        <div class="phase-pill phase-pill--ovulation">Days 14–17</div>
-        <div class="phase-name">Ovulation</div>
-        <div class="phase-keyword">Peak</div>
-        <p class="phase-desc">You're at your most confident and energized. This is the window to have hard conversations, show up boldly, and say the things you've been meaning to say.</p>
-        <div class="phase-products">Intimate care &middot; Hygiene &middot; Deodorant</div>
-      </div>
-
-      <div class="cycle-phase-card" role="listitem">
-        <div class="phase-pill phase-pill--luteal">Days 18–28</div>
-        <div class="phase-name">Luteal</div>
-        <div class="phase-keyword">Wind Down</div>
-        <p class="phase-desc">Your body is preparing. PMS can show up here — mood shifts, cravings, fatigue. Honor it. It's not weakness, it's communication. Comfort your body through it.</p>
-        <div class="phase-products">Sweets &middot; Cuddles &middot; Calm roller</div>
-      </div>
-
+      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--menstrual">Days 1&ndash;5</div><div class="phase-name">Menstrual</div><div class="phase-keyword">Release</div><p class="phase-desc">Your body is shedding. Energy is low &mdash; and that's not a flaw. Rest is productive right now, not lazy. This is where the cycle resets.</p><div class="phase-products">Period care &middot; Heat patches &middot; Cuddles</div></div>
+      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--follicular">Days 6&ndash;13</div><div class="phase-name">Follicular</div><div class="phase-keyword">Rise</div><p class="phase-desc">Estrogen climbs and so does your clarity. Energy returns, focus sharpens. A great phase for planning, creating, and tackling what felt impossible last week.</p><div class="phase-products">Wellness &middot; Supplements &middot; Skincare</div></div>
+      <div class="cycle-phase-card cycle-phase-card--peak" role="listitem"><div class="phase-pill phase-pill--ovulation">Days 14&ndash;17</div><div class="phase-name">Ovulation</div><div class="phase-keyword">Peak</div><p class="phase-desc">You're at your most confident and energized. This is the window to have hard conversations, show up boldly, and say the things you've been meaning to say.</p><div class="phase-products">Intimate care &middot; Hygiene &middot; Deodorant</div></div>
+      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--luteal">Days 18&ndash;28</div><div class="phase-name">Luteal</div><div class="phase-keyword">Wind Down</div><p class="phase-desc">Your body is preparing. PMS can show up here &mdash; mood shifts, cravings, fatigue. Honor it. It's not weakness, it's communication. Comfort your body through it.</p><div class="phase-products">Sweets &middot; Cuddles &middot; Calm roller</div></div>
     </div>
-    <p class="cycle-edu-note">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Everyone's cycle is different. These are general ranges. Use your tracker to learn yours.
-    </p>
+    <p class="cycle-edu-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Everyone's cycle is different. These are general ranges. Use your tracker to learn yours.</p>
   </section>
 
-  <!-- ═══ ADULT-ONLY: Voices We Love ═══ -->
   <section class="voices-section adult-only" id="voicesSection" aria-label="Featured educators and advocates">
     <div class="voices-header">
       <div class="voices-eyebrow">Community &amp; Education</div>
@@ -405,250 +264,114 @@
       <p class="voices-sub">Real people, real education. We're building relationships with advocates and educators who speak your language.</p>
     </div>
     <div class="voices-row">
-
-      <div class="voice-card">
-        <div class="voice-avatar" aria-hidden="true">&#x1F4A9;&#x2728;</div>
-        <div class="voice-info">
-          <div class="voice-name">Period Educator</div>
-          <div class="voice-handle">@coming.soon</div>
-          <p class="voice-bio">Cycle health, hormone education, and the conversations your doctor didn't have time for.</p>
-        </div>
-        <div class="voice-tag">Partnering Soon</div>
-      </div>
-
-      <div class="voice-card">
-        <div class="voice-avatar" aria-hidden="true">&#x1F331;&#x2728;</div>
-        <div class="voice-info">
-          <div class="voice-name">Holistic Wellness</div>
-          <div class="voice-handle">@coming.soon</div>
-          <p class="voice-bio">Natural cycle care, herbal remedies, and living in sync with your body's rhythm.</p>
-        </div>
-        <div class="voice-tag">Partnering Soon</div>
-      </div>
-
-      <div class="voice-card">
-        <div class="voice-avatar" aria-hidden="true">&#x1F9E0;&#x2728;</div>
-        <div class="voice-info">
-          <div class="voice-name">Mental Health &amp; Cycle</div>
-          <div class="voice-handle">@coming.soon</div>
-          <p class="voice-bio">The connection between your hormones and your mood — destigmatized, demystified, and delivered with grace.</p>
-        </div>
-        <div class="voice-tag">Partnering Soon</div>
-      </div>
-
+      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F4A9;&#x2728;</div><div class="voice-info"><div class="voice-name">Period Educator</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">Cycle health, hormone education, and the conversations your doctor didn't have time for.</p></div><div class="voice-tag">Partnering Soon</div></div>
+      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F331;&#x2728;</div><div class="voice-info"><div class="voice-name">Holistic Wellness</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">Natural cycle care, herbal remedies, and living in sync with your body's rhythm.</p></div><div class="voice-tag">Partnering Soon</div></div>
+      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F9E0;&#x2728;</div><div class="voice-info"><div class="voice-name">Mental Health &amp; Cycle</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">The connection between your hormones and your mood &mdash; destigmatized, demystified, and delivered with grace.</p></div><div class="voice-tag">Partnering Soon</div></div>
     </div>
-    <p class="voices-suggest">Know someone we should feature?
-      <a class="voices-suggest-link" href="mailto:support@perioddelivers.com?subject=Creator Feature Suggestion">Tell us</a>
-    </p>
+    <p class="voices-suggest">Know someone we should feature? <a class="voices-suggest-link" href="mailto:support@perioddelivers.com?subject=Creator Feature Suggestion">Tell us</a></p>
   </section>
 
-  <!-- ═══ ADULT-ONLY: The Change, Sis ═══ -->
-  <section class="change-sis-section adult-only" id="changeSisSection" aria-label="Perimenopause and menopause education">
+  <!-- THE CHANGE, SIS — DRAMATIC VISUAL MAKEOVER -->
+  <section class="change-sis-section adult-only" id="changeSisSection" aria-label="Perimenopause and menopause education" style="background:linear-gradient(135deg,rgba(120,20,60,0.18),rgba(180,100,40,0.10),rgba(120,20,80,0.15));border:1.5px solid rgba(200,120,80,0.25);border-radius:24px;margin:1rem;padding:1.5rem 1rem;box-shadow:0 0 40px rgba(180,60,100,0.12),inset 0 0 60px rgba(120,20,60,0.06);">
     <div class="change-sis-header">
-      <div class="change-sis-eyebrow">For Every Stage of You</div>
-      <h2 class="change-sis-title">The Change, Sis 💜</h2>
-      <p class="change-sis-sub">Nobody warned us. Nobody taught us. That ends here. If something feels off — your moods, your sleep, your mind — you're not losing it. You're shifting.</p>
-    </div>
-
-    <div class="change-sis-row" role="list">
-
-      <!-- Card 1: Your Mind -->
-      <div class="change-card" role="listitem">
-        <div class="change-card-icon" aria-hidden="true">🧠</div>
-        <div class="change-pill change-pill--mind">MENTAL HEALTH</div>
-        <div class="change-card-title">It's Not Just "In Your Head"</div>
-        <p class="change-card-body">Anxiety you can't explain. Sudden depression. Crying out of nowhere. Raging one minute, empty the next. This is real, and it has a name.</p>
-        <ul class="change-card-list">
-          <li>Mood swings &amp; irritability</li>
-          <li>Anxiety &amp; panic attacks</li>
-          <li>Depression &amp; low mood</li>
-          <li>Brain fog &amp; forgetfulness</li>
-          <li>Feeling unlike yourself</li>
-          <li>Sleep issues &rarr; mental exhaustion</li>
-        </ul>
+      <div style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,#8B1A4A,#C47A2A);border-radius:999px;padding:0.3rem 1rem;margin-bottom:0.75rem;">
+        <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#FFE4C4;text-transform:uppercase;">For You, Sis &#x1F49C;</span>
       </div>
-
-      <!-- Card 2: Your Body -->
-      <div class="change-card" role="listitem">
-        <div class="change-card-icon" aria-hidden="true">🔥</div>
-        <div class="change-pill change-pill--body">PHYSICAL CHANGES</div>
-        <div class="change-card-title">What Nobody Told You to Expect</div>
-        <p class="change-card-body">Hot flashes at 3am. Periods that show up whenever they feel like it. A body that suddenly feels unfamiliar. You're not falling apart — you're in transition.</p>
-        <ul class="change-card-list">
-          <li>Hot flashes &amp; night sweats</li>
-          <li>Irregular or skipped periods</li>
-          <li>Sleep disruptions</li>
-          <li>Weight &amp; metabolism changes</li>
-          <li>Joint pain &amp; fatigue</li>
-          <li>Heart palpitations</li>
-        </ul>
-      </div>
-
-      <!-- Card 3: The Stages -->
-      <div class="change-card" role="listitem">
-        <div class="change-card-icon" aria-hidden="true">📅</div>
-        <div class="change-pill change-pill--stages">KNOW YOUR PHASE</div>
-        <div class="change-card-title">Know Where You Are</div>
-        <p class="change-card-body">This isn't one moment — it's a journey. And it can start earlier than you think, even in your mid-30s.</p>
-        <div class="change-stage">
-          <span class="change-stage-label">Perimenopause</span>
-          <span class="change-stage-desc">The lead-up. Hormones fluctuating, cycles changing. Can last 4–10 years.</span>
-        </div>
-        <div class="change-stage">
-          <span class="change-stage-label">Menopause</span>
-          <span class="change-stage-desc">12 months with no period. Usually between ages 45–55.</span>
-        </div>
-        <div class="change-stage">
-          <span class="change-stage-label">Postmenopause</span>
-          <span class="change-stage-desc">Life after. Symptoms ease for most. This chapter is yours.</span>
-        </div>
-      </div>
-
+      <div class="change-sis-eyebrow" style="color:rgba(255,200,160,0.7);">For Every Stage of You</div>
+      <h2 class="change-sis-title" style="background:linear-gradient(135deg,#FFB3C6,#FFD700,#E8A0BF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:clamp(1.8rem,6vw,2.5rem);">The Change, Sis &#x1F49C;</h2>
+      <p class="change-sis-sub" style="color:rgba(255,220,200,0.85);font-size:1rem;line-height:1.7;border-left:3px solid rgba(200,120,80,0.5);padding-left:1rem;margin-top:0.5rem;">Nobody warned us. Nobody taught us. That ends here. If something feels off &mdash; your moods, your sleep, your mind &mdash; you're not losing it. You're shifting.</p>
     </div>
-
-    <!-- You're Not Alone callout -->
-    <div class="change-sis-note">
-      <span class="change-sis-note-icon" aria-hidden="true">💜</span>
-      <p class="change-sis-note-text">Whether you're in a shelter, a hospital, a prison, or your own home — this information belongs to you. Your body deserves to be understood. <strong>You deserve to be understood.</strong></p>
-    </div>
-
-    <!-- Shop CTA -->
-    <button class="change-sis-shop-btn" onclick="openShopForStage()" aria-label="Shop wellness products for perimenopause and menopause">
-      Shop for This Stage &nbsp;🛒
+    <!-- Shop CTA — moved higher -->
+    <button class="change-sis-shop-btn" onclick="openShopForStage()" aria-label="Shop wellness products for perimenopause and menopause" style="margin:1rem auto 1.25rem;display:block;background:linear-gradient(135deg,#8B1A4A,#C47A2A);border:none;color:#FFE4C4;font-weight:700;padding:0.9rem 2rem;border-radius:999px;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,26,74,0.4);">
+      Shop for This Stage &nbsp;&#x1F6D2;
     </button>
+    <div class="change-sis-row" role="list">
+      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F9E0;</div><div class="change-pill change-pill--mind">MENTAL HEALTH</div><div class="change-card-title">It's Not Just "In Your Head"</div><p class="change-card-body">Anxiety you can't explain. Sudden depression. Crying out of nowhere. Raging one minute, empty the next. This is real, and it has a name.</p><ul class="change-card-list"><li>Mood swings &amp; irritability</li><li>Anxiety &amp; panic attacks</li><li>Depression &amp; low mood</li><li>Brain fog &amp; forgetfulness</li><li>Feeling unlike yourself</li><li>Sleep issues &rarr; mental exhaustion</li></ul></div>
+      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F525;</div><div class="change-pill change-pill--body">PHYSICAL CHANGES</div><div class="change-card-title">What Nobody Told You to Expect</div><p class="change-card-body">Hot flashes at 3am. Periods that show up whenever they feel like it. A body that suddenly feels unfamiliar. You're not falling apart &mdash; you're in transition.</p><ul class="change-card-list"><li>Hot flashes &amp; night sweats</li><li>Irregular or skipped periods</li><li>Sleep disruptions</li><li>Weight &amp; metabolism changes</li><li>Joint pain &amp; fatigue</li><li>Heart palpitations</li></ul></div>
+      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F4C5;</div><div class="change-pill change-pill--stages">KNOW YOUR PHASE</div><div class="change-card-title">Know Where You Are</div><p class="change-card-body">This isn't one moment &mdash; it's a journey. And it can start earlier than you think, even in your mid-30s.</p><div class="change-stage"><span class="change-stage-label">Perimenopause</span><span class="change-stage-desc">The lead-up. Hormones fluctuating, cycles changing. Can last 4&ndash;10 years.</span></div><div class="change-stage"><span class="change-stage-label">Menopause</span><span class="change-stage-desc">12 months with no period. Usually between ages 45&ndash;55.</span></div><div class="change-stage"><span class="change-stage-label">Postmenopause</span><span class="change-stage-desc">Life after. Symptoms ease for most. This chapter is yours.</span></div></div>
+    </div>
+    <div class="change-sis-note">
+      <span class="change-sis-note-icon" aria-hidden="true">&#x1F49C;</span>
+      <p class="change-sis-note-text">Whether you're in a shelter, a hospital, a prison, or your own home &mdash; this information belongs to you. Your body deserves to be understood. <strong>You deserve to be understood.</strong></p>
+    </div>
   </section>
 
-  <!-- Feature Spotlight: Tracker + Newsletter Cards -->
   <section class="feature-spotlight" id="featureSpotlight" aria-label="Period tracker and newsletter">
     <div class="feature-spotlight-grid">
-
-      <!-- Tracker Card -->
       <div class="feature-spot-card feature-spot-card--tracker">
-        <div class="fsc-top">
-          <span class="fsc-icon" aria-hidden="true">📊</span>
-          <div class="fsc-eyebrow">Free · Always Available</div>
-        </div>
+        <div class="fsc-top"><span class="fsc-icon" aria-hidden="true">&#x1F4CA;</span><div class="fsc-eyebrow">Free &middot; Always Available</div></div>
         <h3 class="fsc-title">Period Tracker</h3>
-        <p class="fsc-desc">Log your cycle, predict your phases, and get reminders via push or text — know what's coming before it arrives.</p>
-        <button class="fsc-btn" id="featureTrackerBtn">
-          Open My Tracker
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <p class="fsc-desc">Log your cycle, predict your phases, and get reminders via push or text &mdash; know what's coming before it arrives.</p>
+        <button class="fsc-btn" id="featureTrackerBtn">Open My Tracker <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </div>
-
-      <!-- Newsletter Card -->
       <div class="feature-spot-card feature-spot-card--newsletter">
-        <div class="fsc-top">
-          <span class="fsc-icon" aria-hidden="true">📬</span>
-          <div class="fsc-eyebrow fsc-eyebrow--gold">Free · Monthly · Curated</div>
-        </div>
+        <div class="fsc-top"><span class="fsc-icon" aria-hidden="true">&#x1F4EC;</span><div class="fsc-eyebrow fsc-eyebrow--gold">Free &middot; Monthly &middot; Curated</div></div>
         <h3 class="fsc-title">Stay in the Loop</h3>
-        <p class="fsc-desc">Monthly cycle education, trending products, and exclusive drops — sent to your inbox. Tracker unlocked instantly when you join.</p>
-        <button class="fsc-btn fsc-btn--nl" id="featureNewsletterBtn">
-          Subscribe Free
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <p class="fsc-desc">Monthly cycle education, trending products, and exclusive drops &mdash; sent to your inbox. Tracker unlocked instantly when you join.</p>
+        <button class="fsc-btn fsc-btn--nl" id="featureNewsletterBtn">Subscribe Free <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </div>
-
     </div>
   </section>
 
-  <!-- How It Works -->
   <section class="how-section" aria-label="How it works">
     <h2 class="how-title" id="howTitle">How It Works</h2>
     <div class="how-steps">
-
-      <div class="how-step how-step--gold">
-        <div class="how-step-num">1</div>
-        <div class="how-step-text">
-          <div class="how-step-name" id="step1Name">Browse &amp; Add to Cart</div>
-          <div class="how-step-desc" id="step1Desc">Shop our full product catalog — period care, intimate wellness, skincare, hygiene &amp; more.</div>
-        </div>
-      </div>
-
-      <div class="how-step how-step--gold">
-        <div class="how-step-num">2</div>
-        <div class="how-step-text">
-          <div class="how-step-name" id="step2Name">Place Your Order</div>
-          <div class="how-step-desc" id="step2Desc">We connect with our supplier partners and arrange fast delivery directly to you — no warehouse, no hassle.</div>
-        </div>
-      </div>
-
-      <div class="how-step how-step--gold">
-        <div class="how-step-num">3</div>
-        <div class="how-step-text">
-          <div class="how-step-name" id="step3Name">Delivered to Your Door</div>
-          <div class="how-step-desc" id="step3Desc">Expect your order in 1–3 days for standard orders, or on your chosen date for Care Packages.</div>
-        </div>
-      </div>
-
+      <div class="how-step how-step--gold"><div class="how-step-num">1</div><div class="how-step-text"><div class="how-step-name" id="step1Name">Browse &amp; Add to Cart</div><div class="how-step-desc" id="step1Desc">Shop our full product catalog &mdash; period care, intimate wellness, skincare, hygiene &amp; more.</div></div></div>
+      <div class="how-step how-step--gold"><div class="how-step-num">2</div><div class="how-step-text"><div class="how-step-name" id="step2Name">Place Your Order</div><div class="how-step-desc" id="step2Desc">We connect with our supplier partners and arrange fast delivery directly to you &mdash; no warehouse, no hassle.</div></div></div>
+      <div class="how-step how-step--gold"><div class="how-step-num">3</div><div class="how-step-text"><div class="how-step-name" id="step3Name">Delivered to Your Door</div><div class="how-step-desc" id="step3Desc">Expect your order in 1&ndash;3 days for standard orders, or on your chosen date for Care Packages.</div></div></div>
     </div>
   </section>
 
-  <!-- Community Impact Counter -->
   <section class="impact-section" id="impactSection" aria-label="Community impact">
     <div class="impact-inner">
-      <div class="impact-eyebrow">💜 Together We Give Back</div>
+      <div class="impact-eyebrow">&#x1F49C; Together We Give Back</div>
       <h2 class="impact-heading">Fighting Period Poverty,<br>One Order at a Time.</h2>
       <div class="impact-counters">
-        <div class="impact-stat">
-          <div class="impact-num" id="impactKits">0</div>
-          <div class="impact-lbl">Kits Donated<br>to Local Schools</div>
-        </div>
+        <div class="impact-stat"><div class="impact-num" id="impactKits">0</div><div class="impact-lbl">Kits Donated<br>to Local Schools</div></div>
         <div class="impact-vline" aria-hidden="true"></div>
-        <div class="impact-stat">
-          <div class="impact-num" id="impactStudents">0</div>
-          <div class="impact-lbl">Students<br>Supported</div>
-        </div>
+        <div class="impact-stat"><div class="impact-num" id="impactStudents">0</div><div class="impact-lbl">Students<br>Supported</div></div>
         <div class="impact-vline" aria-hidden="true"></div>
-        <div class="impact-stat">
-          <div class="impact-num" id="impactRoundup">$0</div>
-          <div class="impact-lbl">Rounded Up<br>for Period Orgs</div>
-        </div>
+        <div class="impact-stat"><div class="impact-num" id="impactRoundup">$0</div><div class="impact-lbl">Rounded Up<br>for Period Orgs</div></div>
       </div>
       <p class="impact-sub">Partners: <a class="impact-link" href="https://period.org" target="_blank" rel="noopener">Period.org</a> &amp; <a class="impact-link" href="https://www.daysforgirls.org" target="_blank" rel="noopener">Days for Girls</a> &amp; Cleveland City Schools</p>
-      <button class="impact-cta-btn" id="impactDonateBtn">Donate a Kit — $14.99 →</button>
+      <button class="impact-cta-btn" id="impactDonateBtn">Donate a Kit &mdash; $14.99 &rarr;</button>
     </div>
   </section>
 
-  <!-- Newsletter + Tracker CTA -->
   <section class="nl-home-cta" id="nlHomeCta" aria-label="Newsletter and tracker">
     <div class="nl-home-inner">
       <div class="nl-home-text">
-        <div class="nl-home-eyebrow" id="nlHomeEyebrow">Free · Tailored · Monthly</div>
+        <div class="nl-home-eyebrow" id="nlHomeEyebrow">Free &middot; Tailored &middot; Monthly</div>
         <h3 class="nl-home-h3" id="nlHomeH3">know your cycle.<br>own your health.</h3>
-        <p class="nl-home-sub" id="nlHomeSub">Monthly education on how your cycle affects your body, mind, and mood — plus a free period tracker.</p>
+        <p class="nl-home-sub" id="nlHomeSub">Monthly education on how your cycle affects your body, mind, and mood &mdash; plus a free period tracker.</p>
         <ul class="nl-home-perks">
-          <li><span>📊</span> Free period tracker — unlocked instantly</li>
-          <li><span id="nlPerk1">🧠</span> <span id="nlPerk1Text">Monthly cycle facts (physical · mental · emotional)</span></li>
-          <li><span>🔥</span> Trending finds + what’s working right now</li>
+          <li><span>&#x1F4CA;</span> Free period tracker &mdash; unlocked instantly</li>
+          <li><span id="nlPerk1">&#x1F9E0;</span> <span id="nlPerk1Text">Monthly cycle facts (physical &middot; mental &middot; emotional)</span></li>
+          <li><span>&#x1F525;</span> Trending finds + what's working right now</li>
         </ul>
       </div>
       <button class="nl-home-btn" id="openNewsletterBtn" aria-label="Subscribe to free newsletter">
-        Subscribe Free
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Subscribe Free <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </div>
   </section>
 
-  <!-- Trust Strip -->
   <div class="home-footer">
     <div class="trust-strip" id="trustStrip" role="list" aria-label="Store highlights">
-      <div class="trust-badge" role="listitem">🔒 Secure &amp; Discreet</div>
-      <div class="trust-badge" role="listitem">⚡ Urgent Under 30 Min</div>
-      <div class="trust-badge" role="listitem">🌿 Natural Products</div>
-      <div class="trust-badge" role="listitem">↩️ Easy Returns</div>
-      <div class="trust-badge" role="listitem">👑 Supplier Direct</div>
+      <div class="trust-badge" role="listitem">&#x1F512; Secure &amp; Discreet</div>
+      <div class="trust-badge" role="listitem">&#x26A1; Urgent Under 30 Min</div>
+      <div class="trust-badge" role="listitem">&#x1F33F; Natural Products</div>
+      <div class="trust-badge" role="listitem">&#x21A9;&#xFE0F; Easy Returns</div>
+      <div class="trust-badge" role="listitem">&#x1F451; Supplier Direct</div>
     </div>
     <button class="tracker-access-btn" id="trackerAccessBtn" aria-label="My period tracker">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span id="trackerBtnText">my tracker</span>
-      <span class="tlock" id="trackerLock" aria-hidden="true">🔒</span>
+      <span class="tlock" id="trackerLock" aria-hidden="true">&#x1F512;</span>
     </button>
-    <!-- Backup contact line — update phone number before launch -->
     <div class="backup-contact-line">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.12.96.36 1.9.71 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.55-.55a2 2 0 012.11-.45c.9.35 1.85.59 2.81.71A2 2 0 0122 14.92z"/></svg>
-      For <strong>urgent orders only</strong> — if the app is down, text or call <a href="tel:+12162501993" class="backup-tel" id="backupPhone">(216) 250-1993</a>
+      For <strong>urgent orders only</strong> &mdash; if the app is down, text or call <a href="tel:+12162501993" class="backup-tel" id="backupPhone">(216) 250-1993</a>
     </div>
     <div class="legal-footer-links">
       <button class="legal-link" id="openPrivacy">Privacy Policy</button>
@@ -658,523 +381,245 @@
       <span class="legal-copy">&copy; 2026 Period. LLC &mdash; Cleveland, OH</span>
     </div>
   </div>
+</div>
 
-</div><!-- /homeView -->
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!--  THE CYCLE SCOOP — FAQ + Period Facts (all versions)       -->
-<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="view" id="cycleScoopView" aria-label="The Tea, Period.">
-
-  <!-- Header -->
   <div class="scoop-header">
-    <button class="back-btn" id="cycleScoopBack" aria-label="Go back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    </button>
-    <div class="scoop-title-wrap">
-      <h1 class="scoop-title">The Tea, Period. 🍵</h1>
-      <p class="scoop-sub">Facts, answers, and everything they forgot to teach you.</p>
-    </div>
+    <button class="back-btn" id="cycleScoopBack" aria-label="Go back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <div class="scoop-title-wrap"><h1 class="scoop-title">The Tea, Period. &#x1F375;</h1><p class="scoop-sub">Facts, answers, and everything they forgot to teach you.</p></div>
   </div>
-
-  <!-- Tab switcher -->
   <div class="scoop-tabs" role="tablist" aria-label="The Tea, Period. sections">
-    <button class="scoop-tab active" id="tabFacts"   role="tab" aria-selected="true"  data-scoop-tab="facts">Period Facts</button>
-    <button class="scoop-tab"        id="tabFaq"     role="tab" aria-selected="false" data-scoop-tab="faq">Got Questions?</button>
+    <button class="scoop-tab active" id="tabFacts" role="tab" aria-selected="true" data-scoop-tab="facts">Period Facts</button>
+    <button class="scoop-tab" id="tabFaq" role="tab" aria-selected="false" data-scoop-tab="faq">Got Questions?</button>
   </div>
-
-  <!-- ── FACTS PANEL ── -->
   <div class="scoop-panel" id="scoopFactsPanel" role="tabpanel" aria-labelledby="tabFacts">
     <p class="scoop-panel-note">New facts added regularly. Tap any card to save it.</p>
     <div class="scoop-facts-grid" id="scoopFactsGrid" aria-label="Period facts"></div>
   </div>
-
-  <!-- ── FAQ PANEL ── -->
   <div class="scoop-panel" id="scoopFaqPanel" role="tabpanel" aria-labelledby="tabFaq" style="display:none">
     <p class="scoop-panel-note">Real questions. Honest answers. No judgment.</p>
     <div class="faq-list" id="faqList" aria-label="Frequently asked questions"></div>
-    <p class="teen-edu-note" style="margin-top:1.5rem">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      General education only — not medical advice. Talk to a trusted adult or healthcare provider for personal health questions.
-    </p>
+    <p class="teen-edu-note" style="margin-top:1.5rem"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> General education only &mdash; not medical advice.</p>
   </div>
+</div>
 
-</div><!-- /cycleScoopView -->
-
-
-
-<!-- ===================================================
-     SHOP VIEW (On-Demand)
-     =================================================== -->
 <div class="view" id="shopView">
-
-  <!-- Back bar -->
   <nav class="back-bar" aria-label="Navigation">
-    <button class="back-btn" id="shopBack">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
-      Back
-    </button>
+    <button class="back-btn" id="shopBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
     <div class="back-bar-title">Order Now</div>
     <div class="back-bar-spacer"></div>
   </nav>
-
-  <!-- Delivery ETA banner -->
   <div class="delivery-banner" role="status" aria-label="Delivery information">
     <div class="delivery-info">
-      <div class="delivery-icon" aria-hidden="true">🛵</div>
-      <div>
-        <div class="delivery-label">On-Demand Delivery</div>
-        <div class="delivery-time">1–3 day delivery</div>
-        <div class="delivery-fee">$4.99 delivery · Free over $35</div>
-      </div>
+      <div class="delivery-icon" aria-hidden="true">&#x1F6F5;</div>
+      <div><div class="delivery-label">On-Demand Delivery</div><div class="delivery-time">1&ndash;3 day delivery</div><div class="delivery-fee">$4.99 delivery &middot; Free over $35</div></div>
     </div>
     <button class="address-pill" id="addressPill" aria-label="Set delivery address">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-      </svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Set address
     </button>
   </div>
-
-  <!-- Search -->
   <div class="search-bar" role="search">
     <div class="search-input-wrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input class="search-input" id="searchInput" type="search" placeholder="Search products…" aria-label="Search products" autocomplete="off"/>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="searchInput" type="search" placeholder="Search products&hellip;" aria-label="Search products" autocomplete="off"/>
     </div>
   </div>
-
-  <!-- ===== EMERGENCY SHOP — shown only in emergency mode ===== -->
   <div id="emergencyShop" style="display:none" aria-label="Emergency order">
-
-    <div class="emg-calm">
-      <span class="emg-calm-icon">🫂</span>
-      <div>
-        <div class="emg-calm-title">Take a breath. We’ve got you.</div>
-        <div class="emg-calm-sub">Your order can be here in under 30 minutes.</div>
-      </div>
-    </div>
-
+    <div class="emg-calm"><span class="emg-calm-icon">&#x1FAF2;</span><div><div class="emg-calm-title">Take a breath. We've got you.</div><div class="emg-calm-sub">Your order can be here in under 30 minutes.</div></div></div>
     <button class="emg-kit-btn" id="emergencyKitBtn" aria-label="Add Emergency Kit to cart and checkout">
-      <div class="emg-kit-left">
-        <span class="emg-kit-emoji">🚨</span>
-        <div class="emg-kit-text">
-          <div class="emg-kit-title">Emergency Kit — One Tap</div>
-          <div class="emg-kit-sub">Pads · Liners · Wipes · Everything you need · 30 min or less</div>
-        </div>
-      </div>
-      <div class="emg-kit-right">
-        <div class="emg-kit-price">$14.99</div>
-        <div class="emg-kit-cta">Add &amp; Go →</div>
-      </div>
+      <div class="emg-kit-left"><span class="emg-kit-emoji">&#x1F6A8;</span><div class="emg-kit-text"><div class="emg-kit-title">Emergency Kit &mdash; One Tap</div><div class="emg-kit-sub">Pads &middot; Liners &middot; Wipes &middot; Everything you need &middot; 30 min or less</div></div></div>
+      <div class="emg-kit-right"><div class="emg-kit-price">$14.99</div><div class="emg-kit-cta">Add &amp; Go &rarr;</div></div>
     </button>
-
     <p class="emg-also-label">Need anything else?</p>
     <div class="emg-items" id="emergencyItems"></div>
-
-  </div><!-- /emergencyShop -->
-
-  <!-- CATEGORY GRID — default shop view -->
+  </div>
   <div class="category-grid" id="categoryGrid" role="list" aria-label="Browse categories"></div>
-
-  <!-- BREADCRUMB — shown when a category is selected -->
   <div class="shop-breadcrumb" id="shopBreadcrumb" style="display:none">
-    <button class="shop-back-cat-btn" id="shopBackCat">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      All Categories
-    </button>
+    <button class="shop-back-cat-btn" id="shopBackCat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> All Categories</button>
     <span class="shop-bc-title" id="shopBcTitle"></span>
   </div>
-
-  <!-- Category filter pills — shown in products mode -->
   <nav class="filter-bar" id="filterBar" aria-label="Product categories" style="display:none">
     <div class="filter-pills" id="filterPills" role="list"></div>
   </nav>
-
-  <!-- Section header — shown in products mode -->
   <div class="section-header" id="sectionHeader" style="display:none">
     <h2 class="section-title" id="sectionTitle">Products</h2>
     <span class="section-count" id="productCount" aria-live="polite"></span>
   </div>
-
-  <!-- Product grid — shown in products mode -->
   <div class="product-grid" id="productGrid" role="list" aria-label="Products" style="display:none"></div>
+</div>
 
-</div><!-- /shopView -->
-
-
-<!-- ===================================================
-     SUBSCRIBE VIEW (Care Package)
-     =================================================== -->
 <div class="view" id="subscribeView">
-
-  <!-- Back bar -->
   <nav class="back-bar" aria-label="Navigation">
-    <button class="back-btn" id="subscribeBack">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
-      Back
-    </button>
+    <button class="back-btn" id="subscribeBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
     <div class="back-bar-title">Care Package</div>
     <div class="back-bar-spacer"></div>
   </nav>
-
-  <!-- Hero -->
   <div class="subscribe-hero">
     <div class="subscribe-eyebrow" id="subEyebrow">Monthly Subscription</div>
     <h1 class="subscribe-title" id="subTitle">Your personal<br><span>care package.</span></h1>
-    <p class="subscribe-sub" id="subSub">Pick a plan, choose what goes inside, and receive it every month — on your schedule.</p>
+    <p class="subscribe-sub" id="subSub">Pick a plan, choose what goes inside, and receive it every month &mdash; on your schedule.</p>
   </div>
-
-  <!-- Step 1: Choose a plan -->
   <div class="plans-section">
-    <div class="plans-label" id="plansLabel">Step 1 — Choose Your Plan</div>
+    <div class="plans-label" id="plansLabel">Step 1 &mdash; Choose Your Plan</div>
     <div class="plan-cards" id="planCards" role="radiogroup" aria-label="Choose a plan">
-
       <div class="plan-card" data-plan="starter" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-top">
-          <div>
-            <div class="plan-name">Starter</div>
-            <div class="plan-slot-info">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              Pick any 3 items
-            </div>
-          </div>
-          <div class="plan-price-wrap">
-            <div class="plan-price">$19.99</div>
-            <div class="plan-per">/ month</div>
-          </div>
-        </div>
-        <div class="plan-features">
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> 3 items of your choice</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Monthly delivery</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Swap items anytime</div>
-        </div>
+        <div class="plan-top"><div><div class="plan-name">Starter</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Pick any 3 items</div></div><div class="plan-price-wrap"><div class="plan-price">$19.99</div><div class="plan-per">/ month</div></div></div>
+        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 3 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Monthly delivery</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Swap items anytime</div></div>
       </div>
-
       <div class="plan-card gold-plan" data-plan="essential" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-popular">Most Popular 👑</div>
-        <div class="plan-top">
-          <div>
-            <div class="plan-name">Essential</div>
-            <div class="plan-slot-info">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-              Pick any 6 items
-            </div>
-          </div>
-          <div class="plan-price-wrap">
-            <div class="plan-price">$34.99</div>
-            <div class="plan-per">/ month</div>
-          </div>
-        </div>
-        <div class="plan-features">
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> 6 items of your choice</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Priority delivery</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Free delivery every month</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Swap items anytime</div>
-        </div>
+        <div class="plan-popular">Most Popular &#x1F451;</div>
+        <div class="plan-top"><div><div class="plan-name">Essential</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Pick any 6 items</div></div><div class="plan-price-wrap"><div class="plan-price">$34.99</div><div class="plan-per">/ month</div></div></div>
+        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 6 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Priority delivery</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Free delivery every month</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Swap items anytime</div></div>
       </div>
-
       <div class="plan-card" data-plan="royal" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-top">
-          <div>
-            <div class="plan-name">Royal</div>
-            <div class="plan-slot-info">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              Pick any 9 items
-            </div>
-          </div>
-          <div class="plan-price-wrap">
-            <div class="plan-price">$54.99</div>
-            <div class="plan-per">/ month</div>
-          </div>
-        </div>
-        <div class="plan-features">
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> 9 items of your choice</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Same-day priority dispatch</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Free delivery always</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Early access to new products</div>
-          <div class="plan-feature"><div class="plan-feature-check">✓</div> Dedicated customer support</div>
-        </div>
+        <div class="plan-top"><div><div class="plan-name">Royal</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Pick any 9 items</div></div><div class="plan-price-wrap"><div class="plan-price">$54.99</div><div class="plan-per">/ month</div></div></div>
+        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 9 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Same-day priority dispatch</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Free delivery always</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Early access to new products</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Dedicated customer support</div></div>
       </div>
-
     </div>
   </div>
-
-  <!-- Step 2: Pick items -->
   <div class="picker-section" id="pickerSection" style="display:none">
-    <div class="picker-header">
-      <h2 class="picker-title" id="pickerTitle">Step 2 — Build Your Box</h2>
-      <div class="picker-slots" id="pickerSlots">0 / 0 selected</div>
-    </div>
-    <!-- Smart Suggestions — based on favorited items -->
+    <div class="picker-header"><h2 class="picker-title" id="pickerTitle">Step 2 &mdash; Build Your Box</h2><div class="picker-slots" id="pickerSlots">0 / 0 selected</div></div>
     <div id="smartSuggestions" style="display:none" aria-live="polite">
-      <div class="smart-suggest-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-        Based on what you love
-      </div>
+      <div class="smart-suggest-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Based on what you love</div>
       <div class="smart-suggest-row" id="smartSuggestRow"></div>
     </div>
-
     <div class="picker-filter-bar" id="pickerFilterBar" role="group" aria-label="Filter by category"></div>
-    <p class="picker-hint">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Tap a product to add it to your box. Selections can be changed anytime before subscribing.
-    </p>
+    <p class="picker-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Tap a product to add it to your box. Selections can be changed anytime before subscribing.</p>
     <div class="picker-grid" id="pickerGrid" role="list" aria-label="Choose products for your box"></div>
   </div>
-
-  <!-- Subscribe CTA bar (sticky) -->
   <div class="subscribe-cta-bar" id="subscribeCta" style="display:none">
-    <div class="subscribe-summary">
-      <div class="subscribe-summary-text" id="subscribeSummaryText">Select a plan to get started</div>
-      <div class="subscribe-summary-price" id="subscribeSummaryPrice"></div>
-    </div>
-    <button class="subscribe-btn" id="subscribeBtn" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-      </svg>
-      Subscribe — <span id="subscribeBtnPrice"></span>/mo
-    </button>
+    <div class="subscribe-summary"><div class="subscribe-summary-text" id="subscribeSummaryText">Select a plan to get started</div><div class="subscribe-summary-price" id="subscribeSummaryPrice"></div></div>
+    <button class="subscribe-btn" id="subscribeBtn" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Subscribe &mdash; <span id="subscribeBtnPrice"></span>/mo</button>
   </div>
+</div>
 
-</div><!-- /subscribeView -->
-
-
-<!-- ===== PRODUCT MODAL ===== -->
 <div class="overlay" id="modalOverlay" role="presentation" aria-hidden="true"></div>
 <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-drag-handle" aria-hidden="true"></div>
   <div class="modal-hero" id="modalHero">
     <span id="modalHeroEmoji" aria-hidden="true" style="font-size:5rem"></span>
-    <button class="modal-close" id="modalClose" aria-label="Close product">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
+    <button class="modal-close" id="modalClose" aria-label="Close product"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="modal-body">
     <div class="modal-cat-tag" id="modalCatTag"></div>
     <h2 class="modal-title" id="modalTitle"></h2>
-    <p class="modal-sub"  id="modalSub"></p>
+    <p class="modal-sub" id="modalSub"></p>
     <p class="modal-desc" id="modalDesc"></p>
     <div class="modal-features" id="modalFeatures"></div>
     <div class="modal-footer">
-      <div>
-        <div class="modal-price" id="modalPrice"></div>
-        <div class="modal-price-sub">Free shipping over $35</div>
-      </div>
+      <div><div class="modal-price" id="modalPrice"></div><div class="modal-price-sub">Free shipping over $35</div></div>
       <button class="modal-add-btn" id="modalAddBtn"></button>
     </div>
   </div>
 </div>
 
-<!-- ===== CART SIDEBAR ===== -->
 <div class="cart-overlay" id="cartOverlay" role="presentation" aria-hidden="true"></div>
 <aside class="cart-sidebar" id="cartSidebar" role="dialog" aria-modal="true" aria-label="Shopping cart">
   <div class="cart-header">
     <h2 class="cart-title">Your Cart</h2>
-    <button class="icon-btn" id="cartClose" aria-label="Close cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
+    <button class="icon-btn" id="cartClose" aria-label="Close cart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="cart-body" id="cartBody"></div>
   <div class="cart-footer">
-    <div class="cart-delivery-row">
-      <span>🛵</span>
-      Estimated delivery: <strong>1–3 days</strong> · Urgent orders under 30 min
-    </div>
-    <!-- Promo Code -->
+    <div class="cart-delivery-row"><span>&#x1F6F5;</span> Estimated delivery: <strong>1&ndash;3 days</strong> &middot; Urgent orders under 30 min</div>
     <div class="promo-row" id="promoRow">
       <div class="promo-input-wrap" id="promoInputWrap">
         <input type="text" id="promoInput" class="promo-input" placeholder="Promo code" autocomplete="off" autocapitalize="characters" maxlength="20" aria-label="Enter promo code">
         <button class="promo-apply-btn" id="promoApplyBtn">Apply</button>
       </div>
       <div class="promo-applied-row" id="promoAppliedRow" style="display:none" aria-live="polite">
-        <span class="promo-tag-icon">🏷️</span>
+        <span class="promo-tag-icon">&#x1F3F7;&#xFE0F;</span>
         <span class="promo-applied-label" id="promoAppliedLabel"></span>
-        <button class="promo-remove-btn" id="promoRemoveBtn" aria-label="Remove promo code">✕</button>
+        <button class="promo-remove-btn" id="promoRemoveBtn" aria-label="Remove promo code">&#x2715;</button>
       </div>
     </div>
-
-    <!-- Price Breakdown -->
     <div class="price-breakdown">
-      <div class="price-row">
-        <span class="price-row-label">Subtotal · <span id="cartItemCount">0 items</span></span>
-        <span class="price-row-val" id="breakdownSubtotal">$0.00</span>
-      </div>
-      <div class="price-row" id="breakdownDeliveryRow">
-        <span class="price-row-label">Delivery 🛵</span>
-        <span class="price-row-val" id="breakdownDelivery">$4.99</span>
-      </div>
-      <div class="price-row price-row--discount" id="breakdownDiscountRow" style="display:none">
-        <span class="price-row-label" id="breakdownDiscountLabel">Discount</span>
-        <span class="price-row-val price-row-val--discount" id="breakdownDiscount">−$0.00</span>
-      </div>
-      <div class="price-row price-row--total">
-        <span class="price-row-label">Total</span>
-        <span class="price-row-val price-row-val--total" id="cartTotal">$0.00</span>
-      </div>
+      <div class="price-row"><span class="price-row-label">Subtotal &middot; <span id="cartItemCount">0 items</span></span><span class="price-row-val" id="breakdownSubtotal">$0.00</span></div>
+      <div class="price-row" id="breakdownDeliveryRow"><span class="price-row-label">Delivery &#x1F6F5;</span><span class="price-row-val" id="breakdownDelivery">$4.99</span></div>
+      <div class="price-row price-row--discount" id="breakdownDiscountRow" style="display:none"><span class="price-row-label" id="breakdownDiscountLabel">Discount</span><span class="price-row-val price-row-val--discount" id="breakdownDiscount">&minus;$0.00</span></div>
+      <div class="price-row price-row--total"><span class="price-row-label">Total</span><span class="price-row-val price-row-val--total" id="cartTotal">$0.00</span></div>
     </div>
-
-    <!-- Give Back Section -->
     <div class="give-back-section" id="giveBackSection">
-      <div class="give-back-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#A855F7" stroke="none"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
-        <span class="give-back-title">Give Back</span>
-      </div>
-      <label class="give-back-row" for="roundUpToggle">
-        <div class="give-back-row-info">
-          <span class="give-back-row-label">Round up for period poverty</span>
-          <span class="give-back-row-sub" id="roundUpAmt">+$0.01</span>
-        </div>
-        <div class="give-back-toggle-wrap">
-          <input type="checkbox" id="roundUpToggle" class="give-back-chk">
-          <span class="give-back-pill"></span>
-        </div>
-      </label>
-      <label class="give-back-row" for="donateKitToggle">
-        <div class="give-back-row-info">
-          <span class="give-back-row-label">Donate a kit to a Cleveland school</span>
-          <span class="give-back-row-sub">+$14.99</span>
-        </div>
-        <div class="give-back-toggle-wrap">
-          <input type="checkbox" id="donateKitToggle" class="give-back-chk">
-          <span class="give-back-pill"></span>
-        </div>
-      </label>
+      <div class="give-back-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="#A855F7" stroke="none"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="give-back-title">Give Back</span></div>
+      <label class="give-back-row" for="roundUpToggle"><div class="give-back-row-info"><span class="give-back-row-label">Round up for period poverty</span><span class="give-back-row-sub" id="roundUpAmt">+$0.01</span></div><div class="give-back-toggle-wrap"><input type="checkbox" id="roundUpToggle" class="give-back-chk"><span class="give-back-pill"></span></div></label>
+      <label class="give-back-row" for="donateKitToggle"><div class="give-back-row-info"><span class="give-back-row-label">Donate a kit to a Cleveland school</span><span class="give-back-row-sub">+$14.99</span></div><div class="give-back-toggle-wrap"><input type="checkbox" id="donateKitToggle" class="give-back-chk"><span class="give-back-pill"></span></div></label>
     </div>
-
-    <!-- Express Checkout -->
     <div class="express-checkout">
       <button class="pay-btn apple-pay-btn" id="applePayBtn" aria-label="Pay with Apple Pay">
-        <svg viewBox="0 0 38 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M7.234 2.235c-.4.474-1.04.847-1.68.795-.08-.64.234-1.32.6-1.74.4-.487 1.1-.833 1.667-.86.066.666-.194 1.32-.587 1.805zm.58.92c-.927-.053-1.72.527-2.16.527-.447 0-1.12-.5-1.854-.487-. 954.013-1.84.554-2.327 1.407-1 1.72-.52 3.667.534 5.134.514.74 1.087 1.527 1.834 1.514.72-.014 1-.467 1.874-.467.867 0 1.12.467 1.88.453.774-.013 1.267-.773 1.774-1.52.547-.853.773-1.68.787-1.72-.02-.014-1.507-.587-1.52-2.32-.014-1.454 1.187-2.147 1.24-2.187-.68-1-1.72-1.107-2.087-1.12-.947-.067-1.747.527-2.24.527z"/>
-          <path d="M17.5 1.18h-1.834l-.013 9.587h1.193V7.421h1.654c1.513 0 2.573-1.04 2.573-2.627 0-1.587-1.04-2.613-2.573-2.613zm.3 4.12h-1.374V2.261h1.374c1.013 0 1.587.547 1.587 1.52 0 .974-.574 1.52-1.587 1.52zM23.867 10.848c.747 0 1.44-.38 1.754-.98h.026v.92h1.1V6.54c0-1.107-.886-1.82-2.247-1.82-1.267 0-2.2.72-2.234 1.707h1.074c.093-.467.52-.774 1.12-.774.72 0 1.12.334 1.12.947v.414l-1.467.087c-1.36.08-2.094.64-2.094 1.607 0 .974.76 1.64 1.847 1.64zm.32-.88c-.627 0-1.027-.3-1.027-.76 0-.474.387-.747 1.127-.794l1.307-.08v.42c0 .714-.627 1.214-1.407 1.214zM27.867 13.474c1.167 0 1.714-.447 2.194-1.8l2.1-5.9h-1.207l-1.407 4.567h-.027l-1.407-4.567H26.9l2.034 5.627-.114.354c-.187.594-.487.82-1.027.82-.1 0-.287-.013-.367-.026v.94c.08.013.327.027.44.027z"/>
-        </svg>
+        <svg viewBox="0 0 38 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.234 2.235c-.4.474-1.04.847-1.68.795-.08-.64.234-1.32.6-1.74.4-.487 1.1-.833 1.667-.86.066.666-.194 1.32-.587 1.805zm.58.92c-.927-.053-1.72.527-2.16.527-.447 0-1.12-.5-1.854-.487-.954.013-1.84.554-2.327 1.407-1 1.72-.52 3.667.534 5.134.514.74 1.087 1.527 1.834 1.514.72-.014 1-.467 1.874-.467.867 0 1.12.467 1.88.453.774-.013 1.267-.773 1.774-1.52.547-.853.773-1.68.787-1.72-.02-.014-1.507-.587-1.52-2.32-.014-1.454 1.187-2.147 1.24-2.187-.68-1-1.72-1.107-2.087-1.12-.947-.067-1.747.527-2.24.527z"/><path d="M17.5 1.18h-1.834l-.013 9.587h1.193V7.421h1.654c1.513 0 2.573-1.04 2.573-2.627 0-1.587-1.04-2.613-2.573-2.613zm.3 4.12h-1.374V2.261h1.374c1.013 0 1.587.547 1.587 1.52 0 .974-.574 1.52-1.587 1.52zM23.867 10.848c.747 0 1.44-.38 1.754-.98h.026v.92h1.1V6.54c0-1.107-.886-1.82-2.247-1.82-1.267 0-2.2.72-2.234 1.707h1.074c.093-.467.52-.774 1.12-.774.72 0 1.12.334 1.12.947v.414l-1.467.087c-1.36.08-2.094.64-2.094 1.607 0 .974.76 1.64 1.847 1.64zm.32-.88c-.627 0-1.027-.3-1.027-.76 0-.474.387-.747 1.127-.794l1.307-.08v.42c0 .714-.627 1.214-1.407 1.214zM27.867 13.474c1.167 0 1.714-.447 2.194-1.8l2.1-5.9h-1.207l-1.407 4.567h-.027l-1.407-4.567H26.9l2.034 5.627-.114.354c-.187.594-.487.82-1.027.82-.1 0-.287-.013-.367-.026v.94c.08.013.327.027.44.027z"/></svg>
         Apple Pay
       </button>
       <button class="pay-btn google-pay-btn" id="googlePayBtn" aria-label="Pay with Google Pay">
-        <svg viewBox="0 0 41 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M19.526 8.3v2.9h-.92V4.4h2.44c.62 0 1.14.2 1.56.6.43.4.64.89.64 1.46 0 .58-.21 1.07-.64 1.47-.42.39-.94.59-1.56.59h-1.52zm0-.77h1.52c.36 0 .66-.12.9-.36.24-.24.36-.54.36-.9 0-.35-.12-.65-.36-.88-.24-.24-.54-.36-.9-.36h-1.52v2.5zM24.507 6.4c.67 0 1.2.18 1.59.54.39.36.58.85.58 1.47v2.99h-.88v-.67h-.04c-.37.55-.87.82-1.48.82-.53 0-.97-.16-1.33-.47-.36-.31-.54-.7-.54-1.17 0-.5.19-.89.56-1.18.37-.29.87-.44 1.48-.44.52 0 .95.1 1.29.29v-.2c0-.31-.12-.57-.37-.79-.25-.22-.54-.32-.88-.32-.5 0-.9.21-1.19.63l-.81-.51c.44-.63 1.1-.95 1.96-.95zm-1.18 3.52c0 .23.1.43.3.58.2.15.43.23.69.23.38 0 .71-.14.99-.42.28-.28.42-.61.42-.98-.26-.21-.63-.31-1.09-.31-.34 0-.62.08-.85.25-.23.17-.46.39-.46.65zM30.987 6.55l-3.07 7.06h-.92l1.14-2.47-2.02-4.59h.97l1.45 3.51h.02l1.41-3.51h.02z" fill="#3C4043"/>
-          <path d="M14.8 8.05c0-.27-.02-.53-.07-.77H9.78v1.46h2.82c-.12.65-.49 1.2-1.04 1.57v1.3h1.68c.98-.9 1.55-2.23 1.55-3.56z" fill="#4285F4"/>
-          <path d="M9.78 12.7c1.41 0 2.6-.47 3.46-1.27l-1.68-1.3c-.47.31-1.07.5-1.78.5-1.37 0-2.53-.93-2.95-2.17H5.09v1.34C5.95 11.7 7.75 12.7 9.78 12.7z" fill="#34A853"/>
-          <path d="M6.83 8.46c-.1-.31-.16-.64-.16-.98 0-.34.06-.67.16-.98V5.16H5.09A4.83 4.83 0 004.57 7.48c0 .78.18 1.52.52 2.17l1.74-1.19z" fill="#FBBC05"/>
-          <path d="M9.78 5.33c.77 0 1.46.26 2 .78l1.5-1.5C12.37 3.73 11.18 3.26 9.78 3.26c-2.03 0-3.83 1-4.69 2.47l1.74 1.35c.42-1.25 1.58-1.75 2.95-1.75z" fill="#EA4335"/>
-        </svg>
+        <svg viewBox="0 0 41 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.526 8.3v2.9h-.92V4.4h2.44c.62 0 1.14.2 1.56.6.43.4.64.89.64 1.46 0 .58-.21 1.07-.64 1.47-.42.39-.94.59-1.56.59h-1.52zm0-.77h1.52c.36 0 .66-.12.9-.36.24-.24.36-.54.36-.9 0-.35-.12-.65-.36-.88-.24-.24-.54-.36-.9-.36h-1.52v2.5zM24.507 6.4c.67 0 1.2.18 1.59.54.39.36.58.85.58 1.47v2.99h-.88v-.67h-.04c-.37.55-.87.82-1.48.82-.53 0-.97-.16-1.33-.47-.36-.31-.54-.7-.54-1.17 0-.5.19-.89.56-1.18.37-.29.87-.44 1.48-.44.52 0 .95.1 1.29.29v-.2c0-.31-.12-.57-.37-.79-.25-.22-.54-.32-.88-.32-.5 0-.9.21-1.19.63l-.81-.51c.44-.63 1.1-.95 1.96-.95zm-1.18 3.52c0 .23.1.43.3.58.2.15.43.23.69.23.38 0 .71-.14.99-.42.28-.28.42-.61.42-.98-.26-.21-.63-.31-1.09-.31-.34 0-.62.08-.85.25-.23.17-.46.39-.46.65zM30.987 6.55l-3.07 7.06h-.92l1.14-2.47-2.02-4.59h.97l1.45 3.51h.02l1.41-3.51h.02z" fill="#3C4043"/><path d="M14.8 8.05c0-.27-.02-.53-.07-.77H9.78v1.46h2.82c-.12.65-.49 1.2-1.04 1.57v1.3h1.68c.98-.9 1.55-2.23 1.55-3.56z" fill="#4285F4"/><path d="M9.78 12.7c1.41 0 2.6-.47 3.46-1.27l-1.68-1.3c-.47.31-1.07.5-1.78.5-1.37 0-2.53-.93-2.95-2.17H5.09v1.34C5.95 11.7 7.75 12.7 9.78 12.7z" fill="#34A853"/><path d="M6.83 8.46c-.1-.31-.16-.64-.16-.98 0-.34.06-.67.16-.98V5.16H5.09A4.83 4.83 0 004.57 7.48c0 .78.18 1.52.52 2.17l1.74-1.19z" fill="#FBBC05"/><path d="M9.78 5.33c.77 0 1.46.26 2 .78l1.5-1.5C12.37 3.73 11.18 3.26 9.78 3.26c-2.03 0-3.83 1-4.69 2.47l1.74 1.35c.42-1.25 1.58-1.75 2.95-1.75z" fill="#EA4335"/></svg>
         Google Pay
       </button>
     </div>
-
     <div class="pay-divider"><span>or</span></div>
-
-    <button class="checkout-btn" id="checkoutBtn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-      Place Order
-    </button>
-    <div class="stripe-badge">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      Secured by Stripe
-    </div>
+    <button class="checkout-btn" id="checkoutBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Place Order</button>
+    <div class="stripe-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Secured by Stripe</div>
   </div>
 </aside>
 
-<!-- ===== ORDER SUCCESS MODAL ===== -->
 <div class="success-modal" id="orderSuccess" role="dialog" aria-modal="true" aria-label="Order placed">
   <div class="success-card">
-    <div class="success-icon">✅</div>
-    <div class="success-eta">🛵 Arriving in 30–45 minutes</div>
+    <div class="success-icon">&#x2705;</div>
+    <div class="success-eta">&#x1F6F5; Arriving in 30&ndash;45 minutes</div>
     <div class="success-title">Order Placed!</div>
     <p class="success-sub">Your order is being picked up from our supplier partner and is on its way to you. Sit tight!</p>
-    <button class="success-btn" id="orderSuccessClose">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      Back to Home
-    </button>
-
-    <!-- Emoji review prompt -->
+    <button class="success-btn" id="orderSuccessClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Back to Home</button>
     <div class="review-prompt" id="reviewPrompt">
       <div class="review-prompt-divider"></div>
       <p class="review-prompt-q">How are you feeling about us?</p>
       <div class="review-emoji-row" id="reviewEmojiRow">
         <button class="review-emoji-btn" data-emoji="&#x1F60D;" data-label="Love it!" aria-label="Love it">&#x1F60D;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F60A;" data-label="Good"     aria-label="Good">&#x1F60A;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F610;" data-label="Okay"     aria-label="Okay">&#x1F610;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F615;" data-label="Meh"      aria-label="Meh">&#x1F615;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F60A;" data-label="Good" aria-label="Good">&#x1F60A;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F610;" data-label="Okay" aria-label="Okay">&#x1F610;</button>
+        <button class="review-emoji-btn" data-emoji="&#x1F615;" data-label="Meh" aria-label="Meh">&#x1F615;</button>
         <button class="review-emoji-btn" data-emoji="&#x1F44E;" data-label="Not great" aria-label="Not great">&#x1F44E;</button>
       </div>
-
-      <!-- Text feedback — adult & holistic only, slides in after emoji tap -->
       <div class="review-text-box" id="reviewTextBox" style="display:none" aria-live="polite">
         <label class="review-text-label" for="reviewTextInput">Tell us more <span class="review-optional">(optional)</span></label>
-        <textarea id="reviewTextInput" class="review-textarea"
-          rows="3" maxlength="400"
-          placeholder="What did you love? What could be better?"
-          aria-label="Write your feedback (optional)"></textarea>
-        <div class="review-text-actions">
-          <button class="review-submit-btn" id="reviewSubmitBtn">Submit</button>
-          <button class="review-skip-btn"  id="reviewSkipBtn">Skip</button>
-        </div>
+        <textarea id="reviewTextInput" class="review-textarea" rows="3" maxlength="400" placeholder="What did you love? What could be better?" aria-label="Write your feedback (optional)"></textarea>
+        <div class="review-text-actions"><button class="review-submit-btn" id="reviewSubmitBtn">Submit</button><button class="review-skip-btn" id="reviewSkipBtn">Skip</button></div>
       </div>
-
-      <div class="review-thanks" id="reviewThanks" style="display:none">
-        <span class="review-thanks-emoji" id="reviewThanksEmoji"></span>
-        <span class="review-thanks-text">Thanks for the feedback!</span>
-      </div>
+      <div class="review-thanks" id="reviewThanks" style="display:none"><span class="review-thanks-emoji" id="reviewThanksEmoji"></span><span class="review-thanks-text">Thanks for the feedback!</span></div>
     </div>
-
-    <!-- Monthly upsell — shown after any order -->
     <div class="monthly-upsell" id="monthlyUpsell">
       <div class="upsell-divider"></div>
-      <p class="upsell-question">Make this a monthly delivery? 👑</p>
-      <p class="upsell-sub">Never run out again. We’ll send your essentials every month — cancel anytime.</p>
-      <div class="upsell-btns">
-        <button class="upsell-yes" id="upsellYes">Yes, set it up ✨</button>
-        <button class="upsell-no" id="upsellNo">Not right now</button>
-      </div>
+      <p class="upsell-question">Make this a monthly delivery? &#x1F451;</p>
+      <p class="upsell-sub">Never run out again. We'll send your essentials every month &mdash; cancel anytime.</p>
+      <div class="upsell-btns"><button class="upsell-yes" id="upsellYes">Yes, set it up &#x2728;</button><button class="upsell-no" id="upsellNo">Not right now</button></div>
     </div>
   </div>
 </div>
 
-<!-- ===== SUBSCRIBE SUCCESS MODAL ===== -->
 <div class="success-modal" id="subscribeSuccess" role="dialog" aria-modal="true" aria-label="Subscription confirmed">
   <div class="success-card">
-    <div class="success-icon">👑</div>
+    <div class="success-icon">&#x1F451;</div>
     <div class="success-eta" id="subscribeSuccessEta"></div>
     <div class="success-title">You're Subscribed!</div>
     <p class="success-sub" id="subscribeSuccessSub">Your first care package is on its way. You'll receive a confirmation with your delivery date shortly.</p>
-    <button class="success-btn" id="subscribeSuccessClose">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      Back to Home
-    </button>
-    <!-- Cancel / Manage — FTC one-tap cancel requirement -->
-    <div class="manage-sub-row">
-      <span class="manage-sub-hint">Need to change your mind?</span>
-      <button class="manage-sub-link" id="manageSubBtn">Manage or cancel subscription</button>
-    </div>
+    <button class="success-btn" id="subscribeSuccessClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Back to Home</button>
+    <div class="manage-sub-row"><span class="manage-sub-hint">Need to change your mind?</span><button class="manage-sub-link" id="manageSubBtn">Manage or cancel subscription</button></div>
   </div>
 </div>
 
-<!-- ===== ADDRESS MODAL ===== -->
+<!-- ADDRESS MODAL — enhanced with saved addresses + location -->
 <div class="overlay" id="addressOverlay" role="presentation" aria-hidden="true"></div>
 <div class="modal" id="addressModal" role="dialog" aria-modal="true" aria-label="Set delivery address" style="padding:var(--sp-6)">
   <div class="modal-drag-handle" aria-hidden="true"></div>
   <div style="padding:var(--sp-2) var(--sp-5) var(--sp-8)">
     <h2 style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:600;margin-bottom:var(--sp-2)">Delivery Address</h2>
-    <p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-5)">Enter your address so we can connect you with the nearest supplier partner.</p>
-    <input id="addressInput" type="text" placeholder="123 Main St, Cleveland, OH…" style="width:100%;height:48px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-4)"/>
+    <p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-3)">Choose a saved address or enter a new one.</p>
+    <select id="savedAddressSelect" style="width:100%;height:44px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-3);color:var(--text-primary);">
+      <option value="">-- Choose saved address --</option>
+    </select>
+    <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Save as:</div>
+    <div id="addressLabelBtns" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;"></div>
+    <input id="addressLabelCustom" type="text" placeholder="Custom label (e.g. Aunt's House)" style="display:none;width:100%;height:40px;padding:0 var(--sp-3);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:0.75rem;"/>
+    <button id="useLocationBtn" onclick="autoPopulateLocation()" style="width:100%;height:44px;background:var(--surface-2);color:var(--text-primary);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:var(--text-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);margin-bottom:var(--sp-3);cursor:pointer;">&#x1F4CD; Use My Location</button>
+    <input id="addressInput" type="text" placeholder="123 Main St, Cleveland, OH&hellip;" style="width:100%;height:48px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-4)"/>
     <button id="addressSave" style="width:100%;height:48px;background:var(--accent);color:white;border-radius:var(--r-full);font-size:var(--text-sm);font-weight:700;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Save Address
@@ -1182,162 +627,90 @@
   </div>
 </div>
 
-<!-- ===== TOAST ===== -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ===== VERSION PICKER (First Launch) ===== -->
-<!-- ===================================================
-     NEWSLETTER MODAL
-     =================================================== -->
+<!-- NEWSLETTER MODAL -->
 <div class="nl-modal" id="newsletterModal" role="dialog" aria-modal="true" aria-label="Subscribe to newsletter" style="display:none">
   <div class="nl-modal-inner">
-
-    <button class="nl-close-btn" id="nlCloseBtn" aria-label="Close newsletter">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-
-    <div class="nl-brand-mark" aria-hidden="true">
-      <img class="nl-crown" src="crown.png" alt="" aria-hidden="true">
-      <span class="nl-dot">.</span>
-    </div>
-
-    <!-- Main content (shown before subscribe) -->
+    <button class="nl-close-btn" id="nlCloseBtn" aria-label="Close newsletter"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="nl-brand-mark" aria-hidden="true"><img class="nl-crown" src="crown.png" alt="" aria-hidden="true"><span class="nl-dot">.</span></div>
     <div id="nlFormState">
       <h2 class="nl-title" id="nlTitle">know your cycle.<br>own your health.</h2>
-      <p class="nl-eyebrow" id="nlEyebrow">monthly education · free · tailored to you</p>
-
-      <!-- Rotating fact teaser -->
-      <div class="nl-fact-card" id="nlFactCard">
-        <span class="nl-fact-icon" id="nlFactIcon">🧠</span>
-        <p class="nl-fact-text" id="nlFactText">Loading this week’s fact…</p>
-      </div>
-
-      <!-- Perks list -->
+      <p class="nl-eyebrow" id="nlEyebrow">monthly education &middot; free &middot; tailored to you</p>
+      <div class="nl-fact-card" id="nlFactCard"><span class="nl-fact-icon" id="nlFactIcon">&#x1F9E0;</span><p class="nl-fact-text" id="nlFactText">Loading this week's fact&hellip;</p></div>
       <ul class="nl-perks">
-        <li><span>📊</span><div><strong>Free period tracker</strong><br>Track your cycle, predict your phases, get wellness tips.</div></li>
-        <li><span id="nlPerkIcon">🧠</span><div><strong id="nlPerkTitle">Monthly cycle facts</strong><br>Physical · mental · emotional — tailored to your stage.</div></li>
-        <li><span>🔥</span><div><strong>Trending finds</strong><br>What’s working right now in cycle wellness.</div></li>
-        <li><span>💅</span><div><strong>Your journey, your content</strong><br>We personalize based on where you are in life.</div></li>
+        <li><span>&#x1F4CA;</span><div><strong>Free period tracker</strong><br>Track your cycle, predict your phases, get wellness tips.</div></li>
+        <li><span id="nlPerkIcon">&#x1F9E0;</span><div><strong id="nlPerkTitle">Monthly cycle facts</strong><br>Physical &middot; mental &middot; emotional &mdash; tailored to your stage.</div></li>
+        <li><span>&#x1F525;</span><div><strong>Trending finds</strong><br>What's working right now in cycle wellness.</div></li>
+        <li><span>&#x1F485;</span><div><strong>Your journey, your content</strong><br>We personalize based on where you are in life.</div></li>
       </ul>
-
-      <!-- Life stage selector -->
       <div class="nl-stage-label">Who is this for?</div>
       <div class="nl-stage-row" id="nlStageRow" role="group" aria-label="Your life stage">
-        <button class="nl-stage-btn" data-stage="teen" type="button">Teen 🌸</button>
-        <button class="nl-stage-btn" data-stage="young" type="button">Young Adult</button>
-        <button class="nl-stage-btn" data-stage="adult" type="button">Adult 👑</button>
-        <button class="nl-stage-btn" data-stage="peri" type="button">40+ 🌙</button>
+        <button class="nl-stage-btn" data-stage="teen" type="button">Teen &#x1F338;</button>
+        <button class="nl-stage-btn" data-stage="young" type="button">Young Adult &#x1F31F;</button>
+        <button class="nl-stage-btn" data-stage="adult" type="button">Adult &#x1F451;</button>
+        <button class="nl-stage-btn" data-stage="peri" type="button">40+ &#x1F33A;</button>
       </div>
-
-      <!-- Email input -->
       <div class="nl-input-row">
         <input type="email" id="nlEmailInput" placeholder="your@email.com" autocomplete="email" aria-label="Email address"/>
-        <button class="nl-submit-btn" id="nlSubmitBtn" type="button" aria-label="Subscribe">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <button class="nl-submit-btn" id="nlSubmitBtn" type="button" aria-label="Subscribe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </div>
-
       <p class="nl-privacy">We respect your privacy. Unsubscribe any time. No spam, ever.</p>
     </div>
-
-    <!-- Success state (shown after subscribe) -->
     <div id="nlSuccessState" style="display:none" class="nl-success">
-      <div class="nl-success-icon">👑</div>
-      <h3 class="nl-success-h3">You’re in!</h3>
+      <div class="nl-success-icon">&#x1F451;</div>
+      <h3 class="nl-success-h3">You're in!</h3>
       <p class="nl-success-p" id="nlSuccessMsg">Your period tracker is now unlocked. Welcome to the community.</p>
-      <button class="nl-open-tracker" id="nlOpenTracker" type="button">Open My Tracker →</button>
+      <button class="nl-open-tracker" id="nlOpenTracker" type="button">Open My Tracker &rarr;</button>
     </div>
-
   </div>
 </div>
 
-
-<!-- ===================================================
-     TRACKER VIEW
-     =================================================== -->
+<!-- TRACKER VIEW -->
 <div class="view" id="trackerView">
-
   <nav class="back-bar" aria-label="Navigation">
     <button class="back-btn tracker-back-btn" id="trackerBack" aria-label="Back to home">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Back
     </button>
     <div class="back-bar-title">My Tracker</div>
-    <div class="back-bar-spacer"></div>
+    <button id="trackerMaybeLater" style="font-size:0.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0.25rem 0.75rem;border-radius:8px;white-space:nowrap;" onclick="navigate('home')">maybe later</button>
   </nav>
-
-  <!-- Phase card -->
   <div class="tracker-phase-card" id="trackerPhaseCard">
-    <div class="tpc-row">
-      <span class="tpc-emoji" id="tpcEmoji">🌸</span>
-      <div>
-        <div class="tpc-phase" id="tpcPhase">Log a period to begin</div>
-        <div class="tpc-day" id="tpcDay">Tap a date below to start tracking</div>
-      </div>
-    </div>
+    <div class="tpc-row"><span class="tpc-emoji" id="tpcEmoji">&#x1F338;</span><div><div class="tpc-phase" id="tpcPhase">Log a period to begin</div><div class="tpc-day" id="tpcDay">Tap a date below to start tracking</div></div></div>
     <div class="tpc-next" id="tpcNext"></div>
     <div class="tpc-tip" id="tpcTip"></div>
   </div>
-
-  <!-- Calendar navigation -->
   <div class="tracker-nav">
-    <button class="tracker-nav-btn" id="trackerPrev" aria-label="Previous month">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
+    <button class="tracker-nav-btn" id="trackerPrev" aria-label="Previous month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div class="tracker-month-label" id="trackerMonthLabel">April 2026</div>
-    <button class="tracker-nav-btn" id="trackerNext" aria-label="Next month">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
+    <button class="tracker-nav-btn" id="trackerNext" aria-label="Next month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
   </div>
-
-  <!-- Day-of-week header -->
-  <div class="tracker-dow-row" aria-hidden="true">
-    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-  </div>
-
-  <!-- Calendar grid -->
+  <div class="tracker-dow-row" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
   <div class="tracker-cal-grid" id="trackerCalGrid" role="grid" aria-label="Period calendar"></div>
-
-  <!-- 5-Second Tutorial Overlay (first-time only) -->
   <div class="tracker-tutorial hidden" id="trackerTutorial" role="dialog" aria-modal="true" aria-label="How to use your tracker">
     <div class="tut-card" id="tutCard">
       <div class="tut-progress-bar"><div class="tut-progress-fill" id="tutProgressFill"></div></div>
-      <span class="tut-step-emoji" id="tutEmoji" aria-hidden="true">📅</span>
+      <span class="tut-step-emoji" id="tutEmoji" aria-hidden="true">&#x1F4C5;</span>
       <h3 class="tut-title" id="tutTitle">Tap a date</h3>
-      <p class="tut-desc" id="tutDesc">Tap any date on the calendar to log when your period starts. That’s it — we do the rest!</p>
-      <div class="tut-dots" aria-hidden="true">
-        <span class="tut-dot active"></span>
-        <span class="tut-dot"></span>
-        <span class="tut-dot"></span>
-        <span class="tut-dot"></span>
-      </div>
+      <p class="tut-desc" id="tutDesc">Tap any date on the calendar to log when your period starts. That's it &mdash; we do the rest!</p>
+      <div class="tut-dots" aria-hidden="true"><span class="tut-dot active"></span><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div>
       <p class="tut-tap-hint">Tap to continue</p>
       <button class="tut-skip-btn" id="tutSkipBtn" type="button">Skip tutorial</button>
     </div>
   </div>
-
-  <!-- Legend -->
   <div class="tracker-legend">
     <div class="tleg-item"><span class="tleg-dot tleg-logged"></span> Period</div>
     <div class="tleg-item"><span class="tleg-dot tleg-predicted"></span> Predicted</div>
     <div class="tleg-item"><span class="tleg-dot tleg-ovulation"></span> Ovulation</div>
     <div class="tleg-item"><span class="tleg-dot tleg-today"></span> Today</div>
   </div>
-
-  <!-- Reminder section -->
   <div class="reminder-section" id="reminderSection">
-    <div class="rem-header">
-      <div class="rem-title">🔔 Period Reminders</div>
-      <div class="rem-sub">Get notified before your period arrives — never get caught off guard.</div>
-    </div>
-
-    <!-- Tab row -->
+    <div class="rem-header"><div class="rem-title">&#x1F514; Period Reminders</div><div class="rem-sub">Get notified before your period arrives &mdash; never get caught off guard.</div></div>
     <div class="rem-tabs" role="tablist">
-      <button class="rem-tab active" id="remTabBrowser" role="tab" aria-selected="true">📱 Push Notification</button>
-      <button class="rem-tab" id="remTabSms" role="tab" aria-selected="false">💬 Text Message</button>
+      <button class="rem-tab active" id="remTabBrowser" role="tab" aria-selected="true">&#x1F4F1; Push Notification</button>
+      <button class="rem-tab" id="remTabSms" role="tab" aria-selected="false">&#x1F4AC; Text Message</button>
     </div>
-
-    <!-- Browser panel -->
     <div class="rem-panel" id="remPanelBrowser">
       <p class="rem-panel-desc">Get a push notification on this device. Works in your browser or as a home-screen app.</p>
       <div class="rem-days-label">Remind me this many days before:</div>
@@ -1347,14 +720,9 @@
         <button class="rem-days-btn" data-days="5" type="button">5 days</button>
         <button class="rem-days-btn" data-days="7" type="button">1 week</button>
       </div>
-      <button class="rem-enable-btn" id="remEnableBrowser" type="button">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        Enable Reminders
-      </button>
+      <button class="rem-enable-btn" id="remEnableBrowser" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Enable Reminders</button>
       <div class="rem-status" id="remBrowserStatus" style="display:none"></div>
     </div>
-
-    <!-- SMS panel -->
     <div class="rem-panel" id="remPanelSms" style="display:none">
       <p class="rem-panel-desc">Enter your mobile number to receive a text message reminder before your predicted period.</p>
       <div class="rem-days-label">Remind me this many days before:</div>
@@ -1366,319 +734,169 @@
       </div>
       <div class="rem-input-row">
         <input type="tel" id="remSmsInput" placeholder="+1 (555) 000-0000" autocomplete="tel" aria-label="Mobile phone number"/>
-        <button class="rem-save-btn" id="remSaveSms" type="button">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Save
-        </button>
+        <button class="rem-save-btn" id="remSaveSms" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Save</button>
       </div>
-      <div class="rem-sms-note">📲 SMS requires an active connection. Standard messaging rates may apply.</div>
+      <div class="rem-sms-note">&#x1F4F2; SMS requires an active connection. Standard messaging rates may apply.</div>
       <div class="rem-status" id="remSmsStatus" style="display:none"></div>
     </div>
   </div>
-<!-- Seed section — shown only if no cycles logged yet -->
   <div id="trackerSeedSection" style="display:none" class="tracker-seed-section">
-    <div class="seed-title">📅 Have a recent period date?</div>
-    <p class="seed-sub">Optional — helps us predict your next cycle right away.</p>
-    <div class="seed-row">
-      <input type="date" id="seedDateInput" class="seed-input" aria-label="Last period start date"/>
-      <button class="seed-btn" id="seedDateBtn">Use this date</button>
-    </div>
+    <div class="seed-title">&#x1F4C5; Have a recent period date?</div>
+    <p class="seed-sub">Optional &mdash; helps us predict your next cycle right away.</p>
+    <div class="seed-row"><input type="date" id="seedDateInput" class="seed-input" aria-label="Last period start date"/><button class="seed-btn" id="seedDateBtn">Use this date</button></div>
   </div>
-
-  <!-- Symptom log section -->
   <div id="symptomLogSection" class="symptom-log-section"></div>
-  <!-- Log buttons -->
   <div class="tracker-log-row">
-    <button class="tracker-log-btn tracker-log-start" id="logStart" type="button">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      Log Period Start
-    </button>
-    <button class="tracker-log-btn tracker-log-end" id="logEnd" type="button">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Log Period End
-    </button>
+    <button class="tracker-log-btn tracker-log-start" id="logStart" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Log Period Start</button>
+    <button class="tracker-log-btn tracker-log-end" id="logEnd" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Log Period End</button>
   </div>
-
-  <!-- Stats row -->
   <div class="tracker-stats-row" id="trackerStats">
-    <div class="tstat">
-      <div class="tstat-val" id="tstatAvg">—</div>
-      <div class="tstat-label">Avg Cycle</div>
-    </div>
-    <div class="tstat">
-      <div class="tstat-val" id="tstatCount">—</div>
-      <div class="tstat-label">Cycles Tracked</div>
-    </div>
-    <div class="tstat">
-      <div class="tstat-val" id="tstatDuration">—</div>
-      <div class="tstat-label">Avg Duration</div>
-    </div>
+    <div class="tstat"><div class="tstat-val" id="tstatAvg">&mdash;</div><div class="tstat-label">Avg Cycle</div></div>
+    <div class="tstat"><div class="tstat-val" id="tstatCount">&mdash;</div><div class="tstat-label">Cycles Tracked</div></div>
+    <div class="tstat"><div class="tstat-val" id="tstatDuration">&mdash;</div><div class="tstat-label">Avg Duration</div></div>
   </div>
-
-  <!-- Educational fact (phase-based) -->
   <div class="tracker-edu-card" id="trackerEduCard" style="display:none">
-    <div class="tec-eyebrow">🧠 did you know?</div>
+    <div class="tec-eyebrow">&#x1F9E0; did you know?</div>
     <p class="tec-text" id="tecText"></p>
-    <a class="tec-link" href="#" id="tecLink">Learn more in your next newsletter →</a>
+    <a class="tec-link" href="#" id="tecLink">Learn more in your next newsletter &rarr;</a>
   </div>
+</div>
 
-</div><!-- /trackerView -->
-
-<!-- ===== COMMUNITY VIEW ===== -->
+<!-- COMMUNITY VIEW -->
 <div class="view" id="communityView">
-
-  <!-- Greeting bar -->
-  <div class="comm-greeting" id="commGreeting">
-    <div class="comm-greeting-inner">
-      <p class="comm-greeting-text" id="commGreetingText">Welcome to the community. 💜</p>
-    </div>
-  </div>
-
-  <!-- Topic grid header -->
-  <div class="comm-header">
-    <h2 class="comm-title">Our Community</h2>
-    <p class="comm-subtitle">A space to connect, share, and support each other.</p>
-    <p class="comm-phase-note">Posts are private to your device right now — real-time community is coming soon. 💜</p>
-  </div>
-
-  <!-- Topic cards -->
-  <div class="comm-topics" id="commTopics">
-    <div class="comm-topic-grid" id="commTopicGrid"><!-- filled by JS --></div>
-  </div>
-
-  <!-- Thread view (shown when topic opened) -->
+  <div class="comm-greeting" id="commGreeting"><div class="comm-greeting-inner"><p class="comm-greeting-text" id="commGreetingText">Welcome to the community. &#x1F49C;</p></div></div>
+  <div class="comm-header"><h2 class="comm-title">Our Community</h2><p class="comm-subtitle">A space to connect, share, and support each other.</p><p class="comm-phase-note">Posts are private to your device right now &mdash; real-time community is coming soon. &#x1F49C;</p></div>
+  <div class="comm-topics" id="commTopics"><div class="comm-topic-grid" id="commTopicGrid"></div></div>
   <div class="comm-thread" id="commThread" style="display:none">
-    <div class="comm-thread-topbar">
-      <button class="comm-back-btn" id="commBackBtn" aria-label="Back to topics">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        Topics
-      </button>
-      <span class="comm-thread-header" id="commThreadHeader"></span>
-    </div>
+    <div class="comm-thread-topbar"><button class="comm-back-btn" id="commBackBtn" aria-label="Back to topics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Topics</button><span class="comm-thread-header" id="commThreadHeader"></span></div>
     <div class="comm-posts" id="commPosts"></div>
     <div class="comm-compose">
       <textarea class="comm-input" id="commInput" placeholder="Share something with the community... (Enter to post)" rows="2" maxlength="500"></textarea>
-      <button class="comm-post-btn" id="commPostBtn" aria-label="Post">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
-  </div>
-
-</div><!-- /communityView -->
-
-<!-- ===== WHY PERIOD MODAL ===== -->
-<div class="why-overlay" id="whyOverlay" aria-hidden="true" style="display:none"></div>
-<div class="why-modal" id="whyModal" role="dialog" aria-modal="true" aria-label="Why Period.?" style="display:none">
-  <div class="why-modal-header">
-    <div class="why-modal-logo" aria-hidden="true">
-      <img src="crown.png" alt="" aria-hidden="true" style="width:28px;height:auto;">
-      <span class="why-modal-dot">.</span>
-    </div>
-    <button class="why-close-btn" id="whyCloseBtn" aria-label="Close">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="why-modal-body">
-    <h2 class="why-headline" id="whyHeadline"></h2>
-    <p class="why-tagline2" id="whyTagline2"></p>
-    <div class="why-cards" id="whyCards"></div>
-    <div class="why-cta-block">
-      <button class="why-shop-btn" id="whyShopBtn">Shop Now</button>
-      <p class="why-footer-sub" id="whyFooterSub"></p>
+      <button class="comm-post-btn" id="commPostBtn" aria-label="Post"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
   </div>
 </div>
 
-<!-- ===== NICKNAME SETUP MODAL ===== -->
+<div class="why-overlay" id="whyOverlay" aria-hidden="true" style="display:none"></div>
+<div class="why-modal" id="whyModal" role="dialog" aria-modal="true" aria-label="Why Period.?" style="display:none">
+  <div class="why-modal-header"><div class="why-modal-logo" aria-hidden="true"><img src="crown.png" alt="" aria-hidden="true" style="width:28px;height:auto;"><span class="why-modal-dot">.</span></div><button class="why-close-btn" id="whyCloseBtn" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="why-modal-body"><h2 class="why-headline" id="whyHeadline"></h2><p class="why-tagline2" id="whyTagline2"></p><div class="why-cards" id="whyCards"></div><div class="why-cta-block"><button class="why-shop-btn" id="whyShopBtn">Shop Now</button><p class="why-footer-sub" id="whyFooterSub"></p></div></div>
+</div>
+
 <div class="nickname-overlay" id="nicknameOverlay" style="display:none"></div>
 <div class="nickname-modal" id="nicknameModal" role="dialog" aria-modal="true" aria-label="Set your name" style="display:none">
   <div class="nickname-inner">
-    <div class="nickname-crown" aria-hidden="true">👑</div>
+    <div class="nickname-crown" aria-hidden="true">&#x1F451;</div>
     <h2 class="nickname-title">Welcome to the community</h2>
-    <p class="nickname-sub">What should we call you? Just a first name or nickname — you choose.</p>
+    <p class="nickname-sub">What should we call you? Just a first name or nickname &mdash; you choose.</p>
     <input class="nickname-input" id="nicknameInput" type="text" placeholder="Your name or nickname..." maxlength="24" autocomplete="off"/>
     <button class="nickname-confirm-btn" id="nicknameConfirm">Enter the Community</button>
-    <p class="nickname-privacy">Only visible to you on this device. 💜</p>
+    <p class="nickname-privacy">Only visible to you on this device. &#x1F49C;</p>
   </div>
 </div>
 
-
+<!-- VERSION PICKER -->
 <div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience">
   <div class="vp-inner">
-
-    <div class="vp-brand" aria-hidden="true">
-      <img class="vp-crown" src="crown.png" alt="" aria-hidden="true">
-      <span class="vp-dot">.</span>
-    </div>
-
-   <h1 class="vp-headline">how can we help you today?</h1>
-    <p class="vp-sub vp-note">pick your situation — we'll tailor everything for you 💜</p>
-
+    <div class="vp-brand" aria-hidden="true"><img class="vp-crown" src="crown.png" alt="" aria-hidden="true"><span class="vp-dot">.</span></div>
+    <h1 class="vp-headline">how can we help you today?</h1>
+    <p class="vp-sub vp-note">pick your situation &mdash; we'll tailor everything for you &#x1F49C;</p>
     <div class="vp-cards">
-
       <button class="vp-card vp-card--teen" id="pickTeen" aria-label="Choose: Just starting my journey">
         <div class="vp-card-glow vp-card-glow--teen" aria-hidden="true"></div>
-        <div class="vp-card-audience">for teens 🌸</div>
-        <div class="vp-card-tag">period, pooh ✨</div>
-        <div class="vp-card-emoji" aria-hidden="true">🌸</div>
+        <div class="vp-card-audience">for teens &#x1F338;</div>
+        <div class="vp-card-tag">period, pooh &#x2728;</div>
+        <div class="vp-card-emoji" aria-hidden="true">&#x1F338;</div>
         <div class="vp-card-title">Just starting<br>my journey</div>
-        <div class="vp-card-desc">New to this or still figuring it out — we've got your back every step of the way. No judgment, no pressure, just real help. 💜</div>
-        <div class="vp-card-cta">
-          This is me
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+        <div class="vp-card-desc">New to this or still figuring it out &mdash; we've got your back every step of the way. No judgment, no pressure, just real help. &#x1F49C;</div>
+        <div class="vp-card-cta">This is me <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
       </button>
-
       <button class="vp-card vp-card--adult" id="pickAdult" aria-label="Choose: I know what I need">
         <div class="vp-card-glow vp-card-glow--adult" aria-hidden="true"></div>
         <div class="vp-card-audience">for adults</div>
-        <div class="vp-card-tag">resilient baddie 👑</div>
-        <div class="vp-card-emoji" aria-hidden="true">✊</div>
+        <div class="vp-card-tag">resilient baddie &#x1F451;</div>
+        <div class="vp-card-emoji" aria-hidden="true">&#x270A;</div>
         <div class="vp-card-title">I know what<br>I need</div>
-        <div class="vp-card-desc">You know your body, we know delivery. Essentials stocked, delivered, handled — every single month on your terms. Let's get it. 👑</div>
-        <div class="vp-card-cta">
-          Let's go
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+        <div class="vp-card-desc">You know your body, we know delivery. Essentials stocked, delivered, handled &mdash; every single month on your terms. Let's get it.</div>
+        <div class="vp-card-cta">Let's go <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
       </button>
-
       <button class="vp-card vp-card--emergency" id="pickEmergency" aria-label="Choose: I need it right now">
         <div class="vp-card-glow vp-card-glow--emergency" aria-hidden="true"></div>
-        <div class="vp-card-tag">🚨 urgent</div>
-        <div class="vp-card-emoji" aria-hidden="true">⚡</div>
+        <div class="vp-card-tag">&#x1F6A8; urgent</div>
+        <div class="vp-card-emoji" aria-hidden="true">&#x26A1;</div>
         <div class="vp-card-title">I need it<br>RIGHT NOW</div>
-        <div class="vp-card-desc">No time, no patience, no problem. Pads, fresh underwear, essentials — wherever you are in under 30 min. We move fast. 🚨</div>
-        <div class="vp-card-cta">
-          Get help now
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+        <div class="vp-card-desc">No time, no patience, no problem. Pads, fresh underwear, essentials &mdash; wherever you are in under 30 min. We move fast. &#x1F6A8;</div>
+        <div class="vp-card-cta">Get help now <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
       </button>
-
       <button class="vp-card vp-card--gifter" id="pickGifter" aria-label="Choose: Shopping for someone else">
         <div class="vp-card-glow vp-card-glow--gifter" aria-hidden="true"></div>
-        <div class="vp-card-tag">🎁 gifting</div>
-        <div class="vp-card-emoji" aria-hidden="true">💝</div>
+        <div class="vp-card-tag">&#x1F381; gifting</div>
+        <div class="vp-card-emoji" aria-hidden="true">&#x1F49D;</div>
         <div class="vp-card-title">Shopping<br>for her</div>
-        <div class="vp-card-desc">Real ones show up. Candy, cozy picks, undies & more — be the reason she smiles through it. She'll remember this. 💝</div>
-        <div class="vp-card-cta">
-          Shop for her
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+        <div class="vp-card-desc">Real ones show up. Candy, cozy picks, undies &amp; more &mdash; be the reason she smiles through it. She'll remember this. &#x1F49D;</div>
+        <div class="vp-card-cta">Shop for her <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
       </button>
-
       <button class="vp-card vp-card--holistic" id="pickHolistic" aria-label="Choose: Holistic and all-natural">
         <div class="vp-card-glow vp-card-glow--holistic" aria-hidden="true"></div>
-        <div class="vp-card-tag">🌿 holistic</div>
-        <div class="vp-card-emoji" aria-hidden="true">🌾</div>
+        <div class="vp-card-tag">&#x1F33F; holistic</div>
+        <div class="vp-card-emoji" aria-hidden="true">&#x1F33E;</div>
         <div class="vp-card-title">All-Natural,<br>all the way</div>
-        <div class="vp-card-desc">Clean girl era activated. No synthetics, no toxins — cloth pads, discs, CBD, magnesium & more. Your cycle, honored naturally. 🌿</div>
-        <div class="vp-card-cta">
-          Go natural
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+        <div class="vp-card-desc">Clean girl era activated. No synthetics, no toxins &mdash; cloth pads, discs, CBD, magnesium &amp; more. Your cycle, honored naturally. &#x1F33F;</div>
+        <div class="vp-card-cta">Go natural <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
       </button>
-
     </div>
-
-    <p class="vp-note">you can always switch later · your choice, your control</p>
-
+    <p class="vp-note">you can always switch later &middot; your choice, your control</p>
   </div>
 </div>
 
-<!-- ===== ONBOARDING QUIZ ===== -->
+<!-- QUIZ -->
 <div class="quiz-overlay" id="quizOverlay" role="dialog" aria-modal="true" aria-label="Personalization Quiz" style="display:none">
   <div class="quiz-card" id="quizCard">
     <div class="quiz-top-bar">
-      <div class="quiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1">
-        <div class="quiz-progress-fill" id="quizProgressFill"></div>
-      </div>
+      <div class="quiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
       <button class="quiz-skip-btn" id="quizSkipBtn" aria-label="Skip quiz">Skip</button>
     </div>
-    <div class="quiz-body" id="quizBody">
-      <!-- rendered by JS -->
-    </div>
-    <div class="quiz-footer">
-      <button class="quiz-next-btn" id="quizNextBtn" disabled>Continue →</button>
-    </div>
+    <div class="quiz-body" id="quizBody"></div>
+    <div class="quiz-footer"><button class="quiz-next-btn" id="quizNextBtn" disabled>Continue &rarr;</button></div>
   </div>
 </div>
 
-  <button class="floating-tracker-btn" id="floatingTrackerBtn" aria-label="Open tracker">
+<button class="floating-tracker-btn" id="floatingTrackerBtn" aria-label="Open tracker">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-  <span class="ftb-lock" id="ftbLock">🔒</span>
+  <span class="ftb-lock" id="ftbLock">&#x1F512;</span>
 </button>
+
 <script src="app.js"></script>
-<!-- ===== LEGAL MODAL ===== -->
+
 <div class="legal-overlay" id="legalOverlay" aria-hidden="true"></div>
 <div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle" style="display:none">
-  <div class="legal-modal-header">
-    <h2 class="legal-modal-title" id="legalModalTitle"></h2>
-    <button class="legal-modal-close" id="legalModalClose" aria-label="Close">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
+  <div class="legal-modal-header"><h2 class="legal-modal-title" id="legalModalTitle"></h2><button class="legal-modal-close" id="legalModalClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
   <div class="legal-modal-body" id="legalModalBody"></div>
   <div class="legal-modal-footer">
-    <a href="legal.pdf" target="_blank" class="legal-download-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download PDF
-    </a>
+    <a href="legal.pdf" target="_blank" class="legal-download-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF</a>
     <span class="legal-copy-small">&copy; 2026 Period. LLC &middot; Cleveland, OH</span>
   </div>
 </div>
 
-
-<!-- ===== STRIPE CHECKOUT MODAL ===== -->
 <div class="co-overlay" id="coOverlay" aria-hidden="true"></div>
 <div class="co-modal" id="coModal" role="dialog" aria-modal="true" aria-label="Secure checkout" style="display:none">
-  <div class="co-header">
-    <button class="icon-btn co-back-btn" id="coBackBtn" aria-label="Back to cart">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 12H5M12 5l-7 7 7 7"/>
-      </svg>
-    </button>
-    <h2 class="co-title">Checkout</h2>
-    <div style="width:32px"></div>
-  </div>
+  <div class="co-header"><button class="icon-btn co-back-btn" id="coBackBtn" aria-label="Back to cart"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button><h2 class="co-title">Checkout</h2><div style="width:32px"></div></div>
   <div class="co-body">
-    <!-- Order Summary -->
     <div class="co-summary" id="coSummary"></div>
-
-    <!-- Card Form (active when STRIPE_CONFIG is set) -->
     <div class="co-card-section">
       <div class="co-section-label">Card Details</div>
-      <div class="co-field-wrap">
-        <label class="co-label" for="coCardName">Name on card</label>
-        <input type="text" id="coCardName" class="co-input" placeholder="Destiny Holloway" autocomplete="cc-name">
-      </div>
-      <div class="co-field-wrap">
-        <label class="co-label">Card number</label>
-        <div id="stripeCardElement" class="co-stripe-element"></div>
-        <div id="stripeCardError" class="co-stripe-error" aria-live="polite"></div>
-      </div>
-      <button class="co-pay-btn" id="coPayBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-        </svg>
-        Pay <span id="coPayAmt"></span>
-      </button>
+      <div class="co-field-wrap"><label class="co-label" for="coCardName">Name on card</label><input type="text" id="coCardName" class="co-input" placeholder="Destiny Holloway" autocomplete="cc-name"></div>
+      <div class="co-field-wrap"><label class="co-label">Card number</label><div id="stripeCardElement" class="co-stripe-element"></div><div id="stripeCardError" class="co-stripe-error" aria-live="polite"></div></div>
+      <button class="co-pay-btn" id="coPayBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay <span id="coPayAmt"></span></button>
     </div>
   </div>
-  <div class="co-footer-trust">
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-    </svg>
-    Payments secured by Stripe · SSL encrypted
-  </div>
+  <div class="co-footer-trust"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Payments secured by Stripe &middot; SSL encrypted</div>
 </div>
-<!-- PWA Install Banner -->
+
 <div id="pwaInstallBanner" role="banner" aria-label="Install Period. app">
   <div class="pwa-banner-inner">
     <div class="pwa-banner-top">
-      <div class="pwa-banner-text">
-        <div class="pwa-banner-title">Add Period. to your home screen</div>
-        <div class="pwa-banner-sub" id="pwaBannerSub">Install the app for faster access — no App Store needed.</div>
-      </div>
+      <div class="pwa-banner-text"><div class="pwa-banner-title">Add Period. to your home screen</div><div class="pwa-banner-sub" id="pwaBannerSub">Install the app for faster access &mdash; no App Store needed.</div></div>
       <button class="pwa-banner-close" id="pwaBannerClose" aria-label="Dismiss">&times;</button>
     </div>
     <div class="pwa-banner-steps" id="pwaBannerSteps"></div>
