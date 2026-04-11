@@ -3293,7 +3293,6 @@ function renderQuizSlide() {
       _quizSelectedVal = btn.dataset.val;
       nextBtn.disabled = false;
     });
-  });
 }
 
 function quizNext() {
