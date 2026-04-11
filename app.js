@@ -546,12 +546,15 @@ function showQuickCheckBeforePicker() {
   overlay.id = 'quickCheckOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
   overlay.innerHTML =
-    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;">' +
-    '<div style="font-size:2.5rem;">&#x26a1;</div>' +
-    '<div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#EDE8FA;line-height:1.3;">real quick &#8212; do you need something RIGHT now?</div>' +
-    '<div style="font-size:0.875rem;color:rgba(237,232,250,0.6);line-height:1.6;">we want to set up your experience but if you&#39;re in a pinch, we&#39;ll get you sorted first.</div>' +
+    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1rem;">' +
+    '<div style="font-size:2.5rem;">&#x1F451;</div>' +
+    '<div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:#EDE8FA;line-height:1.2;">Period.</div>' +
+    '<div style="font-size:0.78rem;color:rgba(237,232,250,0.45);letter-spacing:0.08em;text-transform:uppercase;">period care &#183; delivered to you</div>' +
+    '<div style="width:100%;height:1px;background:rgba(237,232,250,0.1);margin:0.25rem 0;"></div>' +
+    '<div style="font-size:0.85rem;color:rgba(237,232,250,0.7);line-height:1.6;">We deliver period care, wellness essentials &#38; more &#8212; on demand or monthly. Welcome. &#x1F49C;</div>' +
+    '<div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#EDE8FA;line-height:1.3;">but first &#8212; do you need something right now?</div>' +
     '<button id="quickCheckYes" style="width:100%;padding:1rem;background:linear-gradient(135deg,#F87171,#DC2626);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">&#x1F6A8; yes &#8212; i need it NOW</button>' +
-    '<button id="quickCheckNo" style="width:100%;padding:1rem;background:rgba(237,232,250,0.08);color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">no &#8212; let&#39;s set up my experience &#x2728;</button>' +
+    '<button id="quickCheckNo" style="width:100%;padding:1rem;background:rgba(237,232,250,0.08);color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">no &#8212; let me explore &#x2728;</button>' +
     '</div>';
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
