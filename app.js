@@ -580,17 +580,7 @@ function navigate(view) {
     initCycleScoopTabs();
     return;
   }
-  if (view === 'cycleScoopView') {
-    $$('.view').forEach(v => v.classList.remove('active'));
-    const scoopEl = document.getElementById('cycleScoopView');
-    if (scoopEl) scoopEl.classList.add('active');
-    state.view = 'cycleScoopView';
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    renderScoopFacts();
-    renderScoopFaq();
-    initCycleScoopTabs();
-    return;
-  }
+ 
     $$('.view').forEach(v => v.classList.remove('active'));
     const scoopEl = document.getElementById('cycleScoopView');
     if (scoopEl) scoopEl.classList.add('active');
@@ -3267,36 +3257,6 @@ function renderQuizSlide() {
   });
 }
 
-  const q = QUIZ_QUESTIONS[_quizStep];
-  body.innerHTML = `
-    <div class="quiz-q-eyebrow">Question ${_quizStep + 1} of ${QUIZ_QUESTIONS.length}</div>
-    <div class="quiz-q-text">${q.q}</div>
-    <div class="quiz-q-sub">${q.sub}</div>
-    <div class="quiz-choices">
-      ${q.choices.map(c => `
-        <button class="quiz-choice" data-val="${c.value}" aria-pressed="false">
-          <span class="quiz-choice-icon">${c.icon}</span>
-          <span class="quiz-choice-label">${c.label}</span>
-          <span class="quiz-choice-desc">${c.desc}</span>
-        </button>
-      `).join('')}
-    </div>`;
-
-  body.querySelectorAll('.quiz-choice').forEach(btn => {
-    btn.addEventListener('click', () => {
-      body.querySelectorAll('.quiz-choice').forEach(b => {
-        b.classList.remove('selected');
-        b.setAttribute('aria-pressed', 'false');
-      });
-      btn.classList.add('selected');
-      btn.setAttribute('aria-pressed', 'true');
-_quizSelectedVal = btn.dataset.val;
-      _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
-      _quizStep++;
-      setTimeout(() => renderQuizSlide(), 400);
-    });
-  });
-}
 function quizNext() {
   if (_quizStep < QUIZ_QUESTIONS.length) {
     if (_quizSelectedVal === null) return;
