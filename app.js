@@ -3290,11 +3290,13 @@ function renderQuizSlide() {
       });
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
-      _quizSelectedVal = btn.dataset.val;
-      nextBtn.disabled = false;
+_quizSelectedVal = btn.dataset.val;
+      _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
+      _quizStep++;
+      setTimeout(() => renderQuizSlide(), 400);
     });
+  });
 }
-
 function quizNext() {
   if (_quizStep < QUIZ_QUESTIONS.length) {
     if (_quizSelectedVal === null) return;
