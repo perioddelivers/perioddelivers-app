@@ -417,6 +417,8 @@ function showToast(msg) {
 function applyVersionContent(version) {
   const c = CONTENT[version];
   if (!c) return;
+  // Show personalized greeting
+  setTimeout(() => showWelcomeCard(), 600);
 
 
   // Hero
@@ -1297,6 +1299,192 @@ function handleExpressCheckout(provider) {
   setTimeout(() => placeOrder(), 900);
 }
 
+
+
+
+/* =============================================
+   PERSONALIZED GREETING + TONE SYSTEM
+   ============================================= */
+
+const TONES = {
+  teen: {
+    greetings: {
+      morning: ["rise and slay, bestie ✨", "good morning pooh ??", "wakey wakey, queen ??", "morning! today is giving main character ✨"],
+      afternoon: ["hey bestie, we see you ??", "afternoon check-in, pooh ??", "you ate today? hydrated? we love that ??", "hey queen, how we feeling? ??"],
+      evening: ["evening vibes, bestie ??", "rest era activated, pooh ??", "you showed up today and that matters ✨", "wind down time, queen ??"],
+      night: ["still up? same bestie ??", "late night energy, we see you ??", "rest is productive too, periodt ??", "night owl era ?? stay hydrated tho"]
+    }
+  },
+  adult: {
+    greetings: {
+      morning: ["Good morning, sis. You've got this. ??", "Rise and handle business, queen. ??", "Morning! Coffee first, everything else second. ☕", "Good morning. Today is yours. ✨"],
+      afternoon: ["Hey love. Hope today is being kind to you. ??", "Afternoon check-in — how are you holding up? ??", "You're doing great, even when it doesn't feel like it. ??", "Hey sis. Breathe. You're doing enough. ✨"],
+      evening: ["Evening, love. Time to wind down. ??", "You made it through today. That counts. ??", "Rest is not lazy — it's necessary. Good evening. ??", "Hey sis. The hard part is done. Relax now. ✨"],
+      night: ["Still up? Take care of yourself. ??", "Late night energy. Hope you're okay. ??", "Rest well when you're ready, love. ✨", "Night, sis. Tomorrow is a new day. ??"]
+    }
+  },
+  emergency: {
+    greetings: {
+      morning: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      afternoon: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      evening: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      night: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"]
+    }
+  },
+  gifter: {
+    greetings: {
+      morning: ["Good morning! You're about to make someone's day. ??", "Morning, thoughtful one. ??", "She's lucky to have you. Good morning! ??", "Rise and show up for her. ??"],
+      afternoon: ["Hey! Thinking of her today? We love that. ??", "Afternoon! She deserves it. Let's make it happen. ??", "You remembered. That means everything. ??", "Hey, thoughtful one. Ready to shop for her? ??"],
+      evening: ["Evening! Still time to send some love. ??", "Good evening, gift-giver. ??", "She'll remember this. Good evening! ??", "Evening! Let's do something kind tonight. ??"],
+      night: ["Late night love mission? We respect it. ??", "Night owl gifter energy. ?? Let's go. ??", "She deserves it, even at this hour. ??", "Night! Quick gift before you sleep? ??"]
+    }
+  },
+  holistic: {
+    greetings: {
+      morning: ["Good morning. Honor your body today. ??", "Rise intentionally, love. ??", "Morning rituals first. We see you. ??", "Good morning. Your cycle is your superpower. ??"],
+      afternoon: ["Midday check-in. How is your body feeling? ??", "Afternoon, clean girl. ?? Stay grounded. ??", "How is your energy today? Listen to your body. ??", "Afternoon. Hydrate. Breathe. You've got this. ??"],
+      evening: ["Evening wind-down. Tend to yourself. ??", "Good evening, love. Rest is part of the ritual. ??", "Evening. Your body did a lot today. Honor it. ??", "Wind-down time. Clean and intentional. ??"],
+      night: ["Rest is healing. Good night, love. ??", "Night rituals. You know what to do. ??", "Sleep is the ultimate wellness practice. ??", "Good night. Your body restores while you sleep. ??"]
+    }
+  }
+};
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'morning';
+  if (h >= 12 && h < 17) return 'afternoon';
+  if (h >= 17 && h < 21) return 'evening';
+  return 'night';
+}
+
+function getPersonalizedGreeting(version) {
+  const v = version || state.version || 'adult';
+  const tone = TONES[v] || TONES.adult;
+  const timeKey = getTimeOfDay();
+  const arr = tone.greetings[timeKey];
+  const name = getNickname ? getNickname() : null;
+  let greeting = arr[Math.floor(Math.random() * arr.length)];
+  if (name && v === 'teen') greeting = greeting.replace('bestie', name).replace('pooh', name).replace('queen', name);
+  if (name && v === 'adult') greeting = greeting.replace('sis', name).replace('love', name).replace('queen', name);
+  return greeting;
+}
+
+function showWelcomeCard() {
+  const existing = document.getElementById('welcomeCard');
+  if (existing) existing.remove();
+
+  const greeting = getPersonalizedGreeting(state.version);
+  const card = document.createElement('div');
+  card.id = 'welcomeCard';
+  card.style.cssText = 'margin:0.75rem 1rem 0;padding:0.875rem 1rem;background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(124,58,237,0.06));border:1px solid rgba(168,85,247,0.2);border-radius:16px;font-size:0.9rem;color:var(--text-primary);line-height:1.4;animation:fadeSlideIn 0.4s ease;';
+  card.textContent = greeting;
+
+  const hero = document.querySelector('.home-hero');
+  if (hero) hero.insertAdjacentElement('afterend', card);
+
+  setTimeout(() => {
+    if (card.parentNode) {
+      card.style.transition = 'opacity 0.5s ease';
+      card.style.opacity = '0';
+      setTimeout(() => card.remove(), 500);
+    }
+  }, 5000);
+}
+
+/* =============================================
+   SAVED ADDRESSES SYSTEM
+   ============================================= */
+const DEFAULT_ADDRESS_LABELS = ['Home', 'School', 'Work', 'Custom'];
+
+function getSavedAddresses() {
+  try {
+    const m = document.cookie.match(/period_addresses=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
+}
+
+function saveAddresses(addresses) {
+  document.cookie = 'period_addresses=' + encodeURIComponent(JSON.stringify(addresses)) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+function addSavedAddress(label, address) {
+  const addresses = getSavedAddresses();
+  const existing = addresses.findIndex(a => a.label === label);
+  if (existing > -1) addresses[existing].address = address;
+  else addresses.push({ label, address });
+  saveAddresses(addresses);
+}
+
+function renderAddressDropdown() {
+  const addresses = getSavedAddresses();
+  const select = document.getElementById('savedAddressSelect');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Choose saved address --</option>' +
+    addresses.map(a => `<option value="${a.address}">${a.label}: ${a.address.split(',')[0]}</option>`).join('') +
+    '<option value="__new__">+ Add new address</option>';
+  select.onchange = function() {
+    const input = document.getElementById('addressInput');
+    if (this.value === '__new__') {
+      if (input) { input.value = ''; input.focus(); }
+      this.value = '';
+    } else if (this.value) {
+      if (input) input.value = this.value;
+      state.deliveryAddress = this.value;
+    }
+  };
+}
+
+function renderAddressLabelButtons() {
+  const container = document.getElementById('addressLabelBtns');
+  if (!container) return;
+  container.innerHTML = DEFAULT_ADDRESS_LABELS.map(l =>
+    `<button class="addr-label-btn" data-label="${l}" onclick="selectAddressLabel('${l}')" style="padding:0.4rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.8rem;cursor:pointer;transition:all 0.15s;">${l}</button>`
+  ).join('');
+}
+
+function selectAddressLabel(label) {
+  document.querySelectorAll('.addr-label-btn').forEach(b => {
+    const on = b.dataset.label === label;
+    b.style.background = on ? 'var(--accent)' : 'var(--surface-2)';
+    b.style.color = on ? 'white' : 'var(--text-muted)';
+    b.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+  });
+  const inp = document.getElementById('addressLabelCustom');
+  if (inp) inp.style.display = label === 'Custom' ? 'block' : 'none';
+  window._selectedAddressLabel = label;
+}
+
+
+/* =============================================
+   SCHOOL PROFILE SYSTEM
+   ============================================= */
+function getSchoolProfiles() {
+  try {
+    const m = document.cookie.match(/period_schools=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
+}
+
+function saveSchoolProfile(name, address, nurseContact) {
+  const schools = getSchoolProfiles();
+  const existing = schools.findIndex(s => s.name === name);
+  const profile = { name, address, nurseContact, type: 'school' };
+  if (existing > -1) schools[existing] = profile;
+  else schools.push(profile);
+  document.cookie = 'period_schools=' + encodeURIComponent(JSON.stringify(schools)) + ';max-age:946080000;path=/;SameSite=Lax';
+  // Also add to regular addresses
+  addSavedAddress('School: ' + name, address);
+}
+
+function renderSchoolProfileOption() {
+  const addresses = getSavedAddresses();
+  const schools = getSchoolProfiles();
+  const allOptions = [
+    ...addresses.map(a => ({ label: a.label, address: a.address, type: 'saved' })),
+    ...schools.map(s => ({ label: s.name + ' (School)', address: s.address, type: 'school' }))
+  ];
+  return allOptions;
+}
 
 /* =============================================
    ORDER NOTES + NURSE NOTIFICATION + LOCATION
@@ -3007,17 +3195,16 @@ function renderSymptomLog(dateStr) {
       ${SYMPTOMS.map(s => {
         const logged = todaySymptoms[s.id];
         if (s.options) {
-          return `<div class="symptom-card ${logged ? 'logged' : ''}">
-            <div class="symptom-icon">${s.icon}</div>
-            <div class="symptom-label">${s.label}</div>
-            <div class="symptom-options">
-              ${s.options.map(opt => `
-                <button class="symptom-opt ${logged === opt ? 'active' : ''}"
-                  onclick="logSymptom('${dateStr}','${s.id}','${opt}')">
-                  ${opt}
-                </button>`).join('')}
-            </div>
-          </div>`;
+          return '<div class="symptom-card ' + (logged ? 'logged' : '') + '">' +
+            '<div class="symptom-icon">' + s.icon + '</div>' +
+            '<div class="symptom-label">' + s.label + '</div>' +
+            '<div class="symptom-options">' +
+            s.options.map(opt =>
+              '<button class="symptom-opt ' + (logged === opt ? 'active' : '') + '" ' +
+              'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="' + opt.replace(/"/g,'&quot;') + '">' +
+              opt + '</button>'
+            ).join('') +
+            '</div></div>';
         }
         return `<button class="symptom-card symptom-card--toggle ${logged ? 'logged' : ''}"
           onclick="logSymptom('${dateStr}','${s.id}',true)">
@@ -3034,6 +3221,20 @@ function initSymptomLog() {
   const section = $('symptomLogSection');
   if (!section) return;
   renderSymptomLog(todayStr());
+  // Event delegation for symptom option buttons
+  section.addEventListener('click', e => {
+    const btn = e.target.closest('.symptom-opt');
+    if (!btn) return;
+    const dateStr = btn.dataset.date;
+    const sid = btn.dataset.sid;
+    const opt = btn.dataset.opt;
+    if (dateStr && sid && opt) logSymptom(dateStr, sid, opt);
+  });
+  section.addEventListener('click', e => {
+    const btn = e.target.closest('.symptom-card--toggle');
+    if (!btn) return;
+    // handled by inline onclick
+  });
 }
 
 
@@ -3108,22 +3309,33 @@ function getSelectedDaysBefore() {
 
 async function requestBrowserNotifications() {
   if (!('Notification' in window)) {
-    showToast('Browser notifications not supported on this device');
+    showToast('Push notifications not supported on this browser. Try adding the app to your home screen first! ??');
     return;
   }
-  if (Notification.permission === 'granted') {
-    saveBrowserReminder();
-    return;
-  }
-  if (Notification.permission === 'denied') {
-    showToast('Notifications blocked — enable them in your browser settings');
-    return;
-  }
-  const perm = await Notification.requestPermission();
-  if (perm === 'granted') {
-    saveBrowserReminder();
-  } else {
-    showToast('Notifications permission not granted');
+  try {
+    if (Notification.permission === 'granted') {
+      saveBrowserReminder();
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      showToast('Notifications are blocked. Go to your browser settings → Site Settings → Notifications → Allow for perioddelivers.com');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      saveBrowserReminder();
+      showToast('Reminders enabled! ??');
+    } else {
+      showToast('Permission not granted. You can enable in browser settings anytime.');
+    }
+  } catch(e) {
+    // Fallback for browsers that don't support the promise version
+    Notification.requestPermission(function(perm) {
+      if (perm === 'granted') {
+        saveBrowserReminder();
+        showToast('Reminders enabled! ??');
+      }
+    });
   }
 }
 
