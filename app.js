@@ -3498,11 +3498,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Show quick check BEFORE experience picker on first visit
+// Show quick check BEFORE experience picker on first visit
   const ageOk = document.cookie.match(/period_age_ok=yes/);
   const versionSet = getVersionCookie();
   if (ageOk && !versionSet) {
-    showQuickCheckBeforePicker();
+    setTimeout(showQuickCheckBeforePicker, 500);
   }
 });
 
