@@ -268,6 +268,22 @@ const CONTENT = {
     subSub:              "Set up a recurring gift box \u2014 she gets a thoughtful delivery every cycle or on whatever schedule you set.",
     plansLabel:          'Step 1 \u2014 Choose a Gift Plan',
     pickerTitle:         'Step 2 \u2014 Pick What She Gets',
+  },
+  starter: {
+    heroTagline:         'hey! your body just leveled up. \u2728',
+    heroSub:             'getting your period is totally normal. we are here to help you understand it, handle it, and feel awesome. \u{1F338}',
+    heroOrderNowText:    'Get My First Kit \u2728',
+    heroCarePackageText: 'Monthly Supply',
+    card1Title:          'Get Supplies',
+    card1Desc:           'Liners, pads, period underwear \u2014 whatever feels right for you. No experience needed!',
+    card2Title:          'Monthly Kit',
+    card2Desc:           'We send you everything you need every month so you are always ready. Easy!',
+    subEyebrow:          'Monthly Starter Supply',
+    subTitle:            'Your monthly<br><span>period kit.</span>',
+    subSub:              'We pick the beginner-friendly essentials and send them every month. You never have to worry about running out!',
+    plansLabel:          'Step 1 \u2014 Pick Your Kit Size',
+    pickerTitle:         'Step 2 \u2014 Pick What Goes In',
+    trustBadges:         ['\u{1F512} Private & Safe', '\u2728 Beginner Friendly', '\u{1F4E6} Delivered to You', '\u{1F49C} No Judgment Ever', '\u{1F4DE} We\'re Here to Help']
   }
 };
 
@@ -425,6 +441,28 @@ function applyVersionContent(version) {
   if (!c) return;
   // Show personalized greeting
   setTimeout(() => showWelcomeCard(), 600);
+  // Show/hide starter educational section
+  const starterSection = document.getElementById('starterSection');
+  if (starterSection) {
+    starterSection.style.display = version === 'starter' ? '' : 'none';
+  }
+  // Wire starter order button
+  const starterOrderBtn = document.getElementById('starterOrderBtn');
+  if (starterOrderBtn) {
+    starterOrderBtn.onclick = function() { navigate('shop'); };
+  }
+  // Show hygiene button for all experiences
+  let hygieneBtn = document.getElementById('hygieneGuideBtn');
+  if (!hygieneBtn) {
+    hygieneBtn = document.createElement('button');
+    hygieneBtn.id = 'hygieneGuideBtn';
+    hygieneBtn.className = 'hero-how-btn';
+    hygieneBtn.innerHTML = '&#x1F6BF; Hygiene Guide <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    hygieneBtn.style.cssText = 'cursor:pointer;pointer-events:auto;';
+    hygieneBtn.addEventListener('click', function() { showHygieneGuide(state.version); });
+    const quickLinks = document.querySelector('.hero-quick-links');
+    if (quickLinks) quickLinks.appendChild(hygieneBtn);
+  }
 
 
   // Hero
@@ -470,7 +508,8 @@ function applyVersionContent(version) {
     adult:     '\u{1F49C} Adult',
     emergency: '\u{1F6A8} Urgent',
     gifter:    '\u{1F381} Gifter',
-    holistic:  '\u{1F33F} Holistic'
+    holistic:  '\u{1F33F} Holistic',
+    starter:   '\u2728 Just Starting'
   };
   const badgeText = $('versionBadgeText');
   if (badgeText) badgeText.textContent = badgeLabels[version] || 'Choose';
@@ -530,6 +569,8 @@ function initVersionPicker() {
   if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
   if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
   if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
+  const pickStarter = $('pickStarter');
+  if (pickStarter)   pickStarter.addEventListener('click',   () => { setVersion('starter');   dismissVersionPicker(); });
   if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
   const versionBadge = $('versionBadge');
   if (versionBadge)  versionBadge.addEventListener('click', showVersionPicker);
@@ -537,7 +578,7 @@ function initVersionPicker() {
 
 function initVersion() {
   const stored = getVersionCookie();
-  const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic'];
+  const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
   if (validVersions.includes(stored)) {
     setVersion(stored);
     const picker = $('versionPicker');
@@ -910,11 +951,32 @@ function renderProductGrid() {
     card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') openProductModal(+card.dataset.id); });
   });
   grid.querySelectorAll('[data-add]').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); addToCart(+btn.dataset.add); });
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      addToCart(+btn.dataset.add);
+      showGoToCartBtn();
+    });
   });
   grid.querySelectorAll('[data-fav]').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); toggleFavorite(+btn.dataset.fav); });
+    btn.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); toggleFavorite(+btn.dataset.fav); });
   });
+}
+
+function showGoToCartBtn() {
+  let btn = document.getElementById('goToCartFloating');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'goToCartFloating';
+    btn.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;padding:0.875rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,0.4);display:flex;align-items:center;gap:0.5rem;white-space:nowrap;animation:fadeSlideIn 0.3s ease;';
+    btn.innerHTML = '&#x1F6D2; Go to Cart <span id="goToCartCount" style="background:white;color:#7C3AED;border-radius:999px;padding:0.1rem 0.5rem;font-size:0.8rem;font-weight:800;"></span>';
+    btn.addEventListener('click', () => { openCart(); });
+    document.body.appendChild(btn);
+  }
+  const count = cartCount();
+  const countEl = document.getElementById('goToCartCount');
+  if (countEl) countEl.textContent = count;
+  btn.style.display = count > 0 ? 'flex' : 'none';
 }
 
 
@@ -929,6 +991,7 @@ function addToCart(id) {
   renderProductGrid();
   renderCart();
   if (state.openProduct === id) updateModalBtn();
+  showGoToCartBtn();
 }
 
 
@@ -1018,8 +1081,15 @@ function renderCart() {
 }
 
 
-function openCart()  { $('cartSidebar').classList.add('open'); $('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; renderCart(); }
-function closeCart() { $('cartSidebar').classList.remove('open'); $('cartOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function openCart()  {
+  $('cartSidebar').classList.add('open'); $('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; renderCart();
+  const goBtn = document.getElementById('goToCartFloating');
+  if (goBtn) goBtn.style.display = 'none';
+}
+function closeCart() {
+  $('cartSidebar').classList.remove('open'); $('cartOverlay').classList.remove('open'); document.body.style.overflow='';
+  if (cartCount() > 0) showGoToCartBtn();
+}
 
 
 /* =============================================
@@ -1320,7 +1390,7 @@ const TONES = {
       morning: ["rise and slay, bestie ✨", "good morning pooh ??", "wakey wakey, queen ??", "morning! today is giving main character ✨"],
       afternoon: ["hey bestie, we see you ??", "afternoon check-in, pooh ??", "you ate today? hydrated? we love that ??", "hey queen, how we feeling? ??"],
       evening: ["evening vibes, bestie ??", "rest era activated, pooh ??", "you showed up today and that matters ✨", "wind down time, queen ??"],
-      night: ["still up? same bestie ??", "late night energy, we see you ??", "rest is productive too, periodt ??", "night owl era ?? stay hydrated tho"]
+      night: ["still up? same bestie ??", "late night energy, we see you!", "rest is productive too, periodt.", "night owl era ?? stay hydrated tho"]
     }
   },
   adult: {
@@ -1354,6 +1424,14 @@ const TONES = {
       evening: ["Evening wind-down. Tend to yourself. ??", "Good evening, love. Rest is part of the ritual. ??", "Evening. Your body did a lot today. Honor it. ??", "Wind-down time. Clean and intentional. ??"],
       night: ["Rest is healing. Good night, love. ??", "Night rituals. You know what to do. ??", "Sleep is the ultimate wellness practice. ??", "Good night. Your body restores while you sleep. ??"]
     }
+  },
+  starter: {
+    greetings: {
+      morning:   ["Good morning, superstar! \u2728 Your body is doing something amazing.", "Hey! Rise and shine! \u{1F31F} You got this today!", "Morning! Did you know your body is literally a superhero? \u{1F9B8}", "Good morning! Today is going to be great. \u2728"],
+      afternoon: ["Hey there! How are you feeling right now? \u{1F338}", "Afternoon check-in! You are doing SO well. \u2728", "Hey! Your body is working hard today. Be kind to it. \u{1F49C}", "Hi! How is your day going? We are rooting for you! \u{1F31F}"],
+      evening:   ["Good evening! You made it through the day! \u{1F338}", "Hey! Rest time! Your body deserves it. \u{1F49C}", "Evening! You did amazing today. For real. \u2728", "Hi! Wind down time. Put on something comfy. \u{1F319}"],
+      night:     ["Hey night owl! Get some rest when you can. \u{1F49C}", "Good night! Your body does its best work while you sleep. \u2728", "Night night! You were awesome today. \u{1F31F}", "Hey! Sleep is a superpower too. Rest up. \u{1F319}"]
+    }
   }
 };
 
@@ -1377,6 +1455,131 @@ function getPersonalizedGreeting(version) {
   return greeting;
 }
 
+
+
+/* =============================================
+   PERIOD HYGIENE EDUCATION — PER EXPERIENCE
+   ============================================= */
+
+const HYGIENE_CONTENT = {
+  starter: {
+    title: 'Keeping Clean &#x1F6BF; (Super Important!)',
+    intro: 'Okay real talk &mdash; periods can create a smell. That is 100% normal and happens to EVERYONE. But here is how to stay fresh and feel confident! No more awkward moments. We got you! &#x2728;',
+    steps: [
+      { icon:'&#x23F0;', title:'Change your pad every 3-4 hours', body:'Even if it does not look super full! Leaving it too long = smell. Set an alarm on your phone if you need to. Your future self will thank you.' },
+      { icon:'&#x1F6BF;', title:'Wipe front to back ALWAYS', body:'This is the most important rule ever. Always wipe from front (where your pee comes out) to back (your bottom). Never the other way. This keeps bad germs away from your body.' },
+      { icon:'&#x1F9FC;', title:'Wash with just water down there', body:'Here is a secret: soap inside your private area actually makes things worse! Just warm water is perfect. Your body cleans itself naturally. Soap on the outside only.' },
+      { icon:'&#x1F9E5;', title:'Fresh underwear every day', body:'During your period, change your underwear at least once a day. Period underwear is amazing because it holds everything and washes easily. Dark colors are your best friend right now.' },
+      { icon:'&#x1F4A8;', title:'Period smell is NORMAL', body:'A little smell is completely normal &mdash; it is just blood. But if it smells really strong or fishy, tell a doctor. That could mean something needs attention. No shame, just health!' },
+      { icon:'&#x1F9FB;', title:'Wrap and toss properly', body:'Wrap used pads in the wrapper from the new one or toilet paper, then put in the trash. NEVER flush pads down the toilet &mdash; they will clog it and cause big problems!' },
+    ]
+  },
+  teen: {
+    title: 'Period Hygiene, No Cap &#x1F4A7;',
+    intro: 'Okay bestie, real talk. Periods create a smell &mdash; it is literally just blood and your body doing its thing. Totally normal. But here is how to stay fresh and unbothered because YOU deserve to feel confident every single day. &#x1F31F;',
+    steps: [
+      { icon:'&#x23F0;', title:'Change every 3-4 hours, periodt', body:'Even if your pad is not completely soaked. Old blood = smell. New pad = fresh. Set an alarm, make it a routine, and never skip it especially at school.' },
+      { icon:'&#x1F6BF;', title:'Front to back. Always. Non-negotiable.', body:'Wipe from front to back after using the bathroom. Never back to front. This is literally the most important hygiene rule of your life. Front = clean zone. Keep it that way.' },
+      { icon:'&#x1F9FC;', title:'No soap inside, just water', body:'Your vagina is self-cleaning (yes, really). Soap inside throws off your pH and can actually make you smell worse or cause infections. Warm water on the outside only. That is it.' },
+      { icon:'&#x1F9E5;', title:'Fresh fit, fresh underwear', body:'Change your underwear daily during your period, or more if needed. Period underwear and dark colors are the move. Your outfits slap harder when you feel clean underneath.' },
+      { icon:'&#x1F4A8;', title:'The smell is real and it is okay', body:'Period blood has a smell. A little is normal and nobody around you can smell it like you think they can. But if it is strong or fishy, see a doctor. That is your body asking for help.' },
+      { icon:'&#x1F9FB;', title:'Wrap it, bin it, never flush it', body:'Wrap used pads in toilet paper or the wrapper and toss in the trash. Flushing pads or tampons clogs pipes and causes literal disasters. Trash only, always.' },
+    ]
+  },
+  adult: {
+    title: 'Period Hygiene: The Full Honest Truth &#x1F49C;',
+    intro: 'Let us normalize talking about this. Period odor is biological and completely normal. But nobody taught most of us the full picture &mdash; so here it is, no filter, no shame. Because you deserve to feel fresh and confident all cycle long.',
+    steps: [
+      { icon:'&#x23F0;', title:'Change every 3-4 hours minimum', body:'Tampons especially should never exceed 8 hours due to TSS risk (toxic shock syndrome). Pads every 3-4 hours. On heavy days, more frequently. Do not push it &mdash; your health is worth the extra bathroom trip.' },
+      { icon:'&#x1F6BF;', title:'Front to back, every single time', body:'Always wipe anterior to posterior. This prevents fecal bacteria from entering the vaginal and urethral areas, which is a leading cause of UTIs. Make it muscle memory.' },
+      { icon:'&#x1F9FC;', title:'Water only, internally. Full stop.', body:'The vagina maintains its own pH balance. Scented soaps, douches, and feminine washes disrupt this ecosystem and often cause the very odor and infections they claim to prevent. Warm water externally is all you need.' },
+      { icon:'&#x1F4A7;', title:'Period smell is biology, not uncleanliness', body:'Menstrual blood has a metallic, slightly musky odor due to iron content and bacteria contact with air. This is normal. A strong fishy or foul odor, however, can indicate BV (bacterial vaginosis) or infection &mdash; worth seeing your provider.' },
+      { icon:'&#x1F9D8;', title:'Breathable fabrics only during your period', body:'Cotton underwear allows airflow which reduces moisture and odor. Avoid synthetic fabrics that trap heat. Period underwear in cotton or bamboo blends are an excellent option.' },
+      { icon:'&#x1F33F;', title:'Holistic odor support', body:'Staying hydrated, eating less sugar, and adding probiotics to your routine can noticeably reduce period odor over time. What you put in your body shows up everywhere &mdash; including your cycle.' },
+    ]
+  },
+  holistic: {
+    title: 'Natural Period Hygiene &#x1F33F;',
+    intro: 'Your body is not dirty. Period odor is natural, biological, and completely normal. Here is how to care for yourself during your cycle in a clean, toxin-free, body-positive way.',
+    steps: [
+      { icon:'&#x1F33F;', title:'Change every 3-4 hours naturally', body:'Reusable cloth pads and period underwear should be rinsed in cold water immediately after removal, then washed with gentle, fragrance-free soap. Cold water first &mdash; hot sets the stain.' },
+      { icon:'&#x1F6BF;', title:'Front to back, always', body:'This is universal regardless of hygiene philosophy. Anterior to posterior wiping prevents bacteria migration and protects your urinary and vaginal health.' },
+      { icon:'&#x1F4A7;', title:'Water is your best cleanse', body:'Your vagina is self-regulating. Organic coconut oil can be used externally only for comfort and moisture. Avoid all scented products, even natural ones, internally. Simple is best.' },
+      { icon:'&#x1F9EA;', title:'pH-friendly support', body:'Organic unpasteurized apple cider vinegar diluted in a sitz bath can support external pH balance. Probiotics containing Lactobacillus strains support vaginal flora from the inside.' },
+      { icon:'&#x1F343;', title:'Plant-based odor support', body:'Chlorophyll drops in water, taken daily, are a natural internal deodorizer many holistic practitioners recommend during menstruation. Spearmint tea also supports hormonal balance.' },
+      { icon:'&#x267B;&#xFE0F;', title:'Sustainable period care', body:'Menstrual cups, discs, and cloth pads eliminate the chemicals found in conventional products. Sterilize your cup by boiling for 5-7 minutes between cycles. Store in a breathable cotton pouch.' },
+    ]
+  },
+  emergency: {
+    title: 'Quick Hygiene Tips &#x26A1;',
+    intro: 'No time for long explanations &mdash; here is what you need to know RIGHT NOW to feel clean and comfortable.',
+    steps: [
+      { icon:'&#x23F0;', title:'Change your pad as soon as possible', body:'Old blood smells. New pad = instant refresh. Priority number one.' },
+      { icon:'&#x1F6BF;', title:'Wipe front to back', body:'Always. Every time. Without exception.' },
+      { icon:'&#x1F9FC;', title:'Rinse with warm water if you can', body:'Even a quick rinse makes a huge difference in freshness.' },
+      { icon:'&#x1F9FB;', title:'Trash the used pad, never flush', body:'Wrap it up and bin it. Flushing causes blockages.' },
+    ]
+  },
+  gifter: {
+    title: 'What She Needs to Know &#x1F49C;',
+    intro: 'If you are shopping for someone who is just starting out or going through a tough time, consider including some hygiene essentials. Here is a quick guide so you understand what she is dealing with.',
+    steps: [
+      { icon:'&#x1F381;', title:'Unscented wipes are a game-changer gift', body:'Unscented feminine wipes (for external use only) are perfect for on-the-go freshness. A thoughtful addition to any period gift.' },
+      { icon:'&#x1F9FC;', title:'Include a note about changing regularly', body:'If gifting to a young person, a kind note reminding them to change every 3-4 hours can make a real difference. Knowledge is the best gift.' },
+      { icon:'&#x1F49C;', title:'Period smell is normal &mdash; reassure her', body:'If she seems self-conscious, remind her that period odor is biological and completely normal. A little empathy goes a long way.' },
+    ]
+  }
+};
+
+function showHygieneGuide(version) {
+  const v = version || state.version || 'adult';
+  const data = HYGIENE_CONTENT[v] || HYGIENE_CONTENT.adult;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hygieneOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  const stepsHtml = data.steps.map((s, i) =>
+    '<div style="display:flex;align-items:flex-start;gap:0.875rem;margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border);">' +
+    '<span style="font-size:1.4rem;flex-shrink:0;margin-top:0.1rem;">' + s.icon + '</span>' +
+    '<div><div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:0.3rem;">' + s.title + '</div>' +
+    '<div style="font-size:0.845rem;color:var(--text-muted);line-height:1.65;">' + s.body + '</div></div>' +
+    '</div>'
+  ).join('');
+
+  overlay.innerHTML =
+    '<div style="max-width:480px;margin:0 auto;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
+    '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);">' + data.title + '</h2>' +
+    '<button id="closeHygieneBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>' +
+    '</div>' +
+    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>' +
+    '</div>' +
+    stepsHtml +
+    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;border:1px solid rgba(34,197,94,0.2);margin-top:0.5rem;">' +
+    '<p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;margin:0;">&#x1F4AC; <strong>Remember:</strong> Period odor is normal and biological. Proper hygiene keeps you comfortable and confident. If you notice anything unusual &mdash; strong odor, unusual discharge, or discomfort &mdash; please talk to a healthcare provider. You deserve to feel your best.</p>' +
+    '</div>' +
+    '<button id="closeHygieneBtnBottom" style="width:100%;margin-top:1.25rem;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it! &#x1F49C;</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.getElementById('closeHygieneBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('closeHygieneBtnBottom').addEventListener('click', () => overlay.remove());
+}
+
+/* =============================================
+   JUST STARTING — INTERACTIVE FUNCTIONS
+   ============================================= */
+function toggleFiveW(btn) {
+  const answer = btn.querySelector('.five-w-answer');
+  const arrow  = btn.querySelector('span:last-child');
+  if (!answer) return;
+  const isOpen = answer.style.display !== 'none';
+  answer.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '\u25BC' : '\u25B2';
+}
+
 function showWelcomeCard() {
   const existing = document.getElementById('welcomeCard');
   if (existing) existing.remove();
@@ -1388,11 +1591,13 @@ function showWelcomeCard() {
     adult:     'linear-gradient(135deg,rgba(168,85,247,0.15),rgba(124,58,237,0.08))',
     emergency: 'linear-gradient(135deg,rgba(239,68,68,0.15),rgba(220,38,38,0.08))',
     gifter:    'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.08))',
-    holistic:  'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.08))'
+    holistic:  'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.08))',
+    starter:   'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(236,72,153,0.10))'
   };
   const borders = {
     teen:'rgba(236,72,153,0.25)', adult:'rgba(168,85,247,0.25)',
-    emergency:'rgba(239,68,68,0.25)', gifter:'rgba(251,191,36,0.25)', holistic:'rgba(34,197,94,0.25)'
+    emergency:'rgba(239,68,68,0.25)', gifter:'rgba(251,191,36,0.25)', holistic:'rgba(34,197,94,0.25)',
+    starter:'rgba(251,191,36,0.3)'
   };
   const emojis = { teen:'🌸', adult:'💜', emergency:'⚡', gifter:'💝', holistic:'🌿' };
 
@@ -1942,7 +2147,9 @@ function init() {
   // Address modal
   $('addressPill').addEventListener('click', openAddressModal);
   $('addressOverlay').addEventListener('click', closeAddressModal);
-  $('addressSave').addEventListener('click', () => {
+  const addrSaveEl = $('addressSave');
+  if (addrSaveEl) addrSaveEl.addEventListener('click', (e) => {
+    e.stopPropagation();
     const val = $('addressInput').value.trim();
     if (!val) { showToast('Please enter an address'); return; }
     state.deliveryAddress = val;
@@ -3154,6 +3361,318 @@ function getPhaseInfo(phase, version) {
 }
 
 
+
+
+/* =============================================
+   IMPACT CHECK SYSTEM
+   ============================================= */
+
+function showImpactCheck(dateStr) {
+  const overlay = document.createElement('div');
+  overlay.id = 'impactCheckOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="max-width:400px;width:100%;background:var(--surface);border-radius:24px;padding:1.75rem;border:1px solid rgba(168,85,247,0.25);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+        <div style="font-size:1.5rem;">&#x1F4CB;</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);background:var(--surface-2);padding:0.2rem 0.6rem;border-radius:999px;">takes ~30 seconds &#x2728;</span>
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Quick Impact Check</h2>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5;">Help us build a clearer picture for your healthcare provider.</p>
+
+      <!-- Q1: Daily impact -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">1. Did your symptoms affect your day today?</div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;" id="impactQ1">
+          <button class="impact-opt" data-q="impact" data-val="none" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F60A; Not at all</button>
+          <button class="impact-opt" data-q="impact" data-val="slight" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F610; Slightly &mdash; managed through it</button>
+          <button class="impact-opt" data-q="impact" data-val="moderate" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F614; Moderately &mdash; had to slow down</button>
+          <button class="impact-opt" data-q="impact" data-val="severe" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F62B; Severely &mdash; could not function normally</button>
+        </div>
+      </div>
+
+      <!-- Q2: What was affected -->
+      <div style="margin-bottom:1.25rem;" id="impactQ2Section" style="display:none;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">2. What was affected? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ2">
+          ${['&#x1F3EB; School/classes','&#x1F4BC; Work','&#x1F3C3; Exercise','&#x1F634; Sleep','&#x1F91D; Social plans','&#x1F37D;&#xFE0F; Eating/appetite','&#x1F9E0; Focus/concentration'].map(item =>
+            '<button class="impact-multi" data-item="'+item+'" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.78rem;cursor:pointer;">'+item+'</button>'
+          ).join('')}
+          <button class="impact-multi" data-item="none" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;">None of the above</button>
+        </div>
+      </div>
+
+      <!-- Q3: Irregularities -->
+      <div style="margin-bottom:1.25rem;" id="impactQ3Section">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">3. Any cycle irregularities today? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ3">
+          ${['Heavier than normal','Lighter than normal','Unusual pain location','Spotting between periods','Longer than usual','Shorter than usual'].map(item =>
+            '<button class="impact-irreg" data-item="'+item+'" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.78rem;cursor:pointer;">'+item+'</button>'
+          ).join('')}
+          <button class="impact-irreg" data-item="nothing" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;">Nothing unusual</button>
+        </div>
+      </div>
+
+      <button id="saveImpactBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.5rem;">Save &amp; Done &#x1F49C;</button>
+      <button id="skipImpactBtn" style="width:100%;padding:0.5rem;background:none;border:none;color:var(--text-muted);font-size:0.82rem;cursor:pointer;">skip for today</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Wire Q1 - show Q2 when answered
+  let selectedImpact = null;
+  const selectedActivities = new Set();
+  const selectedIrreg = new Set();
+
+  overlay.querySelectorAll('.impact-opt').forEach(btn => {
+    btn.addEventListener('click', function() {
+      overlay.querySelectorAll('.impact-opt').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'var(--surface-2)';
+        b.style.fontWeight = '400';
+      });
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.background = 'rgba(168,85,247,0.12)';
+      btn.style.fontWeight = '600';
+      selectedImpact = btn.dataset.val;
+      // Show Q2 if impact > none
+      const q2 = document.getElementById('impactQ2Section');
+      if (q2) q2.style.display = selectedImpact !== 'none' ? '' : 'none';
+    });
+  });
+
+  // Wire Q2 multi-select
+  overlay.querySelectorAll('.impact-multi').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const item = btn.dataset.item;
+      if (item === 'none') {
+        selectedActivities.clear();
+        overlay.querySelectorAll('.impact-multi').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+        selectedActivities.add('none');
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.background = 'rgba(168,85,247,0.12)';
+      } else {
+        selectedActivities.delete('none');
+        if (selectedActivities.has(item)) {
+          selectedActivities.delete(item);
+          btn.style.borderColor = 'var(--border)';
+          btn.style.background = 'var(--surface-2)';
+        } else {
+          selectedActivities.add(item);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.background = 'rgba(168,85,247,0.12)';
+        }
+        // Deselect none
+        overlay.querySelectorAll('.impact-multi[data-item="none"]').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+      }
+    });
+  });
+
+  // Wire Q3 multi-select
+  overlay.querySelectorAll('.impact-irreg').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const item = btn.dataset.item;
+      if (item === 'nothing') {
+        selectedIrreg.clear();
+        overlay.querySelectorAll('.impact-irreg').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+        selectedIrreg.add('nothing');
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.background = 'rgba(168,85,247,0.12)';
+      } else {
+        selectedIrreg.delete('nothing');
+        if (selectedIrreg.has(item)) {
+          selectedIrreg.delete(item);
+          btn.style.borderColor = 'var(--border)';
+          btn.style.background = 'var(--surface-2)';
+        } else {
+          selectedIrreg.add(item);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.background = 'rgba(168,85,247,0.12)';
+        }
+        overlay.querySelectorAll('.impact-irreg[data-item="nothing"]').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+      }
+    });
+  });
+
+  // Save
+  document.getElementById('saveImpactBtn').addEventListener('click', function() {
+    const impactData = getSymptomsData();
+    if (!impactData[dateStr]) impactData[dateStr] = {};
+    if (selectedImpact) impactData[dateStr]._impact = selectedImpact;
+    if (selectedActivities.size) impactData[dateStr]._activities = Array.from(selectedActivities);
+    if (selectedIrreg.size) impactData[dateStr]._irregularities = Array.from(selectedIrreg);
+    saveSymptomsData(impactData);
+    overlay.remove();
+    showToast('Impact logged. Your health summary is being updated. &#x1F49C;');
+    setTimeout(() => navigate('home'), 600);
+  });
+
+  document.getElementById('skipImpactBtn').addEventListener('click', function() {
+    overlay.remove();
+    setTimeout(() => navigate('home'), 300);
+  });
+}
+
+function getImpactLabel(val) {
+  const map = { none:'Not affected', slight:'Slightly affected', moderate:'Moderately affected', severe:'Severely affected' };
+  return map[val] || val;
+}
+
+/* =============================================
+   SYMPTOM HEALTH SUMMARY REPORT
+   ============================================= */
+function generateHealthSummary() {
+  const cycleData = getTrackerData();
+  const symptomData = getSymptomsData();
+  const cycles = cycleData.cycles;
+
+  if (!cycles.length) {
+    showToast('Log at least one period to generate a summary');
+    return;
+  }
+
+  const lastCycle = cycles[cycles.length - 1];
+  const startDate = lastCycle.s;
+  const endDate   = lastCycle.e || todayStr();
+
+  // Collect all symptom entries for this cycle
+  const entries = [];
+  let d = startDate;
+  while (d <= endDate) {
+    const daySymptoms = symptomData[d];
+    if (daySymptoms && Object.keys(daySymptoms).length > 0) {
+      entries.push({ date: d, symptoms: daySymptoms });
+    }
+    d = addDays(d, 1);
+  }
+
+  if (!entries.length) {
+    showToast('No symptoms logged for this cycle yet');
+    return;
+  }
+
+  // Build summary HTML
+  const avgLen = calcAvgCycleLength(cycles);
+  const summaryEl = document.createElement('div');
+  summaryEl.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  let entriesHtml = entries.map(e => {
+    const impact = e.symptoms._impact;
+    const activities = e.symptoms._activities;
+    const irregs = e.symptoms._irregularities;
+
+    const symptomList = Object.entries(e.symptoms)
+      .filter(([sid]) => !sid.startsWith('_'))
+      .map(([sid, val]) => {
+        const s = SYMPTOMS.find(s => s.id === sid);
+        const label = s ? s.icon + ' ' + s.label : sid;
+        const value = val === true ? 'Yes' : val;
+        return '<li style="margin-bottom:0.25rem;"><strong>' + label + ':</strong> ' + value + '</li>';
+      }).join('');
+
+    let impactHtml = '';
+    if (impact) {
+      const impactColors = { none:'#22c55e', slight:'#eab308', moderate:'#f97316', severe:'#ef4444' };
+      const color = impactColors[impact] || '#A855F7';
+      impactHtml = '<div style="margin-top:0.5rem;padding:0.4rem 0.75rem;background:rgba(168,85,247,0.08);border-radius:8px;font-size:0.8rem;">' +
+        '<strong style="color:' + color + ';">Daily Impact:</strong> ' + getImpactLabel(impact) + '</div>';
+    }
+
+    let activitiesHtml = '';
+    if (activities && activities.length && activities[0] !== 'none') {
+      activitiesHtml = '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted);"><strong>Affected:</strong> ' + activities.join(', ') + '</div>';
+    }
+
+    let irregHtml = '';
+    if (irregs && irregs.length && irregs[0] !== 'nothing') {
+      irregHtml = '<div style="margin-top:0.4rem;font-size:0.8rem;color:#f97316;"><strong>&#x26A0;&#xFE0F; Irregularities:</strong> ' + irregs.join(', ') + '</div>';
+    }
+
+    return '<div style="margin-bottom:1rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:10px;border-left:3px solid var(--accent);">' +
+      '<div style="font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">' + e.date + '</div>' +
+      (symptomList ? '<ul style="list-style:none;padding:0;margin:0;font-size:0.875rem;color:var(--text-muted);">' + symptomList + '</ul>' : '') +
+      impactHtml + activitiesHtml + irregHtml +
+      '</div>';
+  }).join('');
+
+  summaryEl.innerHTML = `
+    <div style="max-width:480px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);">&#x1F4CB; Health Summary</h2>
+        <button id="closeSummaryBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>
+      </div>
+      <div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Cycle Overview</div>
+        <div style="font-size:0.875rem;color:var(--text-primary);line-height:1.8;">
+          <div>&#x1F4C5; Period start: <strong>${startDate}</strong></div>
+          <div>&#x1F4C5; Period end: <strong>${endDate}</strong></div>
+          <div>&#x1F4CA; Average cycle length: <strong>${avgLen} days</strong></div>
+          <div>&#x1F9E0; Symptom days logged: <strong>${entries.length}</strong></div>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Daily Symptom Log</div>
+      ${entriesHtml}
+      <div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-top:1.25rem;border:1px solid rgba(34,197,94,0.2);">
+        <div style="font-size:0.875rem;color:var(--text-primary);line-height:1.7;">
+          <strong>&#x1F4AC; Share with your healthcare provider</strong><br>
+          <span style="color:var(--text-muted);">This summary shows your logged symptoms during your most recent cycle. Screenshot or share this report at your next appointment.</span>
+        </div>
+      </div>
+      <button id="screenshotSummaryBtn" style="width:100%;margin-top:1.25rem;padding:1rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">&#x1F4F8; Screenshot to Save</button>
+      <button id="emailSummaryBtn" style="width:100%;margin-top:0.75rem;padding:1rem;background:var(--surface-2);color:var(--text-primary);border:1.5px solid var(--border);border-radius:999px;font-size:0.875rem;font-weight:600;cursor:pointer;">&#x1F4E7; Email to Myself</button>
+    </div>`;
+
+  document.body.appendChild(summaryEl);
+
+  document.getElementById('closeSummaryBtn').addEventListener('click', () => summaryEl.remove());
+
+  document.getElementById('screenshotSummaryBtn').addEventListener('click', () => {
+    showToast('Take a screenshot now to save your summary ??');
+  });
+
+  document.getElementById('emailSummaryBtn').addEventListener('click', () => {
+    const nlData = getNLCookie();
+    if (!nlData || !nlData.email) {
+      showToast('Subscribe to the newsletter first to enable email summaries');
+      return;
+    }
+    if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+      const body = entries.map(e => {
+        return e.date + ': ' + Object.entries(e.symptoms).map(([sid,val]) => {
+          const s = SYMPTOMS.find(s => s.id === sid);
+          return (s ? s.label : sid) + ' - ' + (val === true ? 'Yes' : val);
+        }).join(', ');
+      }).join('\n');
+
+      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        to_email: nlData.email,
+        to_name: 'there',
+        life_stage: 'health_summary',
+        version: state.version || 'adult',
+        store_url: 'Period: ' + startDate + ' to ' + endDate + '\n\n' + body
+
+
+      }).then(() => showToast('Summary sent to ' + nlData.email + ' ??'))
+        .catch(() => showToast('Could not send email. Try screenshotting instead.'));
+    } else {
+      showToast('Email not configured yet. Screenshot your summary for now ??');
+    }
+  });
+}
+
 function renderTracker() {
   const data       = getTrackerData();
   const { cycles } = data;
@@ -3446,7 +3965,7 @@ function renderSymptomLog(dateStr) {
   if (saveBtn) {
     saveBtn.addEventListener('click', function() {
       showToast('Symptoms saved! &#x1F49C;');
-      setTimeout(() => navigate('home'), 800);
+      setTimeout(() => showImpactCheck(dateStr), 400);
     });
   }
 }
@@ -3609,7 +4128,7 @@ function saveSmsReminder() {
   prefs.daysBefore = getSelectedDaysBefore();
   setReminderPrefs(prefs);
   renderReminderState();
-  showToast('SMS reminder saved \u2713');
+  showToast('Got it! ?? SMS reminders are set. You will receive a text before your next predicted period.');
   // Show info about SMS
   const smsStatus = $('remSmsStatus');
   if (smsStatus) {
@@ -4428,9 +4947,9 @@ function showTrackerTutorial() {
 
   const steps = [
     { emoji:'📅', title:'Tap a date', desc:'Tap any date on the calendar to log when your period starts. Simple as that!' },
-    { emoji:'🩸', title:'Log your period', desc:'Tap a date to mark your period start. Tap again to mark when it ends. We handle the predictions.' },
-    { emoji:'📊', title:'Track symptoms', desc:'After logging, scroll down to track your mood, energy, cramps and more. Your body tells a story.' },
-    { emoji:'🔔', title:'Get reminders', desc:'Enable push notifications or text reminders so you are never caught off guard again.' },
+    { emoji:'🩸', title:'Log start and end', desc:'Tap a date to mark your period start. Tap it again or use the Log Period End button when it is over.' },
+    { emoji:'📊', title:'Track your symptoms', desc:'After logging, scroll down to track your mood, energy, cramps and more each day. Your body tells a story.' },
+    { emoji:'🔔', title:'Set reminders', desc:'Enable push notifications or text reminders so you are never caught off guard again.' },
   ];
 
   let step = 0;
@@ -4442,24 +4961,27 @@ function showTrackerTutorial() {
     const s = steps[step];
     const emoji = document.getElementById('tutEmoji');
     const title = document.getElementById('tutTitle');
-    const desc = document.getElementById('tutDesc');
-    const fill = document.getElementById('tutProgressFill');
-    const dots = document.querySelectorAll('.tut-dot');
+    const desc  = document.getElementById('tutDesc');
+    const fill  = document.getElementById('tutProgressFill');
+    const dots  = document.querySelectorAll('.tut-dot');
     if (emoji) emoji.textContent = s.emoji;
     if (title) title.textContent = s.title;
-    if (desc) desc.textContent = s.desc;
-    if (fill) fill.style.width = ((step + 1) / steps.length * 100) + '%';
+    if (desc)  desc.textContent  = s.desc;
+    if (fill)  fill.style.width  = ((step + 1) / steps.length * 100) + '%';
     dots.forEach((d, i) => d.classList.toggle('active', i === step));
-    // Update button text
-    const btn = document.getElementById('tutNextBtn');
-    if (btn) btn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
+    const nextBtn = document.getElementById('tutNextBtn');
+    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
   }
 
-  // Replace tap hint with a proper next button
+  // Replace tap hint with proper button - only once
   const tapHint = overlay.querySelector('.tut-tap-hint');
-  if (tapHint) {
-    tapHint.innerHTML = '<button id="tutNextBtn" style="margin-top:0.5rem;padding:0.75rem 2rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Got it, next →</button>';
-    document.getElementById('tutNextBtn').addEventListener('click', () => {
+  if (tapHint && !document.getElementById('tutNextBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'tutNextBtn';
+    btn.style.cssText = 'margin-top:0.75rem;padding:0.75rem 2rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;width:100%;';
+    btn.textContent = 'Got it, next →';
+    tapHint.parentNode.replaceChild(btn, tapHint);
+    btn.addEventListener('click', function() {
       step++;
       if (step >= steps.length) {
         overlay.classList.add('hidden');
@@ -4471,10 +4993,14 @@ function showTrackerTutorial() {
   }
 
   const skipBtn = $('tutSkipBtn');
-  if (skipBtn) skipBtn.addEventListener('click', () => {
-    overlay.classList.add('hidden');
-    document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
-  });
+  if (skipBtn) {
+    const newSkip = skipBtn.cloneNode(true);
+    skipBtn.parentNode.replaceChild(newSkip, skipBtn);
+    newSkip.addEventListener('click', function() {
+      overlay.classList.add('hidden');
+      document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
+    });
+  }
 
   renderStep();
 }
