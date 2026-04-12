@@ -1382,21 +1382,31 @@ function showWelcomeCard() {
   if (existing) existing.remove();
 
   const greeting = getPersonalizedGreeting(state.version);
+  const v = state.version || 'adult';
+  const gradients = {
+    teen:      'linear-gradient(135deg,rgba(236,72,153,0.15),rgba(168,85,247,0.10))',
+    adult:     'linear-gradient(135deg,rgba(168,85,247,0.15),rgba(124,58,237,0.08))',
+    emergency: 'linear-gradient(135deg,rgba(239,68,68,0.15),rgba(220,38,38,0.08))',
+    gifter:    'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.08))',
+    holistic:  'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.08))'
+  };
+  const borders = {
+    teen:'rgba(236,72,153,0.25)', adult:'rgba(168,85,247,0.25)',
+    emergency:'rgba(239,68,68,0.25)', gifter:'rgba(251,191,36,0.25)', holistic:'rgba(34,197,94,0.25)'
+  };
+  const emojis = { teen:'🌸', adult:'💜', emergency:'⚡', gifter:'💝', holistic:'🌿' };
+
   const card = document.createElement('div');
   card.id = 'welcomeCard';
-  card.style.cssText = 'margin:0.75rem 1rem 0;padding:0.875rem 1rem;background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(124,58,237,0.06));border:1px solid rgba(168,85,247,0.2);border-radius:16px;font-size:0.9rem;color:var(--text-primary);line-height:1.4;animation:fadeSlideIn 0.4s ease;';
-  card.textContent = greeting;
+  card.style.cssText = 'margin:0.75rem 1rem 0;padding:1rem 1.25rem;background:' + (gradients[v]||gradients.adult) + ';border:1px solid ' + (borders[v]||borders.adult) + ';border-radius:20px;animation:fadeSlideIn 0.5s ease;display:flex;align-items:center;gap:0.75rem;';
+  card.innerHTML = '<span style="font-size:1.5rem;flex-shrink:0;">' + (emojis[v]||'💜') + '</span>' +
+    '<div style="flex:1;">' +
+    '<div style="font-size:0.9rem;color:var(--text-primary);line-height:1.4;font-weight:500;">' + greeting + '</div>' +
+    '</div>' +
+    '<button onclick="this.parentElement.style.display=\'none\'" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;flex-shrink:0;padding:0.25rem;">&#xD7;</button>';
 
   const hero = document.querySelector('.home-hero');
   if (hero) hero.insertAdjacentElement('afterend', card);
-
-  setTimeout(() => {
-    if (card.parentNode) {
-      card.style.transition = 'opacity 0.5s ease';
-      card.style.opacity = '0';
-      setTimeout(() => card.remove(), 500);
-    }
-  }, 5000);
 }
 
 /* =============================================
@@ -1567,6 +1577,155 @@ function calcDistanceFee(distanceMiles) {
 }
 
 
+
+
+/* =============================================
+   PWA INSTALL EDUCATION
+   ============================================= */
+function showPWAEducation() {
+  if (document.cookie.includes('period_pwa_edu')) return;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (!isIOS && !isAndroid) return;
+  setTimeout(function() {
+    if (document.getElementById('pwaEduToast')) return;
+    const steps = isIOS
+      ? 'Tap the <strong>Share</strong> button then <strong>Add to Home Screen</strong>'
+      : 'Tap the <strong>Menu</strong> button then <strong>Add to Home screen</strong>';
+    const toast = document.createElement('div');
+    toast.id = 'pwaEduToast';
+    toast.style.cssText = 'position:fixed;bottom:1.5rem;left:1rem;right:1rem;z-index:9990;background:var(--surface);border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:1rem;box-shadow:0 8px 32px rgba(0,0,0,0.3);animation:fadeSlideIn 0.4s ease;';
+    toast.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+        <span style="font-size:1.5rem;flex-shrink:0;">&#x1F4F1;</span>
+        <div style="flex:1;">
+          <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Add Period. to your home screen</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">${steps} for the best experience &amp; push notifications.</div>
+        </div>
+        <button id="pwaEduClose" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;flex-shrink:0;">&#xD7;</button>
+      </div>`;
+    document.body.appendChild(toast);
+    document.getElementById('pwaEduClose').addEventListener('click', function() {
+      toast.remove();
+      document.cookie = 'period_pwa_edu=1;max-age=946080000;path=/;SameSite=Lax';
+    });
+  }, 8000);
+}
+
+/* =============================================
+   COMING SOON + WAITLIST SYSTEM
+   ============================================= */
+const COMING_SOON_MODE = true;
+
+function showComingSoonBanner() {
+  if (!COMING_SOON_MODE) return;
+  if (document.getElementById('comingSoonBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'comingSoonBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#7C3AED,#A855F7);padding:0.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.5rem;flex:1;">
+      <span style="font-size:0.85rem;color:white;font-weight:600;">&#x1F451; Launch coming soon! Be the first to know.</span>
+    </div>
+    <button id="waitlistBannerBtn" style="background:white;color:#7C3AED;border:none;border-radius:999px;padding:0.35rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">Join Waitlist</button>
+    <button id="bannerClose" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.2rem;cursor:pointer;padding:0 0.25rem;">&#xD7;</button>`;
+  document.body.insertBefore(banner, document.body.firstChild);
+  document.body.style.paddingTop = '44px';
+  document.getElementById('waitlistBannerBtn').addEventListener('click', showWaitlistModal);
+  document.getElementById('bannerClose').addEventListener('click', function() {
+    banner.style.display = 'none';
+    document.body.style.paddingTop = '0';
+  });
+}
+
+function showWaitlistModal() {
+  let modal = document.getElementById('waitlistModal');
+  if (modal) { modal.style.display = 'flex'; return; }
+  modal = document.createElement('div');
+  modal.id = 'waitlistModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  modal.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F451;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">Be First in Line</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">Period. is launching soon. Join the waitlist and be the first to know when we go live. Early members get an exclusive discount. &#x1F49C;</p>
+      <input id="waitlistEmail" type="email" placeholder="your@email.com" style="width:100%;height:48px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.9rem;color:var(--text-primary);outline:none;margin-bottom:0.75rem;box-sizing:border-box;"/>
+      <button id="waitlistSubmitBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">Count Me In &#x2728;</button>
+      <button id="waitlistCloseBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">maybe later</button>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
+  document.getElementById('waitlistCloseBtn').addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+  document.getElementById('waitlistEmail').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitWaitlist();
+  });
+}
+
+function submitWaitlist() {
+  const input = document.getElementById('waitlistEmail');
+  const email = input ? input.value.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (input) { input.style.borderColor = '#ef4444'; setTimeout(function() { input.style.borderColor = ''; }, 2000); }
+    showToast('Please enter a valid email');
+    return;
+  }
+  if (_firebaseFs) {
+    _firebaseFs.collection('waitlist').add({
+      email: email,
+      created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      source: 'waitlist_modal'
+    }).catch(function(e) { console.warn('Waitlist save failed:', e); });
+  }
+  if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+    try {
+      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        to_email: email, to_name: 'there',
+        life_stage: 'waitlist', version: 'waitlist',
+        store_url: 'https://perioddelivers.com'
+      }).catch(function(e) { console.warn('EmailJS failed:', e); });
+    } catch(e) {}
+  }
+  const modal = document.getElementById('waitlistModal');
+  if (modal) modal.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:3rem;margin-bottom:1rem;">&#x1F451;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">You are on the list!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">We will email you the moment Period. launches. Thank you for believing in us. &#x1F49C;</p>
+      <button id="waitlistDoneBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Close</button>
+    </div>`;
+  const doneBtn = document.getElementById('waitlistDoneBtn');
+  if (doneBtn) doneBtn.addEventListener('click', function() {
+    const m = document.getElementById('waitlistModal');
+    if (m) m.style.display = 'none';
+  });
+}
+
+function showComingSoonCheckoutBlock() {
+  if (!COMING_SOON_MODE) return false;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F6A7;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">We are not live yet!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">Period. is launching soon. Join the waitlist to be first in line and get an exclusive early-bird discount. &#x1F49C;</p>
+      <button id="csWaitlistBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">Join the Waitlist &#x2728;</button>
+      <button id="csBackBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Go back</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('csWaitlistBtn').addEventListener('click', function() {
+    overlay.remove();
+    showWaitlistModal();
+  });
+  document.getElementById('csBackBtn').addEventListener('click', function() {
+    overlay.remove();
+  });
+  return true;
+}
+
+
 function toggleDiscreetDelivery() {
   const track = document.getElementById('discreetToggleTrack');
   const thumb = document.getElementById('discreetToggleThumb');
@@ -1701,10 +1860,15 @@ function init() {
   initVersion();
   initTheme();
   registerSW();
+  showComingSoonBanner();
+  showPWAEducation();
 
 
   // Home navigation
   $('homeLogo')      .addEventListener('click', () => navigate('home'));
+  // Always wire version badge switcher
+  const vBadge = $('versionBadge');
+  if (vBadge) vBadge.addEventListener('click', showVersionPicker);
    // Init symptom log
   initSymptomLog();
   $('heroOrderNow').addEventListener('click', () => {
@@ -3177,11 +3341,11 @@ function logPeriodEnd() {
    ============================================= */
 const SYMPTOMS = [
   { id:'cramps',  label:'Cramps',        icon:'🔥' },
-  { id:'mood',    label:'Mood',          icon:'💭', options:['Happy 😊','Sad 😢','Anxious 😰','Irritable 😤'] },
   { id:'bloating',label:'Bloating',      icon:'🌊' },
   { id:'headache',label:'Headache',      icon:'🤕' },
-  { id:'energy',  label:'Energy',        icon:'⚡', options:['High ✨','Medium 😐','Low 😴'] },
   { id:'cravings',label:'Cravings',      icon:'🍫' },
+  { id:'mood',    label:'Mood',          icon:'💭', options:['Happy 😊','Sad 😢','Anxious 😰','Irritable 😤'] },
+  { id:'energy',  label:'Energy',        icon:'⚡', options:['High ✨','Medium 😐','Low 😴'] },
   { id:'sleep',   label:'Sleep Quality', icon:'🌙', options:['Great 😴','Okay 😐','Poor 😩'] },
 ];
 
@@ -3220,45 +3384,71 @@ function renderSymptomLog(dateStr) {
   const data = getSymptomsData();
   const todaySymptoms = data[dateStr] || {};
 
-  let html = '<div class="symptom-header">' +
-    '<div class="symptom-title">&#x1F338; How are you feeling today?</div>' +
-    '<div class="symptom-date">' + dateStr + '</div>' +
-    '</div><div class="symptom-grid">';
+  let html = '<div class="symptom-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
+    '<div class="symptom-title" style="font-size:1rem;font-weight:700;color:var(--text-primary);">&#x1F338; How are you feeling?</div>' +
+    '<div class="symptom-date" style="font-size:0.75rem;color:var(--text-muted);">' + dateStr + '</div>' +
+    '</div>';
 
   SYMPTOMS.forEach(function(s) {
     const logged = todaySymptoms[s.id];
     if (s.options) {
-      html += '<div class="symptom-card ' + (logged ? 'logged' : '') + '">' +
-        '<div class="symptom-icon">' + s.icon + '</div>' +
-        '<div class="symptom-label">' + s.label + '</div>' +
-        '<div class="symptom-options">';
+      html += '<div style="margin-bottom:1.25rem;">' +
+        '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">' +
+        '<span style="font-size:1.1rem;">' + s.icon + '</span>' +
+        '<span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">' + s.label + '</span>' +
+        (logged ? '<span style="font-size:0.7rem;background:var(--accent);color:white;padding:0.15rem 0.5rem;border-radius:999px;margin-left:auto;">' + logged + '</span>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.5rem;">';
       s.options.forEach(function(opt) {
-        html += '<button class="symptom-opt ' + (logged === opt ? 'active' : '') + '" ' +
+        const active = logged === opt;
+        html += '<button style="width:100%;padding:0.85rem 1rem;text-align:left;border-radius:12px;border:1.5px solid ' +
+          (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
+          (active ? 'rgba(168,85,247,0.12)' : 'var(--surface-2)') + ';color:var(--text-primary);font-size:0.9rem;font-weight:' +
+          (active ? '600' : '400') + ';cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;" ' +
           'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="' + opt + '" type="button">' +
-          opt + '</button>';
+          '<span>' + opt + '</span>' +
+          (active ? '<span style="color:var(--accent);">&#x2713;</span>' : '') +
+          '</button>';
       });
       html += '</div></div>';
     } else {
-      html += '<button class="symptom-card symptom-card--toggle ' + (logged ? 'logged' : '') + '" ' +
+      const active = !!logged;
+      html += '<button style="width:100%;padding:0.85rem 1rem;border-radius:12px;border:1.5px solid ' +
+        (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
+        (active ? 'rgba(168,85,247,0.12)' : 'var(--surface-2)') + ';color:var(--text-primary);font-size:0.9rem;cursor:pointer;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;" ' +
         'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="__toggle__" type="button">' +
-        '<div class="symptom-icon">' + s.icon + '</div>' +
-        '<div class="symptom-label">' + s.label + '</div>' +
-        (logged ? '<div class="symptom-check">&#x2713;</div>' : '') +
+        '<span style="font-size:1.1rem;">' + s.icon + '</span>' +
+        '<span style="font-weight:' + (active ? '600' : '400') + ';">' + s.label + '</span>' +
+        (active ? '<span style="margin-left:auto;color:var(--accent);font-weight:700;">&#x2713; Logged</span>' : '<span style="margin-left:auto;color:var(--text-muted);font-size:0.8rem;">tap to log</span>') +
         '</button>';
     }
   });
 
-  html += '</div>';
+  // Save button
+  html += '<button id="saveSymptomBtn" style="width:100%;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.5rem;">Save &amp; Done &#x2713;</button>';
+
   container.innerHTML = html;
 
   container.querySelectorAll('[data-sid]').forEach(function(btn) {
     btn.addEventListener('click', function() {
+      if (btn.id === 'saveSymptomBtn') return;
       var d = btn.dataset.date;
       var sid = btn.dataset.sid;
       var opt = btn.dataset.opt === '__toggle__' ? true : btn.dataset.opt;
-      if (d && sid) logSymptom(d, sid, opt);
+      if (d && sid) {
+        logSymptom(d, sid, opt);
+        renderSymptomLog(d);
+      }
     });
   });
+
+  const saveBtn = document.getElementById('saveSymptomBtn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      showToast('Symptoms saved! &#x1F49C;');
+      setTimeout(() => navigate('home'), 800);
+    });
+  }
 }
 function initSymptomLog() {
   const section = $('symptomLogSection');
@@ -4233,16 +4423,61 @@ let _tutStepStart  = 0;
 
 
 function showTrackerTutorial() {
+  const TUTORIAL_KEY = 'period_tracker_tutdone';
+  if (document.cookie.includes(TUTORIAL_KEY)) return;
+
+  const steps = [
+    { emoji:'📅', title:'Tap a date', desc:'Tap any date on the calendar to log when your period starts. Simple as that!' },
+    { emoji:'🩸', title:'Log your period', desc:'Tap a date to mark your period start. Tap again to mark when it ends. We handle the predictions.' },
+    { emoji:'📊', title:'Track symptoms', desc:'After logging, scroll down to track your mood, energy, cramps and more. Your body tells a story.' },
+    { emoji:'🔔', title:'Get reminders', desc:'Enable push notifications or text reminders so you are never caught off guard again.' },
+  ];
+
+  let step = 0;
   const overlay = $('trackerTutorial');
   if (!overlay) return;
-  if (getCookie('period_tracker_tutorial')) return;
-  _tutStep = 0;
   overlay.classList.remove('hidden');
-  _renderTutStep();
-  _startTutTimer();
+
+  function renderStep() {
+    const s = steps[step];
+    const emoji = document.getElementById('tutEmoji');
+    const title = document.getElementById('tutTitle');
+    const desc = document.getElementById('tutDesc');
+    const fill = document.getElementById('tutProgressFill');
+    const dots = document.querySelectorAll('.tut-dot');
+    if (emoji) emoji.textContent = s.emoji;
+    if (title) title.textContent = s.title;
+    if (desc) desc.textContent = s.desc;
+    if (fill) fill.style.width = ((step + 1) / steps.length * 100) + '%';
+    dots.forEach((d, i) => d.classList.toggle('active', i === step));
+    // Update button text
+    const btn = document.getElementById('tutNextBtn');
+    if (btn) btn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
+  }
+
+  // Replace tap hint with a proper next button
+  const tapHint = overlay.querySelector('.tut-tap-hint');
+  if (tapHint) {
+    tapHint.innerHTML = '<button id="tutNextBtn" style="margin-top:0.5rem;padding:0.75rem 2rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Got it, next →</button>';
+    document.getElementById('tutNextBtn').addEventListener('click', () => {
+      step++;
+      if (step >= steps.length) {
+        overlay.classList.add('hidden');
+        document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
+      } else {
+        renderStep();
+      }
+    });
+  }
+
+  const skipBtn = $('tutSkipBtn');
+  if (skipBtn) skipBtn.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
+  });
+
+  renderStep();
 }
-
-
 function _renderTutStep() {
   const s = TUTORIAL_STEPS[_tutStep];
   if (!s) return;
