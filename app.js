@@ -1969,7 +1969,7 @@ function showTrustedAdultGate(onApproved) {
 // School Profile System (placeholder — ready for launch)
 function showSchoolProfileSetup() {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;-webkit-overflow-scrolling:touch;';
   overlay.innerHTML = `
     <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
       <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
@@ -2656,6 +2656,55 @@ function toggleDiscreetDelivery() {
   if (thumb) thumb.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
   if (on) showDiscreetDeliveryPopup(state.version === 'teen' ? 'school' : 'work');
   state.discreetDelivery = on;
+}
+
+/* =============================================
+   INLINE ADDRESS POPUP (slides up over cart)
+   ============================================= */
+function showInlineAddressPopup(onSaved) {
+  var ex = document.getElementById('inlineAddrPopup');
+  if (ex) ex.remove();
+  var popup = document.createElement('div');
+  popup.id = 'inlineAddrPopup';
+  popup.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.85);display:flex;align-items:flex-end;justify-content:center;';
+  popup.innerHTML =
+    '<div style="width:100%;max-width:480px;background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem;border-top:2px solid rgba(168,85,247,0.3);">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">' +
+    '<h3 style="font-size:1rem;font-weight:700;color:var(--text-primary);">📍 Delivery Address</h3>' +
+    '<button id="iapClose" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;">&#xD7;</button>' +
+    '</div>' +
+    '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">Where should we deliver?</p>' +
+    '<input id="iapInput" type="text" placeholder="Street address, City, State ZIP" autocomplete="street-address" style="width:100%;height:48px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.9rem;color:var(--text-primary);outline:none;margin-bottom:0.6rem;box-sizing:border-box;"/>' +
+    '<div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">' +
+    ['Home','Work','School','Other'].map(function(lbl) {
+      return '<button class="iap-lbl" data-lbl="' + lbl + '" style="flex:1;padding:0.45rem 0;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.72rem;cursor:pointer;">' + lbl + '</button>';
+    }).join('') +
+    '</div>' +
+    '<button id="iapSave" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Save & Continue →</button>' +
+    '</div>';
+  document.body.appendChild(popup);
+  setTimeout(function() { var i=document.getElementById('iapInput'); if(i) i.focus(); }, 250);
+  var chosen = 'Home';
+  popup.querySelectorAll('.iap-lbl').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      popup.querySelectorAll('.iap-lbl').forEach(function(b) { b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)'; b.style.background='var(--surface-2)'; });
+      btn.style.borderColor='var(--accent)'; btn.style.color='var(--text-primary)'; btn.style.background='rgba(168,85,247,0.1)';
+      chosen = btn.dataset.lbl;
+    });
+  });
+  document.getElementById('iapClose').addEventListener('click', function() { popup.remove(); });
+  document.getElementById('iapSave').addEventListener('click', function() {
+    var inp = document.getElementById('iapInput');
+    var val = inp ? inp.value.trim() : '';
+    if (!val) { if(inp) inp.style.borderColor='#ef4444'; showToast('Please enter your delivery address'); return; }
+    state.deliveryAddress = val;
+    addSavedAddress(chosen, val);
+    var pill = $('addressPill');
+    if (pill) pill.innerHTML = '📍 ' + val.split(',')[0];
+    popup.remove();
+    showToast('✓ Address saved!');
+    if (typeof onSaved === 'function') onSaved();
+  });
 }
 
 function placeOrder() {
@@ -4095,7 +4144,7 @@ function showImpactCheck(dateStr) {
   overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
 
   overlay.innerHTML = `
-    <div style="max-width:400px;width:100%;background:var(--surface);border-radius:24px;padding:1.75rem;border:1px solid rgba(168,85,247,0.25);">
+    <div style="max-width:400px;width:100%;margin:1rem auto;background:var(--surface);border-radius:24px;padding:1.25rem 1rem;border:1px solid rgba(168,85,247,0.25);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
         <div style="font-size:1.5rem;">&#x1F4CB;</div>
         <span style="font-size:0.72rem;color:var(--text-muted);background:var(--surface-2);padding:0.2rem 0.6rem;border-radius:999px;">takes ~30 seconds &#x2728;</span>
@@ -4115,7 +4164,7 @@ function showImpactCheck(dateStr) {
       </div>
 
       <!-- Q2: What was affected -->
-      <div style="margin-bottom:1.25rem;" id="impactQ2Section" style="display:none;">
+      <div id="impactQ2Section" style="margin-bottom:1.25rem;display:none;">
         <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">2. What was affected? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ2">
           ${['&#x1F3EB; School/classes','&#x1F4BC; Work','&#x1F3C3; Exercise','&#x1F634; Sleep','&#x1F91D; Social plans','&#x1F37D;&#xFE0F; Eating/appetite','&#x1F9E0; Focus/concentration'].map(item =>
@@ -4850,7 +4899,7 @@ function saveSmsReminder() {
   prefs.daysBefore = getSelectedDaysBefore();
   setReminderPrefs(prefs);
   renderReminderState();
-  showToast('Got it! ?? SMS reminders are set. You will receive a text before your next predicted period.');
+  showToast('💜 SMS reminders set! We’ll text you before your next period.');
   // Show info about SMS
   const smsStatus = $('remSmsStatus');
   if (smsStatus) {
@@ -5232,35 +5281,48 @@ function showQuiz() {
 
 
 function showQuizUrgencyCheck() {
-  const body    = $('quizBody');
-  const nextBtn = $('quizNextBtn');
+  const body     = $('quizBody');
+  const nextBtn  = $('quizNextBtn');
   const progFill = $('quizProgressFill');
   if (!body || !nextBtn) return;
-
 
   if (progFill) progFill.style.width = '0%';
   nextBtn.disabled = true;
   nextBtn.textContent = 'Continue →';
   nextBtn.classList.remove('done-btn');
 
+  const isGifter = state.version === 'gifter';
+  const title    = isGifter
+    ? 'What do they need RIGHT NOW? 🚨'
+    : 'Quick check — do you need something right now?';
+  const sub      = isGifter
+    ? 'Someone is counting on you. If they need supplies urgently, skip ahead — personalization can wait.'
+    : "We want to personalize your experience, but if you're in a pinch we'll get you sorted first.";
+  const yesLabel = isGifter ? '🚨 Yes — they need it NOW' : '🚨 Yes — I need it now';
+  const noLabel  = isGifter ? 'No — I have time, let me browse ✨' : "No — I'm good, let's personalize ✨";
 
-  body.innerHTML = `
-    <div class="quiz-urgency-card">
-      <div class="quiz-urgency-icon">⚡</div>
-      <div class="quiz-urgency-title">Quick check — do you need something right now?</div>
-      <div class="quiz-urgency-sub">We want to personalize your experience, but if you're in a pinch we'll get you sorted first.</div>
-      <div class="quiz-urgency-btns">
-        <button class="quiz-urgency-yes" id="quizUrgencyYes">🚨 Yes — I need it now</button>
-        <button class="quiz-urgency-no" id="quizUrgencyNo">No — I'm good, let's personalize ✨</button>
-      </div>
-      <p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>
-    </div>`;
+  body.innerHTML =
+    '<div class="quiz-urgency-card">' +
+    '<div class="quiz-urgency-icon">⚡</div>' +
+    '<div class="quiz-urgency-title">' + title + '</div>' +
+    '<div class="quiz-urgency-sub">' + sub + '</div>' +
+    '<div class="quiz-urgency-btns">' +
+    '<button class="quiz-urgency-yes" id="quizUrgencyYes">' + yesLabel + '</button>' +
+    '<button class="quiz-urgency-no" id="quizUrgencyNo">' + noLabel + '</button>' +
+    '</div>' +
+    (isGifter ? '' : '<p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>') +
+    '</div>';
 
-
-  const yesBtn = document.getElementById('quizUrgencyYes');
-  const noBtn  = document.getElementById('quizUrgencyNo');
-  if (yesBtn) yesBtn.addEventListener('click', () => { closeQuiz(); setTimeout(() => navigate('shop'), 200); });
-  if (noBtn)  noBtn.addEventListener('click',  () => { renderQuizSlide(); });
+  const yesBtn2 = document.getElementById('quizUrgencyYes');
+  const noBtn2  = document.getElementById('quizUrgencyNo');
+  if (yesBtn2) yesBtn2.addEventListener('click', function() {
+    closeQuiz();
+    setTimeout(function() { navigate('shop'); }, 200);
+  });
+  if (noBtn2) noBtn2.addEventListener('click', function() {
+    if (isGifter) { closeQuiz(); setTimeout(function() { navigate('shop'); }, 200); }
+    else { renderQuizSlide(); }
+  });
 }
 
 
@@ -5682,7 +5744,7 @@ function showTrackerTutorial() {
     if (fill)  fill.style.width  = ((step + 1) / steps.length * 100) + '%';
     dots.forEach((d, i) => d.classList.toggle('active', i === step));
     const nextBtn = document.getElementById('tutNextBtn');
-    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
+    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking 💜';
   }
 
   // Replace tap hint with proper button - only once
