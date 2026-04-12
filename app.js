@@ -640,13 +640,11 @@ function initVersionPicker() {
 function initVersion() {
   const stored = getVersionCookie();
   const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
+  const picker = $('versionPicker');
   if (validVersions.includes(stored)) {
     setVersion(stored);
-    const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
   } else {
-    // Show app intro first, then experience picker
-    const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
     setTimeout(showAppIntroCard, 400);
   }
@@ -2937,12 +2935,12 @@ function init() {
     let { year, month } = trackerDisplayMonth;
     if (++month > 11) { month = 0; year++; }
     trackerDisplayMonth = { year, month };
-    const d = getTrackerData();
-    const al = calcAvgCycleLength(d.cycles), ad = calcAvgDuration(d.cycles);
-    renderTrackerCalendar(d.cycles, al, ad, getNextPeriodDate(d.cycles, al), todayStr());
-    const ml = $('trackerMonthLabel');
-    const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    if (ml) ml.textContent = MN[month] + ' ' + year;
+    const d2 = getTrackerData();
+    const al2 = calcAvgCycleLength(d2.cycles), ad2 = calcAvgDuration(d2.cycles);
+    renderTrackerCalendar(d2.cycles, al2, ad2, getNextPeriodDate(d2.cycles, al2), todayStr());
+    const ml2 = $('trackerMonthLabel');
+    const MN2 = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if (ml2) ml2.textContent = MN2[month] + ' ' + year;
   });
   if ($('logStart')) $('logStart').addEventListener('click', logPeriodStart);
    // Seed date button
