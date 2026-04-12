@@ -451,6 +451,14 @@ function applyVersionContent(version) {
   if (starterOrderBtn) {
     starterOrderBtn.onclick = function() { navigate('shop'); };
   }
+  // Lock down starter experience for 9-12
+  if (version === 'starter') {
+    setTimeout(initStarterExperience, 300);
+  } else {
+    // Restore home view background for other experiences
+    const homeView = document.getElementById('homeView');
+    if (homeView) homeView.style.background = '';
+  }
   // Show hygiene button for all experiences
   let hygieneBtn = document.getElementById('hygieneGuideBtn');
   if (!hygieneBtn) {
@@ -462,6 +470,18 @@ function applyVersionContent(version) {
     hygieneBtn.addEventListener('click', function() { showHygieneGuide(state.version); });
     const quickLinks = document.querySelector('.hero-quick-links');
     if (quickLinks) quickLinks.appendChild(hygieneBtn);
+  }
+  // Add self-care button
+  let selfCareBtn = document.getElementById('selfCareGuideBtn');
+  if (!selfCareBtn && state.version !== 'gifter') {
+    selfCareBtn = document.createElement('button');
+    selfCareBtn.id = 'selfCareGuideBtn';
+    selfCareBtn.className = 'hero-how-btn';
+    selfCareBtn.innerHTML = '&#x1F338; Self-Care Guide <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    selfCareBtn.style.cssText = 'cursor:pointer;pointer-events:auto;';
+    selfCareBtn.addEventListener('click', function() { showSelfCareGuide(state.version); });
+    const quickLinks2 = document.querySelector('.hero-quick-links');
+    if (quickLinks2) quickLinks2.appendChild(selfCareBtn);
   }
 
 
@@ -557,6 +577,47 @@ function dismissVersionPicker() {
 }
 
 
+
+/* =============================================
+   APP INTRO CARD — shown before experience picker
+   ============================================= */
+function showAppIntroCard() {
+  const overlay = document.createElement('div');
+  overlay.id = 'appIntroOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+        <span style="font-size:2.5rem;">&#x1F451;</span>
+      </div>
+      <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:#EDE8FA;line-height:1.1;">Period.</div>
+      <div style="font-size:0.78rem;color:rgba(237,232,250,0.45);letter-spacing:0.1em;text-transform:uppercase;">period care &middot; delivered to you</div>
+      <div style="width:48px;height:2px;background:linear-gradient(135deg,#A855F7,#7C3AED);border-radius:999px;"></div>
+      <p style="font-size:0.9rem;color:rgba(237,232,250,0.75);line-height:1.7;max-width:300px;">
+        We deliver period care, wellness essentials &amp; more &mdash; on demand or monthly. Whether it&#39;s your first period or you&#39;ve been at this for years, we have something just for you. &#x1F49C;
+      </p>
+      <p style="font-size:0.82rem;color:rgba(237,232,250,0.5);line-height:1.6;">
+        On the next screen, <strong style="color:rgba(237,232,250,0.8);">select the experience that best describes you</strong> &mdash; we&#39;ll personalize everything from there.
+      </p>
+      <button id="appIntroNextBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
+        Let&#39;s Go &#x2728;
+      </button>
+      <p style="font-size:0.72rem;color:rgba(237,232,250,0.3);">Secure &middot; Private &middot; Always Free to Browse</p>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('appIntroNextBtn').addEventListener('click', () => {
+    overlay.style.transition = 'opacity 0.3s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      initVersionPicker();
+    }, 300);
+  });
+}
+
 function initVersionPicker() {
   const picker = $('versionPicker');
   if (picker) { picker.style.display = 'flex'; picker.style.opacity = '1'; }
@@ -584,36 +645,13 @@ function initVersion() {
     const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
   } else {
+    // Show app intro first, then experience picker
     const picker = $('versionPicker');
     if (picker) picker.style.display = 'none';
-    setTimeout(showQuickCheckBeforePicker, 400);
+    setTimeout(showAppIntroCard, 400);
   }
 }
 
-function showQuickCheckBeforePicker() {
-  const overlay = document.createElement('div');
-  overlay.id = 'quickCheckOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  overlay.innerHTML =
-    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1rem;">' +
-    '<div style="font-size:2.5rem;">&#x1F451;</div>' +
-    '<div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:#EDE8FA;line-height:1.2;">Period.</div>' +
-    '<div style="font-size:0.78rem;color:rgba(237,232,250,0.45);letter-spacing:0.08em;text-transform:uppercase;">period care &#183; delivered to you</div>' +
-    '<div style="width:100%;height:1px;background:rgba(237,232,250,0.1);margin:0.25rem 0;"></div>' +
-    '<div style="font-size:0.85rem;color:rgba(237,232,250,0.7);line-height:1.6;">We deliver period care, wellness essentials &#38; more &#8212; on demand or monthly. Welcome. &#x1F49C;</div>' +
-    '<div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#EDE8FA;line-height:1.3;">but first &#8212; do you need something right now?</div>' +
-    '<button id="quickCheckYes" style="width:100%;padding:1rem;background:linear-gradient(135deg,#F87171,#DC2626);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">&#x1F6A8; yes &#8212; i need it NOW</button>' +
-    '<button id="quickCheckNo" style="width:100%;padding:1rem;background:rgba(237,232,250,0.08);color:#EDE8FA;border:1.5px solid rgba(237,232,250,0.15);border-radius:999px;font-size:0.95rem;font-weight:600;cursor:pointer;">no &#8212; let me explore &#x2728;</button>' +
-    '</div>';
-  document.body.appendChild(overlay);
-  document.body.style.overflow = 'hidden';
-  document.getElementById('quickCheckYes').addEventListener('click', () => {
-    overlay.remove(); setVersion('emergency'); navigate('shop');
-  });
-  document.getElementById('quickCheckNo').addEventListener('click', () => {
-    overlay.remove(); initVersionPicker();
-  });
-}
 
 /* =============================================
    NAVIGATION
@@ -1457,6 +1495,624 @@ function getPersonalizedGreeting(version) {
 
 
 
+
+/* =============================================
+   SELF-CARE & WELLNESS GUIDE — PER EXPERIENCE
+   ============================================= */
+
+const SELF_CARE_CONTENT = {
+  starter: {
+    title: 'Feel Better During Your Period &#x1F338;',
+    intro: 'Your period can make you feel blah. Cramps, tired, moody &#x2014; all normal! But there are some easy things you can do to feel WAY better. No doctor needed. Promise! &#x2728;',
+    sections: [
+      {
+        emoji: '&#x1F3C3;',
+        title: 'Move a little (yes, really!)',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'A short walk outside can actually help cramps. Wild, right?',
+          'Gentle stretching or yoga for beginners &#x2014; look up "period yoga" on YouTube',
+          'Dancing around your room counts. 100%. Put on your favorite song and go.',
+          'Even 10 minutes of light movement releases feel-good chemicals in your brain!'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Drink water (SO much water)',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Dehydration makes cramps and headaches WORSE. Drink up!',
+          'Aim for 8 glasses a day &#x2014; more during your period',
+          'Herbal tea counts! Chamomile and peppermint tea are great for cramps',
+          'Avoid soda and energy drinks &#x2014; they make bloating worse'
+        ]
+      },
+      {
+        emoji: '&#x1F34C;',
+        title: 'Eat foods that help',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          '&#x1F36B; Dark chocolate (70%+) has magnesium which helps cramps. YES this is real!',
+          '&#x1F34C; Bananas help with bloating and mood &#x2014; potassium is your friend',
+          '&#x1F966; Leafy greens (spinach, kale) replace the iron your body loses',
+          '&#x1F36F; Ginger in tea or food helps with nausea and stomach pain',
+          'Avoid super salty snacks &#x2014; they make bloating much worse'
+        ]
+      },
+      {
+        emoji: '&#x1F6CB;',
+        title: 'Rest is your superpower',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Your body is literally doing extra work right now. Rest is not being lazy!',
+          'A heating pad or hot water bottle on your tummy = instant cramp relief',
+          'Take naps if you need them. No guilt. Zero.',
+          'Warm baths help relax your muscles and can ease cramps a lot'
+        ]
+      }
+    ]
+  },
+  teen: {
+    title: 'Survive Your Period Like a Pro &#x1F451;',
+    intro: 'Okay bestie &#x2014; your period does not have to ruin your whole week. Here is the real guide nobody gave you. Save this. Screenshot it. Live by it. &#x1F525;',
+    sections: [
+      {
+        emoji: '&#x1F3C3;',
+        title: 'Movement that actually helps (no gym required)',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Light walks literally reduce prostaglandins (those are what cause cramps). Science said so.',
+          'Period yoga is a thing and it WORKS. Search "yin yoga for period cramps" &#x2014; 20 mins, game changer.',
+          'Dancing, slow stretching, gentle pilates &#x2014; all valid. Heavy lifting on day 1-2? Skip it.',
+          'Movement releases endorphins which counteract the serotonin drop your hormones cause. Your mood WILL improve.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Hydrate or suffer bestie (no cap)',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Dehydration + period = headaches, worse cramps, more fatigue. Drink water periodt.',
+          'Raspberry leaf tea reduces uterine cramping &#x2014; start drinking it the week before your period',
+          'Chamomile tea calms inflammation AND helps you sleep. Two for one.',
+          'Electrolytes (like Liquid IV) help if you are losing a lot of blood. Replenish your minerals.'
+        ]
+      },
+      {
+        emoji: '&#x1F354;',
+        title: 'Eat smart or feel worse (your choice)',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          '&#x1F36B; Dark chocolate is medicinal. Magnesium reduces cramp intensity. Eat it with zero guilt.',
+          '&#x1F957; Iron-rich foods (spinach, red meat, lentils) replace what your body loses. Fatigue is often iron loss.',
+          '&#x1F9C0; Calcium + magnesium combo &#x2014; dairy, almonds, dark leafy greens &#x2014; reduces PMS symptoms significantly.',
+          'Avoid: alcohol, excess caffeine, super salty snacks, processed foods. They make everything worse. Yes, all of them.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Soft life era for real this week',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Heat patches on your lower abdomen and lower back &#x2014; relief within minutes. Non-negotiable.',
+          'Warm bath with Epsom salt &#x2014; magnesium absorbs through skin, reduces cramps. Add lavender. You deserve it.',
+          'Your body is shedding its uterine lining. That is EFFORT. Rest without guilt.',
+          'Weighted blanket + comfort show + heating pad = the period trinity. Build your nest and stay in it.'
+        ]
+      }
+    ]
+  },
+  adult: {
+    title: 'Period Self-Care That Actually Works &#x1F49C;',
+    intro: 'No fluff, no filler. Here is what the research actually supports for managing your cycle like the informed, capable woman you are. Your period does not have to wreck your week.',
+    sections: [
+      {
+        emoji: '&#x1F3CB;',
+        title: 'Movement & inflammation management',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Aerobic exercise (even 20-30 min walks) reduces prostaglandin production &#x2014; the compounds that cause cramping.',
+          'Yoga specifically: child&#39;s pose, supine twist, and cat-cow are clinically studied for menstrual pain relief.',
+          'Avoid high-intensity training on days 1-2 &#x2014; your body is in an inflammatory state. Work with it, not against it.',
+          'Swimming is uniquely effective &#x2014; water pressure reduces bloating and the warmth relaxes uterine muscles.'
+        ]
+      },
+      {
+        emoji: '&#x1F9EC;',
+        title: 'Nutrition for hormonal support',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          'Magnesium glycinate (200-400mg daily) is the most evidence-based supplement for reducing PMS and cramping.',
+          'Omega-3 fatty acids (salmon, walnuts, flaxseed) reduce systemic inflammation including menstrual pain.',
+          'Iron + Vitamin C together &#x2014; your body loses significant iron during menstruation. Pair iron-rich foods with citrus for optimal absorption.',
+          'Reduce: alcohol (disrupts hormone metabolism), excess caffeine (increases cortisol), refined sugar (drives inflammation). The data is clear.',
+          'Anti-inflammatory foods: turmeric, ginger, dark leafy greens, berries, fatty fish. Make them a habit the week before and during.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Hydration & bloating reduction',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Counterintuitive truth: drinking MORE water reduces water retention and bloating, not less.',
+          'Reduce sodium significantly the week before your period to prevent pre-period bloating.',
+          'Dandelion root tea is a natural diuretic that reduces bloating without depleting electrolytes.',
+          'Fennel seeds brewed as tea &#x2014; a studied remedy for menstrual cramping and digestive discomfort.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Targeted relief & recovery',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Heat therapy (40-45°C) is as effective as ibuprofen for menstrual pain in multiple studies. Use it.',
+          'Epsom salt baths: magnesium sulfate absorbs transdermally and reduces both cramping and mood symptoms.',
+          'CBD topical applied to lower abdomen shows promising results for localized pain without systemic effects.',
+          'Sleep prioritization during your period is not optional &#x2014; melatonin production is disrupted by hormonal shifts. Protect your sleep environment.'
+        ]
+      }
+    ]
+  },
+  holistic: {
+    title: 'Cycle Syncing & Natural Wellness &#x1F33F;',
+    intro: 'Your menstrual phase is a time of release, inward reflection, and restoration. Honor what your body is asking for. These plant-based, evidence-informed practices support your cycle naturally.',
+    sections: [
+      {
+        emoji: '&#x1F33F;',
+        title: 'Gentle movement in your menstrual phase',
+        color: 'rgba(34,197,94,0.1)',
+        border: 'rgba(34,197,94,0.2)',
+        tips: [
+          'Yin yoga and restorative yoga are ideal during menstruation &#x2014; long-held poses release deep fascial tension around the uterus.',
+          'Walking in nature reduces cortisol and supports progesterone balance. Ground yourself literally.',
+          'Qigong and tai chi support pelvic energy flow according to Traditional Chinese Medicine practitioners.',
+          'Avoid vigorous practice days 1-2. Your energy is directed inward. Honor that, not override it.'
+        ]
+      },
+      {
+        emoji: '&#x1F375;',
+        title: 'Herbal & plant-based support',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          'Red raspberry leaf tea: tones the uterine muscle, reduces cramping. Drink 2-3 cups daily starting 1 week before.',
+          'Cramp bark tincture: one of the most studied herbal antispasmodics for uterine cramping.',
+          'Ginger root tea: clinically comparable to ibuprofen for menstrual pain in some studies. Make it fresh.',
+          'Turmeric with black pepper: curcumin reduces prostaglandin-driven inflammation. Add to golden milk daily.',
+          'Vitex (Chaste Tree Berry): supports progesterone production and reduces PMS over time. 3-month commitment minimum.'
+        ]
+      },
+      {
+        emoji: '&#x1F9F4;',
+        title: 'Anti-inflammatory nutrition',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Seed cycling: pumpkin and flax seeds in the first half of your cycle, sesame and sunflower in the second. Supports estrogen and progesterone balance.',
+          'Eliminate: gluten, dairy, refined sugar, alcohol during your period. Inflammatory foods amplify every symptom.',
+          'Wild-caught salmon or sardines: highest omega-3 density, most anti-inflammatory protein source available.',
+          'Magnesium-rich foods: dark chocolate, pumpkin seeds, avocado, black beans &#x2014; the natural version of supplementation.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Ritual, rest & nervous system support',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Castor oil pack on lower abdomen for 45-60 minutes: a traditional naturopathic practice for reducing uterine inflammation.',
+          'Magnesium flake baths (not just Epsom): higher bioavailability of transdermal magnesium absorption.',
+          'Aromatherapy: lavender and clary sage essential oils (diluted) applied to lower abdomen have documented antispasmodic effects.',
+          'Your menstrual phase is associated with the new moon energy in many traditions. Use it for rest, reflection, and intention &#x2014; not productivity.'
+        ]
+      }
+    ]
+  },
+  emergency: {
+    title: 'Feel Better Fast &#x26A1;',
+    intro: 'No time for long explanations. Here is what works RIGHT NOW to get you through.',
+    sections: [
+      {
+        emoji: '&#x1F525;',
+        title: 'Instant relief',
+        color: 'rgba(239,68,68,0.1)',
+        border: 'rgba(239,68,68,0.2)',
+        tips: [
+          'Heat on your lower belly &#x2014; heating pad, hot water bottle, even a warm towel. Works within minutes.',
+          'Ibuprofen works best taken BEFORE cramps peak. Take it early.',
+          'Fetal position with a pillow between your knees reduces pelvic pressure.',
+          'Slow deep breaths activate your parasympathetic nervous system and reduce pain perception.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Drink something warm',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Warm water or herbal tea right now. Warmth internally and externally helps.',
+          'Avoid cold drinks &#x2014; they can increase cramping.',
+          'Ginger tea if you have it &#x2014; fastest natural anti-inflammatory.'
+        ]
+      }
+    ]
+  }
+};
+
+function showSelfCareGuide(version) {
+  const v = version || state.version || 'adult';
+  const data = SELF_CARE_CONTENT[v] || SELF_CARE_CONTENT.adult;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'selfCareOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  const sectionsHtml = data.sections.map(section => {
+    const tipsHtml = section.tips.map(tip =>
+      '<li style="margin-bottom:0.6rem;font-size:0.85rem;color:var(--text-muted);line-height:1.65;padding-left:0.25rem;">' + tip + '</li>'
+    ).join('');
+
+    return '<div style="margin-bottom:1.25rem;padding:1rem;background:' + section.color + ';border:1px solid ' + section.border + ';border-radius:16px;">' +
+      '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;">' +
+      '<span style="font-size:1.3rem;">' + section.emoji + '</span>' +
+      '<span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">' + section.title + '</span>' +
+      '</div>' +
+      '<ul style="list-style:none;padding:0;margin:0;">' + tipsHtml + '</ul>' +
+      '</div>';
+  }).join('');
+
+  overlay.innerHTML =
+    '<div style="max-width:480px;margin:0 auto;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
+    '<h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--text-primary);">' + data.title + '</h2>' +
+    '<button id="closeSelfCareBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>' +
+    '</div>' +
+    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>' +
+    '</div>' +
+    sectionsHtml +
+    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-top:0.5rem;border:1px solid rgba(34,197,94,0.2);">' +
+    '<p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;margin:0;">&#x1F4AC; <strong>Important:</strong> These are general wellness suggestions, not medical advice. If your symptoms are severe or disabling, please talk to a healthcare provider. You deserve proper care.</p>' +
+    '</div>' +
+    '<button id="closeSelfCareBtnBottom" style="width:100%;margin-top:1.25rem;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it! &#x1F49C;</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.getElementById('closeSelfCareBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('closeSelfCareBtnBottom').addEventListener('click', () => overlay.remove());
+}
+
+
+
+/* =============================================
+   TRUSTED ADULT SYSTEM — Ages 9-12
+   (Hidden until attorney approval)
+   Preview via: ?preview=starter
+   ============================================= */
+
+const STARTER_PREVIEW_MODE = new URLSearchParams(window.location.search).get('preview') === 'starter';
+
+function checkStarterAccess() {
+  // Developer preview mode — only accessible via ?preview=starter
+  if (STARTER_PREVIEW_MODE) {
+    console.log('[Period.] Starter preview mode active');
+    return true;
+  }
+  return false;
+}
+
+function showTrustedAdultGate(onApproved) {
+  const overlay = document.createElement('div');
+  overlay.id = 'trustedAdultGate';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,rgba(251,191,36,0.15),rgba(236,72,153,0.12),rgba(168,85,247,0.10));display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:2px solid rgba(251,191,36,0.3);box-shadow:0 8px 40px rgba(251,191,36,0.15);">
+
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">&#x1F6AB;</div>
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">A Trusted Adult is REQUIRED</h2>
+        <div style="background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:0.875rem;margin-bottom:0.75rem;">
+          <p style="font-size:0.875rem;color:var(--text-primary);line-height:1.6;margin:0;font-weight:600;">&#x26A0;&#xFE0F; This is not optional.</p>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin:0.25rem 0 0;">A parent or guardian, school nurse, or trusted teacher <strong>must</strong> be physically present with you right now to continue. Period. is committed to your safety above everything else.</p>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">Please hand the phone or device to your trusted adult now. They will complete the next steps. &#x1F49C;</p>
+      </div>
+
+      <!-- Adult type selector -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem;">Trusted Adult &mdash; please select your role:</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;" id="adultTypeOptions">
+          <button class="adult-type-btn" data-type="parent" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F468;&#x200D;&#x1F467;</span>
+            <div><div style="font-weight:600;">Parent or Guardian</div><div style="font-size:0.75rem;color:var(--text-muted);">I am the child's parent or legal guardian</div></div>
+          </button>
+          <button class="adult-type-btn" data-type="nurse" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</span>
+            <div><div style="font-weight:600;">School Nurse</div><div style="font-size:0.75rem;color:var(--text-muted);">I am a licensed school health professional</div></div>
+          </button>
+          <button class="adult-type-btn" data-type="teacher" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F9D1;&#x200D;&#x1F3EB;</span>
+            <div><div style="font-weight:600;">Teacher or Principal</div><div style="font-size:0.75rem;color:var(--text-muted);">I am a school staff member acting in loco parentis</div></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Adult info form (shown after type selected) -->
+      <div id="adultInfoForm" style="display:none;margin-bottom:1.25rem;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem;">Your Information</div>
+        <input id="adultName" type="text" placeholder="Full name" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.5rem;box-sizing:border-box;"/>
+        <input id="adultContact" type="tel" placeholder="Phone number (for parent notification)" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.5rem;box-sizing:border-box;"/>
+        <input id="parentContact" type="tel" placeholder="Parent/Guardian phone (to notify them)" id="parentContactField" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.75rem;box-sizing:border-box;"/>
+
+        <!-- Agreement -->
+        <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:0.875rem;border:1px solid rgba(251,191,36,0.2);margin-bottom:0.75rem;">
+          <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;">
+            <input type="checkbox" id="adultAgreement" style="margin-top:0.2rem;flex-shrink:0;accent-color:#A855F7;width:16px;height:16px;"/>
+            <span style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">I confirm I am a trusted adult assisting a child aged 9&ndash;12. I agree to Period. terms of use and consent to the parent/guardian being notified of this session. I take responsibility for this access.</span>
+          </label>
+        </div>
+
+        <button id="adultProceedBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#FBB024,#EC4899);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">
+          Continue &mdash; I Am Present &#x1F91D;
+        </button>
+      </div>
+
+      <!-- Coming soon notice -->
+      <div style="background:rgba(168,85,247,0.06);border-radius:12px;padding:0.75rem;border:1px solid rgba(168,85,247,0.15);text-align:center;">
+        <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;">
+          &#x1F6A7; <strong>Coming Soon:</strong> School nurse profiles, parental pre-authorization, and automatic parent notifications are launching soon. This flow is in preview mode.
+        </div>
+      </div>
+
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Wire adult type buttons
+  let selectedAdultType = null;
+  overlay.querySelectorAll('.adult-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      overlay.querySelectorAll('.adult-type-btn').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'var(--surface-2)';
+      });
+      btn.style.borderColor = 'rgba(251,191,36,0.6)';
+      btn.style.background = 'rgba(251,191,36,0.08)';
+      selectedAdultType = btn.dataset.type;
+
+      // Show form
+      const form = document.getElementById('adultInfoForm');
+      if (form) form.style.display = '';
+
+      // Adjust parent contact label
+      const parentField = document.getElementById('parentContact');
+      if (parentField && selectedAdultType === 'parent') {
+        parentField.style.display = 'none';
+      } else if (parentField) {
+        parentField.style.display = '';
+        parentField.placeholder = 'Parent/Guardian phone (to notify them)';
+      }
+    });
+  });
+
+  // Wire proceed button
+  const proceedBtn = document.getElementById('adultProceedBtn');
+  if (proceedBtn) {
+    proceedBtn.addEventListener('click', function() {
+      const name = document.getElementById('adultName').value.trim();
+      const contact = document.getElementById('adultContact').value.trim();
+      const agreed = document.getElementById('adultAgreement').checked;
+
+      if (!name) { showToast('Please enter your name'); return; }
+      if (!contact) { showToast('Please enter your phone number'); return; }
+      if (!agreed) { showToast('Please confirm the agreement to continue'); return; }
+
+      // Save trusted adult session
+      const session = {
+        type: selectedAdultType,
+        name: name,
+        contact: contact,
+        timestamp: new Date().toISOString()
+      };
+      sessionStorage.setItem('period_trusted_adult', JSON.stringify(session));
+
+      // Save to Firebase for records
+      if (_firebaseFs) {
+        _firebaseFs.collection('trusted_adult_sessions').add({
+          adult_type: selectedAdultType,
+          adult_name: name,
+          adult_contact: contact,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'starter_experience'
+        }).catch(function(e) { console.warn('Session save failed:', e); });
+      }
+
+      // Notify parent if nurse/teacher
+      if (selectedAdultType !== 'parent') {
+        const parentContact = document.getElementById('parentContact');
+        if (parentContact && parentContact.value.trim()) {
+          showToast('Parent notification will be sent when SMS launches &#x1F49C;');
+        }
+      }
+
+      overlay.style.transition = 'opacity 0.3s ease';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        if (typeof onApproved === 'function') onApproved();
+      }, 300);
+    });
+  }
+}
+
+// School Profile System (placeholder — ready for launch)
+function showSchoolProfileSetup() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+  overlay.innerHTML = `
+    <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">School Profile Setup</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">
+        Register your school so nurses and staff can quickly order on behalf of students. Parents are notified automatically.
+      </p>
+      <div style="background:rgba(251,191,36,0.08);border-radius:16px;padding:1rem;margin-bottom:1rem;border:1px solid rgba(251,191,36,0.2);">
+        <div style="font-size:0.78rem;font-weight:700;color:rgba(251,191,36,0.9);margin-bottom:0.5rem;">&#x1F6A7; Coming Soon</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">School profile registration is launching soon. Join our waitlist to be notified when it goes live.</div>
+      </div>
+      <input type="email" id="schoolWaitlistEmail" placeholder="School email address" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;outline:none;margin-bottom:0.75rem;box-sizing:border-box;color:var(--text-primary);"/>
+      <input type="text" id="schoolName" placeholder="School name" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;outline:none;margin-bottom:0.75rem;box-sizing:border-box;color:var(--text-primary);"/>
+      <button id="schoolWaitlistBtn" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#FBB024,#EC4899);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">
+        Join School Waitlist &#x2728;
+      </button>
+      <button id="closeSchoolProfile" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Close</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('schoolWaitlistBtn').addEventListener('click', function() {
+    const email = document.getElementById('schoolWaitlistEmail').value.trim();
+    const school = document.getElementById('schoolName').value.trim();
+    if (!email || !school) { showToast('Please fill in both fields'); return; }
+    if (_firebaseFs) {
+      _firebaseFs.collection('school_waitlist').add({
+        email: email,
+        school_name: school,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(e) { console.warn('School waitlist save failed:', e); });
+    }
+    showToast('School registered for waitlist! We will be in touch. &#x1F3EB;');
+    overlay.remove();
+  });
+
+  document.getElementById('closeSchoolProfile').addEventListener('click', () => overlay.remove());
+}
+
+/* =============================================
+   STARTER EXPERIENCE — 9-12 LOCKDOWN MODE
+   ============================================= */
+
+function initStarterExperience() {
+  // Check if preview mode is active (for developer testing)
+  if (!STARTER_PREVIEW_MODE) {
+    // Show trusted adult gate first
+    showTrustedAdultGate(function() {
+      _runStarterExperience();
+    });
+    return;
+  }
+  _runStarterExperience();
+}
+
+function _runStarterExperience() {
+  // Hide all nav items not appropriate for 9-12
+  const hideIds = [
+    'navCommunity', 'heroCommBar', 'heroWhyBtn',
+    'cardCarePackage', 'cardHolistic', 'heroNewsletterBtn',
+    'impactStrip', 'impactSection', 'featureSpotlight',
+    'nlHomeCta', 'voicesSection', 'cycleEduSection',
+    'changeSisSection', 'teenBodySection', 'teenFactsSection',
+    'teenFreakSection'
+  ];
+  hideIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Apply soft yellow/pink background to home view
+  const homeView = document.getElementById('homeView');
+  if (homeView) {
+    homeView.style.background = 'linear-gradient(160deg,rgba(251,191,36,0.08) 0%,rgba(236,72,153,0.06) 50%,rgba(168,85,247,0.05) 100%)';
+    homeView.style.minHeight = '100vh';
+  }
+
+  // Apply to version picker too
+  const picker = document.getElementById('versionPicker');
+  if (picker) {
+    picker.style.background = 'linear-gradient(160deg,rgba(251,191,36,0.15),rgba(236,72,153,0.10),rgba(168,85,247,0.08))';
+  }
+
+  // Show starter section
+  const starterSection = document.getElementById('starterSection');
+  if (starterSection) starterSection.style.display = '';
+
+  // Show the nurse/school profile card
+  showSchoolNurseCard();
+}
+
+function showSchoolNurseCard() {
+  const existing = document.getElementById('nurseProfileCard');
+  if (existing) return;
+
+  const card = document.createElement('div');
+  card.id = 'nurseProfileCard';
+  card.style.cssText = 'margin:0 1rem 1rem;padding:1.25rem;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(236,72,153,0.08));border:1.5px solid rgba(251,191,36,0.3);border-radius:20px;';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+      <span style="font-size:1.5rem;">&#x1F3EB;</span>
+      <div>
+        <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">Need help at school?</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">Your school nurse can order for you</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:0.875rem;">
+      If you are at school and need supplies, your school nurse can place an order on your behalf. No need to feel embarrassed &mdash; they are there to help! &#x1F49C;
+    </p>
+    <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:0.75rem;border:1px solid rgba(251,191,36,0.2);margin-bottom:0.75rem;">
+      <div style="font-size:0.78rem;font-weight:700;color:rgba(251,191,36,0.9);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">&#x1F6A7; Coming Soon</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">School nurse profiles &mdash; where your school nurse can have a verified account to order on your behalf and track deliveries. We are working on this! &#x2728;</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      <button onclick="showNurseContactInfo()" style="width:100%;padding:0.75rem;background:linear-gradient(135deg,rgba(251,191,36,0.8),rgba(236,72,153,0.7));color:white;border:none;border-radius:999px;font-size:0.85rem;font-weight:700;cursor:pointer;">
+        &#x1F4DE; Tell My Nurse About Period.
+      </button>
+      <button onclick="showSchoolProfileSetup()" style="width:100%;padding:0.75rem;background:var(--surface-2);border:1.5px solid rgba(251,191,36,0.3);border-radius:999px;color:var(--text-primary);font-size:0.82rem;font-weight:600;cursor:pointer;">
+        &#x1F3EB; Register My School
+      </button>
+    </div>`;
+
+  // Insert after starter educational section
+  const starterSection = document.getElementById('starterSection');
+  if (starterSection) {
+    starterSection.insertAdjacentElement('afterend', card);
+  }
+}
+
+function showNurseContactInfo() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">Tell Your School Nurse!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+        Show your nurse this screen or have them visit <strong style="color:var(--text-primary);">perioddelivers.com</strong> &mdash; they can order supplies for you and the whole school!
+      </p>
+      <div style="background:rgba(251,191,36,0.1);border-radius:12px;padding:0.875rem;margin-bottom:1rem;border:1px solid rgba(251,191,36,0.2);">
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;">School supply orders &amp; inquiries:</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">perioddelivers.com</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">&#x1F4DE; (216) 250-1993</div>
+      </div>
+      <button id="closeNurseInfo" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,rgba(251,191,36,0.8),rgba(236,72,153,0.7));color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Got it! &#x1F338;</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('closeNurseInfo').addEventListener('click', () => overlay.remove());
+}
+
 /* =============================================
    PERIOD HYGIENE EDUCATION — PER EXPERIENCE
    ============================================= */
@@ -2067,6 +2723,14 @@ function init() {
   registerSW();
   showComingSoonBanner();
   showPWAEducation();
+  // Show quiz after version picked if not done yet
+  const _origDismiss = dismissVersionPicker;
+  dismissVersionPicker = function() {
+    _origDismiss();
+    if (!isQuizDone() && state.version !== 'emergency' && state.version !== 'starter') {
+      setTimeout(showQuiz, 1200);
+    }
+  };
 
 
   // Home navigation
@@ -4895,16 +5559,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initGiveBack();
   initImpactCounter();
   initQuiz();
-
-
-  // Show quiz ~1.2s after version is selected, if not done yet
-  const _origDismiss = dismissVersionPicker;
-  dismissVersionPicker = function() {
-    _origDismiss();
-    if (!isQuizDone() && state.version !== 'emergency') {
-      setTimeout(showQuiz, 1200);
-    }
-  };
 });
 
 
