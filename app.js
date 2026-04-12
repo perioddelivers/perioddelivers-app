@@ -2008,43 +2008,6 @@ function openStripeCheckout() {
 
 
   // Order notes section — add before summary
-  const existingNotes = document.getElementById('orderNotesSection');
-  if (!existingNotes) {
-    const notesSection = document.createElement('div');
-    notesSection.id = 'orderNotesSection';
-    notesSection.style.cssText = 'margin-bottom:1rem;';
-    notesSection.innerHTML =
-      '<div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Add a note (optional)</div>' +
-      '<textarea id="orderNoteInput" placeholder="Any special delivery instructions? e.g. leave at door, call when arriving..." style="width:100%;height:80px;padding:0.75rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.875rem;color:var(--text-primary);resize:none;outline:none;" maxlength="300"></textarea>' +
-      '<div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:12px;border:1px solid rgba(168,85,247,0.2);">' +
-      '<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;flex:1;">' +
-      '<div style="position:relative;">' +
-      '<input type="checkbox" id="nurseDeliveryToggle" style="opacity:0;position:absolute;width:0;height:0;">' +
-      '<div id="nurseToggleUI" style="width:44px;height:24px;background:var(--surface-3,#333);border-radius:999px;transition:background 0.2s;position:relative;">' +
-      '<div id="nurseToggleThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>' +
-      '</div>' +
-      '</div>' +
-      '<div><div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">?? Discreet delivery — bring it to me</div>' +
-      '<div style="font-size:0.75rem;color:var(--text-muted);">School nurse, work reception, or similar</div></div>' +
-      '</label>' +
-      '</div>';
-    const coBody = document.querySelector('.co-body');
-    if (coBody) coBody.insertBefore(notesSection, coBody.firstChild);
-
-    // Wire toggle
-    const toggle = document.getElementById('nurseDeliveryToggle');
-    const toggleUI = document.getElementById('nurseToggleUI');
-    const toggleThumb = document.getElementById('nurseToggleThumb');
-    if (toggle) {
-      toggle.addEventListener('change', () => {
-        const on = toggle.checked;
-        if (toggleUI) toggleUI.style.background = on ? '#A855F7' : 'var(--surface-3,#333)';
-        if (toggleThumb) toggleThumb.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
-        if (on) showDiscreetDeliveryPopup('school');
-      });
-    }
-  }
-
   // Build order summary
   const sumEl = $('coSummary');
   if (sumEl) {
@@ -2095,8 +2058,8 @@ function openStripeCheckout() {
 
   // Inject order notes + discreet delivery toggle
   const coBody = document.querySelector('.co-body');
-  const existingNotes = document.getElementById('orderNotesSection');
-  if (coBody && !existingNotes) {
+  const existingNotesCheck = document.getElementById('orderNotesSection');
+  if (coBody && !existingNotesCheck) {
     const notesDiv = document.createElement('div');
     notesDiv.id = 'orderNotesSection';
     notesDiv.style.cssText = 'margin-bottom:1rem;padding:1rem;background:var(--surface-2);border-radius:12px;';
