@@ -53,6 +53,11 @@ const PRODUCTS = [
   { id:41, name:'Plush Sherpa Throw Blanket', sub:'50"x60" · Cloud-soft',           category:'cuddles', cat_label:'Cuddles', emoji:'🌥', price:34.99, badge:'Popular',     eta:'1–3 days', desc:'Incredibly soft double-sided throw — silky satin on one side, fluffy sherpa on the other. Built for period days on the couch. Machine washable.', features:['Double-Sided','Sherpa + Satin','Couch Perfect','Machine Wash'] },
   { id:42, name:'Mini Squishy Axolotl',        sub:'Squishy · 8" · Pastel pink',    category:'cuddles', cat_label:'Cuddles', emoji:'💗', price:14.99, badge:'Trending',    eta:'1–3 days', desc:'Adorable squishy axolotl in pastel pink. Super squishable and stress-relieving. The perfect desk or bedside buddy for hard days.', features:['Squishy Fill','Stress Relief','Pastel Pink','Desk Buddy'] },
   { id:43, name:'Comfort Care Gift Bundle',    sub:'Bear + blanket + cocoa kit',     category:'cuddles', cat_label:'Cuddles', emoji:'🎁', price:54.99, badge:'Gift Ready',  eta:'1–3 days', desc:'The ultimate comfort gift — a plush teddy bear, a mini sherpa throw, and our salted caramel cocoa kit, all in one gift box. Order it for yourself or send the love.', features:['Gift Boxed','3-Piece Set','Bear + Blanket + Cocoa','Same-Day Delivery'] },
+  { id:44, name:'Cooling Towel & Mist Set',    emoji:'🧊', category:'cooldown', cat_label:'Cool Down', sub:'Instant relief for hot flashes', desc:'Instant-cooling towel + facial mist spray. Clinically tested to reduce skin temperature by up to 30°F. Perfect for night sweats and sudden heat surges.', price:16.99, eta:'1-3 days', badge:'New', features:['Instant cooling','Reusable towel','Travel-size mist','Dermatologist safe'] },
+  { id:45, name:'Menthol Cooling Patches',      emoji:'💙', category:'cooldown', cat_label:'Cool Down', sub:'Wearable cooling relief',         desc:'Discreet adhesive patches infused with menthol and aloe. Wear on neck, wrists, or chest for up to 8 hours of cooling sensation. Drug-free and hormone-free.', price:14.99, eta:'1-3 days', badge:null,  features:['8hr cooling','Drug-free','Discreet wear','12 patches'] },
+  { id:46, name:'Cooling Gel Eye Mask',         emoji:'😴', category:'cooldown', cat_label:'Cool Down', sub:'Cool relief for night sweats',     desc:'Refrigeratable gel mask that stays cold for 20+ minutes. Helps reduce facial flushing and heat during perimenopause night sweats. Reusable, latex-free.', price:12.99, eta:'1-3 days', badge:null,  features:['20min cold','Reusable','Latex-free','Adjustable strap'] },
+  { id:47, name:'Cooling Bamboo Pillowcase Set',emoji:'🌿', category:'cooldown', cat_label:'Cool Down', sub:'Sleep cooler, sleep better',       desc:'100% organic bamboo pillowcases with moisture-wicking technology. Stays up to 3° cooler than cotton all night. Dermatologist recommended for menopause sleep disruption.', price:29.99, eta:'1-3 days', badge:'Best Seller', features:['Organic bamboo','Moisture-wicking','Hypoallergenic','Queen & King sizes'] },
+  { id:48, name:'Magnesium Cooling Lotion',     emoji:'🧴', category:'cooldown', cat_label:'Cool Down', sub:'Calm hot flashes from within',    desc:'Transdermal magnesium lotion with peppermint and eucalyptus. Applied to wrists and chest, it absorbs quickly to help regulate body temperature and reduce hot flash intensity.', price:22.99, eta:'1-3 days', badge:null,  features:['Transdermal Mg','Peppermint + eucalyptus','Fast absorbing','Hormone-free'] },
 ];
 
 
@@ -61,6 +66,7 @@ const CATEGORIES = [
   { id:'period',   label:'Period Care',      icon:'🌸' },
   { id:'intimate', label:'Intimate',         icon:'🫧' },
   { id:'wellness', label:'Wellness',         icon:'🌿' },
+  { id:'cooldown', label:'Cool Down',        icon:'❄️' },
   { id:'skincare', label:'Skincare',         icon:'🌹' },
   { id:'hygiene',  label:'Hygiene',          icon:'🧴' },
   { id:'clothing', label:'Undies & Bottoms', icon:'👙' },
@@ -680,6 +686,8 @@ function toggleFavorite(id) {
    ============================================= */
 function filteredProducts() {
   return PRODUCTS.filter(p => {
+    // Cool Down only shows for adult and holistic experiences
+    if (p.category === 'cooldown' && state.version !== 'adult' && state.version !== 'holistic') return false;
     if (state.activeCategory === 'favorites') return getFavorites().includes(p.id);
     const catOk = state.activeCategory === 'all' || p.category === state.activeCategory;
     const q = state.searchQuery.toLowerCase();
@@ -1558,6 +1566,20 @@ function calcDistanceFee(distanceMiles) {
   return 7;
 }
 
+
+function toggleDiscreetDelivery() {
+  const track = document.getElementById('discreetToggleTrack');
+  const thumb = document.getElementById('discreetToggleThumb');
+  const chk   = document.getElementById('discreetToggle');
+  if (!track) return;
+  const on = !chk.checked;
+  chk.checked = on;
+  track.style.background = on ? '#A855F7' : 'var(--surface-3,#333)';
+  if (thumb) thumb.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+  if (on) showDiscreetDeliveryPopup(state.version === 'teen' ? 'school' : 'work');
+  state.discreetDelivery = on;
+}
+
 function placeOrder() {
   const { subtotal, delivery, discount, total } = getOrderTotal();
 
@@ -1567,6 +1589,12 @@ function placeOrder() {
     return;
   }
 
+  // Require delivery address
+  if (!state.deliveryAddress) {
+    openAddressModal();
+    showToast('Please set a delivery address first ??');
+    return;
+  }
 
   // Stripe connected → open secure checkout modal
   if (_stripe) { openStripeCheckout(); return; }
@@ -1596,6 +1624,15 @@ function placeOrder() {
   renderCart();
   if (state.shopMode === 'products') renderProductGrid();
   closeCart();
+  // Fix ETA message based on order type
+  const etaEl = document.querySelector('#orderSuccess .success-eta');
+  if (etaEl) {
+    if (state.version === 'emergency') {
+      etaEl.textContent = '&#x1F6F5; Arriving in 30–45 minutes';
+    } else {
+      etaEl.textContent = '&#x1F4E6; Arriving in 1–3 business days';
+    }
+  }
   $('orderSuccess').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1635,7 +1672,10 @@ function openAddressModal() {
   $('addressOverlay').classList.add('open');
   $('addressModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => $('addressInput').focus(), 200);
+  renderAddressDropdown();
+  renderAddressLabelButtons();
+  selectAddressLabel('Home');
+  setTimeout(() => { const inp = $('addressInput'); if (inp) inp.focus(); }, 200);
 }
 function closeAddressModal() {
   $('addressOverlay').classList.remove('open');
@@ -1740,11 +1780,19 @@ function init() {
   $('addressOverlay').addEventListener('click', closeAddressModal);
   $('addressSave').addEventListener('click', () => {
     const val = $('addressInput').value.trim();
-    if (val) {
-      state.deliveryAddress = val;
-      $('addressPill').innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ${val.split(',')[0]}`;
-      showToast('Address saved');
-    }
+    if (!val) { showToast('Please enter an address'); return; }
+    state.deliveryAddress = val;
+    // Save with label
+    const label = window._selectedAddressLabel || 'Home';
+    const customLabelInput = document.getElementById('addressLabelCustom');
+    const finalLabel = (label === 'Custom' && customLabelInput && customLabelInput.value.trim())
+      ? customLabelInput.value.trim() : label;
+    addSavedAddress(finalLabel, val);
+    renderAddressDropdown();
+    renderAddressLabelButtons();
+    const shortAddr = val.split(',')[0];
+    $('addressPill').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + shortAddr;
+    showToast(finalLabel + ' address saved ✓');
     closeAddressModal();
   });
 
@@ -2044,6 +2092,29 @@ function openStripeCheckout() {
     state._stripeCardMounted = true;
   }
 
+
+  // Inject order notes + discreet delivery toggle
+  const coBody = document.querySelector('.co-body');
+  const existingNotes = document.getElementById('orderNotesSection');
+  if (coBody && !existingNotes) {
+    const notesDiv = document.createElement('div');
+    notesDiv.id = 'orderNotesSection';
+    notesDiv.style.cssText = 'margin-bottom:1rem;padding:1rem;background:var(--surface-2);border-radius:12px;';
+    notesDiv.innerHTML =
+      '<div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Order Notes (optional)</div>' +
+      '<textarea id="orderNoteInput" placeholder="Special instructions? e.g. leave at front desk, knock loudly, fragrance-free only..." style="width:100%;height:70px;padding:0.75rem;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;color:var(--text-primary);resize:none;outline:none;margin-bottom:0.75rem;" maxlength="300"></textarea>' +
+      '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:10px;border:1px solid rgba(168,85,247,0.2);">' +
+      '<div style="position:relative;flex-shrink:0;">' +
+      '<input type="checkbox" id="discreetToggle" style="opacity:0;position:absolute;width:0;height:0;">' +
+      '<div id="discreetToggleTrack" onclick="toggleDiscreetDelivery()" style="width:44px;height:24px;background:var(--surface-3,#333);border-radius:999px;cursor:pointer;position:relative;transition:background 0.2s;">' +
+      '<div id="discreetToggleThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>' +
+      '</div></div>' +
+      '<div><div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">?? Discreet delivery &mdash; bring it to me</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-muted);">School nurse, work reception, or similar</div></div>' +
+      '</div>';
+    const coSummary = document.getElementById('coSummary');
+    if (coSummary) coBody.insertBefore(notesDiv, coSummary);
+  }
 
   const modal   = $('coModal');
   const overlay = $('coOverlay');
@@ -2969,6 +3040,7 @@ function renderTracker() {
   if (seedSection) seedSection.style.display = cycles.length ? 'none' : '';
 
 
+  const lastCycle = cycles.length ? cycles[cycles.length - 1] : null;
   // ---- Phase card ----
   if (lastCycle) {
     const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
@@ -3185,38 +3257,46 @@ function renderSymptomLog(dateStr) {
   const data = getSymptomsData();
   const todaySymptoms = data[dateStr] || {};
 
+  let html = '<div class="symptom-header">' +
+    '<div class="symptom-title">&#x1F338; How are you feeling today?</div>' +
+    '<div class="symptom-date">' + dateStr + '</div>' +
+    '</div><div class="symptom-grid">';
 
-  container.innerHTML = `
-    <div class="symptom-header">
-      <div class="symptom-title">🌸 How are you feeling today?</div>
-      <div class="symptom-date">${dateStr}</div>
-    </div>
-    <div class="symptom-grid">
-      ${SYMPTOMS.map(s => {
-        const logged = todaySymptoms[s.id];
-        if (s.options) {
-          return '<div class="symptom-card ' + (logged ? 'logged' : '') + '">' +
-            '<div class="symptom-icon">' + s.icon + '</div>' +
-            '<div class="symptom-label">' + s.label + '</div>' +
-            '<div class="symptom-options">' +
-            s.options.map(opt =>
-              '<button class="symptom-opt ' + (logged === opt ? 'active' : '') + '" ' +
-              'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="' + opt.replace(/"/g,'&quot;') + '">' +
-              opt + '</button>'
-            ).join('') +
-            '</div></div>';
-        }
-        return `<button class="symptom-card symptom-card--toggle ${logged ? 'logged' : ''}"
-          onclick="logSymptom('${dateStr}','${s.id}',true)">
-          <div class="symptom-icon">${s.icon}</div>
-          <div class="symptom-label">${s.label}</div>
-          ${logged ? '<div class="symptom-check">✓</div>' : ''}
-        </button>`;
-      }).join('')}
-    </div>`;
+  SYMPTOMS.forEach(function(s) {
+    const logged = todaySymptoms[s.id];
+    if (s.options) {
+      html += '<div class="symptom-card ' + (logged ? 'logged' : '') + '">' +
+        '<div class="symptom-icon">' + s.icon + '</div>' +
+        '<div class="symptom-label">' + s.label + '</div>' +
+        '<div class="symptom-options">';
+      s.options.forEach(function(opt) {
+        html += '<button class="symptom-opt ' + (logged === opt ? 'active' : '') + '" ' +
+          'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="' + opt + '" type="button">' +
+          opt + '</button>';
+      });
+      html += '</div></div>';
+    } else {
+      html += '<button class="symptom-card symptom-card--toggle ' + (logged ? 'logged' : '') + '" ' +
+        'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="__toggle__" type="button">' +
+        '<div class="symptom-icon">' + s.icon + '</div>' +
+        '<div class="symptom-label">' + s.label + '</div>' +
+        (logged ? '<div class="symptom-check">&#x2713;</div>' : '') +
+        '</button>';
+    }
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+
+  container.querySelectorAll('[data-sid]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var d = btn.dataset.date;
+      var sid = btn.dataset.sid;
+      var opt = btn.dataset.opt === '__toggle__' ? true : btn.dataset.opt;
+      if (d && sid) logSymptom(d, sid, opt);
+    });
+  });
 }
-
-
 function initSymptomLog() {
   const section = $('symptomLogSection');
   if (!section) return;
