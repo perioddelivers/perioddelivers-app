@@ -29,6 +29,11 @@
     /* Order success modal — scrollable */
     #orderSuccess { overflow-y: auto !important; }
     #orderSuccess .success-card { overflow-y: auto; max-height: 90vh; }
+    /* SCROLL FIX — ensure body and views can always scroll after picker */
+    body { overflow-x: hidden; }
+    .version-picker { overflow-y: auto !important; }
+    #homeView, .view { overflow-y: auto; }
+    .vp-inner { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   </style>
   <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;var valid=['teen','adult','emergency','gifter','holistic','starter'];if(v&&valid.indexOf(v)>-1)document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
