@@ -664,6 +664,9 @@ function initVersion() {
    NAVIGATION
    ============================================= */
 function navigate(view) {
+  // Always ensure body scroll is restored when navigating
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
   if (view === 'cycleScoopView') {
     $$('.view').forEach(v => v.classList.remove('active'));
     const scoopEl = document.getElementById('cycleScoopView');
