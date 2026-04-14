@@ -1,8 +1,9 @@
-// Period. Service Worker v21638184 — Network First, Always Fresh
-const CACHE_NAME = 'period-v21638184';
-const STATIC = ['/', '/index.html', '/app.js', '/manifest.json'];
+// Period. Service Worker — Auto-versioned, always fresh
+// Version is generated automatically at install time — never bump manually again
+const CACHE_NAME = 'period-v' + Date.now();
+const STATIC = ['/', '/index.html', '/app.js', '/styles.css', '/manifest.json'];
 
-// Install: cache fresh copies
+// Install: cache fresh copies under the new auto-generated version name
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
@@ -11,7 +12,7 @@ self.addEventListener('install', e => {
   );
 });
 
-// Activate: nuke ALL old caches immediately
+// Activate: nuke ALL old caches immediately — every deploy is a clean slate
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
