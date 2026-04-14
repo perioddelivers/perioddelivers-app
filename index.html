@@ -29,10 +29,9 @@
     /* Order success modal — scrollable */
     #orderSuccess { overflow-y: auto !important; }
     #orderSuccess .success-card { overflow-y: auto; max-height: 90vh; }
-    /* SCROLL FIX — ensure body and views can always scroll after picker */
+    /* SCROLL FIX */
     body { overflow-x: hidden; }
-    .version-picker { overflow-y: auto !important; }
-    #homeView, .view { overflow-y: auto; }
+    #homeView { overflow-y: auto; }
     .vp-inner { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   </style>
   <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;var valid=['teen','adult','emergency','gifter','holistic','starter'];if(v&&valid.indexOf(v)>-1)document.documentElement.setAttribute('data-version',v);})();</script>
@@ -914,7 +913,7 @@
 </div>
 
 <!-- VERSION PICKER -->
-<div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience" style="display:none !important;visibility:hidden;pointer-events:none;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+<div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience" style="display:none;">
   <div class="vp-inner">
     <div class="vp-brand" aria-hidden="true"><img class="vp-crown" src="crown.png" alt="" aria-hidden="true"><span class="vp-dot">.</span></div>
     <h1 class="vp-headline">how can we help you today?</h1>
