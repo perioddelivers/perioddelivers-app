@@ -2340,6 +2340,18 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
 }
 
 /* ==============================================
+   VERSION PICKER — JUST STARTING CARD (ages 9-12)
+   Bright, light, playful — not dark like the others
+   ============================================== */
+#pickStarter .vp-card-title { color: #C2185B; }
+#pickStarter .vp-card-desc  { color: #AD5076; }
+#pickStarter:hover {
+  box-shadow: 0 8px 30px rgba(255,110,180,0.4) !important;
+  transform: translateY(-4px);
+  border-color: #FF6EB4 !important;
+}
+
+/* ==============================================
    HOME MODE CARD — HOLISTIC
    ============================================== */
 
