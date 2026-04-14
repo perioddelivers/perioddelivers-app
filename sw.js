@@ -1,5 +1,5 @@
-// Period. Service Worker v75983990 — Network First, Always Fresh
-const CACHE_NAME = 'period-v75983990';
+// Period. Service Worker v21638184 — Network First, Always Fresh
+const CACHE_NAME = 'period-v21638184';
 const STATIC = ['/', '/index.html', '/app.js', '/manifest.json'];
 
 // Install: cache fresh copies
