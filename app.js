@@ -620,9 +620,11 @@ function showAppIntroCard() {
 function initVersionPicker() {
   const picker = $('versionPicker');
   if (picker) {
+    picker.style.removeProperty('display');
     picker.style.display = 'flex';
     picker.style.opacity = '1';
     picker.style.visibility = 'visible';
+    picker.style.pointerEvents = 'auto';
   }
   document.body.style.overflow = 'hidden';
   const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
