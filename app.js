@@ -3055,6 +3055,24 @@ function init() {
   if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
   if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
 
+  // The Tea, Period. nav buttons — wired here so they survive version switching
+  const _openScoop = () => {
+    navigate('cycleScoopView');
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+  };
+  if ($('heroScoopBtn'))   $('heroScoopBtn').addEventListener('click', _openScoop);
+  if ($('teenScoopLink'))  $('teenScoopLink').addEventListener('click', _openScoop);
+  if ($('cycleScoopBack')) $('cycleScoopBack').addEventListener('click', () => navigate('home'));
+
+  // Newsletter hero button — re-wire here in case starter mode hid/restored it
+  if ($('heroNewsletterBtn')) {
+    $('heroNewsletterBtn').addEventListener('click', () => {
+      showNewsletterModal();
+    });
+  }
+
 
   if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
   if ($('commPostBtn'))   $('commPostBtn').addEventListener('click', submitCommPost);
@@ -6666,19 +6684,7 @@ function renderAthleticContent() {
 
 // ── Navigation wiring ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // The Tea, Period. nav buttons
-  const openScoop = () => {
-    navigate('cycleScoopView');
-    renderScoopFacts();
-    renderScoopFaq();
-    initCycleScoopTabs();
-  };
-  const heroScoop   = $('heroScoopBtn');
-  const teenScoop   = $('teenScoopLink');
-  const scoopBack   = $('cycleScoopBack');
-  if (heroScoop)  heroScoop.addEventListener('click', openScoop);
-  if (teenScoop)  teenScoop.addEventListener('click', openScoop);
-  if (scoopBack)  scoopBack.addEventListener('click', () => navigate('home'));
+  // The Tea nav buttons wired in init()
 
 
   // Freak Out Guide order button
