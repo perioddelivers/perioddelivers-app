@@ -2331,17 +2331,13 @@ a,button,[role='button'],input{transition:color var(--trans),background var(--tr
 .vp-card--holistic .vp-card-cta  { color: #34D399; }
 .vp-card--holistic .vp-card-cta svg { stroke: #34D399; }
 
-/* Holistic card spans full width at the bottom (5th card) */
-.vp-cards { grid-template-columns: 1fr 1fr; }
+/* Holistic card — same size and style as all other cards */
 .vp-card--holistic {
-  grid-column: 1 / -1;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--sp-4);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
   text-align: left;
 }
-.vp-card--holistic .vp-card-emoji { font-size: 2.2rem; flex-shrink: 0; }
-.vp-card--holistic .vp-card-title { font-size: var(--text-base); }
 
 /* ==============================================
    HOME MODE CARD — HOLISTIC
