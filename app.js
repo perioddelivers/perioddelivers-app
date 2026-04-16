@@ -1,1038 +1,6777 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="theme-color" content="#080610"/>
-  <meta name="description" content="Period. — Premium feminine care delivered on demand, or curated monthly."/>
-  <meta property="og:title" content="Period."/>
-  <meta property="og:description" content="On-demand delivery + monthly care packages. Premium feminine care."/>
-  <title>Period.</title>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
-  <link rel="stylesheet" href="styles.css"/>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <style>
-    @keyframes fadeSlideIn {
-      from { opacity:0; transform:translateY(-8px); }
-      to   { opacity:1; transform:translateY(0); }
+'use strict';
+
+
+/* =============================================
+   PRODUCT DATA
+   ============================================= */
+const PRODUCTS = [
+  { id:1,  name:'Ultra-Thin Organic Pads',       sub:'Regular flow · 20 ct',    category:'period',  cat_label:'Period Care', emoji:'🌸', price:8.99,  badge:'Best Seller', eta:'1–3 days', desc:'100% certified organic cotton pads with superior absorption. Fragrance-free and dermatologist-tested for sensitive skin.', features:['Organic Cotton','Fragrance-Free','No Plastic Core','Breathable'] },
+  { id:2,  name:'Overnight Pads with Wings',      sub:'Heavy flow · 14 ct',      category:'period',  cat_label:'Period Care', emoji:'🌙', price:10.49, badge:null,          eta:'1–3 days', desc:'Extra-long coverage for full-night protection. Wings keep pad in place. 360° leak guard. Unscented and ultra-soft.', features:['Extra Long','Full Coverage','Stay-Put Wings','Leak Guard'] },
+  { id:3,  name:'Organic Tampons Variety',        sub:'Reg/Super · 18 ct',       category:'period',  cat_label:'Period Care', emoji:'💜', price:9.99,  badge:'New',         eta:'1–3 days', desc:'Plastic-free organic cotton tampons in a mixed pack. BPA-free and septic-safe with a smooth plastic-free applicator.', features:['Organic Cotton','Plastic-Free','BPA-Free','Septic Safe'] },
+  { id:4,  name:'Menstrual Cup',                  sub:'Medical silicone · S/L',  category:'period',  cat_label:'Period Care', emoji:'♻️', price:24.99, badge:'Eco Choice',   eta:'1–3 days', desc:'Reusable medical-grade silicone cup. Holds 3× more than a tampon. Lasts up to 10 years — zero waste.', features:['Reusable','Medical Grade','12hr Hold','Zero Waste'] },
+  { id:5,  name:'Period Panties',                 sub:'Bikini style · XS–3XL',   category:'period',  cat_label:'Period Care', emoji:'👙', price:18.99, badge:null,          eta:'1–3 days', desc:'4-layer leak-proof underwear. Absorbs up to 2 tampons worth. Machine washable.', features:['4-Layer Tech','Machine Wash','All Sizes','Super Soft'] },
+  { id:6,  name:'Gentle Feminine Wash',           sub:'pH-balanced · 8 fl oz',   category:'intimate',cat_label:'Intimate Care',emoji:'🫧', price:11.99, badge:'Top Rated',    eta:'1–3 days', desc:'pH-balanced daily intimate wash. Free from sulfates, parabens, and artificial fragrances. Maintains natural microbiome.', features:['pH-Balanced','Sulfate-Free','Derm. Tested','Daily Use'] },
+  { id:7,  name:'Intimate Moisturizing Gel',      sub:'Hormone-free · 1.7 fl oz',category:'intimate',cat_label:'Intimate Care',emoji:'✨', price:16.99, badge:null,          eta:'1–3 days', desc:'Natural intimate moisturizer with hyaluronic acid and aloe vera. Relieves dryness. Hormone-free, latex-safe.', features:['Hyaluronic Acid','Aloe Vera','Hormone-Free','Latex Safe'] },
+  { id:8,  name:'Probiotic Feminine Capsules',    sub:'Vaginal health · 30 caps', category:'wellness',cat_label:'Wellness',    emoji:'🌿', price:22.99, badge:'Dr. Rec.',      eta:'1–3 days', desc:'10 billion CFU lactobacillus blend for vaginal and urinary tract health. Shelf stable, no refrigeration needed.', features:['10B CFU','Clinically Studied','Vaginal Health','UTI Support'] },
+  { id:9,  name:'Iron & Folate Supplement',       sub:"Women's formula · 60 caps",category:'wellness',cat_label:'Wellness',    emoji:'💊', price:19.99, badge:null,          eta:'1–3 days', desc:"Women's iron supplement with folate, B12, and vitamin C. Gentle on the stomach. Ideal for cycle recovery.", features:['Iron + Folate','Vitamin C','Gentle Formula','B12 Added'] },
+  { id:10, name:'Cramp Relief Heat Patches',      sub:'8-hour heat · 5 patches',  category:'wellness',cat_label:'Wellness',    emoji:'🌡️',price:13.99, badge:'Popular',       eta:'1–3 days', desc:'Air-activated heat patches worn on clothing. 8 hours of gentle warmth for menstrual cramp relief. No batteries.', features:['8-Hour Heat','Adhesive Back','Discreet','Air-Activated'] },
+  { id:11, name:'Natural Deodorant Spray',        sub:'Lavender & Sage · 3.4 oz', category:'hygiene', cat_label:'Hygiene',     emoji:'🌾', price:12.49, badge:null,          eta:'1–3 days', desc:'Aluminum-free deodorant with baking soda and magnesium. 24-hour freshness. Subtle lavender + sage scent.', features:['Aluminum-Free','24hr Fresh','Natural Scent','Sensitive Skin'] },
+  { id:12, name:'Hydrating Body Oil',             sub:'Rose & Argan · 4 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🌹', price:21.99, badge:'Luxury',       eta:'1–3 days', desc:'Lightweight argan, jojoba, and rosehip blend. Absorbs quickly, no greasy residue. Leaves skin silky smooth.', features:['Argan Oil','Rosehip','Non-Greasy','Fast Absorb'] },
+  { id:13, name:'Brightening Vitamin C Serum',   sub:'15% Ascorbic · 1 fl oz',   category:'skincare',cat_label:'Skincare',    emoji:'🍊', price:28.99, badge:'Fan Fave',      eta:'1–3 days', desc:'15% vitamin C serum with ferulic acid and vitamin E. Fades dark spots, evens tone, boosts collagen.', features:['15% Vit C','Ferulic Acid','Brightening','Anti-Aging'] },
+  { id:14, name:'Ingrown Hair Serum',             sub:'Bikini + body · 2 fl oz',  category:'skincare',cat_label:'Skincare',    emoji:'🧴', price:15.99, badge:null,          eta:'1–3 days', desc:'Salicylic acid serum to target and prevent ingrown hairs in sensitive areas. Aloe and centella asiatica soothe skin.', features:['Salicylic Acid','Aloe Vera','Centella','All Skin Types'] },
+  { id:15, name:'Intimate Wipes Travel Pack',     sub:'Fragrance-free · 30 ct',   category:'hygiene', cat_label:'Hygiene',     emoji:'🧻', price:7.99,  badge:null,          eta:'1–3 days', desc:'Individually wrapped flushable wipes. pH-balanced for intimate use. Perfect for on-the-go. Alcohol & paraben-free.', features:['Flushable','pH-Balanced','Travel Size','No Alcohol'] },
+  { id:16, name:'Hormone Balance Tea',            sub:'Raspberry leaf · 20 bags', category:'wellness',cat_label:'Wellness',    emoji:'🍵', price:14.99, badge:'Natural',       eta:'1–3 days', desc:'Herbal blend with red raspberry leaf, vitex, and spearmint. Supports hormonal balance and eases PMS symptoms.', features:['Raspberry Leaf','Vitex Berry','Spearmint','Caffeine-Free'] },
+  // --- Emergency Kit ---
+  { id:17, name:'Emergency Period Kit',          sub:'Pads + liners + wipes',         category:'period',   cat_label:'Period Care',     emoji:'🚨', price:14.99, badge:'Fastest',   eta:'~20 min', desc:'Pre-packed emergency kit: organic pads (regular + overnight), pantiliners, and intimate wipes. Everything you need, right now. No thinking required.', features:['Ready to Go','Fast Delivery','Organic Pads','Wipes Included'] },
+  // --- Undies & Bottoms ---
+  { id:18, name:'Cotton Brief Essentials 5-Pack',sub:'XS–XL · soft & breathable',      category:'clothing', cat_label:'Undies & Bottoms',emoji:'🧥', price:12.99, badge:'Must Have', eta:'1–3 days', desc:'Ultra-soft 100% cotton briefs in a 5-pack. Perfect for emergencies or everyday comfort. Tagless waistband, full coverage. XS–XL.', features:['100% Cotton','Full Coverage','Tagless','5-Pack'] },
+  { id:19, name:'High-Waist Cotton Briefs 3-Pack',sub:'XS–3XL · all sizes',            category:'clothing', cat_label:'Undies & Bottoms',emoji:'👙', price:18.99, badge:null,       eta:'1–3 days', desc:'High-rise waist for extra coverage and comfort. Buttery-soft cotton, wide waistband, perfect for period days or anytime you want something cozy.', features:['High-Waist','Extra Coverage','Wide Band','3-Pack'] },
+  { id:20, name:'Cozy Lounge Leggings',          sub:'One size fits most',              category:'clothing', cat_label:'Undies & Bottoms',emoji:'👖', price:27.99, badge:null,       eta:'1–3 days', desc:'Ultra-soft brushed interior lounge leggings with a wide comfort waistband. Dark wash, no see-through, perfect for period days at home or on the go.', features:['Brushed Interior','Wide Band','Dark Wash','Full Length'] },
+  { id:21, name:'Classic Biker Shorts',          sub:'High-waist · 5" inseam',             category:'clothing', cat_label:'Undies & Bottoms',emoji:'⚡',    price:22.99, badge:'Top Pick',   eta:'1–3 days', desc:'High-waist compression biker shorts. No ride-up, no chafing. Perfect under dresses or on their own. Double-layered for confidence.', features:['Compression','No Ride-Up','Double Layer','High Waist'] },
+  // --- Sweets ---
+  { id:22, name:'Dark Chocolate Assortment',     sub:'Sea salt & almond · 3.5 oz',         category:'candy',    cat_label:'Sweets',          emoji:'🍫', price:11.99, badge:'Fan Fave',   eta:'1–3 days', desc:'Rich 70% dark chocolate bark with sea salt and roasted almonds. Mood-lifting, antioxidant-rich, and honestly just delicious. Period approved.', features:['70% Dark Cocoa','Sea Salt','Antioxidants','Mood Boost'] },
+  { id:23, name:'Gummy Candy Mix',               sub:'Sweet + sour · assorted',             category:'candy',    cat_label:'Sweets',          emoji:'🍮', price:8.99,  badge:null,       eta:'1–3 days', desc:'A satisfying mix of sweet and sour gummies — fruity bears, worms, peach rings, and more. The craving is real and we are not judging.', features:['Assorted Flavors','Sweet + Sour','Shareable','Resealable Bag'] },
+  { id:24, name:'Salted Caramel Cocoa Kit',      sub:'2 cocoa packets + caramel',        category:'candy',    cat_label:'Sweets',          emoji:'☕',    price:13.99, badge:null,       eta:'1–3 days', desc:'Rich hot cocoa mix with a salted caramel drizzle pack. Just add hot water or milk. Cozy in a cup — perfect for period evenings on the couch.', features:['Rich Cocoa','Salted Caramel','Just Add Milk','2 Servings'] },
+  // --- Cozy Picks ---
+  { id:25, name:'Sheet Face Mask Set',           sub:'Hydrating + brightening · 5-pack',    category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧖', price:15.99, badge:null,       eta:'1–3 days', desc:'5-pack K-beauty sheet masks: hyaluronic acid, vitamin C brightening, centella calming, collagen firming, and charcoal pore-cleanse.', features:['5 Variety Masks','K-Beauty','Single Use','All Skin Types'] },
+  { id:26, name:'Cozy Fuzzy Socks 3-Pack',       sub:'Ultra-plush · one size',              category:'comfort',  cat_label:'Cozy Picks',      emoji:'🧦', price:13.99, badge:'So Cozy',   eta:'1–3 days', desc:'Thick cloud-soft fuzzy socks in 3 neutral shades. Non-slip sole, wide cuff, machine washable. You deserve the softest socks on your hardest days.', features:['Ultra-Plush','Non-Slip Sole','Machine Wash','3 Colors'] },
+  { id:27, name:'Lavender Calm Roller',          sub:'Aromatherapy · 10 mL roller',         category:'comfort',  cat_label:'Cozy Picks',      emoji:'💜', price:14.99, badge:null,       eta:'1–3 days', desc:'Essential oil blend — lavender, chamomile and eucalyptus — in a ready-to-use roller ball. Apply to pulse points for calm and stress relief.', features:['Lavender + Chamomile','Roller Ball','Pulse Points','Calming Blend'] },
+  // --- Holistic & Natural ---
+  { id:28, name:'Reusable Menstrual Disc',         sub:'Medical silicone · one size',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🌀', price:29.99, badge:'Zero Waste',  eta:'1–3 days', desc:'Soft medical-grade silicone disc. Sits at the vaginal fornix — holds 4× more than a tampon. Reusable for years. Period sex safe.', features:['Medical Silicone','12-hr Wear','Reusable','Period-Sex Safe'] },
+  { id:29, name:'Organic Cloth Pads Set',          sub:'Washable · 5-pack assorted',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌿', price:34.99, badge:'Top Pick',    eta:'1–3 days', desc:'Soft organic cotton washable pads — regular, heavy, and night sizes. Snap-wing design, leak-proof inner layer. Lasts 3–5 years.', features:['100% Organic Cotton','Washable','5-Pack Mix','Snap Wing'] },
+  { id:30, name:'CBD Period Relief Salve',         sub:'50mg broad-spectrum · 2 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🫚', price:32.99, badge:'Natural',     eta:'1–3 days', desc:'Broad-spectrum CBD with arnica and clary sage in a beeswax base. Rub directly on the lower abdomen for targeted cramp and tension relief. Third-party tested.', features:['50mg CBD','Arnica','Clary Sage','3rd-Party Tested'] },
+  { id:31, name:'Castor Oil Ritual Kit',           sub:'Cold-pressed + flannel pack',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🧴', price:26.99, badge:null,         eta:'1–3 days', desc:'Cold-pressed organic castor oil with a reusable flannel pack. Apply to abdomen with gentle heat to ease cramps and bloating. A beloved holistic ritual.', features:['Cold-Pressed','Organic','Reusable Pack','Anti-Bloat'] },
+  { id:32, name:'Magnesium Body Lotion',           sub:'Period + PMS relief · 6 oz',          category:'holistic', cat_label:'Holistic & Natural', emoji:'🌸', price:22.99, badge:'PMS Relief',   eta:'1–3 days', desc:'Transdermal magnesium glycinate lotion. Absorbed through the skin for fast cramp, bloat, and mood relief. Fragrance-free, paraben-free.', features:['Magnesium Glycinate','Transdermal','Fragrance-Free','Fast Absorption'] },
+  { id:33, name:'Cramp Bark Herbal Tea',           sub:'Red raspberry leaf blend · 20 bags',  category:'holistic', cat_label:'Holistic & Natural', emoji:'🍵', price:16.99, badge:'Herbalist Pick',eta:'1–3 days', desc:'Potent blend of cramp bark, red raspberry leaf, ginger root, and passionflower. Targets uterine cramps and eases PMS tension naturally. Caffeine-free.', features:['Cramp Bark','Raspberry Leaf','Ginger','Caffeine-Free'] },
+  { id:34, name:'Clary Sage Period Mist',          sub:'Aromatherapy · 4 oz spray',           category:'holistic', cat_label:'Holistic & Natural', emoji:'🌾', price:18.99, badge:null,         eta:'1–3 days', desc:'Pure clary sage, lavender, and geranium in distilled witch hazel. Mist over lower abdomen or pulse points to support hormonal calm and cycle flow.', features:['Clary Sage','Geranium','Witch Hazel','Hormone-Supportive'] },
+  { id:35, name:'Natural Sea Sponge Tampon',       sub:'Ethically harvested · 2-pack',        category:'holistic', cat_label:'Holistic & Natural', emoji:'🧽', price:19.99, badge:'Plastic-Free', eta:'1–3 days', desc:'100% natural sea sponge — a traditional tampon alternative. Moistened and inserted like a tampon. Rinse, reuse, compost when done. Truly zero waste.', features:['100% Natural','Reusable','Compostable','Plastic-Free'] },
+  { id:36, name:'Organic Period Underwear (2-pk)', sub:'Heavy flow · XS–3XL',                 category:'holistic', cat_label:'Holistic & Natural', emoji:'🌱', price:42.99, badge:'Best Seller',  eta:'1–3 days', desc:'GOTS-certified organic cotton period underwear — heavy flow capacity, no synthetic liners. Tagless, breathable, and kind to sensitive skin. 2-pack.', features:['GOTS Certified','Organic Cotton','Heavy Flow','All Sizes'] },
+  { id:37, name:'Beeswax Cramp Relief Balm',       sub:'Lavender + clove · 1 oz tin',         category:'holistic', cat_label:'Holistic & Natural', emoji:'🍯', price:15.99, badge:null,         eta:'1–3 days', desc:'Traditional beeswax salve with clove, lavender, and peppermint oil. Warm into skin for localized cramp and back pain relief. 100% natural ingredients.', features:['Beeswax Base','Clove + Clary Sage','Peppermint','100% Natural'] },
+  { id:38, name:'Classic Comfort Bear',        sub:'Plush · Medium · 12"',          category:'cuddles', cat_label:'Cuddles', emoji:'🧸', price:19.99, badge:'New',        eta:'1–3 days', desc:'Ultra-soft minky plush bear — made for squeezing on hard days. Machine washable. The right size to actually hug.', features:['Ultra-Soft Minky','Machine Wash','Medium 12"','Perfect Hug'] },
+  { id:39, name:'Microwavable Plush Bunny',    sub:'Lavender scented · Heatable',   category:'cuddles', cat_label:'Cuddles', emoji:'🐰', price:28.99, badge:'Fan Fave',   eta:'1–3 days', desc:'Cute plush bunny with a removable heat insert. Microwave for 90 seconds for gentle, soothing warmth. Lavender-scented filling for relaxation. Great for cramps.', features:['Microwavable','Lavender Scent','Soothing Heat','Washable Cover'] },
+  { id:40, name:'Weighted Comfort Blanket',    sub:'5 lb · 48"x72" · Glass beads', category:'cuddles', cat_label:'Cuddles', emoji:'🛏', price:49.99, badge:null,          eta:'1–3 days', desc:'5-pound weighted blanket with glass bead filling. Gentle deep-pressure sensation eases anxiety and promotes calm. Soft minky top, cool cotton back.', features:['5 lb Weight','Glass Beads','Anxiety Relief','Minky + Cotton'] },
+  { id:41, name:'Plush Sherpa Throw Blanket', sub:'50"x60" · Cloud-soft',           category:'cuddles', cat_label:'Cuddles', emoji:'🌥', price:34.99, badge:'Popular',     eta:'1–3 days', desc:'Incredibly soft double-sided throw — silky satin on one side, fluffy sherpa on the other. Built for period days on the couch. Machine washable.', features:['Double-Sided','Sherpa + Satin','Couch Perfect','Machine Wash'] },
+  { id:42, name:'Mini Squishy Axolotl',        sub:'Squishy · 8" · Pastel pink',    category:'cuddles', cat_label:'Cuddles', emoji:'💗', price:14.99, badge:'Trending',    eta:'1–3 days', desc:'Adorable squishy axolotl in pastel pink. Super squishable and stress-relieving. The perfect desk or bedside buddy for hard days.', features:['Squishy Fill','Stress Relief','Pastel Pink','Desk Buddy'] },
+  { id:43, name:'Comfort Care Gift Bundle',    sub:'Bear + blanket + cocoa kit',     category:'cuddles', cat_label:'Cuddles', emoji:'🎁', price:54.99, badge:'Gift Ready',  eta:'1–3 days', desc:'The ultimate comfort gift — a plush teddy bear, a mini sherpa throw, and our salted caramel cocoa kit, all in one gift box. Order it for yourself or send the love.', features:['Gift Boxed','3-Piece Set','Bear + Blanket + Cocoa','Same-Day Delivery'] },
+  { id:44, name:'Cooling Towel & Mist Set',    emoji:'🧊', category:'cooldown', cat_label:'Cool Down', sub:'Instant relief for hot flashes', desc:'Instant-cooling towel + facial mist spray. Clinically tested to reduce skin temperature by up to 30°F. Perfect for night sweats and sudden heat surges.', price:16.99, eta:'1-3 days', badge:'New', features:['Instant cooling','Reusable towel','Travel-size mist','Dermatologist safe'] },
+  { id:45, name:'Menthol Cooling Patches',      emoji:'💙', category:'cooldown', cat_label:'Cool Down', sub:'Wearable cooling relief',         desc:'Discreet adhesive patches infused with menthol and aloe. Wear on neck, wrists, or chest for up to 8 hours of cooling sensation. Drug-free and hormone-free.', price:14.99, eta:'1-3 days', badge:null,  features:['8hr cooling','Drug-free','Discreet wear','12 patches'] },
+  { id:46, name:'Cooling Gel Eye Mask',         emoji:'😴', category:'cooldown', cat_label:'Cool Down', sub:'Cool relief for night sweats',     desc:'Refrigeratable gel mask that stays cold for 20+ minutes. Helps reduce facial flushing and heat during perimenopause night sweats. Reusable, latex-free.', price:12.99, eta:'1-3 days', badge:null,  features:['20min cold','Reusable','Latex-free','Adjustable strap'] },
+  { id:47, name:'Cooling Bamboo Pillowcase Set',emoji:'🌿', category:'cooldown', cat_label:'Cool Down', sub:'Sleep cooler, sleep better',       desc:'100% organic bamboo pillowcases with moisture-wicking technology. Stays up to 3° cooler than cotton all night. Dermatologist recommended for menopause sleep disruption.', price:29.99, eta:'1-3 days', badge:'Best Seller', features:['Organic bamboo','Moisture-wicking','Hypoallergenic','Queen & King sizes'] },
+  { id:48, name:'Magnesium Cooling Lotion',     emoji:'🧴', category:'cooldown', cat_label:'Cool Down', sub:'Calm hot flashes from within',    desc:'Transdermal magnesium lotion with peppermint and eucalyptus. Applied to wrists and chest, it absorbs quickly to help regulate body temperature and reduce hot flash intensity.', price:22.99, eta:'1-3 days', badge:null,  features:['Transdermal Mg','Peppermint + eucalyptus','Fast absorbing','Hormone-free'] },
+];
+
+
+const CATEGORIES = [
+  { id:'all',      label:'All',              icon:'✦' },
+  { id:'period',   label:'Period Care',      icon:'🌸' },
+  { id:'intimate', label:'Intimate',         icon:'🫧' },
+  { id:'wellness', label:'Wellness',         icon:'🌿' },
+  { id:'cooldown', label:'Cool Down',        icon:'❄️' },
+  { id:'skincare', label:'Skincare',         icon:'🌹' },
+  { id:'hygiene',  label:'Hygiene',          icon:'🧴' },
+  { id:'clothing', label:'Undies & Bottoms', icon:'👙' },
+  { id:'candy',    label:'Sweets',           icon:'🍫' },
+  { id:'comfort',  label:'Cozy Picks',       icon:'✨' },
+  { id:'cuddles',  label:'Cuddles',           icon:'🧸' },
+  { id:'holistic', label:'Holistic & Natural', icon:'🌿' },
+];
+
+
+const PLANS = {
+  starter:   { name:'Starter',   price:19.99, slots:3  },
+  essential: { name:'Essential', price:34.99, slots:6  },
+  royal:     { name:'Royal',     price:54.99, slots:9  },
+};
+
+
+
+
+/* =============================================
+   PRICING ENGINE — Promo Codes + Dynamic Fees
+   ============================================= */
+const PROMO_CODES = {
+  'WELCOME20': { type:'percent',  value:20,   label:'20% off — welcome gift 🎉' },
+  'PERIOD10':  { type:'percent',  value:10,   label:'10% off your order'         },
+  'FREESHIP':  { type:'shipping', value:0,    label:'Free delivery 🛵'           },
+  'ROYAL5':    { type:'fixed',    value:5.00, label:'$5 off your order 👑'       },
+};
+
+
+function getDeliveryFee(subtotal) {
+  if (state.appliedPromo && state.appliedPromo.type === 'shipping') return 0;
+  return subtotal >= 35 ? 0 : 4.99;
+}
+
+
+function getOrderTotal() {
+  const subtotal = cartTotal();
+  const delivery = getDeliveryFee(subtotal);
+  const promo    = state.appliedPromo;
+  let   discount = 0;
+  if (promo) {
+    if (promo.type === 'percent') discount = +(subtotal * promo.value / 100).toFixed(2);
+    if (promo.type === 'fixed')   discount = Math.min(promo.value, subtotal);
+  }
+  const total = Math.max(0, +(subtotal - discount + delivery).toFixed(2));
+  return { subtotal, delivery, discount, total };
+}
+
+
+function applyPromoCode() {
+  const input = $('promoInput');
+  const code  = input ? input.value.trim().toUpperCase() : '';
+  if (!code) { showToast('Enter a promo code first ✨'); return; }
+  const promo = PROMO_CODES[code];
+  if (!promo) {
+    showToast("That code isn't valid — try again");
+    if (input) {
+      input.style.borderColor = 'var(--error, #F87171)';
+      setTimeout(() => { input.style.borderColor = ''; }, 2000);
     }
-    .change-sis-section { position:relative; }
-    .tracker-maybe-later-btn:hover { color:var(--text-primary) !important; background:var(--surface-2) !important; }
-    .cart-sidebar { display:flex; flex-direction:column; }
-    #cartBody { flex:1; overflow-y:auto; }
-    .cart-footer { flex-shrink:0; overflow-y:auto; max-height:65vh; }
-    /* Order success modal — scrollable */
-    #orderSuccess { overflow-y: auto !important; }
-    #orderSuccess .success-card { overflow-y: auto; max-height: 90vh; }
-    /* SCROLL FIX */
-    body { overflow-x: hidden; }
-    #homeView { overflow-y: auto; }
-    .vp-inner { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  </style>
-  <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;var valid=['teen','adult','emergency','gifter','holistic','starter'];if(v&&valid.indexOf(v)>-1)document.documentElement.setAttribute('data-version',v);})();</script>
-</head>
-<body>
+    return;
+  }
+  state.appliedPromo = { ...promo, code };
+  if (input) input.value = '';
+  showToast(promo.label + ' applied!');
+  renderCart();
+}
 
-<div id="ageGateWrap" role="dialog" aria-modal="true" aria-label="Age verification" style="display:none">
-  <div id="ageGateAsk" class="age-gate-screen">
-    <div class="age-gate-logo" aria-hidden="true">.</div>
-    <h1 class="age-gate-heading">Before we begin</h1>
-    <p class="age-gate-body">This platform is for users 13 and older. Are you 13 or older?</p>
-    <div class="age-gate-btns">
-      <button class="age-gate-yes" id="ageGateYes">Yes, I'm 13 or older</button>
-      <button class="age-gate-no"  id="ageGateNo">No, I'm under 13</button>
-    </div>
-  </div>
-  <div id="ageGateBlocked" class="age-gate-screen" style="display:none">
-    <div class="age-gate-logo" aria-hidden="true">.</div>
-    <h1 class="age-gate-heading">Thank you for being honest.</h1>
-    <p class="age-gate-body">Please ask a parent or guardian to help with your order. They can reach us at <a href="/cdn-cgi/l/email-protection#60131510100f121420100512090f0404050c09160512134e030f0d" class="age-gate-link"><span class="__cf_email__" data-cfemail="ee9d9b9e9e819c9aae9e8b9c87818a8a8b8287988b9c9dc08d8183">[email&#160;protected]</span></a>.</p>
-  </div>
-</div>
 
-<div class="trending-strip" id="trendingStrip" aria-label="Trending this week">
-  <span class="trending-label">&#x1F525; Trending</span>
-  <div class="trending-pills" id="trendingPills"></div>
-</div>
+function removePromoCode() {
+  state.appliedPromo = null;
+  renderCart();
+  showToast('Promo removed');
+}
 
-<header class="header" role="banner">
-  <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" style="flex-shrink:0"></button>
-  <button class="brand-mark" id="homeLogo" aria-label="Go to home">
-    <img class="crown-svg" src="crown.png" alt="" aria-hidden="true">
-    <span class="brand-dot" aria-label="Period store">.</span>
-  </button>
-  <div class="header-actions" style="flex-shrink:0">
-    <button class="version-badge" id="versionBadge" aria-label="Switch your experience">
-      <span id="versionBadgeText">Choose</span>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-    </button>
-    <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      <span class="cart-badge" id="cartBadge" aria-live="polite"></span>
-    </button>
-  </div>
-</header>
 
-<div class="view active" id="homeView">
-  <section class="home-hero" aria-label="Welcome">
-    <div class="hero-brand-mark" aria-hidden="true">
-      <img class="hero-crown-svg" src="crown.png" alt="" aria-hidden="true">
-      <span class="hero-dot">.</span>
-    </div>
-    <p class="hero-tagline" id="heroTagline">Delivered when you need it.</p>
-    <p class="hero-sub" id="heroSub">On-demand delivery wherever you are, or a monthly care package curated just for you.</p>
-    <button class="comm-hero-bar" id="heroCommBar" aria-label="Join our community">
-      <span class="comm-hero-icon" aria-hidden="true">&#x1F49C;</span>
-      <span class="comm-hero-text">Connect &middot; Share &middot; Support</span>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </button>
-    <div class="hero-quick-links">
+/* =============================================
+   VERSION CONTENT MAPS
+   ============================================= */
+const CONTENT = {
+  teen: {
+    heroTagline:         'period, pooh. we got you. \u{1F451}',
+    heroSub:             "get what you need, when you need it. no judgment \u2014 periodt.",
+    heroOrderNowText:    'Urgent',
+    heroCarePackageText: 'Get My Box',
+    card1Title:          'Order Now',
+    card1Desc:           'need it? we got you. pads, liners, wipes, skincare, comfort — order in the app, delivered to your door. periodt. 🛒',
+    card2Title:          'My Monthly for My Monthly',
+    card2Desc:           'Pick your plan, choose your faves, and get your care package every month. period, pooh \u2728',
+    howTitle:            'how it works \u{1F451}',
+    step1Name:           'Browse & Pick',
+    step1Desc:           'Shop our full menu \u2014 period care, intimate wellness, skincare & more. Whatever you need.',
+    step2Name:           'Order Placed',
+    step2Desc:           'We link up with our supplier partners and get your order moving. Periodt.',
+    step3Name:           'Right to You',
+    step3Desc:           '1–3 days for standard orders, or on your date for your monthly box. Home, school, office — no stress, period, pooh.',
+    trustBadges:         ['\ud83d\udd12 Discreet AF', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Only', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
+    subEyebrow:          'Monthly Drop',
+    subTitle:            'my monthly<br><span>for my monthly.</span>',
+    subSub:              "pick what you want, choose your plan, get it every month. period, pooh \u2014 we got you.",
+    plansLabel:          'step 1 \u2014 pick your plan',
+    pickerTitle:         'step 2 \u2014 build your box',
+  },
+  adult: {
+    heroTagline:         'Your care. Your schedule.',
+    heroSub:             'Delivered to your door in 1–3 days, or a curated monthly care package — built around your routine.',
+    heroOrderNowText:    'Urgent',
+    heroCarePackageText: 'Care Package',
+    card1Title:          'Order Now',
+    card1Desc:           'Need something? Browse our full catalog — period care, wellness, skincare, comfort. Ordered in the app, delivered to your door in 1–3 days.',
+    card2Title:          'Care Package',
+    card2Desc:           'A monthly subscription built around you. Choose your plan, select your products, and we handle the rest.',
+    howTitle:            'How It Works',
+    step1Name:           'Browse & Select',
+    step1Desc:           'Shop our curated catalog \u2014 period care, intimate wellness, skincare, hygiene, and more.',
+    step2Name:           'Place Your Order',
+    step2Desc:           'We connect with our supplier partners and arrange fast delivery directly to you.',
+    step3Name:           'Delivered to You',
+    step3Desc:           '1–3 days for standard orders, or on your chosen delivery date for Care Packages — home, office, school, wherever you are.',
+    trustBadges:         ['\ud83d\udd12 Secure & Discreet', '\u26a1 Under 1 Hour', '\ud83c\udf3f Natural Products', '\u21a9\ufe0f Easy Returns', '\ud83d\udc51 Supplier Direct'],
+    subEyebrow:          'Monthly Subscription',
+    subTitle:            'Your personal<br><span>care package.</span>',
+    subSub:              'Pick a plan, choose what goes inside, and receive it every month \u2014 on your schedule.',
+    plansLabel:          'Step 1 \u2014 Choose Your Plan',
+    pickerTitle:         'Step 2 \u2014 Build Your Box',
+  },
 
-      <button class="hero-how-btn hero-how-btn--tracker" id="heroTrackerBtn" aria-label="Open my period tracker">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        My Tracker
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-      <button class="hero-how-btn hero-how-btn--nl" id="heroNewsletterBtn" aria-label="Subscribe to newsletter">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Newsletter
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-      <button class="hero-how-btn hero-scoop-btn" id="heroScoopBtn" aria-label="The Tea, Period.">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        The Tea, Period.
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-      <button class="hero-how-btn hero-why-btn" id="heroWhyBtn" aria-label="Why Period.">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Why Period.
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-    <div class="hero-cta-pair">
-      <button class="cta-primary" id="heroOrderNow">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span id="heroOrderNowText">Order Now</span>
-      </button>
-      <button class="cta-secondary" id="heroCarePackage">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-        <span id="heroCarePackageText">Care Package</span>
-      </button>
-    </div>
-  </section>
 
-  <div class="tracker-widget-card" id="trackerWidgetCard">
-    <div class="tracker-widget-locked" id="trackerWidgetLocked">
-      <div class="tw-lock-icon">&#x1F512;</div>
-      <div class="tw-lock-text">
-        <div class="tw-lock-title">Unlock Your Period Tracker</div>
-        <div class="tw-lock-sub">Sign up for the free newsletter to unlock</div>
+  emergency: {
+    heroTagline:         "we've got you. right now.",
+    heroSub:             "pads, underwear, essentials \u2014 wherever you are in under 30 minutes. no fluff. just fast.",
+    heroOrderNowText:    'Get It NOW',
+    heroCarePackageText: 'Auto-Delivery',
+    card1Title:          'Get It NOW',
+    card1Desc:           "Fastest delivery available. Pads, liners, fresh underwear, wipes \u2014 whatever you need, wherever you are in under 30 minutes.",
+    card2Title:          'Set Auto-Delivery',
+    card2Desc:           "So this never happens again. Your essentials ship automatically every month \u2014 on time, every time.",
+    howTitle:            'How It Works',
+    step1Name:           'Tell Us What You Need',
+    step1Desc:           "Pads, liners, underwear \u2014 pick your essentials fast. We stock the must-haves for every situation.",
+    step2Name:           'Order in Seconds',
+    step2Desc:           "One tap, done. We route your order to the nearest supplier for the fastest possible delivery.",
+    step3Name:           'On the Way \u2014 Fast',
+    step3Desc:           "Under 30 minutes for emergency orders. Delivered to home, school, or office \u2014 discreet packaging. No judgment. Ever.",
+    trustBadges:         ['\u{1F6A8} Under 30 Min', '\u{1F4E6} Discreet Pack', '\u{1F9F7} Always Stocked', '\u26a1 Order Fast', '\u{1F49C} No Judgment'],
+    subEyebrow:          'Never Get Caught Off Guard',
+    subTitle:            'Set up<br><span>auto-delivery.</span>',
+    subSub:              "Pick a plan and your essentials ship every month \u2014 automatically. Always covered, no stress.",
+    plansLabel:          'Step 1 \u2014 Choose Your Plan',
+    pickerTitle:         'Step 2 \u2014 Build Your Box',
+  },
+
+
+  holistic: {
+    heroTagline:         'your body, your way. 🌿',
+    heroSub:             'All-natural, zero-waste, and chemical-free. No synthetics, no toxins — just your cycle, honored.',
+    heroOrderNowText:    'Shop Natural',
+    heroCarePackageText: 'Natural Box',
+    card1Title:          'Shop Natural',
+    card1Desc:           'Menstrual discs, cloth pads, CBD salves, magnesium, sea sponges — every product is clean, natural, and truly toxin-free.',
+    card2Title:          'My Natural Monthly',
+    card2Desc:           'A curated monthly box of all-natural, organic, and holistic period care delivered right to you. Intentional. Clean. Yours.',
+    howTitle:            'How It Works 🌿',
+    step1Name:           'Browse Clean Products',
+    step1Desc:           'Every item is holistic, natural, or zero-waste. Filter by Holistic & Natural for your full collection.',
+    step2Name:           'Order on Your Terms',
+    step2Desc:           'We connect with our natural supplier partners — no warehouses, no synthetics in the supply chain.',
+    step3Name:           'Right to You',
+    step3Desc:           'Delivered in eco-conscious packaging — home, office, or wherever you are. 1–3 days standard, or on your monthly schedule.',
+    trustBadges:         ['🌿 100% Natural', '♻️ Zero Waste', '🧪 Third-Party Tested', '🌱 No Synthetics', '💚 Toxin-Free'],
+    subEyebrow:          'Monthly Natural Box',
+    subTitle:            'My Natural<br><span>Monthly.</span>',
+    subSub:              'Choose your plan, select your holistic essentials, and receive a fully natural care package every month.',
+    plansLabel:          'Step 1 — Choose Your Plan',
+    pickerTitle:         'Step 2 — Build Your Natural Box',
+  },
+
+
+  gifter: {
+    heroTagline:         'show up for her. \u{1F451}',
+    heroSub:             "let's be real \u2014 it's not the most fun week. but you showing up? that changes everything.",
+    heroOrderNowText:    'Urgent',
+    heroCarePackageText: 'Monthly Gift Box',
+    card1Title:          'Urgent',
+    card1Desc:           "Rough week? Get her what she needs. Chocolate, cozy socks, heating patches, period care — curated and delivered to her door in 1–3 days.",
+    card2Title:          'Monthly Gift Box',
+    card2Desc:           "Set it up once and she gets a thoughtful delivery every month \u2014 right before or during her cycle. She'll know exactly how much you care.",
+    howTitle:            'How It Works',
+    step1Name:           'Pick Her Favorites',
+    step1Desc:           "Browse candy, cozy picks, period care, bottoms, skincare \u2014 everything she loves.",
+    step2Name:           'Add a Sweet Note',
+    step2Desc:           "Personalize your gift and we handle the rest \u2014 packaged with care and discretion.",
+    step3Name:           'Delivered to Her',
+    step3Desc:           "Delivered right to her door in 1–3 days — home, office, school, wherever she is. Or set up a monthly subscription so she always knows you're thinking of her.",
+    trustBadges:         ['\u{1F381} Gift-Ready', '\u{1F36B} Sweets Included', '\u{1F48C} Personal Note', '\u{1F680} Same-Day Delivery', "\u{1F451} She'll Love It"],
+    subEyebrow:          'Monthly Gift Box',
+    subTitle:            'Send love<br><span>every month.</span>',
+    subSub:              "Set up a recurring gift box \u2014 she gets a thoughtful delivery every cycle or on whatever schedule you set.",
+    plansLabel:          'Step 1 \u2014 Choose a Gift Plan',
+    pickerTitle:         'Step 2 \u2014 Pick What She Gets',
+  },
+  starter: {
+    heroTagline:         'hey! your body just leveled up. \u2728',
+    heroSub:             'getting your period is totally normal. we are here to help you understand it, handle it, and feel awesome. \u{1F338}',
+    heroOrderNowText:    'Get My First Kit \u2728',
+    heroCarePackageText: 'Monthly Supply',
+    card1Title:          'Get Supplies',
+    card1Desc:           'Liners, pads, period underwear \u2014 whatever feels right for you. No experience needed!',
+    card2Title:          'Monthly Kit',
+    card2Desc:           'We send you everything you need every month so you are always ready. Easy!',
+    subEyebrow:          'Monthly Starter Supply',
+    subTitle:            'Your monthly<br><span>period kit.</span>',
+    subSub:              'We pick the beginner-friendly essentials and send them every month. You never have to worry about running out!',
+    plansLabel:          'Step 1 \u2014 Pick Your Kit Size',
+    pickerTitle:         'Step 2 \u2014 Pick What Goes In',
+    trustBadges:         ['\u{1F512} Private & Safe', '\u2728 Beginner Friendly', '\u{1F4E6} Delivered to You', '\u{1F49C} No Judgment Ever', '\u{1F4DE} We\'re Here to Help']
+  }
+};
+
+
+/* =============================================
+   WHY PERIOD — Version-specific appeal content
+   ============================================= */
+const WHY_PERIOD = {
+  teen: {
+    headline: "Why Period. hits different 👑",
+    tagline: "periodt, Pooh — we built this FOR you. Not DoorDash. Not a brand. You.",
+    cards: [
+      { icon:"💜", label:"For Real Though",   title:"Built for YOU. Not the app store.",
+        body:"We didn't start this to compete with DoorDash. We started it because someone we love was that girl — in the bathroom, panicking, completely alone. DoorDash is a food app. We are YOUR app. That is not the same thing, period." },
+      { icon:"💡", label:"The Logic",          title:"Same products. Smarter. Cheaper monthly.",
+        body:"Same brands as DoorDash — but we learn the difference between your regular day and your 'I bled through everything' day. We quiz you, remember your preferences, and shop FOR you. DoorDash just shows you everything and hopes you figure it out. We don't do that." },
+      { icon:"🤝", label:"Community",          title:"Your whole squad deserves you in the room.",
+        body:"Every order rounds up for girls who can't afford what you're ordering. When you buy from Period., a girl somewhere gets what she needs too. No girl should have to figure this out alone — and with us, she doesn't have to." },
+      { icon:"👑", label:"Real Talk",           title:"DoorDash brings fries. We bring freedom.",
+        body:"They deliver pads AND pizza AND 2am everything else. We do ONE thing. We made it our whole personality. We know your flow type better than your last situationship. We researched all the organic options. We are completely at peace with this. Period, Pooh. 👑" }
+    ],
+    cta: "Shop My Way",
+    footer: "1–3 Day Delivery · Price-matched · No judgment · Always stocked"
+  },
+  adult: {
+    headline: "Why Period. instead of DoorDash",
+    tagline: "Built for women who've been figuring it out alone long enough.",
+    cards: [
+      { icon:"💜", label:"The Why",             title:"You've been taking care of everyone. Let us take care of this.",
+        body:"The founder of Period. grew up in a house where no one talked about feminine care. Her grandmother didn't know how to bring it up. Her sister tried but was figuring it out herself. They all just winged it. Period. exists so no woman — at any age — has to wing it again." },
+      { icon:"💡", label:"The Logic",          title:"Price-matched. Personalized. 30–40% cheaper monthly.",
+        body:"Every product is price-matched to or below what you'd pay elsewhere. Our subscription saves you 30–40% monthly. A 5-question quiz learns your flow type and preferences so you're never scrolling through products you don't need. That level of personalization doesn't exist anywhere else." },
+      { icon:"🤝", label:"Community",          title:"Your routine becomes someone else's resource.",
+        body:"Every order rounds up for period poverty organizations. Every purchase contributes to kits donated to Cleveland schools and shelters. You take care of yourself. We help you take care of someone else. That's the whole model — and it's why we built this instead of just becoming another delivery app." },
+      { icon:"😂", label:"Let's Be Real",      title:"They deliver tampons AND hot wings. We only do one thing.",
+        body:"DoorDash delivers period care. They also deliver pizza, 2am snacks, and everything else imaginable. They don't know your flow type. They don't know if you need organic. They don't know that heavy cramps mean you need the CBD salve AND the magnesium AND the dark chocolate. We do. We're specifically, earnestly excellent at this one thing." }
+    ],
+    cta: "Shop My Essentials",
+    footer: "1–3 Day Delivery · Price-matched · Monthly subscription available · Always discreet"
+  },
+  emergency: {
+    headline: "You're okay. We've got you.",
+    tagline: "Fast, clear, no judgment. That's the whole thing.",
+    cards: [
+      { icon:"💜", label:"Right Now",          title:"Take a breath. Help is on the way.",
+        body:"Whatever just happened — you are okay. Period. was built specifically for this moment. Not for browsing. Not for comparing options. For right now, when you need something fast and you cannot think about anything else." },
+      { icon:"⚡", label:"How Fast",           title:"One tap. Under 30 minutes. Anywhere.",
+        body:"School, office, home, your friend's house — we deliver to wherever you are in under 30 minutes. Emergency kit is pre-packed with everything you need. One tap. Done. No account required." },
+      { icon:"🤝", label:"Not Alone",          title:"You are not the only person who has been here.",
+        body:"Thousands of people have used this same button. You are not dramatic. You are not unprepared. You are human. This happens to everyone. And help is always one tap away — that's exactly why we built this." },
+      { icon:"✅", label:"After This",         title:"Set it so this never happens again.",
+        body:"Once you're settled — when you're calm — consider setting up a monthly care package. It ships automatically so you're always stocked. We'll offer it to you after your order. No pressure right now. Just — we've got you." }
+    ],
+    cta: "Get It Now",
+    footer: "Under 30 min · Discreet packaging · No judgment · Always available"
+  },
+  gifter: {
+    headline: "Why Period. for gifting",
+    tagline: "The most powerful thing you can do is show up.",
+    cards: [
+      { icon:"💜", label:"Why It Matters",     title:"Most people forget. You remembered.",
+        body:"The fact that you thought of her today — that you noticed she might be having a rough week — changes everything. We built Period. to make showing up for someone as easy as possible, because the gesture itself is what matters most." },
+      { icon:"💡", label:"The Simple Truth",   title:"3 minutes. Something she'll remember forever.",
+        body:"Pick what she gets, set a delivery time, add a personal note. Three minutes of your time equals a box of care that arrives when she needs it most. A food app can send snacks. Only Period. sends a whole moment." },
+      { icon:"🤝", label:"Give Back",          title:"Your gift doubles.",
+        body:"For every gift order, Period. rounds up and donates a care kit to a local school or shelter. You show up for her. We show up for someone who needed it just as much. One gift, two people taken care of." },
+      { icon:"😂", label:"Real Talk",           title:"Flowers say 'I care.' This says 'I REALLY care.'",
+        body:"Flowers are lovely. But chocolate, cozy socks, her favorite pads, cramp patches, and a handwritten note that says 'I've got you' — that's a completely different message. We make it easy to be THAT person. And she will absolutely tell her friends about you." }
+    ],
+    cta: "Build Her Gift",
+    footer: "Same-day delivery · Personal gift notes · Monthly gifting available"
+  },
+  holistic: {
+    headline: "Why Period. for clean care",
+    tagline: "Your body is not a chemistry experiment. We treat it that way.",
+    cards: [
+      { icon:"💜", label:"The Standard",       title:"Clean ingredients shouldn't require a PhD.",
+        body:"We vet every holistic product so you don't have to read ingredient lists at midnight. No vague 'natural fragrance.' No greenwashing. Every item in our natural catalog is third-party tested, ingredient-transparent, and curated for real purity — not just a clean-sounding label." },
+      { icon:"💡", label:"The Logic",          title:"All-natural. Verified. All in one place.",
+        body:"Finding genuine clean alternatives normally means jumping between 10 websites, each with different standards. Period.'s holistic catalog is one curated, vetted collection — organic pads, reusable cups, CBD relief, castor oil kits, herbal teas, magnesium — fully clean. One place." },
+      { icon:"🤝", label:"Beyond You",         title:"Your choice ripples outward.",
+        body:"Choosing natural reduces your body's chemical load. Choosing reusable reduces plastic waste. Choosing Period. rounds up for girls who can't afford any of it. Your care is intentional — and it counts for you, for the environment, for the community." },
+      { icon:"😂", label:"Being Honest",       title:"We researched all of this. We have opinions. We're fine.",
+        body:"Conventional options come wrapped in bleached rayon with plastic cores. We will send you a castor oil ritual kit, cramp bark herbal tea, GOTS-certified organic cotton pads, and a lavender calm roller. We have deep feelings about clean period care. We are completely at peace with this. 🌿" }
+    ],
+    cta: "Shop Natural",
+    footer: "Third-party tested · Zero-waste options · Delivered to you · Always clean"
+  }
+};
+
+
+const CAT_GRADIENTS = {
+  period:   'linear-gradient(135deg,#1A0D2E,#3D1A6E)',
+  intimate: 'linear-gradient(135deg,#0D1020,#1F1050)',
+  wellness: 'linear-gradient(135deg,#0D150A,#1A3020)',
+  skincare: 'linear-gradient(135deg,#1A1205,#3D2A08)',
+  hygiene:  'linear-gradient(135deg,#0A1020,#102040)',
+  clothing: 'linear-gradient(135deg,#1A0515,#2D0A28)',
+  candy:    'linear-gradient(135deg,#1A0808,#3D1010)',
+  comfort:  'linear-gradient(135deg,#0D0A1A,#1A1240)',
+  holistic: 'linear-gradient(135deg,#0A1A0D,#0E2E15)',
+};
+
+
+/* =============================================
+   STATE
+   ============================================= */
+let state = {
+  view:            'home',
+  version:         null,       // 'teen' | 'adult' | 'emergency' | 'gifter' | 'holistic'
+  cart:            {},          // { id: qty }
+  careBox:         {},          // { id: qty } for subscription
+  activeCategory:  'all',
+  shopMode:        'categories', // 'categories' | 'products'
+  pickerFilter:    'all',       // category filter inside subscription picker
+  searchQuery:     '',
+  openProduct:     null,
+  selectedPlan:    null,
+  deliveryAddress: '',
+  appliedPromo:       null,   // { type, value, label, code } | null
+  _stripeCard:        null,   // Stripe Card Element instance
+  _stripeCardMounted: false,
+};
+
+
+/* =============================================
+   UTILITIES
+   ============================================= */
+const $  = id  => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+
+const fmt = p => '$' + p.toFixed(2);
+
+
+function cartCount()  { return Object.values(state.cart).reduce((s,v) => s+v, 0); }
+function cartTotal()  { return Object.entries(state.cart).reduce((s,[id,q]) => { const p=PRODUCTS.find(p=>p.id===+id); return s+(p?p.price*q:0); }, 0); }
+function careBoxCount(){ return Object.values(state.careBox).reduce((s,v) => s+v, 0); }
+
+
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+
+/* =============================================
+   VERSION MANAGEMENT
+   ============================================= */
+function applyVersionContent(version) {
+  const c = CONTENT[version];
+  if (!c) return;
+  // Show personalized greeting
+  setTimeout(() => showWelcomeCard(), 600);
+  // Show/hide starter educational section
+  const starterSection = document.getElementById('starterSection');
+  if (starterSection) {
+    starterSection.style.display = version === 'starter' ? '' : 'none';
+  }
+  // Wire starter order button
+  const starterOrderBtn = document.getElementById('starterOrderBtn');
+  if (starterOrderBtn) {
+    starterOrderBtn.onclick = function() { navigate('shop'); };
+  }
+  // Lock down starter experience for 9-12
+  if (version === 'starter') {
+    setTimeout(initStarterExperience, 300);
+  } else {
+    // Restore everything if switching away from starter
+    if (typeof restoreFromStarterMode === 'function') restoreFromStarterMode();
+  }
+  // Show hygiene button for all experiences
+  let hygieneBtn = document.getElementById('hygieneGuideBtn');
+  if (!hygieneBtn) {
+    hygieneBtn = document.createElement('button');
+    hygieneBtn.id = 'hygieneGuideBtn';
+    hygieneBtn.className = 'hero-how-btn';
+    hygieneBtn.innerHTML = '&#x1F6BF; Hygiene Guide <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    hygieneBtn.style.cssText = 'cursor:pointer;pointer-events:auto;';
+    hygieneBtn.addEventListener('click', function() { showHygieneGuide(state.version); });
+    const quickLinks = document.querySelector('.hero-quick-links');
+    if (quickLinks) quickLinks.appendChild(hygieneBtn);
+  }
+  // Add self-care button
+  let selfCareBtn = document.getElementById('selfCareGuideBtn');
+  if (!selfCareBtn && state.version !== 'gifter') {
+    selfCareBtn = document.createElement('button');
+    selfCareBtn.id = 'selfCareGuideBtn';
+    selfCareBtn.className = 'hero-how-btn';
+    selfCareBtn.innerHTML = '&#x1F338; Self-Care Guide <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    selfCareBtn.style.cssText = 'cursor:pointer;pointer-events:auto;';
+    selfCareBtn.addEventListener('click', function() { showSelfCareGuide(state.version); });
+    const quickLinks2 = document.querySelector('.hero-quick-links');
+    if (quickLinks2) quickLinks2.appendChild(selfCareBtn);
+  }
+
+
+  // Hero
+  if ($('heroTagline'))         $('heroTagline').textContent         = c.heroTagline;
+  if ($('heroSub'))             $('heroSub').textContent             = c.heroSub;
+  if ($('heroOrderNowText'))    $('heroOrderNowText').textContent    = c.heroOrderNowText;
+  if ($('heroCarePackageText')) $('heroCarePackageText').textContent = c.heroCarePackageText;
+
+
+  // Mode cards
+  if ($('card1Title')) $('card1Title').textContent = c.card1Title;
+  if ($('card1Desc'))  $('card1Desc').textContent  = c.card1Desc;
+  if ($('card2Title')) $('card2Title').textContent = c.card2Title;
+  if ($('card2Desc'))  $('card2Desc').textContent  = c.card2Desc;
+
+
+  // How it works
+  if ($('howTitle'))  $('howTitle').textContent  = c.howTitle;
+  if ($('step1Name')) $('step1Name').textContent = c.step1Name;
+  if ($('step1Desc')) $('step1Desc').textContent = c.step1Desc;
+  if ($('step2Name')) $('step2Name').textContent = c.step2Name;
+  if ($('step2Desc')) $('step2Desc').textContent = c.step2Desc;
+  if ($('step3Name')) $('step3Name').textContent = c.step3Name;
+  if ($('step3Desc')) $('step3Desc').textContent = c.step3Desc;
+
+
+  // Trust badges
+  const strip = $('trustStrip');
+  if (strip) strip.innerHTML = c.trustBadges.map(b => `<div class="trust-badge" role="listitem">${b}</div>`).join('');
+
+
+  // Subscribe section
+  if ($('subEyebrow'))  $('subEyebrow').textContent  = c.subEyebrow;
+  if ($('subTitle'))    $('subTitle').innerHTML       = c.subTitle;
+  if ($('subSub'))      $('subSub').textContent       = c.subSub;
+  if ($('plansLabel'))  $('plansLabel').textContent   = c.plansLabel;
+  if ($('pickerTitle')) $('pickerTitle').textContent  = c.pickerTitle;
+
+
+  // Version badge in header
+  const badgeLabels = {
+    teen:      '\u{1F451} Teen',
+    adult:     '\u{1F49C} Adult',
+    emergency: '\u{1F6A8} Urgent',
+    gifter:    '\u{1F381} Gifter',
+    holistic:  '\u{1F33F} Holistic',
+    starter:   '\u2728 Just Starting'
+  };
+  const badgeText = $('versionBadgeText');
+  if (badgeText) badgeText.textContent = badgeLabels[version] || 'Choose';
+}
+
+
+function setVersionCookie(v) {
+  document.cookie = 'period_version=' + v + ';max-age=31536000;path=/;SameSite=Lax';
+  try { localStorage.setItem('period_version_backup', v); } catch(e) {}
+}
+function getVersionCookie() {
+  var m = document.cookie.match(/period_version=([^;]+)/);
+  if (m) return m[1];
+  try { return localStorage.getItem('period_version_backup'); } catch(e) { return null; }
+}
+
+
+function setVersion(version) {
+  state.version = version;
+  setVersionCookie(version);
+  document.documentElement.setAttribute('data-version', version);
+  applyVersionContent(version);
+}
+
+
+function showVersionPicker() {
+  const picker = $('versionPicker');
+  if (!picker) return;
+  picker.style.display    = 'flex';
+  picker.style.opacity    = '1';
+  picker.style.transition = 'none';
+  document.body.style.overflow = 'hidden';
+}
+
+
+function dismissVersionPicker() {
+  const picker = $('versionPicker');
+  if (!picker) return;
+  picker.style.transition = 'opacity 450ms ease';
+  picker.style.opacity    = '0';
+  setTimeout(() => {
+    picker.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 450);
+}
+
+
+
+/* =============================================
+   APP INTRO CARD — shown before experience picker
+   ============================================= */
+function showAppIntroCard() {
+  const overlay = document.createElement('div');
+  overlay.id = 'appIntroOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+        <span style="font-size:2.5rem;">&#x1F451;</span>
       </div>
-      <button class="tw-unlock-btn" id="twUnlockBtn">Unlock Free</button>
-    </div>
-    <div class="tracker-widget-unlocked" id="trackerWidgetUnlocked" style="display:none">
-      <div class="tw-phase-row">
-        <span class="tw-phase-emoji" id="twEmoji">&#x1F338;</span>
-        <div>
-          <div class="tw-phase-name" id="twPhaseName">Log a period to begin</div>
-          <div class="tw-phase-day" id="twPhaseDay">Tap to open your tracker</div>
+      <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:#EDE8FA;line-height:1.1;">Period.</div>
+      <div style="font-size:0.78rem;color:rgba(237,232,250,0.45);letter-spacing:0.1em;text-transform:uppercase;">period care &middot; delivered to you</div>
+      <div style="width:48px;height:2px;background:linear-gradient(135deg,#A855F7,#7C3AED);border-radius:999px;"></div>
+      <p style="font-size:0.9rem;color:rgba(237,232,250,0.75);line-height:1.7;max-width:300px;">
+        We deliver period care, wellness essentials &amp; more &mdash; on demand or monthly. Whether it&#39;s your first period or you&#39;ve been at this for years, we have something just for you. &#x1F49C;
+      </p>
+      <p style="font-size:0.82rem;color:rgba(237,232,250,0.5);line-height:1.6;">
+        On the next screen, <strong style="color:rgba(237,232,250,0.8);">select the experience that best describes you</strong> &mdash; we&#39;ll personalize everything from there.
+      </p>
+      <button id="appIntroNextBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
+        Let&#39;s Go &#x2728;
+      </button>
+      <p style="font-size:0.72rem;color:rgba(237,232,250,0.3);">Secure &middot; Private &middot; Always Free to Browse</p>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('appIntroNextBtn').addEventListener('click', () => {
+    overlay.style.transition = 'opacity 0.3s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      initVersionPicker();
+    }, 300);
+  });
+}
+
+function initVersionPicker() {
+  const picker = $('versionPicker');
+  if (picker) {
+    picker.style.display = 'flex';
+    picker.style.opacity = '1';
+    picker.style.visibility = 'visible';
+  }
+  document.body.style.overflow = 'hidden';
+  const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
+  const pickEmergency = $('pickEmergency'), pickGifter = $('pickGifter');
+  const pickHolistic = $('pickHolistic'), switchBtn = $('switchModeBtn');
+  if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
+  if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
+  if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
+  if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
+  if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
+  const pickStarter = $('pickStarter');
+  if (pickStarter)   pickStarter.addEventListener('click',   () => { setVersion('starter');   dismissVersionPicker(); });
+  if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
+  const versionBadge = $('versionBadge');
+  if (versionBadge)  versionBadge.addEventListener('click', showVersionPicker);
+}
+
+function initVersion() {
+  const stored = getVersionCookie();
+  const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
+  if (validVersions.includes(stored)) {
+    // Already has a version — activate home view and go
+    navigate('home');
+    setVersion(stored);
+  } else {
+    // No version yet — check if age already verified
+    const ageCookie = document.cookie.match('(?:^|; )period_age_ok=([^;]*)');
+    const ageOk = ageCookie ? ageCookie[1] === 'yes' : false;
+    if (ageOk) {
+      // Age verified, no version — show app intro → picker
+      setTimeout(showAppIntroCard, 400);
+    }
+    // If no age cookie, the age gate DOMContentLoaded will handle showing the gate
+    // and after YES it will call showAppIntroCard
+  }
+}
+
+
+/* =============================================
+   NAVIGATION
+   ============================================= */
+function navigate(view) {
+  if (view === 'cycleScoopView') {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    const scoopEl = document.getElementById('cycleScoopView');
+    if (scoopEl) scoopEl.classList.add('active');
+    state.view = 'cycleScoopView';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+    return;
+  }
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $(`${view}View`).classList.add('active');
+  state.view = view;
+  window.scrollTo({ top:0, behavior:'instant' });
+
+
+  if (view === 'shop') {
+    state.searchQuery = '';
+    if ($('searchInput')) $('searchInput').value = '';
+    // Emergency mode gets a stripped-down urgent UI
+    if (state.version === 'emergency') {
+      renderEmergencyShop();
+    } else {
+      showCategoriesMode();
+    }
+  }
+  if (view === 'subscribe') {
+    renderPlanCards();
+  }
+  if (view === 'tracker') {
+    trackerDisplayMonth = null;  // reset to today's month on entry
+    renderTracker();
+    // Fire 5-second tutorial on first-ever visit
+    setTimeout(showTrackerTutorial, 300);
+  }
+  if (view === 'community') {
+    initCommunity();
+  }
+}
+
+
+/* =============================================
+   THEME TOGGLE
+   ============================================= */
+function initTheme() {
+  const root   = document.documentElement;
+  const toggle = $('themeToggle');
+  let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  root.setAttribute('data-theme', dark ? 'dark' : 'light');
+  setIcon(toggle, dark);
+  toggle.addEventListener('click', () => {
+    dark = !dark;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    setIcon(toggle, dark);
+  });
+}
+
+
+function setIcon(btn, dark) {
+  btn.setAttribute('aria-label', 'Switch to ' + (dark ? 'light' : 'dark') + ' mode');
+  btn.innerHTML = dark
+    ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+}
+
+
+/* =============================================
+   FAVORITES
+   ============================================= */
+function getFavorites() {
+  try {
+    const m = document.cookie.match(/period_favs=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
+}
+function saveFavorites(favs) {
+  try {
+    document.cookie = 'period_favs=' + encodeURIComponent(JSON.stringify(favs)) + ';max-age=946080000;path=/;SameSite=Lax';
+  } catch {}
+  // Also persist to Firestore so favorites survive cookie clears
+  if (_firebaseFs) {
+    _firebaseFs.collection('favorites').doc(getDeviceId()).set({
+      items:      favs,
+      updated_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore favorites save failed:', e));
+  }
+}
+function isFavorite(id) { return getFavorites().includes(id); }
+function toggleFavorite(id) {
+  let favs = getFavorites();
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    showToast('Removed from favorites');
+  } else {
+    favs.push(id);
+    showToast('❤️ Saved to favorites');
+  }
+  saveFavorites(favs);
+  renderProductGrid();
+}
+
+
+/* =============================================
+   SHOP — Category Grid & Products
+   ============================================= */
+function filteredProducts() {
+  return PRODUCTS.filter(p => {
+    // Cool Down only shows for adult and holistic experiences
+    if (p.category === 'cooldown' && state.version !== 'adult' && state.version !== 'holistic') return false;
+    if (state.activeCategory === 'favorites') return getFavorites().includes(p.id);
+    const catOk = state.activeCategory === 'all' || p.category === state.activeCategory;
+    const q = state.searchQuery.toLowerCase();
+    const srchOk = !q || p.name.toLowerCase().includes(q) || p.cat_label.toLowerCase().includes(q) || p.features.some(f => f.toLowerCase().includes(q));
+    return catOk && srchOk;
+  });
+}
+
+
+/* =============================================
+   EMERGENCY SHOP — stripped-down urgent UI
+   ============================================= */
+const EMERGENCY_IDS = [17, 18, 1, 15, 2]; // kit first, then add-ons
+
+
+function renderEmergencyShop() {
+  // Hide all normal shop elements
+  $('emergencyShop').style.display = '';
+  $('categoryGrid').style.display = 'none';
+  $('shopBreadcrumb').style.display = 'none';
+  if ($('filterBar'))    $('filterBar').style.display = 'none';
+  if ($('sectionHeader')) $('sectionHeader').style.display = 'none';
+  $('productGrid').style.display = 'none';
+
+
+  // Render add-on items (everything except the kit hero)
+  const addOns = EMERGENCY_IDS.slice(1)
+    .map(id => PRODUCTS.find(p => p.id === id))
+    .filter(Boolean);
+
+
+  const items = $('emergencyItems');
+  items.innerHTML = addOns.map(p => {
+    const inCart = state.cart[p.id] > 0;
+    return `
+      <div class="emg-item">
+        <div class="emg-item-info">
+          <span class="emg-item-emoji">${p.emoji}</span>
+          <div>
+            <div class="emg-item-name">${p.name}</div>
+            <div class="emg-item-meta">${p.eta} \u00b7 ${fmt(p.price)}</div>
+          </div>
+        </div>
+        <button class="emg-add-btn ${inCart ? 'in-cart' : ''}" data-add="${p.id}">
+          ${inCart ? '\u2713 Added' : '+ Add'}
+        </button>
+      </div>`;
+  }).join('');
+
+
+  items.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      addToCart(+btn.dataset.add);
+      renderEmergencyShop(); // re-render to update button states
+    });
+  });
+
+
+  // Wire kit button (only once)
+  const kitBtn = $('emergencyKitBtn');
+  kitBtn.onclick = () => {
+    addToCart(17);
+    openCart();
+  };
+}
+
+
+/* Show the category browse grid */
+function showCategoriesMode() {
+  state.shopMode = 'categories';
+  state.activeCategory = 'all';
+  if ($('emergencyShop')) $('emergencyShop').style.display = 'none';
+  $('categoryGrid').style.display = '';
+  $('shopBreadcrumb').style.display = 'none';
+  if ($('filterBar')) $('filterBar').style.display = 'none';
+  if ($('sectionHeader')) $('sectionHeader').style.display = 'none';
+  $('productGrid').style.display = 'none';
+  renderCategoryGrid();
+}
+
+
+/* Switch to products view for a specific category */
+function showProductsMode(catId) {
+  state.shopMode = 'products';
+  state.activeCategory = catId;
+  $('categoryGrid').style.display = 'none';
+  $('shopBreadcrumb').style.display = '';
+  if ($('filterBar')) $('filterBar').style.display = '';
+  if ($('sectionHeader')) $('sectionHeader').style.display = '';
+  $('productGrid').style.display = '';
+
+
+  // Set breadcrumb title
+  const cat = CATEGORIES.find(c => c.id === catId);
+  const bcLabel = catId === 'favorites' ? '❤️ My Favorites' : (cat ? cat.icon + ' ' + cat.label : catId);
+  if ($('shopBcTitle')) $('shopBcTitle').textContent = bcLabel;
+  if ($('sectionTitle')) $('sectionTitle').textContent = catId === 'favorites' ? 'My Favorites' : (cat?.label || 'Products');
+
+
+  renderFilterPills();
+  renderProductGrid();
+}
+
+
+/* Render category cards grid */
+function renderCategoryGrid() {
+  const grid = $('categoryGrid');
+  if (!grid) return;
+
+
+  const favs = getFavorites();
+  const favCard = favs.length
+    ? [{ id:'favorites', label:'My Favorites', icon:'❤️', count: favs.length }]
+    : [];
+
+
+  const cats = CATEGORIES.filter(c => c.id !== 'all').map(c => ({
+    ...c, count: PRODUCTS.filter(p => p.category === c.id).length
+  }));
+
+
+  const allCards = [...favCard, ...cats];
+
+
+  grid.innerHTML = allCards.map(c => `
+    <button class="cat-card" data-cat="${c.id}" role="listitem" aria-label="Browse ${c.label} \u2014 ${c.count} item${c.count !== 1 ? 's' : ''}">
+      <span class="cat-card-icon">${c.icon}</span>
+      <span class="cat-card-name">${c.label}</span>
+      <span class="cat-card-count">${c.count} item${c.count !== 1 ? 's' : ''}</span>
+    </button>`).join('');
+
+
+  grid.querySelectorAll('.cat-card').forEach(card => {
+    card.addEventListener('click', () => showProductsMode(card.dataset.cat));
+  });
+}
+
+
+/* Render filter pills (shown inside products mode) */
+function renderFilterPills() {
+  const bar = $('filterPills');
+  if (!bar) return;
+  const cats = CATEGORIES.filter(c => c.id !== 'all');
+  // Add favorites pill if user has favorites
+  const favs = getFavorites();
+  const favPill = favs.length
+    ? [{ id:'favorites', label:'Favorites', icon:'❤️' }]
+    : [];
+  const pills = [...favPill, ...cats];
+
+
+  bar.innerHTML = pills.map(c => `
+    <button class="pill ${state.activeCategory === c.id ? 'active':''}" data-cat="${c.id}" role="listitem">
+      <span aria-hidden="true">${c.icon}</span> ${c.label}
+    </button>`).join('');
+  bar.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      state.activeCategory = p.dataset.cat;
+      if ($('sectionTitle')) $('sectionTitle').textContent = p.dataset.cat === 'favorites' ? 'My Favorites' : (CATEGORIES.find(c => c.id === p.dataset.cat)?.label || 'Products');
+      renderFilterPills();
+      renderProductGrid();
+    });
+  });
+}
+
+
+/* Render product cards (called when in products mode) */
+function renderProductGrid() {
+  const grid  = $('productGrid');
+  const count = $('productCount');
+  const prods = filteredProducts();
+  if (count) count.textContent = prods.length + ' item' + (prods.length !== 1 ? 's' : '');
+
+
+  if (!prods.length) {
+    const emptyMsg = state.activeCategory === 'favorites'
+      ? '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No favorites yet</div><div class="empty-sub">Tap the ♥ on any product to save it here</div></div>'
+      : '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><div class="empty-sub">Try a different search or category</div></div>';
+    grid.innerHTML = emptyMsg;
+    return;
+  }
+
+
+  grid.innerHTML = prods.map(p => {
+    const inCart = state.cart[p.id] > 0;
+    const faved  = isFavorite(p.id);
+    return `
+      <div class="product-card" data-id="${p.id}" role="listitem button" tabindex="0" aria-label="View ${p.name}">
+        <div class="product-img" data-cat="${p.category}">
+          <span aria-hidden="true">${p.emoji}</span>
+          ${p.badge ? `<span class="product-img-badge">${p.badge}</span>` : ''}
+          <span class="product-eta" aria-label="Estimated delivery ${p.eta}">🛯 ${p.eta}</span>
+          <button class="fav-btn ${faved ? 'active' : ''}" data-fav="${p.id}" aria-label="${faved ? 'Remove from favorites' : 'Save to favorites'}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="${faved ? '#ef4444' : 'none'}" stroke="${faved ? '#ef4444' : 'currentColor'}" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="product-body">
+          <div class="product-name">${p.name}</div>
+          <div class="product-sub">${p.sub}</div>
+          <div class="product-footer">
+            <div class="product-price">${fmt(p.price)}</div>
+            <button class="add-btn ${inCart?'in-cart':''}" data-add="${p.id}" aria-label="${inCart?'Added':'Add to cart'}">
+              ${inCart
+                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`
+                : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+
+  grid.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-add]') || e.target.closest('[data-fav]')) return;
+      openProductModal(+card.dataset.id);
+    });
+    card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') openProductModal(+card.dataset.id); });
+  });
+  grid.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      addToCart(+btn.dataset.add);
+      showGoToCartBtn();
+    });
+  });
+  grid.querySelectorAll('[data-fav]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); toggleFavorite(+btn.dataset.fav); });
+  });
+}
+
+function showGoToCartBtn() {
+  let btn = document.getElementById('goToCartFloating');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'goToCartFloating';
+    btn.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;padding:0.875rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,0.4);display:flex;align-items:center;gap:0.5rem;white-space:nowrap;animation:fadeSlideIn 0.3s ease;';
+    btn.innerHTML = '&#x1F6D2; Go to Cart <span id="goToCartCount" style="background:white;color:#7C3AED;border-radius:999px;padding:0.1rem 0.5rem;font-size:0.8rem;font-weight:800;"></span>';
+    btn.addEventListener('click', () => { openCart(); });
+    document.body.appendChild(btn);
+  }
+  const count = cartCount();
+  const countEl = document.getElementById('goToCartCount');
+  if (countEl) countEl.textContent = count;
+  btn.style.display = count > 0 ? 'flex' : 'none';
+}
+
+
+/* =============================================
+   CART
+   ============================================= */
+function addToCart(id) {
+  state.cart[id] = (state.cart[id] || 0) + 1;
+  const p = PRODUCTS.find(p => p.id === id);
+  showToast('Added ' + p.name.split(' ').slice(0,3).join(' '));
+  updateCartBadge();
+  renderProductGrid();
+  renderCart();
+  if (state.openProduct === id) updateModalBtn();
+  showGoToCartBtn();
+}
+
+
+function updateCartBadge() {
+  const b = $('cartBadge'), c = cartCount();
+  b.textContent = c;
+  b.classList.toggle('visible', c > 0);
+}
+
+
+function renderCart() {
+  const body  = $('cartBody');
+  const items = Object.entries(state.cart).filter(([,q]) => q > 0);
+
+
+  if (!items.length) {
+    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><div class="cart-empty-text">Your cart is empty.<br>Browse products and add items to get started.</div></div>`;
+  } else {
+    body.innerHTML = items.map(([id,qty]) => {
+      const p = PRODUCTS.find(p => p.id === +id);
+      return `
+        <div class="cart-item">
+          <div class="cart-item-img" style="background:${CAT_GRADIENTS[p.category]}">${p.emoji}</div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${p.name}</div>
+            <div class="cart-item-price">${fmt(p.price)}</div>
+          </div>
+          <div class="cart-qty">
+            <button class="qty-btn" data-dec="${p.id}" aria-label="Decrease">−</button>
+            <span class="qty-num">${qty}</span>
+            <button class="qty-btn" data-inc="${p.id}" aria-label="Increase">+</button>
+          </div>
+        </div>`;
+    }).join('');
+
+
+    body.querySelectorAll('[data-inc]').forEach(b => b.addEventListener('click', () => {
+      state.cart[b.dataset.inc] = (state.cart[b.dataset.inc]||0) + 1;
+      renderCart(); updateCartBadge();
+    }));
+    body.querySelectorAll('[data-dec]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.dec;
+      state.cart[id] = Math.max(0, (state.cart[id]||0) - 1);
+      if (!state.cart[id]) delete state.cart[id];
+      renderCart(); updateCartBadge(); renderProductGrid();
+      if (state.openProduct) updateModalBtn();
+    }));
+  }
+
+
+  // Dynamic pricing breakdown
+  const _pricing = getOrderTotal();
+  const _el = id => document.getElementById(id);
+
+
+  if (_el('breakdownSubtotal')) _el('breakdownSubtotal').textContent = fmt(_pricing.subtotal);
+
+
+  if (_el('breakdownDelivery')) {
+    _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE 🎉' : fmt(_pricing.delivery);
+    _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
+  }
+
+
+  if (_el('breakdownDiscountRow')) {
+    const _hasDisc = _pricing.discount > 0;
+    _el('breakdownDiscountRow').style.display = _hasDisc ? '' : 'none';
+    if (_hasDisc) {
+      if (_el('breakdownDiscount')) _el('breakdownDiscount').textContent = '−' + fmt(_pricing.discount);
+      if (_el('breakdownDiscountLabel') && state.appliedPromo)
+        _el('breakdownDiscountLabel').textContent = 'Discount (' + state.appliedPromo.code + ')';
+    }
+  }
+
+
+  if (_el('cartTotal')) _el('cartTotal').textContent = fmt(_pricing.total);
+
+
+  // Promo row toggle
+  const _hasPromo = !!state.appliedPromo;
+  if (_el('promoInputWrap'))  _el('promoInputWrap').style.display  = _hasPromo ? 'none' : '';
+  if (_el('promoAppliedRow')) _el('promoAppliedRow').style.display = _hasPromo ? '' : 'none';
+  if (_hasPromo && _el('promoAppliedLabel')) _el('promoAppliedLabel').textContent = state.appliedPromo.label;
+
+
+  $('cartItemCount').textContent = cartCount() + ' item' + (cartCount()!==1?'s':'');
+}
+
+
+function openCart()  {
+  $('cartSidebar').classList.add('open'); $('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; renderCart();
+  const goBtn = document.getElementById('goToCartFloating');
+  if (goBtn) goBtn.style.display = 'none';
+}
+function closeCart() {
+  $('cartSidebar').classList.remove('open'); $('cartOverlay').classList.remove('open'); document.body.style.overflow='';
+  if (cartCount() > 0) showGoToCartBtn();
+}
+
+
+/* =============================================
+   PRODUCT MODAL
+   ============================================= */
+function openProductModal(id) {
+  const p = PRODUCTS.find(p => p.id === id);
+  if (!p) return;
+  state.openProduct = id;
+
+
+  $('modalHero').style.background = CAT_GRADIENTS[p.category];
+  $('modalHeroEmoji').textContent  = p.emoji;
+  $('modalCatTag').textContent     = p.cat_label;
+  $('modalTitle').textContent      = p.name;
+  $('modalSub').textContent        = p.sub;
+  $('modalDesc').textContent       = p.desc;
+  $('modalPrice').textContent      = fmt(p.price);
+  $('modalFeatures').innerHTML     = p.features.map(f => `<span class="feature-tag">${f}</span>`).join('');
+  updateModalBtn();
+
+
+  $('productModal').classList.add('open');
+  $('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+function updateModalBtn() {
+  const id = state.openProduct;
+  const inCart = state.cart[id] > 0;
+  const btn = $('modalAddBtn');
+  if (!btn) return;
+  btn.className = 'modal-add-btn' + (inCart ? ' in-cart' : '');
+  btn.innerHTML = inCart
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> In Cart`
+    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Add to Cart`;
+}
+
+
+function closeModal() {
+  $('productModal').classList.remove('open');
+  $('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  state.openProduct = null;
+}
+
+
+/* =============================================
+   SUBSCRIBE — Plans
+   ============================================= */
+function renderPlanCards() {
+  $$('.plan-card').forEach(card => {
+    const id = card.dataset.plan;
+    card.classList.toggle('selected', state.selectedPlan === id);
+
+
+    // Remove old listener by cloning
+    const clone = card.cloneNode(true);
+    card.parentNode.replaceChild(clone, card);
+    clone.addEventListener('click',  () => selectPlan(id));
+    clone.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') selectPlan(id); });
+  });
+}
+
+
+function selectPlan(id) {
+  state.selectedPlan = id;
+  state.careBox = {};      // reset selections on plan change
+
+
+  // Update UI
+  $$('.plan-card').forEach(c => {
+    const selected = c.dataset.plan === id;
+    c.classList.toggle('selected', selected);
+    c.setAttribute('aria-checked', selected ? 'true' : 'false');
+  });
+
+
+  const plan = PLANS[id];
+  $('pickerSection').style.display  = 'block';
+  $('subscribeCta').style.display   = 'block';
+  $('subscribeSummaryText').textContent = `${plan.name} plan — pick ${plan.slots} items`;
+  $('subscribeSummaryPrice').textContent = fmt(plan.price);
+  $('subscribeBtnPrice').textContent = fmt(plan.price);
+  state.pickerFilter = 'all';  // reset filter on plan change
+  updateSubscribeBtn();
+  renderSmartSuggestions();
+  renderPickerFilter();
+  renderPickerGrid();
+}
+
+
+function renderSmartSuggestions() {
+  const favIds = getFavorites();
+  const box    = $('smartSuggestions');
+  const row    = $('smartSuggestRow');
+  if (!box || !row) return;
+
+
+  const favProducts = PRODUCTS.filter(p => favIds.includes(p.id));
+  if (!favProducts.length) {
+    box.style.display = 'none';
+    return;
+  }
+
+
+  const plan = PLANS[state.selectedPlan];
+  const slots = plan ? plan.slots : 0;
+  const used  = careBoxCount();
+
+
+  row.innerHTML = favProducts.map(p => {
+    const selected = state.careBox[p.id] > 0;
+    const full     = !selected && used >= slots;
+    return `<button class="smart-chip ${selected ? 'selected' : ''} ${full ? 'disabled' : ''}"
+              data-suggest="${p.id}" ${full ? 'disabled' : ''}
+              aria-pressed="${selected}" aria-label="${selected ? 'Remove' : 'Add'} ${p.name}">
+      <span class="chip-emoji" aria-hidden="true">${p.emoji}</span>
+      <span class="chip-name">${p.name}</span>
+    </button>`;
+  }).join('');
+
+
+  box.style.display = 'block';
+
+
+  row.querySelectorAll('[data-suggest]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleCareItem(+btn.dataset.suggest);
+      renderSmartSuggestions(); // re-render chips after toggle
+    });
+  });
+}
+
+
+function renderPickerFilter() {
+  const bar = $('pickerFilterBar');
+  if (!bar) return;
+
+
+  // Build category list from products that exist
+  const usedCats = [...new Set(PRODUCTS.map(p => p.category))];
+  const tabs = CATEGORIES.filter(c => c.id === 'all' || usedCats.includes(c.id));
+
+
+  bar.innerHTML = tabs.map(c => `
+    <button class="picker-filter-tab ${state.pickerFilter === c.id ? 'active' : ''}"
+            data-filter="${c.id}" aria-pressed="${state.pickerFilter === c.id}">
+      <span aria-hidden="true">${c.icon}</span> ${c.label}
+    </button>`).join('');
+
+
+  bar.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.pickerFilter = btn.dataset.filter;
+      renderPickerFilter();
+      renderPickerGrid();
+    });
+  });
+}
+
+
+function renderPickerGrid() {
+  const plan  = PLANS[state.selectedPlan];
+  const used  = careBoxCount();
+  const slots = plan ? plan.slots : 0;
+
+
+  $('pickerSlots').textContent = `${used} / ${slots} selected`;
+  $('pickerSlots').classList.toggle('full', used >= slots);
+
+
+  const filtered = state.pickerFilter === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === state.pickerFilter);
+
+
+  $('pickerGrid').innerHTML = filtered.length ? filtered.map(p => {
+    const selected = state.careBox[p.id] > 0;
+    const full     = !selected && used >= slots;
+    return `
+      <div class="picker-card ${selected?'selected':''} ${full?'disabled':''}"
+           data-pick="${p.id}" role="listitem" tabindex="${full?-1:0}"
+           aria-label="${selected?'Remove':'Add'} ${p.name}" aria-pressed="${selected}">
+        <div class="picker-check" aria-hidden="true">✓</div>
+        <div class="picker-img" data-cat="${p.category}" style="background:${CAT_GRADIENTS[p.category]}">
+          <span aria-hidden="true">${p.emoji}</span>
+        </div>
+        <div class="picker-body">
+          <div class="picker-name">${p.name}</div>
+          <div class="picker-cat">${p.cat_label}</div>
+          <div class="picker-price">${fmt(p.price)}</div>
+        </div>
+      </div>`;
+  }).join('') : `<p class="picker-empty">No products in this category yet.</p>`;
+
+
+  $$('[data-pick]').forEach(card => {
+    card.addEventListener('click', () => toggleCareItem(+card.dataset.pick));
+    card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') toggleCareItem(+card.dataset.pick); });
+  });
+}
+
+
+function toggleCareItem(id) {
+  const plan  = PLANS[state.selectedPlan];
+  if (!plan) return;
+  const isIn  = state.careBox[id] > 0;
+  const count = careBoxCount();
+
+
+  if (isIn) {
+    delete state.careBox[id];
+  } else {
+    if (count >= plan.slots) { showToast(`Your ${plan.name} plan holds ${plan.slots} items`); return; }
+    state.careBox[id] = 1;
+  }
+  renderPickerGrid();
+  renderSmartSuggestions();
+  updateSubscribeBtn();
+}
+
+
+function updateSubscribeBtn() {
+  const plan  = PLANS[state.selectedPlan];
+  const used  = careBoxCount();
+  const slots = plan ? plan.slots : 0;
+  const btn   = $('subscribeBtn');
+  btn.disabled = !plan || used === 0;
+  $('subscribeSummaryText').textContent = plan
+    ? `${plan.name} · ${used}/${slots} items chosen`
+    : 'Select a plan to get started';
+}
+
+
+/* =============================================
+   CHECKOUT / ORDER
+   ============================================= */
+/* =============================================
+   EXPRESS CHECKOUT — Apple Pay & Google Pay
+   ============================================= */
+function handleExpressCheckout(provider) {
+  const itemCount = Object.values(state.cart).reduce((s, n) => s + n, 0);
+  if (itemCount === 0) { showToast('Add items to your cart first ✨'); return; }
+
+
+  const label = provider === 'apple' ? 'Apple Pay' : 'Google Pay';
+
+
+  if (_stripe) {
+    // Real Stripe Payment Request — Apple Pay / Google Pay native sheet
+    const { total, delivery } = getOrderTotal();
+    const pr = _stripe.paymentRequest({
+      country: 'US', currency: 'usd',
+      total: { label: 'Period. Order', amount: Math.round(total * 100) },
+      requestPayerEmail: true, requestPayerName: true, requestShipping: true,
+      shippingOptions: [{
+        id: 'local', label: 'Local Delivery (~45 min)',
+        detail: 'Via our partner network',
+        amount: Math.round(delivery * 100)
+      }]
+    });
+    pr.on('paymentmethod', ev => {
+      // TODO: call your backend to confirm PaymentIntent, then:
+      ev.complete('success');
+      state.cart = {}; state.appliedPromo = null;
+      updateCartBadge(); renderCart(); closeCart();
+      $('orderSuccess').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    pr.canMakePayment().then(result => {
+      if (result) { pr.show(); }
+      else {
+        showToast(`${label} not available on this device — try card checkout`);
+        openStripeCheckout();
+      }
+    });
+    return;
+  }
+
+
+  // Pre-launch: friendly feedback + complete pre-order
+  showToast(`${label} activates at launch 🚀`);
+  setTimeout(() => placeOrder(), 900);
+}
+
+
+
+
+/* =============================================
+   PERSONALIZED GREETING + TONE SYSTEM
+   ============================================= */
+
+const TONES = {
+  teen: {
+    greetings: {
+      morning: ["rise and slay, bestie ✨", "good morning pooh ??", "wakey wakey, queen ??", "morning! today is giving main character ✨"],
+      afternoon: ["hey bestie, we see you ??", "afternoon check-in, pooh ??", "you ate today? hydrated? we love that ??", "hey queen, how we feeling? ??"],
+      evening: ["evening vibes, bestie ??", "rest era activated, pooh ??", "you showed up today and that matters ✨", "wind down time, queen ??"],
+      night: ["still up? same bestie ??", "late night energy, we see you!", "rest is productive too, periodt.", "night owl era ?? stay hydrated tho"]
+    }
+  },
+  adult: {
+    greetings: {
+      morning: ["Good morning, sis. You've got this. ??", "Rise and handle business, queen. ??", "Morning! Coffee first, everything else second. ☕", "Good morning. Today is yours. ✨"],
+      afternoon: ["Hey love. Hope today is being kind to you. ??", "Afternoon check-in — how are you holding up? ??", "You're doing great, even when it doesn't feel like it. ??", "Hey sis. Breathe. You're doing enough. ✨"],
+      evening: ["Evening, love. Time to wind down. ??", "You made it through today. That counts. ??", "Rest is not lazy — it's necessary. Good evening. ??", "Hey sis. The hard part is done. Relax now. ✨"],
+      night: ["Still up? Take care of yourself. ??", "Late night energy. Hope you're okay. ??", "Rest well when you're ready, love. ✨", "Night, sis. Tomorrow is a new day. ??"]
+    }
+  },
+  emergency: {
+    greetings: {
+      morning: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      afternoon: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      evening: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"],
+      night: ["We've got you. Right now. ⚡", "Help is one tap away. ??", "You're okay. We're here. ⚡", "Breathe. We've got this. ??"]
+    }
+  },
+  gifter: {
+    greetings: {
+      morning: ["Good morning! You're about to make someone's day. ??", "Morning, thoughtful one. ??", "She's lucky to have you. Good morning! ??", "Rise and show up for her. ??"],
+      afternoon: ["Hey! Thinking of her today? We love that. ??", "Afternoon! She deserves it. Let's make it happen. ??", "You remembered. That means everything. ??", "Hey, thoughtful one. Ready to shop for her? ??"],
+      evening: ["Evening! Still time to send some love. ??", "Good evening, gift-giver. ??", "She'll remember this. Good evening! ??", "Evening! Let's do something kind tonight. ??"],
+      night: ["Late night love mission? We respect it. ??", "Night owl gifter energy. ?? Let's go. ??", "She deserves it, even at this hour. ??", "Night! Quick gift before you sleep? ??"]
+    }
+  },
+  holistic: {
+    greetings: {
+      morning: ["Good morning. Honor your body today. ??", "Rise intentionally, love. ??", "Morning rituals first. We see you. ??", "Good morning. Your cycle is your superpower. ??"],
+      afternoon: ["Midday check-in. How is your body feeling? ??", "Afternoon, clean girl. ?? Stay grounded. ??", "How is your energy today? Listen to your body. ??", "Afternoon. Hydrate. Breathe. You've got this. ??"],
+      evening: ["Evening wind-down. Tend to yourself. ??", "Good evening, love. Rest is part of the ritual. ??", "Evening. Your body did a lot today. Honor it. ??", "Wind-down time. Clean and intentional. ??"],
+      night: ["Rest is healing. Good night, love. ??", "Night rituals. You know what to do. ??", "Sleep is the ultimate wellness practice. ??", "Good night. Your body restores while you sleep. ??"]
+    }
+  },
+  starter: {
+    greetings: {
+      morning:   ["Good morning, superstar! \u2728 Your body is doing something amazing.", "Hey! Rise and shine! \u{1F31F} You got this today!", "Morning! Did you know your body is literally a superhero? \u{1F9B8}", "Good morning! Today is going to be great. \u2728"],
+      afternoon: ["Hey there! How are you feeling right now? \u{1F338}", "Afternoon check-in! You are doing SO well. \u2728", "Hey! Your body is working hard today. Be kind to it. \u{1F49C}", "Hi! How is your day going? We are rooting for you! \u{1F31F}"],
+      evening:   ["Good evening! You made it through the day! \u{1F338}", "Hey! Rest time! Your body deserves it. \u{1F49C}", "Evening! You did amazing today. For real. \u2728", "Hi! Wind down time. Put on something comfy. \u{1F319}"],
+      night:     ["Hey night owl! Get some rest when you can. \u{1F49C}", "Good night! Your body does its best work while you sleep. \u2728", "Night night! You were awesome today. \u{1F31F}", "Hey! Sleep is a superpower too. Rest up. \u{1F319}"]
+    }
+  }
+};
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'morning';
+  if (h >= 12 && h < 17) return 'afternoon';
+  if (h >= 17 && h < 21) return 'evening';
+  return 'night';
+}
+
+function getPersonalizedGreeting(version) {
+  const v = version || state.version || 'adult';
+  const tone = TONES[v] || TONES.adult;
+  const timeKey = getTimeOfDay();
+  const arr = tone.greetings[timeKey];
+  const name = getNickname ? getNickname() : null;
+  let greeting = arr[Math.floor(Math.random() * arr.length)];
+  if (name && v === 'teen') greeting = greeting.replace('bestie', name).replace('pooh', name).replace('queen', name);
+  if (name && v === 'adult') greeting = greeting.replace('sis', name).replace('love', name).replace('queen', name);
+  return greeting;
+}
+
+
+
+
+/* =============================================
+   SELF-CARE & WELLNESS GUIDE — PER EXPERIENCE
+   ============================================= */
+
+const SELF_CARE_CONTENT = {
+  starter: {
+    title: 'Feel Better During Your Period &#x1F338;',
+    intro: 'Your period can make you feel blah. Cramps, tired, moody &#x2014; all normal! But there are some easy things you can do to feel WAY better. No doctor needed. Promise! &#x2728;',
+    sections: [
+      {
+        emoji: '&#x1F3C3;',
+        title: 'Move a little (yes, really!)',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'A short walk outside can actually help cramps. Wild, right?',
+          'Gentle stretching or yoga for beginners &#x2014; look up "period yoga" on YouTube',
+          'Dancing around your room counts. 100%. Put on your favorite song and go.',
+          'Even 10 minutes of light movement releases feel-good chemicals in your brain!'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Drink water (SO much water)',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Dehydration makes cramps and headaches WORSE. Drink up!',
+          'Aim for 8 glasses a day &#x2014; more during your period',
+          'Herbal tea counts! Chamomile and peppermint tea are great for cramps',
+          'Avoid soda and energy drinks &#x2014; they make bloating worse'
+        ]
+      },
+      {
+        emoji: '&#x1F34C;',
+        title: 'Eat foods that help',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          '&#x1F36B; Dark chocolate (70%+) has magnesium which helps cramps. YES this is real!',
+          '&#x1F34C; Bananas help with bloating and mood &#x2014; potassium is your friend',
+          '&#x1F966; Leafy greens (spinach, kale) replace the iron your body loses',
+          '&#x1F36F; Ginger in tea or food helps with nausea and stomach pain',
+          'Avoid super salty snacks &#x2014; they make bloating much worse'
+        ]
+      },
+      {
+        emoji: '&#x1F6CB;',
+        title: 'Rest is your superpower',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Your body is literally doing extra work right now. Rest is not being lazy!',
+          'A heating pad or hot water bottle on your tummy = instant cramp relief',
+          'Take naps if you need them. No guilt. Zero.',
+          'Warm baths help relax your muscles and can ease cramps a lot'
+        ]
+      }
+    ]
+  },
+  teen: {
+    title: 'Survive Your Period Like a Pro &#x1F451;',
+    intro: 'Okay bestie &#x2014; your period does not have to ruin your whole week. Here is the real guide nobody gave you. Save this. Screenshot it. Live by it. &#x1F525;',
+    sections: [
+      {
+        emoji: '&#x1F3C3;',
+        title: 'Movement that actually helps (no gym required)',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Light walks literally reduce prostaglandins (those are what cause cramps). Science said so.',
+          'Period yoga is a thing and it WORKS. Search "yin yoga for period cramps" &#x2014; 20 mins, game changer.',
+          'Dancing, slow stretching, gentle pilates &#x2014; all valid. Heavy lifting on day 1-2? Skip it.',
+          'Movement releases endorphins which counteract the serotonin drop your hormones cause. Your mood WILL improve.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Hydrate or suffer bestie (no cap)',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Dehydration + period = headaches, worse cramps, more fatigue. Drink water periodt.',
+          'Raspberry leaf tea reduces uterine cramping &#x2014; start drinking it the week before your period',
+          'Chamomile tea calms inflammation AND helps you sleep. Two for one.',
+          'Electrolytes (like Liquid IV) help if you are losing a lot of blood. Replenish your minerals.'
+        ]
+      },
+      {
+        emoji: '&#x1F354;',
+        title: 'Eat smart or feel worse (your choice)',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          '&#x1F36B; Dark chocolate is medicinal. Magnesium reduces cramp intensity. Eat it with zero guilt.',
+          '&#x1F957; Iron-rich foods (spinach, red meat, lentils) replace what your body loses. Fatigue is often iron loss.',
+          '&#x1F9C0; Calcium + magnesium combo &#x2014; dairy, almonds, dark leafy greens &#x2014; reduces PMS symptoms significantly.',
+          'Avoid: alcohol, excess caffeine, super salty snacks, processed foods. They make everything worse. Yes, all of them.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Soft life era for real this week',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Heat patches on your lower abdomen and lower back &#x2014; relief within minutes. Non-negotiable.',
+          'Warm bath with Epsom salt &#x2014; magnesium absorbs through skin, reduces cramps. Add lavender. You deserve it.',
+          'Your body is shedding its uterine lining. That is EFFORT. Rest without guilt.',
+          'Weighted blanket + comfort show + heating pad = the period trinity. Build your nest and stay in it.'
+        ]
+      }
+    ]
+  },
+  adult: {
+    title: 'Period Self-Care That Actually Works &#x1F49C;',
+    intro: 'No fluff, no filler. Here is what the research actually supports for managing your cycle like the informed, capable woman you are. Your period does not have to wreck your week.',
+    sections: [
+      {
+        emoji: '&#x1F3CB;',
+        title: 'Movement & inflammation management',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Aerobic exercise (even 20-30 min walks) reduces prostaglandin production &#x2014; the compounds that cause cramping.',
+          'Yoga specifically: child&#39;s pose, supine twist, and cat-cow are clinically studied for menstrual pain relief.',
+          'Avoid high-intensity training on days 1-2 &#x2014; your body is in an inflammatory state. Work with it, not against it.',
+          'Swimming is uniquely effective &#x2014; water pressure reduces bloating and the warmth relaxes uterine muscles.'
+        ]
+      },
+      {
+        emoji: '&#x1F9EC;',
+        title: 'Nutrition for hormonal support',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          'Magnesium glycinate (200-400mg daily) is the most evidence-based supplement for reducing PMS and cramping.',
+          'Omega-3 fatty acids (salmon, walnuts, flaxseed) reduce systemic inflammation including menstrual pain.',
+          'Iron + Vitamin C together &#x2014; your body loses significant iron during menstruation. Pair iron-rich foods with citrus for optimal absorption.',
+          'Reduce: alcohol (disrupts hormone metabolism), excess caffeine (increases cortisol), refined sugar (drives inflammation). The data is clear.',
+          'Anti-inflammatory foods: turmeric, ginger, dark leafy greens, berries, fatty fish. Make them a habit the week before and during.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Hydration & bloating reduction',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Counterintuitive truth: drinking MORE water reduces water retention and bloating, not less.',
+          'Reduce sodium significantly the week before your period to prevent pre-period bloating.',
+          'Dandelion root tea is a natural diuretic that reduces bloating without depleting electrolytes.',
+          'Fennel seeds brewed as tea &#x2014; a studied remedy for menstrual cramping and digestive discomfort.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Targeted relief & recovery',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Heat therapy (40-45°C) is as effective as ibuprofen for menstrual pain in multiple studies. Use it.',
+          'Epsom salt baths: magnesium sulfate absorbs transdermally and reduces both cramping and mood symptoms.',
+          'CBD topical applied to lower abdomen shows promising results for localized pain without systemic effects.',
+          'Sleep prioritization during your period is not optional &#x2014; melatonin production is disrupted by hormonal shifts. Protect your sleep environment.'
+        ]
+      }
+    ]
+  },
+  holistic: {
+    title: 'Cycle Syncing & Natural Wellness &#x1F33F;',
+    intro: 'Your menstrual phase is a time of release, inward reflection, and restoration. Honor what your body is asking for. These plant-based, evidence-informed practices support your cycle naturally.',
+    sections: [
+      {
+        emoji: '&#x1F33F;',
+        title: 'Gentle movement in your menstrual phase',
+        color: 'rgba(34,197,94,0.1)',
+        border: 'rgba(34,197,94,0.2)',
+        tips: [
+          'Yin yoga and restorative yoga are ideal during menstruation &#x2014; long-held poses release deep fascial tension around the uterus.',
+          'Walking in nature reduces cortisol and supports progesterone balance. Ground yourself literally.',
+          'Qigong and tai chi support pelvic energy flow according to Traditional Chinese Medicine practitioners.',
+          'Avoid vigorous practice days 1-2. Your energy is directed inward. Honor that, not override it.'
+        ]
+      },
+      {
+        emoji: '&#x1F375;',
+        title: 'Herbal & plant-based support',
+        color: 'rgba(251,191,36,0.1)',
+        border: 'rgba(251,191,36,0.2)',
+        tips: [
+          'Red raspberry leaf tea: tones the uterine muscle, reduces cramping. Drink 2-3 cups daily starting 1 week before.',
+          'Cramp bark tincture: one of the most studied herbal antispasmodics for uterine cramping.',
+          'Ginger root tea: clinically comparable to ibuprofen for menstrual pain in some studies. Make it fresh.',
+          'Turmeric with black pepper: curcumin reduces prostaglandin-driven inflammation. Add to golden milk daily.',
+          'Vitex (Chaste Tree Berry): supports progesterone production and reduces PMS over time. 3-month commitment minimum.'
+        ]
+      },
+      {
+        emoji: '&#x1F9F4;',
+        title: 'Anti-inflammatory nutrition',
+        color: 'rgba(168,85,247,0.1)',
+        border: 'rgba(168,85,247,0.2)',
+        tips: [
+          'Seed cycling: pumpkin and flax seeds in the first half of your cycle, sesame and sunflower in the second. Supports estrogen and progesterone balance.',
+          'Eliminate: gluten, dairy, refined sugar, alcohol during your period. Inflammatory foods amplify every symptom.',
+          'Wild-caught salmon or sardines: highest omega-3 density, most anti-inflammatory protein source available.',
+          'Magnesium-rich foods: dark chocolate, pumpkin seeds, avocado, black beans &#x2014; the natural version of supplementation.'
+        ]
+      },
+      {
+        emoji: '&#x1F9D8;',
+        title: 'Ritual, rest & nervous system support',
+        color: 'rgba(236,72,153,0.1)',
+        border: 'rgba(236,72,153,0.2)',
+        tips: [
+          'Castor oil pack on lower abdomen for 45-60 minutes: a traditional naturopathic practice for reducing uterine inflammation.',
+          'Magnesium flake baths (not just Epsom): higher bioavailability of transdermal magnesium absorption.',
+          'Aromatherapy: lavender and clary sage essential oils (diluted) applied to lower abdomen have documented antispasmodic effects.',
+          'Your menstrual phase is associated with the new moon energy in many traditions. Use it for rest, reflection, and intention &#x2014; not productivity.'
+        ]
+      }
+    ]
+  },
+  emergency: {
+    title: 'Feel Better Fast &#x26A1;',
+    intro: 'No time for long explanations. Here is what works RIGHT NOW to get you through.',
+    sections: [
+      {
+        emoji: '&#x1F525;',
+        title: 'Instant relief',
+        color: 'rgba(239,68,68,0.1)',
+        border: 'rgba(239,68,68,0.2)',
+        tips: [
+          'Heat on your lower belly &#x2014; heating pad, hot water bottle, even a warm towel. Works within minutes.',
+          'Ibuprofen works best taken BEFORE cramps peak. Take it early.',
+          'Fetal position with a pillow between your knees reduces pelvic pressure.',
+          'Slow deep breaths activate your parasympathetic nervous system and reduce pain perception.'
+        ]
+      },
+      {
+        emoji: '&#x1F4A7;',
+        title: 'Drink something warm',
+        color: 'rgba(14,165,233,0.1)',
+        border: 'rgba(14,165,233,0.2)',
+        tips: [
+          'Warm water or herbal tea right now. Warmth internally and externally helps.',
+          'Avoid cold drinks &#x2014; they can increase cramping.',
+          'Ginger tea if you have it &#x2014; fastest natural anti-inflammatory.'
+        ]
+      }
+    ]
+  }
+};
+
+function showSelfCareGuide(version) {
+  const v = version || state.version || 'adult';
+  const data = SELF_CARE_CONTENT[v] || SELF_CARE_CONTENT.adult;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'selfCareOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  const sectionsHtml = data.sections.map(section => {
+    const tipsHtml = section.tips.map(tip =>
+      '<li style="margin-bottom:0.6rem;font-size:0.85rem;color:var(--text-muted);line-height:1.65;padding-left:0.25rem;">' + tip + '</li>'
+    ).join('');
+
+    return '<div style="margin-bottom:1.25rem;padding:1rem;background:' + section.color + ';border:1px solid ' + section.border + ';border-radius:16px;">' +
+      '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;">' +
+      '<span style="font-size:1.3rem;">' + section.emoji + '</span>' +
+      '<span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">' + section.title + '</span>' +
+      '</div>' +
+      '<ul style="list-style:none;padding:0;margin:0;">' + tipsHtml + '</ul>' +
+      '</div>';
+  }).join('');
+
+  overlay.innerHTML =
+    '<div style="max-width:480px;margin:0 auto;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
+    '<h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--text-primary);">' + data.title + '</h2>' +
+    '<button id="closeSelfCareBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>' +
+    '</div>' +
+    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>' +
+    '</div>' +
+    sectionsHtml +
+    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-top:0.5rem;border:1px solid rgba(34,197,94,0.2);">' +
+    '<p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;margin:0;">&#x1F4AC; <strong>Important:</strong> These are general wellness suggestions, not medical advice. If your symptoms are severe or disabling, please talk to a healthcare provider. You deserve proper care.</p>' +
+    '</div>' +
+    '<button id="closeSelfCareBtnBottom" style="width:100%;margin-top:1.25rem;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it! &#x1F49C;</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.getElementById('closeSelfCareBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('closeSelfCareBtnBottom').addEventListener('click', () => overlay.remove());
+}
+
+
+
+/* =============================================
+   TRUSTED ADULT SYSTEM — Ages 9-12
+   (Hidden until attorney approval)
+   Preview via: ?preview=starter
+   ============================================= */
+
+const STARTER_PREVIEW_MODE = new URLSearchParams(window.location.search).get('preview') === 'starter';
+
+function checkStarterAccess() {
+  // Developer preview mode — only accessible via ?preview=starter
+  if (STARTER_PREVIEW_MODE) {
+    console.log('[Period.] Starter preview mode active');
+    return true;
+  }
+  return false;
+}
+
+function showTrustedAdultGate(onApproved) {
+  const overlay = document.createElement('div');
+  overlay.id = 'trustedAdultGate';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,rgba(251,191,36,0.15),rgba(236,72,153,0.12),rgba(168,85,247,0.10));display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:2px solid rgba(251,191,36,0.3);box-shadow:0 8px 40px rgba(251,191,36,0.15);">
+
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">&#x1F6AB;</div>
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">A Trusted Adult is REQUIRED</h2>
+        <div style="background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:0.875rem;margin-bottom:0.75rem;">
+          <p style="font-size:0.875rem;color:var(--text-primary);line-height:1.6;margin:0;font-weight:600;">&#x26A0;&#xFE0F; This is not optional.</p>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin:0.25rem 0 0;">A parent or guardian, school nurse, or trusted teacher <strong>must</strong> be physically present with you right now to continue. Period. is committed to your safety above everything else.</p>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">Please hand the phone or device to your trusted adult now. They will complete the next steps. &#x1F49C;</p>
+      </div>
+
+      <!-- Adult type selector -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem;">Trusted Adult &mdash; please select your role:</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;" id="adultTypeOptions">
+          <button class="adult-type-btn" data-type="parent" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F468;&#x200D;&#x1F467;</span>
+            <div><div style="font-weight:600;">Parent or Guardian</div><div style="font-size:0.75rem;color:var(--text-muted);">I am the child's parent or legal guardian</div></div>
+          </button>
+          <button class="adult-type-btn" data-type="nurse" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</span>
+            <div><div style="font-weight:600;">School Nurse</div><div style="font-size:0.75rem;color:var(--text-muted);">I am a licensed school health professional</div></div>
+          </button>
+          <button class="adult-type-btn" data-type="teacher" style="padding:0.875rem 1rem;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;">
+            <span style="font-size:1.3rem;">&#x1F9D1;&#x200D;&#x1F3EB;</span>
+            <div><div style="font-weight:600;">Teacher or Principal</div><div style="font-size:0.75rem;color:var(--text-muted);">I am a school staff member acting in loco parentis</div></div>
+          </button>
         </div>
       </div>
-      <div class="tw-next" id="twNext"></div>
-      <button class="tw-log-btn" id="twLogBtn">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-        Quick Log Today
-      </button>
-    </div>
-  </div>
 
-  <button class="impact-strip" id="impactStrip" aria-label="See our community impact">
-    <span class="impact-strip-item"><span class="impact-strip-num" id="stripKits">0</span><span class="impact-strip-lbl">kits donated</span></span>
-    <span class="impact-strip-divider" aria-hidden="true"></span>
-    <span class="impact-strip-item"><span class="impact-strip-num" id="stripRoundup">$0</span><span class="impact-strip-lbl">raised for period orgs</span></span>
-    <span class="impact-strip-divider" aria-hidden="true"></span>
-    <span class="impact-strip-item impact-strip-cta">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" fill="currentColor" stroke="none"/></svg>
-      Together we give back
-    </span>
-  </button>
+      <!-- Adult info form (shown after type selected) -->
+      <div id="adultInfoForm" style="display:none;margin-bottom:1.25rem;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem;">Your Information</div>
+        <input id="adultName" type="text" placeholder="Full name" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.5rem;box-sizing:border-box;"/>
+        <input id="adultContact" type="tel" placeholder="Phone number (for parent notification)" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.5rem;box-sizing:border-box;"/>
+        <input id="parentContact" type="tel" placeholder="Parent/Guardian phone (to notify them)" id="parentContactField" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--text-primary);outline:none;margin-bottom:0.75rem;box-sizing:border-box;"/>
 
-  <!-- JUST STARTING EDUCATIONAL SECTION — 9-12 age group only -->
-  <section class="starter-only" id="starterSection" style="display:none;" aria-label="Just Starting guide" >
+        <!-- Agreement -->
+        <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:0.875rem;border:1px solid rgba(251,191,36,0.2);margin-bottom:0.75rem;">
+          <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;">
+            <input type="checkbox" id="adultAgreement" style="margin-top:0.2rem;flex-shrink:0;accent-color:#A855F7;width:16px;height:16px;"/>
+            <span style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">I confirm I am a trusted adult assisting a child aged 9&ndash;12. I agree to Period. terms of use and consent to the parent/guardian being notified of this session. I take responsibility for this access.</span>
+          </label>
+        </div>
 
-    <!-- Welcome header with fun colors -->
-    <div style="text-align:center;padding:1.5rem 1rem 0.5rem;background:linear-gradient(160deg,rgba(251,191,36,0.12),rgba(236,72,153,0.08));margin:0 -1rem;padding:1.5rem 1rem;">
-      <div style="font-size:3rem;margin-bottom:0.5rem;">&#x1F31F;</div>
-      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#FBB024,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;">Welcome to the Club!</h2>
-      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;max-width:300px;margin:0 auto 0.75rem;">Getting your period means your body is growing up. It is totally normal, and EVERY girl goes through it!</p>
-      <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
-        <span style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);border-radius:999px;padding:0.25rem 0.75rem;font-size:0.75rem;color:rgba(251,191,36,0.9);">&#x1F512; Safe Space</span>
-        <span style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);border-radius:999px;padding:0.25rem 0.75rem;font-size:0.75rem;color:rgba(236,72,153,0.9);">&#x1F49C; No Judgment</span>
-        <span style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:999px;padding:0.25rem 0.75rem;font-size:0.75rem;color:rgba(168,85,247,0.9);">&#x2728; Just For You</span>
+        <button id="adultProceedBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#FBB024,#EC4899);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">
+          Continue &mdash; I Am Present &#x1F91D;
+        </button>
       </div>
-    </div>
 
-    <!-- The 5 W's -->
-    <div style="padding:1rem;">
-      <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">&#x1F4A1; Tap each one to learn more</div>
-
-      <div style="display:flex;flex-direction:column;gap:0.6rem;">
-
-        <button class="five-w-card" onclick="toggleFiveW(this)" style="text-align:left;padding:1rem;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(236,72,153,0.06));border:1.5px solid rgba(251,191,36,0.25);border-radius:16px;cursor:pointer;width:100%;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.5rem;">&#x2753;</span>
-            <div style="flex:1;"><div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">WHAT is a period?</div><div style="font-size:0.78rem;color:var(--text-muted);">Tap to find out!</div></div>
-            <span style="color:var(--text-muted);font-size:1.2rem;">&#x25BC;</span>
-          </div>
-          <div class="five-w-answer" style="display:none;margin-top:0.75rem;font-size:0.875rem;color:var(--text-muted);line-height:1.7;border-top:1px solid rgba(251,191,36,0.2);padding-top:0.75rem;">
-            &#x1F9E0; Your body has a special organ called a <strong>uterus</strong> (say it: YOU-ter-us). Think of it like a cozy room that gets all decorated every month. When no baby is growing, it cleans itself out &mdash; that is your period! Blood comes out for about 3&ndash;7 days. It sounds scary but it is just your body doing its job. &#x2728;
-          </div>
-        </button>
-
-        <button class="five-w-card" onclick="toggleFiveW(this)" style="text-align:left;padding:1rem;background:linear-gradient(135deg,rgba(236,72,153,0.10),rgba(168,85,247,0.06));border:1.5px solid rgba(236,72,153,0.2);border-radius:16px;cursor:pointer;width:100%;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.5rem;">&#x1F914;</span>
-            <div style="flex:1;"><div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">WHY does it happen?</div><div style="font-size:0.78rem;color:var(--text-muted);">Tap to find out!</div></div>
-            <span style="color:var(--text-muted);font-size:1.2rem;">&#x25BC;</span>
-          </div>
-          <div class="five-w-answer" style="display:none;margin-top:0.75rem;font-size:0.875rem;color:var(--text-muted);line-height:1.7;border-top:1px solid rgba(236,72,153,0.2);padding-top:0.75rem;">
-            &#x1F9B8; It means your body has a new superpower! Tiny things called <strong>hormones</strong> tell your body it is growing up. This is called <strong>puberty</strong>. Getting your period is a sign your body is healthy. Pretty cool, right? &#x1F31F;
-          </div>
-        </button>
-
-        <button class="five-w-card" onclick="toggleFiveW(this)" style="text-align:left;padding:1rem;background:linear-gradient(135deg,rgba(168,85,247,0.10),rgba(124,58,237,0.06));border:1.5px solid rgba(168,85,247,0.2);border-radius:16px;cursor:pointer;width:100%;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.5rem;">&#x23F0;</span>
-            <div style="flex:1;"><div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">WHEN does it happen?</div><div style="font-size:0.78rem;color:var(--text-muted);">Tap to find out!</div></div>
-            <span style="color:var(--text-muted);font-size:1.2rem;">&#x25BC;</span>
-          </div>
-          <div class="five-w-answer" style="display:none;margin-top:0.75rem;font-size:0.875rem;color:var(--text-muted);line-height:1.7;border-top:1px solid rgba(168,85,247,0.2);padding-top:0.75rem;">
-            &#x1F4C5; Most girls get their first period between ages <strong>9 and 16</strong>. Everyone is totally different and ALL of it is normal. After your first one, it comes back roughly every 28 days. At first it might show up whenever it feels like it &mdash; that is normal too! &#x1F338;
-          </div>
-        </button>
-
-        <button class="five-w-card" onclick="toggleFiveW(this)" style="text-align:left;padding:1rem;background:linear-gradient(135deg,rgba(34,197,94,0.10),rgba(16,185,129,0.06));border:1.5px solid rgba(34,197,94,0.2);border-radius:16px;cursor:pointer;width:100%;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.5rem;">&#x1F4CD;</span>
-            <div style="flex:1;"><div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">WHERE does the blood go?</div><div style="font-size:0.78rem;color:var(--text-muted);">Tap to find out!</div></div>
-            <span style="color:var(--text-muted);font-size:1.2rem;">&#x25BC;</span>
-          </div>
-          <div class="five-w-answer" style="display:none;margin-top:0.75rem;font-size:0.875rem;color:var(--text-muted);line-height:1.7;border-top:1px solid rgba(34,197,94,0.2);padding-top:0.75rem;">
-            &#x1F9EC; The blood comes out slowly through your body. You catch it using <strong>pads</strong> (stick in your underwear &mdash; easiest for beginners!) or <strong>period underwear</strong> (looks just like regular underwear but super absorbent). We recommend starting with pads! &#x1F49C;
-          </div>
-        </button>
-
-        <button class="five-w-card" onclick="toggleFiveW(this)" style="text-align:left;padding:1rem;background:linear-gradient(135deg,rgba(239,68,68,0.10),rgba(220,38,38,0.06));border:1.5px solid rgba(239,68,68,0.2);border-radius:16px;cursor:pointer;width:100%;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.5rem;">&#x1F46D;</span>
-            <div style="flex:1;"><div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">WHO else goes through this?</div><div style="font-size:0.78rem;color:var(--text-muted);">Tap to find out!</div></div>
-            <span style="color:var(--text-muted);font-size:1.2rem;">&#x25BC;</span>
-          </div>
-          <div class="five-w-answer" style="display:none;margin-top:0.75rem;font-size:0.875rem;color:var(--text-muted);line-height:1.7;border-top:1px solid rgba(239,68,68,0.2);padding-top:0.75rem;">
-            &#x1F31F; EVERYONE with a uterus goes through this! Your mom. Your teachers. Your favorite singers. About <strong>800 million people</strong> on Earth have their period RIGHT NOW. You are never ever alone. &#x1F49C;
-          </div>
-        </button>
-
+      <!-- Coming soon notice -->
+      <div style="background:rgba(168,85,247,0.06);border-radius:12px;padding:0.75rem;border:1px solid rgba(168,85,247,0.15);text-align:center;">
+        <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;">
+          &#x1F6A7; <strong>Coming Soon:</strong> School nurse profiles, parental pre-authorization, and automatic parent notifications are launching soon. This flow is in preview mode.
+        </div>
       </div>
-    </div>
 
-    <!-- Emergency guide -->
-    <div style="margin:0 1rem 1rem;padding:1.25rem;background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.06));border:1.5px solid rgba(239,68,68,0.2);border-radius:20px;">
-      <div style="font-size:0.75rem;font-weight:700;color:rgba(239,68,68,0.8);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">&#x1F6A8; Period Just Started &mdash; What Do I Do?</div>
-      <div style="display:flex;flex-direction:column;gap:0.6rem;">
-        <div style="display:flex;align-items:flex-start;gap:0.75rem;"><span style="background:rgba(239,68,68,0.15);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;color:#ef4444;">1</span><div style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-primary);">Breathe.</strong> You are safe. This is normal!</div></div>
-        <div style="display:flex;align-items:flex-start;gap:0.75rem;"><span style="background:rgba(239,68,68,0.15);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;color:#ef4444;">2</span><div style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-primary);">Get to the bathroom.</strong> Just say you need to use the restroom.</div></div>
-        <div style="display:flex;align-items:flex-start;gap:0.75rem;"><span style="background:rgba(239,68,68,0.15);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;color:#ef4444;">3</span><div style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-primary);">No pads?</strong> Fold toilet paper and put it in your underwear. It works!</div></div>
-        <div style="display:flex;align-items:flex-start;gap:0.75rem;"><span style="background:rgba(239,68,68,0.15);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;color:#ef4444;">4</span><div style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-primary);">Tell a trusted adult.</strong> School nurse, teacher, or parent. They will help!</div></div>
-      </div>
-    </div>
+    </div>`;
 
-    <!-- Hygiene + Self Care buttons -->
-    <div style="margin:0 1rem 0.5rem;display:flex;flex-direction:column;gap:0.5rem;">
-      <button onclick="showHygieneGuide('starter')" style="width:100%;padding:0.875rem;background:rgba(251,191,36,0.12);border:1.5px solid rgba(251,191,36,0.3);border-radius:999px;color:var(--text-primary);font-size:0.875rem;font-weight:600;cursor:pointer;">
-        &#x1F6BF; How to Stay Fresh &amp; Clean &#x2728;
-      </button>
-      <button onclick="showSelfCareGuide('starter')" style="width:100%;padding:0.875rem;background:rgba(236,72,153,0.10);border:1.5px solid rgba(236,72,153,0.25);border-radius:999px;color:var(--text-primary);font-size:0.875rem;font-weight:600;cursor:pointer;">
-        &#x1F338; Feel Better During Your Period
-      </button>
-    </div>
+  document.body.appendChild(overlay);
 
-    <!-- Parent/Guardian note -->
-    <div style="margin:0.5rem 1rem 1rem;padding:0.875rem;background:rgba(168,85,247,0.06);border-radius:16px;border:1px solid rgba(168,85,247,0.15);">
-      <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;margin:0;text-align:center;">
-        &#x1F4AC; <strong>Parent or Guardian?</strong> This section is designed for ages 9&ndash;12. For ordering supplies, please assist your child or contact us at <strong>perioddelivers.com</strong>
+  // Wire adult type buttons
+  let selectedAdultType = null;
+  overlay.querySelectorAll('.adult-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      overlay.querySelectorAll('.adult-type-btn').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'var(--surface-2)';
+      });
+      btn.style.borderColor = 'rgba(251,191,36,0.6)';
+      btn.style.background = 'rgba(251,191,36,0.08)';
+      selectedAdultType = btn.dataset.type;
+
+      // Show form
+      const form = document.getElementById('adultInfoForm');
+      if (form) form.style.display = '';
+
+      // Adjust parent contact label
+      const parentField = document.getElementById('parentContact');
+      if (parentField && selectedAdultType === 'parent') {
+        parentField.style.display = 'none';
+      } else if (parentField) {
+        parentField.style.display = '';
+        parentField.placeholder = 'Parent/Guardian phone (to notify them)';
+      }
+    });
+  });
+
+  // Wire proceed button
+  const proceedBtn = document.getElementById('adultProceedBtn');
+  if (proceedBtn) {
+    proceedBtn.addEventListener('click', function() {
+      const name = document.getElementById('adultName').value.trim();
+      const contact = document.getElementById('adultContact').value.trim();
+      const agreed = document.getElementById('adultAgreement').checked;
+
+      if (!name) { showToast('Please enter your name'); return; }
+      if (!contact) { showToast('Please enter your phone number'); return; }
+      if (!agreed) { showToast('Please confirm the agreement to continue'); return; }
+
+      // Save trusted adult session
+      const session = {
+        type: selectedAdultType,
+        name: name,
+        contact: contact,
+        timestamp: new Date().toISOString()
+      };
+      sessionStorage.setItem('period_trusted_adult', JSON.stringify(session));
+
+      // Save to Firebase for records
+      if (_firebaseFs) {
+        _firebaseFs.collection('trusted_adult_sessions').add({
+          adult_type: selectedAdultType,
+          adult_name: name,
+          adult_contact: contact,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'starter_experience'
+        }).catch(function(e) { console.warn('Session save failed:', e); });
+      }
+
+      // Notify parent if nurse/teacher
+      if (selectedAdultType !== 'parent') {
+        const parentContact = document.getElementById('parentContact');
+        if (parentContact && parentContact.value.trim()) {
+          showToast('Parent notification will be sent when SMS launches &#x1F49C;');
+        }
+      }
+
+      overlay.style.transition = 'opacity 0.3s ease';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        if (typeof onApproved === 'function') onApproved();
+      }, 300);
+    });
+  }
+}
+
+// School Profile System (placeholder — ready for launch)
+function showSchoolProfileSetup() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+  overlay.innerHTML = `
+    <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">School Profile Setup</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">
+        Register your school so nurses and staff can quickly order on behalf of students. Parents are notified automatically.
       </p>
-    </div>
-
-  </section>
-  </section>
-
-  <div class="mode-cards" role="list">
-    <button class="mode-card mode-card--gold" id="cardOrderNow" role="listitem" aria-label="Order on demand">
-      <div class="mode-card-icon">&#x26A1;</div>
-      <div class="mode-card-title" id="card1Title">Order Now</div>
-      <div class="mode-card-desc" id="card1Desc">Get what you need. Period care, wellness essentials, and more &mdash; delivered to your door in 1&ndash;3 days.</div>
-      <div class="mode-card-link">Shop products <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-    </button>
-    <button class="mode-card mode-card--purple" id="cardCarePackage" role="listitem" aria-label="Subscribe to care package">
-      <div class="mode-card-icon">&#x1F451;</div>
-      <div class="mode-card-title" id="card2Title">Care Package</div>
-      <div class="mode-card-desc" id="card2Desc">Choose your plan, pick your products, and receive a customized monthly box delivered right on time &mdash; every month.</div>
-      <div class="mode-card-link">Subscribe <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-    </button>
-    <button class="mode-card mode-card--holistic" id="cardHolistic" role="listitem" aria-label="Shop holistic and natural products">
-      <div class="mode-card-icon">&#x1F33F;</div>
-      <div class="mode-card-title">Holistic &amp; Natural</div>
-      <div class="mode-card-desc">Menstrual discs, cloth pads, CBD salves, magnesium lotion, sea sponges &mdash; 100% clean, zero synthetic ingredients. Your cycle, your way.</div>
-      <div class="mode-card-link">Shop natural <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-    </button>
-  </div>
-
-  <section class="teen-body-section teen-only" id="teenBodySection" aria-label="Your cycle explained">
-    <div class="teen-sec-header">
-      <div class="teen-eyebrow">No Cap &#x1F49C;</div>
-      <h2 class="teen-sec-title">Your Body, Explained.</h2>
-      <p class="teen-sec-sub">Your cycle has 4 phases every month. Here's what's actually going on &mdash; in English, not textbook.</p>
-    </div>
-    <div class="teen-phase-row" role="list">
-      <div class="teen-phase-card tpc--menstrual" role="listitem">
-        <div class="tpc-vibe">&#x1F624;</div><div class="tpc-pill">Days 1&ndash;5</div><div class="tpc-name">The Drop</div>
-        <p class="tpc-desc">Your body is doing its thing and yeah, it can feel like A LOT. Cramps, low energy, just wanting to stay in bed &mdash; all of it is normal. Rest is not lazy right now, fr.</p>
-        <div class="tpc-want">Period care &middot; Heat patches &middot; Cuddles</div>
+      <div style="background:rgba(251,191,36,0.08);border-radius:16px;padding:1rem;margin-bottom:1rem;border:1px solid rgba(251,191,36,0.2);">
+        <div style="font-size:0.78rem;font-weight:700;color:rgba(251,191,36,0.9);margin-bottom:0.5rem;">&#x1F6A7; Coming Soon</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">School profile registration is launching soon. Join our waitlist to be notified when it goes live.</div>
       </div>
-      <div class="teen-phase-card tpc--follicular" role="listitem">
-        <div class="tpc-vibe">&#x2728;</div><div class="tpc-pill">Days 6&ndash;13</div><div class="tpc-name">The Glow Up</div>
-        <p class="tpc-desc">After your period ends, your energy comes back like it never left. You might feel clearer, more creative, maybe even kind of unstoppable. Enjoy it &mdash; this is YOUR week.</p>
-        <div class="tpc-want">Skincare &middot; Wellness &middot; Supplements</div>
-      </div>
-      <div class="teen-phase-card tpc--ovulation" role="listitem">
-        <div class="tpc-vibe">&#x1F451;</div><div class="tpc-pill">Days 14&ndash;17</div><div class="tpc-name">Main Character Era</div>
-        <p class="tpc-desc">This is your peak week. Most confident, most energized, most social. Got a presentation? A hard conversation? Something scary coming up? THIS is the week to do it.</p>
-        <div class="tpc-want">Intimate care &middot; Hygiene &middot; Fresh scents</div>
-      </div>
-      <div class="teen-phase-card tpc--luteal" role="listitem">
-        <div class="tpc-vibe">&#x1F319;</div><div class="tpc-pill">Days 18&ndash;28</div><div class="tpc-name">The Wind Down</div>
-        <p class="tpc-desc">Your body starts slowing back down. PMS can creep in &mdash; mood swings, cravings, feeling more emotional. It's not you being &ldquo;dramatic.&rdquo; It's literally your hormones. Give yourself grace.</p>
-        <div class="tpc-want">Sweets &middot; Cuddles &middot; Calm roller</div>
-      </div>
-    </div>
-    <p class="teen-edu-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Everyone's cycle is different &mdash; these are general ranges. Use your tracker to learn yours.</p>
-  </section>
-
-  <section class="teen-facts-section teen-only" id="teenFactsSection" aria-label="Period facts">
-    <div class="teen-sec-header">
-      <div class="teen-eyebrow">The Tea &#x2615;</div>
-      <h2 class="teen-sec-title">Did You Know?</h2>
-    </div>
-    <div class="teen-fact-card" id="teenFactCard" aria-live="polite">
-      <div class="tfc-inner" id="teenFactInner">
-        <div class="tfc-emoji" id="teenFactEmoji">&#x1F49C;</div>
-        <p class="tfc-text" id="teenFactText">Loading...</p>
-      </div>
-    </div>
-    <div class="tfc-dots" id="tfcDots" aria-hidden="true"></div>
-    <p class="teen-facts-cta">Want more? <button class="teen-scoop-link" id="teenScoopLink">See all facts in The Tea, Period. &#x1F375; &rarr;</button></p>
-  </section>
-
-  <section class="teen-freak-section teen-only" id="teenFreakSection" aria-label="What to do when your period starts unexpectedly">
-    <div class="teen-sec-header">
-      <div class="teen-eyebrow">We Got You &#x1F49C;</div>
-      <h2 class="teen-sec-title">Period Just Started.<br>Didn't Expect It?</h2>
-      <p class="teen-sec-sub">Breathe. This is one of the most normal things that can happen. Here's exactly what to do.</p>
-    </div>
-    <ol class="freak-steps" aria-label="Steps to take">
-      <li class="freak-step"><div class="freak-num">1</div><div class="freak-content"><div class="freak-title">First &mdash; breathe.</div><p class="freak-desc">You are safe. This is normal. You are not the first person this has ever happened to, and you won't be the last. Nobody is looking at you. You've got this.</p></div></li>
-      <li class="freak-step"><div class="freak-num">2</div><div class="freak-content"><div class="freak-title">Get to the bathroom.</div><p class="freak-desc">Ask to use the restroom. You don't have to explain why. "Can I use the bathroom?" is enough.</p></div></li>
-      <li class="freak-step"><div class="freak-num">3</div><div class="freak-content"><div class="freak-title">No products? Toilet paper works.</div><p class="freak-desc">Fold a few layers and place it in your underwear. It's a temporary fix &mdash; but it WORKS. It'll hold you over until you can get what you actually need.</p></div></li>
-      <li class="freak-step"><div class="freak-num">4</div><div class="freak-content"><div class="freak-title">Ask someone.</div><p class="freak-desc">School nurse, a teacher, a friend. Most people will help you &mdash; no judgment, no questions. You'd do the same for them.</p></div></li>
-      <li class="freak-step freak-step--cta"><div class="freak-num">5</div><div class="freak-content"><div class="freak-title">Need products delivered right now?</div><p class="freak-desc">We can get it to you &mdash; wherever you are.</p><button class="freak-order-btn" id="freakOrderBtn">Order Now &mdash; Fast Delivery</button></div></li>
-    </ol>
-    <p class="teen-edu-note freak-disclaimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> General education only &mdash; not medical advice. For personal health questions, talk to a trusted adult or healthcare provider.</p>
-  </section>
-
-  <section class="cycle-edu-section adult-only" id="cycleEduSection" aria-label="Menstrual cycle phases">
-    <div class="cycle-edu-header">
-      <div class="cycle-edu-eyebrow">Know Your Cycle</div>
-      <h2 class="cycle-edu-title">Your 4 Phases, Explained.</h2>
-      <p class="cycle-edu-sub">Your body follows a rhythm every month. Understanding it makes everything feel less like a surprise.</p>
-    </div>
-    <div class="cycle-phase-row" role="list">
-      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--menstrual">Days 1&ndash;5</div><div class="phase-name">Menstrual</div><div class="phase-keyword">Release</div><p class="phase-desc">Your body is shedding. Energy is low &mdash; and that's not a flaw. Rest is productive right now, not lazy. This is where the cycle resets.</p><div class="phase-products">Period care &middot; Heat patches &middot; Cuddles</div></div>
-      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--follicular">Days 6&ndash;13</div><div class="phase-name">Follicular</div><div class="phase-keyword">Rise</div><p class="phase-desc">Estrogen climbs and so does your clarity. Energy returns, focus sharpens. A great phase for planning, creating, and tackling what felt impossible last week.</p><div class="phase-products">Wellness &middot; Supplements &middot; Skincare</div></div>
-      <div class="cycle-phase-card cycle-phase-card--peak" role="listitem"><div class="phase-pill phase-pill--ovulation">Days 14&ndash;17</div><div class="phase-name">Ovulation</div><div class="phase-keyword">Peak</div><p class="phase-desc">You're at your most confident and energized. This is the window to have hard conversations, show up boldly, and say the things you've been meaning to say.</p><div class="phase-products">Intimate care &middot; Hygiene &middot; Deodorant</div></div>
-      <div class="cycle-phase-card" role="listitem"><div class="phase-pill phase-pill--luteal">Days 18&ndash;28</div><div class="phase-name">Luteal</div><div class="phase-keyword">Wind Down</div><p class="phase-desc">Your body is preparing. PMS can show up here &mdash; mood shifts, cravings, fatigue. Honor it. It's not weakness, it's communication. Comfort your body through it.</p><div class="phase-products">Sweets &middot; Cuddles &middot; Calm roller</div></div>
-    </div>
-    <p class="cycle-edu-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Everyone's cycle is different. These are general ranges. Use your tracker to learn yours.</p>
-  </section>
-
-  <section class="voices-section adult-only" id="voicesSection" style="display:none;" aria-label="Featured educators and advocates">
-    <div class="voices-header">
-      <div class="voices-eyebrow">Community &amp; Education</div>
-      <h2 class="voices-title">Voices We Love</h2>
-      <p class="voices-sub">Real people, real education. We're building relationships with advocates and educators who speak your language.</p>
-    </div>
-    <div class="voices-row">
-      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F4A9;&#x2728;</div><div class="voice-info"><div class="voice-name">Period Educator</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">Cycle health, hormone education, and the conversations your doctor didn't have time for.</p></div><div class="voice-tag">Partnering Soon</div></div>
-      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F331;&#x2728;</div><div class="voice-info"><div class="voice-name">Holistic Wellness</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">Natural cycle care, herbal remedies, and living in sync with your body's rhythm.</p></div><div class="voice-tag">Partnering Soon</div></div>
-      <div class="voice-card"><div class="voice-avatar" aria-hidden="true">&#x1F9E0;&#x2728;</div><div class="voice-info"><div class="voice-name">Mental Health &amp; Cycle</div><div class="voice-handle">@coming.soon</div><p class="voice-bio">The connection between your hormones and your mood &mdash; destigmatized, demystified, and delivered with grace.</p></div><div class="voice-tag">Partnering Soon</div></div>
-    </div>
-    <p class="voices-suggest">Know someone we should feature? <a class="voices-suggest-link" href="/cdn-cgi/l/email-protection#f0838580809f8284b0809582999f9494959c9986958283de939f9dcf8385929a959384cdb3829591849f82d0b6959184858295d0a3859797958384999f9e">Tell us</a></p>
-  </section>
-
-  <!-- THE CHANGE, SIS — DRAMATIC VISUAL MAKEOVER -->
-  <section class="change-sis-section adult-only" id="changeSisSection" aria-label="Perimenopause and menopause education" style="background:linear-gradient(135deg,rgba(120,20,60,0.18),rgba(180,100,40,0.10),rgba(120,20,80,0.15));border:1.5px solid rgba(200,120,80,0.25);border-radius:24px;margin:1rem;padding:1.5rem 1rem;box-shadow:0 0 40px rgba(180,60,100,0.12),inset 0 0 60px rgba(120,20,60,0.06);">
-    <div class="change-sis-header">
-      <div style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,#8B1A4A,#C47A2A);border-radius:999px;padding:0.3rem 1rem;margin-bottom:0.75rem;">
-        <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#FFE4C4;text-transform:uppercase;">For You, Sis &#x1F49C;</span>
-      </div>
-      <div class="change-sis-eyebrow" style="color:rgba(255,200,160,0.7);">For Every Stage of You</div>
-      <h2 class="change-sis-title" style="background:linear-gradient(135deg,#FFB3C6,#FFD700,#E8A0BF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:clamp(1.8rem,6vw,2.5rem);">The Change, Sis &#x1F49C;</h2>
-      <p class="change-sis-sub" style="color:rgba(255,220,200,0.85);font-size:1rem;line-height:1.7;border-left:3px solid rgba(200,120,80,0.5);padding-left:1rem;margin-top:0.5rem;">Nobody warned us. Nobody taught us. That ends here. If something feels off &mdash; your moods, your sleep, your mind &mdash; you're not losing it. You're shifting.</p>
-    </div>
-    <!-- Shop CTA — moved higher -->
-    <button class="change-sis-shop-btn" onclick="openShopForStage()" aria-label="Shop wellness products for perimenopause and menopause" style="margin:1rem auto 1.25rem;display:block;background:linear-gradient(135deg,#8B1A4A,#C47A2A);border:none;color:#FFE4C4;font-weight:700;padding:0.9rem 2rem;border-radius:999px;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,26,74,0.4);">
-      Shop for This Stage &nbsp;&#x1F6D2;
-    </button>
-    <div class="change-sis-row" role="list">
-      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F9E0;</div><div class="change-pill change-pill--mind">MENTAL HEALTH</div><div class="change-card-title">It's Not Just "In Your Head"</div><p class="change-card-body">Anxiety you can't explain. Sudden depression. Crying out of nowhere. Raging one minute, empty the next. This is real, and it has a name.</p><ul class="change-card-list"><li>Mood swings &amp; irritability</li><li>Anxiety &amp; panic attacks</li><li>Depression &amp; low mood</li><li>Brain fog &amp; forgetfulness</li><li>Feeling unlike yourself</li><li>Sleep issues &rarr; mental exhaustion</li></ul></div>
-      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F525;</div><div class="change-pill change-pill--body">PHYSICAL CHANGES</div><div class="change-card-title">What Nobody Told You to Expect</div><p class="change-card-body">Hot flashes at 3am. Periods that show up whenever they feel like it. A body that suddenly feels unfamiliar. You're not falling apart &mdash; you're in transition.</p><ul class="change-card-list"><li>Hot flashes &amp; night sweats</li><li>Irregular or skipped periods</li><li>Sleep disruptions</li><li>Weight &amp; metabolism changes</li><li>Joint pain &amp; fatigue</li><li>Heart palpitations</li></ul></div>
-      <div class="change-card" role="listitem"><div class="change-card-icon" aria-hidden="true">&#x1F4C5;</div><div class="change-pill change-pill--stages">KNOW YOUR PHASE</div><div class="change-card-title">Know Where You Are</div><p class="change-card-body">This isn't one moment &mdash; it's a journey. And it can start earlier than you think, even in your mid-30s.</p><div class="change-stage"><span class="change-stage-label">Perimenopause</span><span class="change-stage-desc">The lead-up. Hormones fluctuating, cycles changing. Can last 4&ndash;10 years.</span></div><div class="change-stage"><span class="change-stage-label">Menopause</span><span class="change-stage-desc">12 months with no period. Usually between ages 45&ndash;55.</span></div><div class="change-stage"><span class="change-stage-label">Postmenopause</span><span class="change-stage-desc">Life after. Symptoms ease for most. This chapter is yours.</span></div></div>
-    </div>
-    <div class="change-sis-note">
-      <span class="change-sis-note-icon" aria-hidden="true">&#x1F49C;</span>
-      <p class="change-sis-note-text">Whether you're in a shelter, a hospital, a prison, or your own home &mdash; this information belongs to you. Your body deserves to be understood. <strong>You deserve to be understood.</strong></p>
-    </div>
-  </section>
-
-
-
-  <section class="how-section" aria-label="How it works">
-    <h2 class="how-title" id="howTitle">How It Works</h2>
-    <div class="how-steps">
-      <div class="how-step how-step--gold"><div class="how-step-num">1</div><div class="how-step-text"><div class="how-step-name" id="step1Name">Browse &amp; Add to Cart</div><div class="how-step-desc" id="step1Desc">Shop our full product catalog &mdash; period care, intimate wellness, skincare, hygiene &amp; more.</div></div></div>
-      <div class="how-step how-step--gold"><div class="how-step-num">2</div><div class="how-step-text"><div class="how-step-name" id="step2Name">Place Your Order</div><div class="how-step-desc" id="step2Desc">We connect with our supplier partners to arrange delivery directly to you. Launching soon &mdash; join the waitlist to be first!</div></div></div>
-      <div class="how-step how-step--gold"><div class="how-step-num">3</div><div class="how-step-text"><div class="how-step-name" id="step3Name">Delivered to Your Door</div><div class="how-step-desc" id="step3Desc">Standard orders arrive in 1&ndash;3 days. Emergency orders in under 30 min. Care Packages on your chosen date every month.</div></div></div>
-    </div>
-  </section>
-
-  <section class="impact-section" id="impactSection" aria-label="Community impact">
-    <div class="impact-inner">
-      <div class="impact-eyebrow">&#x1F49C; Together We Give Back</div>
-      <h2 class="impact-heading">Fighting Period Poverty,<br>One Order at a Time.</h2>
-      <div class="impact-counters">
-        <div class="impact-stat"><div class="impact-num" id="impactKits">0</div><div class="impact-lbl">Kits Donated<br>to Local Schools</div></div>
-        <div class="impact-vline" aria-hidden="true"></div>
-        <div class="impact-stat"><div class="impact-num" id="impactStudents">0</div><div class="impact-lbl">Students<br>Supported</div></div>
-        <div class="impact-vline" aria-hidden="true"></div>
-        <div class="impact-stat"><div class="impact-num" id="impactRoundup">$0</div><div class="impact-lbl">Rounded Up<br>for Period Orgs</div></div>
-      </div>
-      <p class="impact-sub">Partners: <a class="impact-link" href="https://period.org" target="_blank" rel="noopener">Period.org</a> &amp; <a class="impact-link" href="https://www.daysforgirls.org" target="_blank" rel="noopener">Days for Girls</a> &amp; Cleveland City Schools</p>
-      <button class="impact-cta-btn" id="impactDonateBtn">Donate a Kit &mdash; $14.99 &rarr;</button>
-    </div>
-  </section>
-
-  <section class="nl-home-cta" id="nlHomeCta" aria-label="Newsletter and tracker">
-    <div class="nl-home-inner">
-      <div class="nl-home-text">
-        <div class="nl-home-eyebrow" id="nlHomeEyebrow">Free &middot; Tailored &middot; Monthly</div>
-        <h3 class="nl-home-h3" id="nlHomeH3">know your cycle.<br>own your health.</h3>
-        <p class="nl-home-sub" id="nlHomeSub">Monthly education on how your cycle affects your body, mind, and mood &mdash; plus a free period tracker.</p>
-        <ul class="nl-home-perks">
-          <li><span>&#x1F4CA;</span> Free period tracker &mdash; unlocked instantly</li>
-          <li><span id="nlPerk1">&#x1F9E0;</span> <span id="nlPerk1Text">Monthly cycle facts (physical &middot; mental &middot; emotional)</span></li>
-          <li><span>&#x1F525;</span> Trending finds + what's working right now</li>
-        </ul>
-      </div>
-      <button class="nl-home-btn" id="openNewsletterBtn" aria-label="Subscribe to free newsletter">
-        Subscribe Free <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <input type="email" id="schoolWaitlistEmail" placeholder="School email address" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;outline:none;margin-bottom:0.75rem;box-sizing:border-box;color:var(--text-primary);"/>
+      <input type="text" id="schoolName" placeholder="School name" style="width:100%;height:44px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;outline:none;margin-bottom:0.75rem;box-sizing:border-box;color:var(--text-primary);"/>
+      <button id="schoolWaitlistBtn" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#FBB024,#EC4899);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">
+        Join School Waitlist &#x2728;
       </button>
-    </div>
-  </section>
+      <button id="closeSchoolProfile" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Close</button>
+    </div>`;
 
-  <div class="home-footer">
-    <div class="trust-strip" id="trustStrip" role="list" aria-label="Store highlights">
-      <div class="trust-badge" role="listitem">&#x1F512; Secure &amp; Discreet</div>
-      <div class="trust-badge" role="listitem">&#x26A1; Urgent Under 30 Min</div>
-      <div class="trust-badge" role="listitem">&#x1F33F; Natural Products</div>
-      <div class="trust-badge" role="listitem">&#x21A9;&#xFE0F; Easy Returns</div>
-      <div class="trust-badge" role="listitem">&#x1F451; Supplier Direct</div>
-    </div>
-    <button class="tracker-access-btn" id="trackerAccessBtn" aria-label="My period tracker">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span id="trackerBtnText">my tracker</span>
-      <span class="tlock" id="trackerLock" aria-hidden="true">&#x1F512;</span>
-    </button>
-    <div class="backup-contact-line">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.12.96.36 1.9.71 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.55-.55a2 2 0 012.11-.45c.9.35 1.85.59 2.81.71A2 2 0 0122 14.92z"/></svg>
-      For <strong>urgent orders only</strong> &mdash; if the app is down, text or call <a href="tel:+12162501993" class="backup-tel" id="backupPhone">(216) 250-1993</a>
-    </div>
-    <div class="legal-footer-links">
-      <button class="legal-link" id="openPrivacy">Privacy Policy</button>
-      <span class="legal-dot" aria-hidden="true">&middot;</span>
-      <button class="legal-link" id="openTerms">Terms of Service</button>
-      <span class="legal-dot" aria-hidden="true">&middot;</span>
-      <span class="legal-copy">&copy; 2026 Period. LLC &mdash; Cleveland, OH</span>
-    </div>
-  </div>
-</div>
+  document.body.appendChild(overlay);
 
-<div class="view" id="cycleScoopView" aria-label="The Tea, Period.">
-  <div class="scoop-header">
-    <button class="back-btn" id="cycleScoopBack" aria-label="Go back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-    <div class="scoop-title-wrap"><h1 class="scoop-title">The Tea, Period. &#x1F375;</h1><p class="scoop-sub">Facts, answers, and everything they forgot to teach you.</p></div>
-  </div>
-  <div class="scoop-tabs" role="tablist" aria-label="The Tea, Period. sections">
-    <button class="scoop-tab active" id="tabFacts" role="tab" aria-selected="true" data-scoop-tab="facts">Period Facts</button>
-    <button class="scoop-tab" id="tabFaq" role="tab" aria-selected="false" data-scoop-tab="faq">Got Questions?</button>
-    <button class="scoop-tab" id="tabAthletic" role="tab" aria-selected="false" data-scoop-tab="athletic">Active &amp; Athletic &#x1F3C3;&#x200D;&#x2640;&#xFE0F;</button>
-  </div>
-  <div class="scoop-panel" id="scoopFactsPanel" role="tabpanel" aria-labelledby="tabFacts">
-    <p class="scoop-panel-note">New facts added regularly. Tap any card to save it.</p>
-    <div class="scoop-facts-grid" id="scoopFactsGrid" aria-label="Period facts"></div>
-  </div>
-  <div class="scoop-panel" id="scoopAthleticPanel" role="tabpanel" aria-labelledby="tabAthletic" style="display:none">
-    <div id="scoopAthleticContent"></div>
-  </div>
-  <div class="scoop-panel" id="scoopFaqPanel" role="tabpanel" aria-labelledby="tabFaq" style="display:none">
-    <p class="scoop-panel-note">Real questions. Honest answers. No judgment.</p>
-    <div class="faq-list" id="faqList" aria-label="Frequently asked questions"></div>
-    <p class="teen-edu-note" style="margin-top:1.5rem"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> General education only &mdash; not medical advice.</p>
-  </div>
-</div>
+  document.getElementById('schoolWaitlistBtn').addEventListener('click', function() {
+    const email = document.getElementById('schoolWaitlistEmail').value.trim();
+    const school = document.getElementById('schoolName').value.trim();
+    if (!email || !school) { showToast('Please fill in both fields'); return; }
+    if (_firebaseFs) {
+      _firebaseFs.collection('school_waitlist').add({
+        email: email,
+        school_name: school,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(e) { console.warn('School waitlist save failed:', e); });
+    }
+    showToast('School registered for waitlist! We will be in touch. &#x1F3EB;');
+    overlay.remove();
+  });
 
-<div class="view" id="shopView">
-  <nav class="back-bar" aria-label="Navigation">
-    <button class="back-btn" id="shopBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
-    <div class="back-bar-title">Order Now</div>
-    <div class="back-bar-spacer"></div>
-  </nav>
-  <div class="delivery-banner" role="status" aria-label="Delivery information">
-    <div class="delivery-info">
-      <div class="delivery-icon" aria-hidden="true">&#x1F6F5;</div>
-      <div><div class="delivery-label">On-Demand Delivery</div><div class="delivery-time">1&ndash;3 day delivery</div><div class="delivery-fee">$4.99 delivery &middot; Free over $35</div></div>
-    </div>
-    <button class="address-pill" id="addressPill" aria-label="Set delivery address">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Set address
-    </button>
-  </div>
-  <div class="search-bar" role="search">
-    <div class="search-input-wrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="search-input" id="searchInput" type="search" placeholder="Search products&hellip;" aria-label="Search products" autocomplete="off"/>
-    </div>
-  </div>
-  <div id="emergencyShop" style="display:none" aria-label="Emergency order">
-    <div class="emg-calm"><span class="emg-calm-icon">&#x1FAF2;</span><div><div class="emg-calm-title">Take a breath. We've got you.</div><div class="emg-calm-sub">Your order can be here in under 30 minutes.</div></div></div>
-    <button class="emg-kit-btn" id="emergencyKitBtn" aria-label="Add Emergency Kit to cart and checkout">
-      <div class="emg-kit-left"><span class="emg-kit-emoji">&#x1F6A8;</span><div class="emg-kit-text"><div class="emg-kit-title">Emergency Kit &mdash; One Tap</div><div class="emg-kit-sub">Pads &middot; Liners &middot; Wipes &middot; Everything you need &middot; 30 min or less</div></div></div>
-      <div class="emg-kit-right"><div class="emg-kit-price">$14.99</div><div class="emg-kit-cta">Add &amp; Go &rarr;</div></div>
-    </button>
-    <p class="emg-also-label">Need anything else?</p>
-    <div class="emg-items" id="emergencyItems"></div>
-  </div>
-  <div class="category-grid" id="categoryGrid" role="list" aria-label="Browse categories"></div>
-  <div class="shop-breadcrumb" id="shopBreadcrumb" style="display:none">
-    <button class="shop-back-cat-btn" id="shopBackCat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> All Categories</button>
-    <span class="shop-bc-title" id="shopBcTitle"></span>
-  </div>
-  <nav class="filter-bar" id="filterBar" aria-label="Product categories" style="display:none">
-    <div class="filter-pills" id="filterPills" role="list"></div>
-  </nav>
-  <div class="section-header" id="sectionHeader" style="display:none">
-    <h2 class="section-title" id="sectionTitle">Products</h2>
-    <span class="section-count" id="productCount" aria-live="polite"></span>
-  </div>
-  <div class="product-grid" id="productGrid" role="list" aria-label="Products" style="display:none"></div>
-</div>
+  document.getElementById('closeSchoolProfile').addEventListener('click', () => overlay.remove());
+}
 
-<div class="view" id="subscribeView">
-  <nav class="back-bar" aria-label="Navigation">
-    <button class="back-btn" id="subscribeBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
-    <div class="back-bar-title">Care Package</div>
-    <div class="back-bar-spacer"></div>
-  </nav>
-  <div class="subscribe-hero">
-    <div class="subscribe-eyebrow" id="subEyebrow">Monthly Subscription</div>
-    <h1 class="subscribe-title" id="subTitle">Your personal<br><span>care package.</span></h1>
-    <p class="subscribe-sub" id="subSub">Pick a plan, choose what goes inside, and receive it every month &mdash; on your schedule.</p>
-  </div>
-  <div class="plans-section">
-    <div class="plans-label" id="plansLabel">Step 1 &mdash; Choose Your Plan</div>
-    <div class="plan-cards" id="planCards" role="radiogroup" aria-label="Choose a plan">
-      <div class="plan-card" data-plan="starter" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-top"><div><div class="plan-name">Starter</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Pick any 3 items</div></div><div class="plan-price-wrap"><div class="plan-price">$19.99</div><div class="plan-per">/ month</div></div></div>
-        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 3 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Monthly delivery</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Swap items anytime</div></div>
-      </div>
-      <div class="plan-card gold-plan" data-plan="essential" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-popular">Most Popular &#x1F451;</div>
-        <div class="plan-top"><div><div class="plan-name">Essential</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Pick any 6 items</div></div><div class="plan-price-wrap"><div class="plan-price">$34.99</div><div class="plan-per">/ month</div></div></div>
-        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 6 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Priority delivery</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Free delivery every month</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Swap items anytime</div></div>
-      </div>
-      <div class="plan-card" data-plan="royal" role="radio" aria-checked="false" tabindex="0">
-        <div class="plan-top"><div><div class="plan-name">Royal</div><div class="plan-slot-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Pick any 9 items</div></div><div class="plan-price-wrap"><div class="plan-price">$54.99</div><div class="plan-per">/ month</div></div></div>
-        <div class="plan-features"><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> 9 items of your choice</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Same-day priority dispatch</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Free delivery always</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Early access to new products</div><div class="plan-feature"><div class="plan-feature-check">&#x2713;</div> Dedicated customer support</div></div>
-      </div>
-    </div>
-  </div>
-  <div class="picker-section" id="pickerSection" style="display:none">
-    <div class="picker-header"><h2 class="picker-title" id="pickerTitle">Step 2 &mdash; Build Your Box</h2><div class="picker-slots" id="pickerSlots">0 / 0 selected</div></div>
-    <div id="smartSuggestions" style="display:none" aria-live="polite">
-      <div class="smart-suggest-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Based on what you love</div>
-      <div class="smart-suggest-row" id="smartSuggestRow"></div>
-    </div>
-    <div class="picker-filter-bar" id="pickerFilterBar" role="group" aria-label="Filter by category"></div>
-    <p class="picker-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Tap a product to add it to your box. Selections can be changed anytime before subscribing.</p>
-    <div class="picker-grid" id="pickerGrid" role="list" aria-label="Choose products for your box"></div>
-  </div>
-  <div class="subscribe-cta-bar" id="subscribeCta" style="display:none">
-    <div class="subscribe-summary"><div class="subscribe-summary-text" id="subscribeSummaryText">Select a plan to get started</div><div class="subscribe-summary-price" id="subscribeSummaryPrice"></div></div>
-    <button class="subscribe-btn" id="subscribeBtn" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Subscribe &mdash; <span id="subscribeBtnPrice"></span>/mo</button>
-  </div>
-</div>
+/* =============================================
+   STARTER EXPERIENCE — 9-12 LOCKDOWN MODE
+   ============================================= */
 
-<div class="overlay" id="modalOverlay" role="presentation" aria-hidden="true"></div>
-<div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="overflow-y:auto;max-height:90vh;">
-  <div class="modal-drag-handle" aria-hidden="true"></div>
-  <div class="modal-hero" id="modalHero">
-    <span id="modalHeroEmoji" aria-hidden="true" style="font-size:5rem"></span>
-    <button class="modal-close" id="modalClose" aria-label="Close product"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div class="modal-body">
-    <div class="modal-cat-tag" id="modalCatTag"></div>
-    <h2 class="modal-title" id="modalTitle"></h2>
-    <p class="modal-sub" id="modalSub"></p>
-    <p class="modal-desc" id="modalDesc"></p>
-    <div class="modal-features" id="modalFeatures"></div>
-    <div class="modal-footer">
-      <div><div class="modal-price" id="modalPrice"></div><div class="modal-price-sub">Free shipping over $35</div></div>
-      <button class="modal-add-btn" id="modalAddBtn"></button>
-    </div>
-  </div>
-</div>
+function initStarterExperience() {
+  // Check if preview mode is active (for developer testing)
+  if (!STARTER_PREVIEW_MODE) {
+    // Show trusted adult gate first
+    showTrustedAdultGate(function() {
+      _runStarterExperience();
+    });
+    return;
+  }
+  _runStarterExperience();
+}
 
-<div class="cart-overlay" id="cartOverlay" role="presentation" aria-hidden="true"></div>
-<aside class="cart-sidebar" id="cartSidebar" role="dialog" aria-modal="true" aria-label="Shopping cart">
-  <div class="cart-header">
-    <h2 class="cart-title">Your Cart</h2>
-    <button class="icon-btn" id="cartClose" aria-label="Close cart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div class="cart-body" id="cartBody"></div>
-  <div class="cart-footer">
-    <div class="cart-delivery-row"><span>&#x1F6F5;</span> Estimated delivery: <strong>1&ndash;3 days</strong> &middot; Urgent orders under 30 min</div>
-    <div class="promo-row" id="promoRow">
-      <div class="promo-input-wrap" id="promoInputWrap">
-        <input type="text" id="promoInput" class="promo-input" placeholder="Promo code" autocomplete="off" autocapitalize="characters" maxlength="20" aria-label="Enter promo code">
-        <button class="promo-apply-btn" id="promoApplyBtn">Apply</button>
-      </div>
-      <div class="promo-applied-row" id="promoAppliedRow" style="display:none" aria-live="polite">
-        <span class="promo-tag-icon">&#x1F3F7;&#xFE0F;</span>
-        <span class="promo-applied-label" id="promoAppliedLabel"></span>
-        <button class="promo-remove-btn" id="promoRemoveBtn" aria-label="Remove promo code">&#x2715;</button>
+function _runStarterExperience() {
+  // Hide all nav items not appropriate for 9-12
+  const hideIds = [
+    'navCommunity', 'heroCommBar', 'heroWhyBtn',
+    'cardCarePackage', 'cardHolistic', 'heroNewsletterBtn',
+    'impactStrip', 'impactSection', 'featureSpotlight',
+    'nlHomeCta', 'voicesSection', 'cycleEduSection',
+    'changeSisSection', 'teenBodySection', 'teenFactsSection',
+    'teenFreakSection'
+  ];
+  hideIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Apply soft yellow/pink background to home view
+  var homeView = document.getElementById('homeView');
+  if (homeView) {
+    homeView.style.background = 'linear-gradient(160deg,rgba(251,191,36,0.08) 0%,rgba(236,72,153,0.06) 50%,rgba(168,85,247,0.05) 100%)';
+    homeView.style.minHeight = '100vh';
+  }
+
+  // Apply to version picker too
+  var pickerEl = document.getElementById('versionPicker');
+  if (pickerEl) {
+    pickerEl.style.background = 'linear-gradient(160deg,rgba(251,191,36,0.15),rgba(236,72,153,0.10),rgba(168,85,247,0.08))';
+  }
+
+  // Show starter section
+  var starterSection = document.getElementById('starterSection');
+  if (starterSection) starterSection.style.display = '';
+
+  // Show the nurse/school profile card
+  showSchoolNurseCard();
+
+  // In preview mode, add a visible "Switch Experience" button for developer testing
+  if (STARTER_PREVIEW_MODE) {
+    var existing = document.getElementById('starterPreviewExitBtn');
+    if (!existing) {
+      var exitBtn = document.createElement('button');
+      exitBtn.id = 'starterPreviewExitBtn';
+      exitBtn.style.cssText = 'position:fixed;bottom:5rem;right:1rem;z-index:9000;background:#7C3AED;color:white;border:none;border-radius:999px;padding:0.6rem 1rem;font-size:0.78rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+      exitBtn.innerHTML = '&#x1F500; Switch Experience';
+      exitBtn.addEventListener('click', function() {
+        // Restore hidden elements before switching
+        restoreFromStarterMode();
+        showVersionPicker();
+      });
+      document.body.appendChild(exitBtn);
+    }
+  }
+}
+
+function restoreFromStarterMode() {
+  // Restore all elements hidden by starter mode
+  var restoreIds = [
+    'navCommunity', 'heroCommBar', 'heroWhyBtn',
+    'cardCarePackage', 'cardHolistic', 'heroNewsletterBtn',
+    'impactStrip', 'impactSection', 'featureSpotlight',
+    'nlHomeCta', 'voicesSection', 'cycleEduSection',
+    'changeSisSection', 'teenBodySection', 'teenFactsSection',
+    'teenFreakSection'
+  ];
+  restoreIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
+  // Restore home background
+  var homeView = document.getElementById('homeView');
+  if (homeView) {
+    homeView.style.background = '';
+    homeView.style.minHeight = '';
+  }
+  // Reset picker background
+  var pickerEl = document.getElementById('versionPicker');
+  if (pickerEl) pickerEl.style.background = '';
+  // Hide starter section
+  var starterSection = document.getElementById('starterSection');
+  if (starterSection) starterSection.style.display = 'none';
+  // Remove nurse card
+  var nurseCard = document.getElementById('nurseProfileCard');
+  if (nurseCard) nurseCard.remove();
+  // Remove preview exit button
+  var exitBtn = document.getElementById('starterPreviewExitBtn');
+  if (exitBtn) exitBtn.remove();
+}
+
+function showSchoolNurseCard() {
+  const existing = document.getElementById('nurseProfileCard');
+  if (existing) return;
+
+  const card = document.createElement('div');
+  card.id = 'nurseProfileCard';
+  card.style.cssText = 'margin:0 1rem 1rem;padding:1.25rem;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(236,72,153,0.08));border:1.5px solid rgba(251,191,36,0.3);border-radius:20px;';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+      <span style="font-size:1.5rem;">&#x1F3EB;</span>
+      <div>
+        <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">Need help at school?</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">Your school nurse can order for you</div>
       </div>
     </div>
-    <div class="price-breakdown">
-      <div class="price-row"><span class="price-row-label">Subtotal &middot; <span id="cartItemCount">0 items</span></span><span class="price-row-val" id="breakdownSubtotal">$0.00</span></div>
-      <div class="price-row" id="breakdownDeliveryRow"><span class="price-row-label">Delivery &#x1F6F5;</span><span class="price-row-val" id="breakdownDelivery">$4.99</span></div>
-      <div class="price-row price-row--discount" id="breakdownDiscountRow" style="display:none"><span class="price-row-label" id="breakdownDiscountLabel">Discount</span><span class="price-row-val price-row-val--discount" id="breakdownDiscount">&minus;$0.00</span></div>
-      <div class="price-row price-row--total"><span class="price-row-label">Total</span><span class="price-row-val price-row-val--total" id="cartTotal">$0.00</span></div>
+    <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:0.875rem;">
+      If you are at school and need supplies, your school nurse can place an order on your behalf. No need to feel embarrassed &mdash; they are there to help! &#x1F49C;
+    </p>
+    <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:0.75rem;border:1px solid rgba(251,191,36,0.2);margin-bottom:0.75rem;">
+      <div style="font-size:0.78rem;font-weight:700;color:rgba(251,191,36,0.9);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">&#x1F6A7; Coming Soon</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">School nurse profiles &mdash; where your school nurse can have a verified account to order on your behalf and track deliveries. We are working on this! &#x2728;</div>
     </div>
-    <div class="give-back-section" id="giveBackSection">
-      <div class="give-back-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="#A855F7" stroke="none"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="give-back-title">Give Back</span></div>
-      <label class="give-back-row" for="roundUpToggle"><div class="give-back-row-info"><span class="give-back-row-label">Round up for period poverty</span><span class="give-back-row-sub" id="roundUpAmt">+$0.01</span></div><div class="give-back-toggle-wrap"><input type="checkbox" id="roundUpToggle" class="give-back-chk"><span class="give-back-pill"></span></div></label>
-      <label class="give-back-row" for="donateKitToggle"><div class="give-back-row-info"><span class="give-back-row-label">Donate a kit to a Cleveland school</span><span class="give-back-row-sub">+$14.99</span></div><div class="give-back-toggle-wrap"><input type="checkbox" id="donateKitToggle" class="give-back-chk"><span class="give-back-pill"></span></div></label>
-    </div>
-    <div class="express-checkout">
-      <button class="pay-btn apple-pay-btn" id="applePayBtn" aria-label="Pay with Apple Pay">
-        <svg viewBox="0 0 38 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.234 2.235c-.4.474-1.04.847-1.68.795-.08-.64.234-1.32.6-1.74.4-.487 1.1-.833 1.667-.86.066.666-.194 1.32-.587 1.805zm.58.92c-.927-.053-1.72.527-2.16.527-.447 0-1.12-.5-1.854-.487-.954.013-1.84.554-2.327 1.407-1 1.72-.52 3.667.534 5.134.514.74 1.087 1.527 1.834 1.514.72-.014 1-.467 1.874-.467.867 0 1.12.467 1.88.453.774-.013 1.267-.773 1.774-1.52.547-.853.773-1.68.787-1.72-.02-.014-1.507-.587-1.52-2.32-.014-1.454 1.187-2.147 1.24-2.187-.68-1-1.72-1.107-2.087-1.12-.947-.067-1.747.527-2.24.527z"/><path d="M17.5 1.18h-1.834l-.013 9.587h1.193V7.421h1.654c1.513 0 2.573-1.04 2.573-2.627 0-1.587-1.04-2.613-2.573-2.613zm.3 4.12h-1.374V2.261h1.374c1.013 0 1.587.547 1.587 1.52 0 .974-.574 1.52-1.587 1.52zM23.867 10.848c.747 0 1.44-.38 1.754-.98h.026v.92h1.1V6.54c0-1.107-.886-1.82-2.247-1.82-1.267 0-2.2.72-2.234 1.707h1.074c.093-.467.52-.774 1.12-.774.72 0 1.12.334 1.12.947v.414l-1.467.087c-1.36.08-2.094.64-2.094 1.607 0 .974.76 1.64 1.847 1.64zm.32-.88c-.627 0-1.027-.3-1.027-.76 0-.474.387-.747 1.127-.794l1.307-.08v.42c0 .714-.627 1.214-1.407 1.214zM27.867 13.474c1.167 0 1.714-.447 2.194-1.8l2.1-5.9h-1.207l-1.407 4.567h-.027l-1.407-4.567H26.9l2.034 5.627-.114.354c-.187.594-.487.82-1.027.82-.1 0-.287-.013-.367-.026v.94c.08.013.327.027.44.027z"/></svg>
-        Apple Pay
+    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      <button onclick="showNurseContactInfo()" style="width:100%;padding:0.75rem;background:linear-gradient(135deg,rgba(251,191,36,0.8),rgba(236,72,153,0.7));color:white;border:none;border-radius:999px;font-size:0.85rem;font-weight:700;cursor:pointer;">
+        &#x1F4DE; Tell My Nurse About Period.
       </button>
-      <button class="pay-btn google-pay-btn" id="googlePayBtn" aria-label="Pay with Google Pay">
-        <svg viewBox="0 0 41 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.526 8.3v2.9h-.92V4.4h2.44c.62 0 1.14.2 1.56.6.43.4.64.89.64 1.46 0 .58-.21 1.07-.64 1.47-.42.39-.94.59-1.56.59h-1.52zm0-.77h1.52c.36 0 .66-.12.9-.36.24-.24.36-.54.36-.9 0-.35-.12-.65-.36-.88-.24-.24-.54-.36-.9-.36h-1.52v2.5zM24.507 6.4c.67 0 1.2.18 1.59.54.39.36.58.85.58 1.47v2.99h-.88v-.67h-.04c-.37.55-.87.82-1.48.82-.53 0-.97-.16-1.33-.47-.36-.31-.54-.7-.54-1.17 0-.5.19-.89.56-1.18.37-.29.87-.44 1.48-.44.52 0 .95.1 1.29.29v-.2c0-.31-.12-.57-.37-.79-.25-.22-.54-.32-.88-.32-.5 0-.9.21-1.19.63l-.81-.51c.44-.63 1.1-.95 1.96-.95zm-1.18 3.52c0 .23.1.43.3.58.2.15.43.23.69.23.38 0 .71-.14.99-.42.28-.28.42-.61.42-.98-.26-.21-.63-.31-1.09-.31-.34 0-.62.08-.85.25-.23.17-.46.39-.46.65zM30.987 6.55l-3.07 7.06h-.92l1.14-2.47-2.02-4.59h.97l1.45 3.51h.02l1.41-3.51h.02z" fill="#3C4043"/><path d="M14.8 8.05c0-.27-.02-.53-.07-.77H9.78v1.46h2.82c-.12.65-.49 1.2-1.04 1.57v1.3h1.68c.98-.9 1.55-2.23 1.55-3.56z" fill="#4285F4"/><path d="M9.78 12.7c1.41 0 2.6-.47 3.46-1.27l-1.68-1.3c-.47.31-1.07.5-1.78.5-1.37 0-2.53-.93-2.95-2.17H5.09v1.34C5.95 11.7 7.75 12.7 9.78 12.7z" fill="#34A853"/><path d="M6.83 8.46c-.1-.31-.16-.64-.16-.98 0-.34.06-.67.16-.98V5.16H5.09A4.83 4.83 0 004.57 7.48c0 .78.18 1.52.52 2.17l1.74-1.19z" fill="#FBBC05"/><path d="M9.78 5.33c.77 0 1.46.26 2 .78l1.5-1.5C12.37 3.73 11.18 3.26 9.78 3.26c-2.03 0-3.83 1-4.69 2.47l1.74 1.35c.42-1.25 1.58-1.75 2.95-1.75z" fill="#EA4335"/></svg>
-        Google Pay
+      <button onclick="showSchoolProfileSetup()" style="width:100%;padding:0.75rem;background:var(--surface-2);border:1.5px solid rgba(251,191,36,0.3);border-radius:999px;color:var(--text-primary);font-size:0.82rem;font-weight:600;cursor:pointer;">
+        &#x1F3EB; Register My School
       </button>
-    </div>
-    <div class="pay-divider"><span>or</span></div>
-    <button class="checkout-btn" id="checkoutBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Place Order</button>
-    <div class="stripe-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Secured by Stripe</div>
-  </div>
-</aside>
+    </div>`;
 
-<div class="success-modal" id="orderSuccess" role="dialog" aria-modal="true" aria-label="Order placed">
-  <div class="success-card">
-    <div class="success-icon">&#x2705;</div>
-    <div class="success-eta">&#x1F6F5; Arriving in 30&ndash;45 minutes</div>
-    <div class="success-title">Order Placed!</div>
-    <p class="success-sub">Your order is being picked up from our supplier partner and is on its way to you. Sit tight!</p>
-    <button class="success-btn" id="orderSuccessClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Back to Home</button>
-    <div class="review-prompt" id="reviewPrompt">
-      <div class="review-prompt-divider"></div>
-      <p class="review-prompt-q">How are you feeling about us?</p>
-      <div class="review-emoji-row" id="reviewEmojiRow">
-        <button class="review-emoji-btn" data-emoji="&#x1F60D;" data-label="Love it!" aria-label="Love it">&#x1F60D;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F60A;" data-label="Good" aria-label="Good">&#x1F60A;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F610;" data-label="Okay" aria-label="Okay">&#x1F610;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F615;" data-label="Meh" aria-label="Meh">&#x1F615;</button>
-        <button class="review-emoji-btn" data-emoji="&#x1F44E;" data-label="Not great" aria-label="Not great">&#x1F44E;</button>
+  // Insert after starter educational section
+  const starterSection = document.getElementById('starterSection');
+  if (starterSection) {
+    starterSection.insertAdjacentElement('afterend', card);
+  }
+}
+
+function showNurseContactInfo() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">Tell Your School Nurse!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+        Show your nurse this screen or have them visit <strong style="color:var(--text-primary);">perioddelivers.com</strong> &mdash; they can order supplies for you and the whole school!
+      </p>
+      <div style="background:rgba(251,191,36,0.1);border-radius:12px;padding:0.875rem;margin-bottom:1rem;border:1px solid rgba(251,191,36,0.2);">
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;">School supply orders &amp; inquiries:</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">perioddelivers.com</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">&#x1F4DE; (216) 250-1993</div>
       </div>
-      <div class="review-text-box" id="reviewTextBox" style="display:none" aria-live="polite">
-        <label class="review-text-label" for="reviewTextInput">Tell us more <span class="review-optional">(optional)</span></label>
-        <textarea id="reviewTextInput" class="review-textarea" rows="3" maxlength="400" placeholder="What did you love? What could be better?" aria-label="Write your feedback (optional)"></textarea>
-        <div class="review-text-actions"><button class="review-submit-btn" id="reviewSubmitBtn">Submit</button><button class="review-skip-btn" id="reviewSkipBtn">Skip</button></div>
+      <button id="closeNurseInfo" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,rgba(251,191,36,0.8),rgba(236,72,153,0.7));color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Got it! &#x1F338;</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('closeNurseInfo').addEventListener('click', () => overlay.remove());
+}
+
+/* =============================================
+   PERIOD HYGIENE EDUCATION — PER EXPERIENCE
+   ============================================= */
+
+const HYGIENE_CONTENT = {
+  starter: {
+    title: 'Keeping Clean &#x1F6BF; (Super Important!)',
+    intro: 'Okay real talk &mdash; periods can create a smell. That is 100% normal and happens to EVERYONE. But here is how to stay fresh and feel confident! No more awkward moments. We got you! &#x2728;',
+    steps: [
+      { icon:'&#x23F0;', title:'Change your pad every 3-4 hours', body:'Even if it does not look super full! Leaving it too long = smell. Set an alarm on your phone if you need to. Your future self will thank you.' },
+      { icon:'&#x1F6BF;', title:'Wipe front to back ALWAYS', body:'This is the most important rule ever. Always wipe from front (where your pee comes out) to back (your bottom). Never the other way. This keeps bad germs away from your body.' },
+      { icon:'&#x1F9FC;', title:'Wash with just water down there', body:'Here is a secret: soap inside your private area actually makes things worse! Just warm water is perfect. Your body cleans itself naturally. Soap on the outside only.' },
+      { icon:'&#x1F9E5;', title:'Fresh underwear every day', body:'During your period, change your underwear at least once a day. Period underwear is amazing because it holds everything and washes easily. Dark colors are your best friend right now.' },
+      { icon:'&#x1F4A8;', title:'Period smell is NORMAL', body:'A little smell is completely normal &mdash; it is just blood. But if it smells really strong or fishy, tell a doctor. That could mean something needs attention. No shame, just health!' },
+      { icon:'&#x1F9FB;', title:'Wrap and toss properly', body:'Wrap used pads in the wrapper from the new one or toilet paper, then put in the trash. NEVER flush pads down the toilet &mdash; they will clog it and cause big problems!' },
+    ]
+  },
+  teen: {
+    title: 'Period Hygiene, No Cap &#x1F4A7;',
+    intro: 'Okay bestie, real talk. Periods create a smell &mdash; it is literally just blood and your body doing its thing. Totally normal. But here is how to stay fresh and unbothered because YOU deserve to feel confident every single day. &#x1F31F;',
+    steps: [
+      { icon:'&#x23F0;', title:'Change every 3-4 hours, periodt', body:'Even if your pad is not completely soaked. Old blood = smell. New pad = fresh. Set an alarm, make it a routine, and never skip it especially at school.' },
+      { icon:'&#x1F6BF;', title:'Front to back. Always. Non-negotiable.', body:'Wipe from front to back after using the bathroom. Never back to front. This is literally the most important hygiene rule of your life. Front = clean zone. Keep it that way.' },
+      { icon:'&#x1F9FC;', title:'No soap inside, just water', body:'Your vagina is self-cleaning (yes, really). Soap inside throws off your pH and can actually make you smell worse or cause infections. Warm water on the outside only. That is it.' },
+      { icon:'&#x1F9E5;', title:'Fresh fit, fresh underwear', body:'Change your underwear daily during your period, or more if needed. Period underwear and dark colors are the move. Your outfits slap harder when you feel clean underneath.' },
+      { icon:'&#x1F4A8;', title:'The smell is real and it is okay', body:'Period blood has a smell. A little is normal and nobody around you can smell it like you think they can. But if it is strong or fishy, see a doctor. That is your body asking for help.' },
+      { icon:'&#x1F9FB;', title:'Wrap it, bin it, never flush it', body:'Wrap used pads in toilet paper or the wrapper and toss in the trash. Flushing pads or tampons clogs pipes and causes literal disasters. Trash only, always.' },
+    ]
+  },
+  adult: {
+    title: 'Period Hygiene: The Full Honest Truth &#x1F49C;',
+    intro: 'Let us normalize talking about this. Period odor is biological and completely normal. But nobody taught most of us the full picture &mdash; so here it is, no filter, no shame. Because you deserve to feel fresh and confident all cycle long.',
+    steps: [
+      { icon:'&#x23F0;', title:'Change every 3-4 hours minimum', body:'Tampons especially should never exceed 8 hours due to TSS risk (toxic shock syndrome). Pads every 3-4 hours. On heavy days, more frequently. Do not push it &mdash; your health is worth the extra bathroom trip.' },
+      { icon:'&#x1F6BF;', title:'Front to back, every single time', body:'Always wipe anterior to posterior. This prevents fecal bacteria from entering the vaginal and urethral areas, which is a leading cause of UTIs. Make it muscle memory.' },
+      { icon:'&#x1F9FC;', title:'Water only, internally. Full stop.', body:'The vagina maintains its own pH balance. Scented soaps, douches, and feminine washes disrupt this ecosystem and often cause the very odor and infections they claim to prevent. Warm water externally is all you need.' },
+      { icon:'&#x1F4A7;', title:'Period smell is biology, not uncleanliness', body:'Menstrual blood has a metallic, slightly musky odor due to iron content and bacteria contact with air. This is normal. A strong fishy or foul odor, however, can indicate BV (bacterial vaginosis) or infection &mdash; worth seeing your provider.' },
+      { icon:'&#x1F9D8;', title:'Breathable fabrics only during your period', body:'Cotton underwear allows airflow which reduces moisture and odor. Avoid synthetic fabrics that trap heat. Period underwear in cotton or bamboo blends are an excellent option.' },
+      { icon:'&#x1F33F;', title:'Holistic odor support', body:'Staying hydrated, eating less sugar, and adding probiotics to your routine can noticeably reduce period odor over time. What you put in your body shows up everywhere &mdash; including your cycle.' },
+    ]
+  },
+  holistic: {
+    title: 'Natural Period Hygiene &#x1F33F;',
+    intro: 'Your body is not dirty. Period odor is natural, biological, and completely normal. Here is how to care for yourself during your cycle in a clean, toxin-free, body-positive way.',
+    steps: [
+      { icon:'&#x1F33F;', title:'Change every 3-4 hours naturally', body:'Reusable cloth pads and period underwear should be rinsed in cold water immediately after removal, then washed with gentle, fragrance-free soap. Cold water first &mdash; hot sets the stain.' },
+      { icon:'&#x1F6BF;', title:'Front to back, always', body:'This is universal regardless of hygiene philosophy. Anterior to posterior wiping prevents bacteria migration and protects your urinary and vaginal health.' },
+      { icon:'&#x1F4A7;', title:'Water is your best cleanse', body:'Your vagina is self-regulating. Organic coconut oil can be used externally only for comfort and moisture. Avoid all scented products, even natural ones, internally. Simple is best.' },
+      { icon:'&#x1F9EA;', title:'pH-friendly support', body:'Organic unpasteurized apple cider vinegar diluted in a sitz bath can support external pH balance. Probiotics containing Lactobacillus strains support vaginal flora from the inside.' },
+      { icon:'&#x1F343;', title:'Plant-based odor support', body:'Chlorophyll drops in water, taken daily, are a natural internal deodorizer many holistic practitioners recommend during menstruation. Spearmint tea also supports hormonal balance.' },
+      { icon:'&#x267B;&#xFE0F;', title:'Sustainable period care', body:'Menstrual cups, discs, and cloth pads eliminate the chemicals found in conventional products. Sterilize your cup by boiling for 5-7 minutes between cycles. Store in a breathable cotton pouch.' },
+    ]
+  },
+  emergency: {
+    title: 'Quick Hygiene Tips &#x26A1;',
+    intro: 'No time for long explanations &mdash; here is what you need to know RIGHT NOW to feel clean and comfortable.',
+    steps: [
+      { icon:'&#x23F0;', title:'Change your pad as soon as possible', body:'Old blood smells. New pad = instant refresh. Priority number one.' },
+      { icon:'&#x1F6BF;', title:'Wipe front to back', body:'Always. Every time. Without exception.' },
+      { icon:'&#x1F9FC;', title:'Rinse with warm water if you can', body:'Even a quick rinse makes a huge difference in freshness.' },
+      { icon:'&#x1F9FB;', title:'Trash the used pad, never flush', body:'Wrap it up and bin it. Flushing causes blockages.' },
+    ]
+  },
+  gifter: {
+    title: 'What She Needs to Know &#x1F49C;',
+    intro: 'If you are shopping for someone who is just starting out or going through a tough time, consider including some hygiene essentials. Here is a quick guide so you understand what she is dealing with.',
+    steps: [
+      { icon:'&#x1F381;', title:'Unscented wipes are a game-changer gift', body:'Unscented feminine wipes (for external use only) are perfect for on-the-go freshness. A thoughtful addition to any period gift.' },
+      { icon:'&#x1F9FC;', title:'Include a note about changing regularly', body:'If gifting to a young person, a kind note reminding them to change every 3-4 hours can make a real difference. Knowledge is the best gift.' },
+      { icon:'&#x1F49C;', title:'Period smell is normal &mdash; reassure her', body:'If she seems self-conscious, remind her that period odor is biological and completely normal. A little empathy goes a long way.' },
+    ]
+  }
+};
+
+function showHygieneGuide(version) {
+  const v = version || state.version || 'adult';
+  const data = HYGIENE_CONTENT[v] || HYGIENE_CONTENT.adult;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hygieneOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  const stepsHtml = data.steps.map((s, i) =>
+    '<div style="display:flex;align-items:flex-start;gap:0.875rem;margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border);">' +
+    '<span style="font-size:1.4rem;flex-shrink:0;margin-top:0.1rem;">' + s.icon + '</span>' +
+    '<div><div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:0.3rem;">' + s.title + '</div>' +
+    '<div style="font-size:0.845rem;color:var(--text-muted);line-height:1.65;">' + s.body + '</div></div>' +
+    '</div>'
+  ).join('');
+
+  overlay.innerHTML =
+    '<div style="max-width:480px;margin:0 auto;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
+    '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);">' + data.title + '</h2>' +
+    '<button id="closeHygieneBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>' +
+    '</div>' +
+    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>' +
+    '</div>' +
+    stepsHtml +
+    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;border:1px solid rgba(34,197,94,0.2);margin-top:0.5rem;">' +
+    '<p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;margin:0;">&#x1F4AC; <strong>Remember:</strong> Period odor is normal and biological. Proper hygiene keeps you comfortable and confident. If you notice anything unusual &mdash; strong odor, unusual discharge, or discomfort &mdash; please talk to a healthcare provider. You deserve to feel your best.</p>' +
+    '</div>' +
+    '<button id="closeHygieneBtnBottom" style="width:100%;margin-top:1.25rem;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it! &#x1F49C;</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.getElementById('closeHygieneBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('closeHygieneBtnBottom').addEventListener('click', () => overlay.remove());
+}
+
+/* =============================================
+   JUST STARTING — INTERACTIVE FUNCTIONS
+   ============================================= */
+function toggleFiveW(btn) {
+  const answer = btn.querySelector('.five-w-answer');
+  const arrow  = btn.querySelector('span:last-child');
+  if (!answer) return;
+  const isOpen = answer.style.display !== 'none';
+  answer.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '\u25BC' : '\u25B2';
+}
+
+function showWelcomeCard() {
+  const existing = document.getElementById('welcomeCard');
+  if (existing) existing.remove();
+
+  const greeting = getPersonalizedGreeting(state.version);
+  const v = state.version || 'adult';
+  const gradients = {
+    teen:      'linear-gradient(135deg,rgba(236,72,153,0.15),rgba(168,85,247,0.10))',
+    adult:     'linear-gradient(135deg,rgba(168,85,247,0.15),rgba(124,58,237,0.08))',
+    emergency: 'linear-gradient(135deg,rgba(239,68,68,0.15),rgba(220,38,38,0.08))',
+    gifter:    'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.08))',
+    holistic:  'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.08))',
+    starter:   'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(236,72,153,0.10))'
+  };
+  const borders = {
+    teen:'rgba(236,72,153,0.25)', adult:'rgba(168,85,247,0.25)',
+    emergency:'rgba(239,68,68,0.25)', gifter:'rgba(251,191,36,0.25)', holistic:'rgba(34,197,94,0.25)',
+    starter:'rgba(251,191,36,0.3)'
+  };
+  const emojis = { teen:'🌸', adult:'💜', emergency:'⚡', gifter:'💝', holistic:'🌿' };
+
+  const card = document.createElement('div');
+  card.id = 'welcomeCard';
+  card.style.cssText = 'margin:0.75rem 1rem 0;padding:1rem 1.25rem;background:' + (gradients[v]||gradients.adult) + ';border:1px solid ' + (borders[v]||borders.adult) + ';border-radius:20px;animation:fadeSlideIn 0.5s ease;display:flex;align-items:center;gap:0.75rem;';
+  card.innerHTML = '<span style="font-size:1.5rem;flex-shrink:0;">' + (emojis[v]||'💜') + '</span>' +
+    '<div style="flex:1;">' +
+    '<div style="font-size:0.9rem;color:var(--text-primary);line-height:1.4;font-weight:500;">' + greeting + '</div>' +
+    '</div>' +
+    '<button onclick="this.parentElement.style.display=\'none\'" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;flex-shrink:0;padding:0.25rem;">&#xD7;</button>';
+
+  const hero = document.querySelector('.home-hero');
+  if (hero) hero.insertAdjacentElement('afterend', card);
+}
+
+/* =============================================
+   SAVED ADDRESSES SYSTEM
+   ============================================= */
+const DEFAULT_ADDRESS_LABELS = ['Home', 'School', 'Work', 'Custom'];
+
+function getSavedAddresses() {
+  try {
+    const m = document.cookie.match(/period_addresses=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
+}
+
+function saveAddresses(addresses) {
+  document.cookie = 'period_addresses=' + encodeURIComponent(JSON.stringify(addresses)) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+function addSavedAddress(label, address) {
+  const addresses = getSavedAddresses();
+  const existing = addresses.findIndex(a => a.label === label);
+  if (existing > -1) addresses[existing].address = address;
+  else addresses.push({ label, address });
+  saveAddresses(addresses);
+}
+
+function renderAddressDropdown() {
+  const addresses = getSavedAddresses();
+  const select = document.getElementById('savedAddressSelect');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Choose saved address --</option>' +
+    addresses.map(a => `<option value="${a.address}">${a.label}: ${a.address.split(',')[0]}</option>`).join('') +
+    '<option value="__new__">+ Add new address</option>';
+  select.onchange = function() {
+    const input = document.getElementById('addressInput');
+    if (this.value === '__new__') {
+      if (input) { input.value = ''; input.focus(); }
+      this.value = '';
+    } else if (this.value) {
+      if (input) input.value = this.value;
+      state.deliveryAddress = this.value;
+    }
+  };
+}
+
+function renderAddressLabelButtons() {
+  const container = document.getElementById('addressLabelBtns');
+  if (!container) return;
+  container.innerHTML = DEFAULT_ADDRESS_LABELS.map(l =>
+    `<button class="addr-label-btn" data-label="${l}" onclick="selectAddressLabel('${l}')" style="padding:0.4rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.8rem;cursor:pointer;transition:all 0.15s;">${l}</button>`
+  ).join('');
+}
+
+function selectAddressLabel(label) {
+  document.querySelectorAll('.addr-label-btn').forEach(b => {
+    const on = b.dataset.label === label;
+    b.style.background = on ? 'var(--accent)' : 'var(--surface-2)';
+    b.style.color = on ? 'white' : 'var(--text-muted)';
+    b.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+  });
+  const inp = document.getElementById('addressLabelCustom');
+  if (inp) inp.style.display = label === 'Custom' ? 'block' : 'none';
+  window._selectedAddressLabel = label;
+}
+
+
+/* =============================================
+   SCHOOL PROFILE SYSTEM
+   ============================================= */
+function getSchoolProfiles() {
+  try {
+    const m = document.cookie.match(/period_schools=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : [];
+  } catch { return []; }
+}
+
+function saveSchoolProfile(name, address, nurseContact) {
+  const schools = getSchoolProfiles();
+  const existing = schools.findIndex(s => s.name === name);
+  const profile = { name, address, nurseContact, type: 'school' };
+  if (existing > -1) schools[existing] = profile;
+  else schools.push(profile);
+  document.cookie = 'period_schools=' + encodeURIComponent(JSON.stringify(schools)) + ';max-age:946080000;path=/;SameSite=Lax';
+  // Also add to regular addresses
+  addSavedAddress('School: ' + name, address);
+}
+
+function renderSchoolProfileOption() {
+  const addresses = getSavedAddresses();
+  const schools = getSchoolProfiles();
+  const allOptions = [
+    ...addresses.map(a => ({ label: a.label, address: a.address, type: 'saved' })),
+    ...schools.map(s => ({ label: s.name + ' (School)', address: s.address, type: 'school' }))
+  ];
+  return allOptions;
+}
+
+/* =============================================
+   ORDER NOTES + NURSE NOTIFICATION + LOCATION
+   ============================================= */
+
+const NURSE_KEYWORDS = ['school', 'nurse', 'classroom', 'embarrassed', 'cant get up', 'student', 'teacher', 'office', 'period at school', 'accident at school'];
+const WORK_KEYWORDS  = ['work', 'office', 'desk', 'meeting', 'conference', 'floor', 'reception', 'colleague', 'embarrassed at work', 'accident at work'];
+
+function checkOrderNoteForFlag(note) {
+  if (!note) return null;
+  const lower = note.toLowerCase();
+  if (NURSE_KEYWORDS.some(k => lower.includes(k))) return 'school';
+  if (WORK_KEYWORDS.some(k => lower.includes(k))) return 'work';
+  return null;
+}
+
+function showDiscreetDeliveryPopup(type) {
+  const existing = document.getElementById('discreetPopup');
+  if (existing) existing.remove();
+  const msg = type === 'school'
+    ? "We've got you. ?? This happens to everyone — there's nothing to be embarrassed about. We'll make sure your order reaches you discreetly through your school nurse. Breathe."
+    : "It happens to the best of us. ?? No explanation needed. We'll make sure your delivery reaches you discreetly — wherever you are.";
+  const overlay = document.createElement('div');
+  overlay.id = 'discreetPopup';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.92);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML =
+    '<div style="max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1.25rem;background:#1A0D2E;border-radius:20px;padding:2rem;border:1px solid rgba(168,85,247,0.3);">' +
+    '<div style="font-size:2.5rem;">??</div>' +
+    '<div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#EDE8FA;line-height:1.4;">' + msg + '</div>' +
+    '<button id="discreetOk" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Got it — thank you ??</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('discreetOk').addEventListener('click', () => overlay.remove());
+}
+
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { reject('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      err => reject(err.message)
+    );
+  });
+}
+
+async function autoPopulateLocation() {
+  const btn = document.getElementById('useLocationBtn');
+  const input = document.getElementById('addressInput') || $('addressInput');
+  if (btn) { btn.textContent = 'Getting location...'; btn.disabled = true; }
+  try {
+    const pos = await getUserLocation();
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.lat}&lon=${pos.lng}&format=json`);
+    const data = await res.json();
+    const addr = data.display_name || `${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`;
+    if (input) input.value = addr;
+    state.deliveryAddress = addr;
+    if ($('addressPill')) {
+      $('addressPill').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + addr.split(',')[0];
+    }
+    showToast('Location detected ✓');
+  } catch(e) {
+    showToast('Could not get location — please enter manually');
+  }
+  if (btn) { btn.textContent = '?? Use My Location'; btn.disabled = false; }
+}
+
+function calcDistanceFee(distanceMiles) {
+  if (distanceMiles <= 2) return 0;
+  if (distanceMiles <= 5) return 3;
+  if (distanceMiles <= 10) return 5;
+  return 7;
+}
+
+
+
+
+/* =============================================
+   PWA INSTALL EDUCATION
+   ============================================= */
+function showPWAEducation() {
+  if (document.cookie.includes('period_pwa_edu')) return;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (!isIOS && !isAndroid) return;
+  setTimeout(function() {
+    if (document.getElementById('pwaEduToast')) return;
+    const steps = isIOS
+      ? 'Tap the <strong>Share</strong> button then <strong>Add to Home Screen</strong>'
+      : 'Tap the <strong>Menu</strong> button then <strong>Add to Home screen</strong>';
+    const toast = document.createElement('div');
+    toast.id = 'pwaEduToast';
+    toast.style.cssText = 'position:fixed;bottom:1.5rem;left:1rem;right:1rem;z-index:9990;background:var(--surface);border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:1rem;box-shadow:0 8px 32px rgba(0,0,0,0.3);animation:fadeSlideIn 0.4s ease;';
+    toast.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+        <span style="font-size:1.5rem;flex-shrink:0;">&#x1F4F1;</span>
+        <div style="flex:1;">
+          <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Add Period. to your home screen</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">${steps} for the best experience &amp; push notifications.</div>
+        </div>
+        <button id="pwaEduClose" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;flex-shrink:0;">&#xD7;</button>
+      </div>`;
+    document.body.appendChild(toast);
+    document.getElementById('pwaEduClose').addEventListener('click', function() {
+      toast.remove();
+      document.cookie = 'period_pwa_edu=1;max-age=946080000;path=/;SameSite=Lax';
+    });
+  }, 8000);
+}
+
+/* =============================================
+   COMING SOON + WAITLIST SYSTEM
+   ============================================= */
+const COMING_SOON_MODE = true;
+
+function showComingSoonBanner() {
+  if (!COMING_SOON_MODE) return;
+  if (document.getElementById('comingSoonBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'comingSoonBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#7C3AED,#A855F7);padding:0.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.5rem;flex:1;">
+      <span style="font-size:0.85rem;color:white;font-weight:600;">&#x1F451; Launch coming soon! Be the first to know.</span>
+    </div>
+    <button id="waitlistBannerBtn" style="background:white;color:#7C3AED;border:none;border-radius:999px;padding:0.35rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">Join Waitlist</button>
+    <button id="bannerClose" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.2rem;cursor:pointer;padding:0 0.25rem;">&#xD7;</button>`;
+  document.body.insertBefore(banner, document.body.firstChild);
+  document.body.style.paddingTop = '44px';
+  document.getElementById('waitlistBannerBtn').addEventListener('click', showWaitlistModal);
+  document.getElementById('bannerClose').addEventListener('click', function() {
+    banner.style.display = 'none';
+    document.body.style.paddingTop = '0';
+  });
+}
+
+function showWaitlistModal() {
+  let modal = document.getElementById('waitlistModal');
+  if (modal) { modal.style.display = 'flex'; return; }
+  modal = document.createElement('div');
+  modal.id = 'waitlistModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  modal.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F451;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">Be First in Line</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">Period. is launching soon. Join the waitlist and be the first to know when we go live. Early members get an exclusive discount. &#x1F49C;</p>
+      <input id="waitlistEmail" type="email" placeholder="your@email.com" style="width:100%;height:48px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.9rem;color:var(--text-primary);outline:none;margin-bottom:0.75rem;box-sizing:border-box;"/>
+      <button id="waitlistSubmitBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">Count Me In &#x2728;</button>
+      <button id="waitlistCloseBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">maybe later</button>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
+  document.getElementById('waitlistCloseBtn').addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+  document.getElementById('waitlistEmail').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitWaitlist();
+  });
+}
+
+function submitWaitlist() {
+  const input = document.getElementById('waitlistEmail');
+  const email = input ? input.value.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (input) { input.style.borderColor = '#ef4444'; setTimeout(function() { input.style.borderColor = ''; }, 2000); }
+    showToast('Please enter a valid email');
+    return;
+  }
+  if (_firebaseFs) {
+    _firebaseFs.collection('waitlist').add({
+      email: email,
+      created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      source: 'waitlist_modal'
+    }).catch(function(e) { console.warn('Waitlist save failed:', e); });
+  }
+  if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+    try {
+      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        to_email: email, to_name: 'there',
+        life_stage: 'waitlist', version: 'waitlist',
+        store_url: 'https://perioddelivers.com'
+      }).catch(function(e) { console.warn('EmailJS failed:', e); });
+    } catch(e) {}
+  }
+  const modal = document.getElementById('waitlistModal');
+  if (modal) modal.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:3rem;margin-bottom:1rem;">&#x1F451;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">You are on the list!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">We will email you the moment Period. launches. Thank you for believing in us. &#x1F49C;</p>
+      <button id="waitlistDoneBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">Close</button>
+    </div>`;
+  const doneBtn = document.getElementById('waitlistDoneBtn');
+  if (doneBtn) doneBtn.addEventListener('click', function() {
+    const m = document.getElementById('waitlistModal');
+    if (m) m.style.display = 'none';
+  });
+}
+
+function showComingSoonCheckoutBlock() {
+  if (!COMING_SOON_MODE) return false;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:340px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F6A7;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">We are not live yet!</h2>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">Period. is launching soon. Join the waitlist to be first in line and get an exclusive early-bird discount. &#x1F49C;</p>
+      <button id="csWaitlistBtn" style="width:100%;height:48px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;">Join the Waitlist &#x2728;</button>
+      <button id="csBackBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Go back</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('csWaitlistBtn').addEventListener('click', function() {
+    overlay.remove();
+    showWaitlistModal();
+  });
+  document.getElementById('csBackBtn').addEventListener('click', function() {
+    overlay.remove();
+  });
+  return true;
+}
+
+
+function toggleDiscreetDelivery() {
+  const track = document.getElementById('discreetToggleTrack');
+  const thumb = document.getElementById('discreetToggleThumb');
+  const chk   = document.getElementById('discreetToggle');
+  if (!track) return;
+  const on = !chk.checked;
+  chk.checked = on;
+  track.style.background = on ? '#A855F7' : 'var(--surface-3,#333)';
+  if (thumb) thumb.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+  if (on) showDiscreetDeliveryPopup(state.version === 'teen' ? 'school' : 'work');
+  state.discreetDelivery = on;
+}
+
+function placeOrder() {
+  const { subtotal, delivery, discount, total } = getOrderTotal();
+
+
+  if (subtotal > 0 && subtotal < 15) {
+    showToast(`Minimum order is $15.00 — add ${fmt(15 - subtotal)} more`);
+    return;
+  }
+
+  // Require delivery address
+  if (!state.deliveryAddress) {
+    openAddressModal();
+    showToast('Please set a delivery address first ??');
+    return;
+  }
+
+  // Stripe connected → open secure checkout modal
+  if (_stripe) { openStripeCheckout(); return; }
+
+
+  // Pre-launch: save order to Firestore + show success
+  const orderItems = Object.entries(state.cart).map(([id, qty]) => ({ id, qty }));
+  if (_firebaseFs && orderItems.length) {
+    _firebaseFs.collection('orders').add({
+      items:      orderItems,
+      subtotal,
+      delivery,
+      discount,
+      total,
+      promo:      state.appliedPromo ? state.appliedPromo.code : null,
+      type:       state.version || 'adult',
+      device_id:  getDeviceId(),
+      address:    state.deliveryAddress || null,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore order save failed:', e));
+  }
+
+
+  state.cart         = {};
+  state.appliedPromo = null;
+  updateCartBadge();
+  renderCart();
+  if (state.shopMode === 'products') renderProductGrid();
+  closeCart();
+  // Fix ETA message based on order type
+  const etaEl = document.querySelector('#orderSuccess .success-eta');
+  if (etaEl) {
+    if (state.version === 'emergency') {
+      etaEl.textContent = '&#x1F6F5; Arriving in 30–45 minutes';
+    } else {
+      etaEl.textContent = '&#x1F4E6; Arriving in 1–3 business days';
+    }
+  }
+  $('orderSuccess').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+function confirmSubscribe() {
+  const plan = PLANS[state.selectedPlan];
+  if (!plan) return;
+  $('subscribeSuccessEta').textContent = `👑 ${plan.name} Plan — ${fmt(plan.price)}/month`;
+  $('subscribeSuccessSub').textContent = `Your first ${plan.name} care package (${careBoxCount()} items) ships within 3–5 business days. You'll receive a confirmation shortly.`;
+
+
+  // Save subscription to Firestore
+  if (_firebaseFs && plan) {
+    _firebaseFs.collection('subscriptions').add({
+      plan:       plan.name,
+      price:      plan.price,
+      items:      Object.entries(state.careBox || {}).map(([id, qty]) => ({ id, qty })),
+      version:    state.version || 'adult',
+      device_id:  getDeviceId(),
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore subscription save failed:', e));
+  }
+
+
+  state.careBox = {};
+  state.selectedPlan = null;
+  $('subscribeSuccess').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+/* =============================================
+   ADDRESS MODAL
+   ============================================= */
+function openAddressModal() {
+  $('addressOverlay').classList.add('open');
+  $('addressModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderAddressDropdown();
+  renderAddressLabelButtons();
+  selectAddressLabel('Home');
+  setTimeout(() => { const inp = $('addressInput'); if (inp) inp.focus(); }, 200);
+}
+function closeAddressModal() {
+  $('addressOverlay').classList.remove('open');
+  $('addressModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+
+/* =============================================
+   PWA
+   ============================================= */
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+}
+
+
+/* =============================================
+   INIT — Wire all events
+   ============================================= */
+function init() {
+  initVersion();
+  initTheme();
+  registerSW();
+  showComingSoonBanner();
+  showPWAEducation();
+  // Show quiz after version picked if not done yet
+  const _origDismiss = dismissVersionPicker;
+  dismissVersionPicker = function() {
+    _origDismiss();
+    if (!isQuizDone() && state.version !== 'emergency' && state.version !== 'starter') {
+      setTimeout(showQuiz, 1200);
+    }
+  };
+
+
+  // Home navigation
+  $('homeLogo')      .addEventListener('click', () => navigate('home'));
+  // Always wire version badge switcher
+  const vBadge = $('versionBadge');
+  if (vBadge) vBadge.addEventListener('click', showVersionPicker);
+   // Init symptom log
+  initSymptomLog();
+  $('heroOrderNow').addEventListener('click', () => {
+    navigate('shop');
+    setTimeout(() => {
+      if (state.version === 'emergency') {
+        renderEmergencyShop();
+      } else if ($('heroOrderNowText') && ($('heroOrderNowText').textContent.includes('Urgent') || $('heroOrderNowText').textContent.includes('NOW') || $('heroOrderNowText').textContent.includes('Natural'))) {
+        const banner = document.querySelector('.delivery-banner');
+        if (banner) banner.classList.add('delivery-banner--urgent');
+        const deliveryTime = document.querySelector('.delivery-time');
+        if (deliveryTime) deliveryTime.textContent = 'Under 30 min delivery';
+        const deliveryLabel = document.querySelector('.delivery-label');
+        if (deliveryLabel) deliveryLabel.textContent = '🚨 Urgent Delivery';
+        showCategoriesMode();
+      }
+    }, 100);
+  });
+  $('heroCarePackage').addEventListener('click', () => {
+    if (state.version === 'gifter') {
+      const choice = confirm('Would you like to send a one-time gift?\n\nClick OK for a One-Time Gift Order\nClick Cancel for a Monthly Gift Subscription');
+      if (choice) {
+        navigate('shop');
+        showToast('Browse products and add to cart for a one-time gift 💝');
+      } else {
+        navigate('subscribe');
+      }
+    } else {
+      navigate('subscribe');
+    }
+  });
+  $('cardOrderNow')  .addEventListener('click', () => navigate('shop'));
+  $('cardCarePackage').addEventListener('click', () => navigate('subscribe'));
+
+
+  // Back buttons
+  $('shopBack')      .addEventListener('click', () => navigate('home'));
+  $('subscribeBack') .addEventListener('click', () => navigate('home'));
+
+
+  // Cart
+  $('cartBtn')       .addEventListener('click', openCart);
+  $('cartClose')     .addEventListener('click', closeCart);
+  $('cartOverlay')   .addEventListener('click', closeCart);
+  $('checkoutBtn')   .addEventListener('click', placeOrder);
+
+
+  // Product modal
+  $('modalOverlay')  .addEventListener('click', closeModal);
+  $('modalClose')    .addEventListener('click', closeModal);
+  $('modalAddBtn')   .addEventListener('click', () => { if (state.openProduct) addToCart(state.openProduct); });
+
+
+  // Order success
+  $('orderSuccessClose').addEventListener('click', () => {
+    $('orderSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('home');
+  });
+
+
+  // Subscribe
+  $('subscribeBtn').addEventListener('click', confirmSubscribe);
+  $('subscribeSuccessClose').addEventListener('click', () => {
+    $('subscribeSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('home');
+  });
+
+
+  // Address modal
+  $('addressPill').addEventListener('click', openAddressModal);
+  $('addressOverlay').addEventListener('click', closeAddressModal);
+  const addrSaveEl = $('addressSave');
+  if (addrSaveEl) addrSaveEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const val = $('addressInput').value.trim();
+    if (!val) { showToast('Please enter an address'); return; }
+    state.deliveryAddress = val;
+    // Save with label
+    const label = window._selectedAddressLabel || 'Home';
+    const customLabelInput = document.getElementById('addressLabelCustom');
+    const finalLabel = (label === 'Custom' && customLabelInput && customLabelInput.value.trim())
+      ? customLabelInput.value.trim() : label;
+    addSavedAddress(finalLabel, val);
+    renderAddressDropdown();
+    renderAddressLabelButtons();
+    const shortAddr = val.split(',')[0];
+    $('addressPill').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + shortAddr;
+    showToast(finalLabel + ' address saved ✓');
+    closeAddressModal();
+  });
+
+
+  // Search
+  const searchInput = $('searchInput');
+  let debounce;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      state.searchQuery = searchInput.value.trim();
+      if (state.searchQuery && state.shopMode === 'categories') {
+        // Auto-switch to 'all products' mode when user starts searching
+        state.activeCategory = 'all';
+        showProductsMode('all');
+        if ($('shopBcTitle')) $('shopBcTitle').textContent = '🔍 Search Results';
+        if ($('sectionTitle')) $('sectionTitle').textContent = 'Search Results';
+      } else if (state.shopMode === 'products') {
+        renderProductGrid();
+      }
+    }, 200);
+  });
+
+
+  // Keyboard ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeCart(); closeAddressModal(); closeNewsletterModal(); closeWhyModal(); if ($('nicknameModal') && $('nicknameModal').classList.contains('open')) { $('nicknameModal').classList.remove('open'); $('nicknameOverlay').classList.remove('open'); } }
+  });
+
+
+  // Newsletter
+  if ($('openNewsletterBtn'))  $('openNewsletterBtn').addEventListener('click', showNewsletterModal);
+  if ($('nlCloseBtn'))         $('nlCloseBtn').addEventListener('click', closeNewsletterModal);
+  if ($('nlSubmitBtn'))        $('nlSubmitBtn').addEventListener('click', subscribeNewsletter);
+
+
+  // Promo code
+  if ($('promoApplyBtn'))  $('promoApplyBtn').addEventListener('click', applyPromoCode);
+  if ($('promoRemoveBtn')) $('promoRemoveBtn').addEventListener('click', removePromoCode);
+  if ($('promoInput'))     $('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyPromoCode(); });
+
+
+  // Stripe checkout modal
+  if ($('coBackBtn'))  $('coBackBtn').addEventListener('click',  closeStripeCheckout);
+  if ($('coOverlay'))  $('coOverlay').addEventListener('click',  closeStripeCheckout);
+  if ($('coPayBtn'))   $('coPayBtn').addEventListener('click',   processStripePayment);
+  if ($('nlOpenTracker'))      $('nlOpenTracker').addEventListener('click', () => { closeNewsletterModal(); navigate('tracker'); });
+  if ($('newsletterModal'))    $('newsletterModal').addEventListener('click', e => { if (e.target === $('newsletterModal')) closeNewsletterModal(); });
+  if ($('nlEmailInput')) {
+    $('nlEmailInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); subscribeNewsletter(); } });
+    $('nlEmailInput').addEventListener('keyup',   e => { if (e.key === 'Enter') { e.preventDefault(); subscribeNewsletter(); } });
+  }
+
+
+  // Newsletter life-stage buttons (use event delegation)
+  const stageRow = $('nlStageRow');
+  if (stageRow) stageRow.addEventListener('click', e => {
+    const btn = e.target.closest('.nl-stage-btn');
+    if (!btn) return;
+    _nlSelectedStage = btn.dataset.stage;
+    $$('.nl-stage-btn').forEach(b => b.classList.toggle('active', b === btn));
+  });
+
+
+  // Tracker access button
+  if ($('trackerAccessBtn')) $('trackerAccessBtn').addEventListener('click', () => {
+    if (isNewsletterSubscribed()) navigate('tracker');
+    else showNewsletterModal();
+  });
+
+
+  // Tracker back / calendar nav / log buttons
+  if ($('trackerBack')) $('trackerBack').addEventListener('click', () => navigate('home'));
+   // Tracker widget buttons
+  if ($('twUnlockBtn')) $('twUnlockBtn').addEventListener('click', showNewsletterModal);
+  if ($('twLogBtn')) $('twLogBtn').addEventListener('click', () => {
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    logPeriodStart();
+    updateTrackerWidget();
+  });
+  if ($('trackerWidgetCard')) $('trackerWidgetCard').addEventListener('click', (e) => {
+    if (e.target.closest('#twUnlockBtn') || e.target.closest('#twLogBtn')) return;
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    navigate('tracker');
+  });
+
+
+  // Floating tracker button
+  if ($('floatingTrackerBtn')) $('floatingTrackerBtn').addEventListener('click', () => {
+    if (!isNewsletterSubscribed()) { showNewsletterModal(); return; }
+    navigate('tracker');
+  });
+  if ($('trackerPrev')) $('trackerPrev').addEventListener('click', () => {
+    if (!trackerDisplayMonth) return;
+    let { year, month } = trackerDisplayMonth;
+    if (--month < 0) { month = 11; year--; }
+    trackerDisplayMonth = { year, month };
+    const d = getTrackerData();
+    const al = calcAvgCycleLength(d.cycles), ad = calcAvgDuration(d.cycles);
+    renderTrackerCalendar(d.cycles, al, ad, getNextPeriodDate(d.cycles, al), todayStr());
+    const ml = $('trackerMonthLabel');
+    const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if (ml) ml.textContent = MN[month] + ' ' + year;
+  });
+  if ($('trackerNext')) $('trackerNext').addEventListener('click', () => {
+    if (!trackerDisplayMonth) return;
+    let { year, month } = trackerDisplayMonth;
+    if (++month > 11) { month = 0; year++; }
+    trackerDisplayMonth = { year, month };
+    const d2 = getTrackerData();
+    const al2 = calcAvgCycleLength(d2.cycles), ad2 = calcAvgDuration(d2.cycles);
+    renderTrackerCalendar(d2.cycles, al2, ad2, getNextPeriodDate(d2.cycles, al2), todayStr());
+    const ml2 = $('trackerMonthLabel');
+    const MN2 = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if (ml2) ml2.textContent = MN2[month] + ' ' + year;
+  });
+  if ($('logStart')) $('logStart').addEventListener('click', logPeriodStart);
+   // Seed date button
+  if ($('seedDateBtn')) $('seedDateBtn').addEventListener('click', () => {
+    const input = $('seedDateInput');
+    if (!input || !input.value) { showToast('Pick a date first'); return; }
+    const dateStr = input.value;
+    if (dateStr > todayStr()) { showToast("Date can't be in the future"); return; }
+    const data = getTrackerData();
+    const alreadyExists = data.cycles.some(c => c.s === dateStr);
+    if (alreadyExists) { showToast('That date is already logged'); return; }
+    data.cycles.push({ s: dateStr, e: null });
+    data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
+    data.avgLength = calcAvgCycleLength(data.cycles);
+    setTrackerData(data);
+    renderTracker();
+    showToast('Last period date saved ✓ Predictions updated!');
+  });
+  if ($('logEnd'))   $('logEnd').addEventListener('click', logPeriodEnd);
+
+
+  // Reminder buttons (wired in initReminders)
+  initReminders();
+
+
+  // Holistic shop shortcut
+  if ($('cardHolistic')) $('cardHolistic').addEventListener('click', () => {
+    navigate('shop');
+    showProductsMode('holistic');
+  });
+
+
+  // Back to categories from products
+  if ($('shopBackCat')) $('shopBackCat').addEventListener('click', showCategoriesMode);
+
+
+  // Legal modal
+  if ($('openPrivacy'))    $('openPrivacy').addEventListener('click',   () => openLegal('privacy'));
+  if ($('openTerms'))      $('openTerms').addEventListener('click',     () => openLegal('terms'));
+  if ($('legalModalClose')) $('legalModalClose').addEventListener('click', closeLegal);
+  if ($('legalOverlay'))   $('legalOverlay').addEventListener('click',  closeLegal);
+
+
+  // Apple Pay + Google Pay (express checkout)
+  if ($('applePayBtn'))  $('applePayBtn').addEventListener('click',  () => handleExpressCheckout('apple'));
+  if ($('googlePayBtn')) $('googlePayBtn').addEventListener('click', () => handleExpressCheckout('google'));
+
+
+  // Why Period modal
+  if ($('heroWhyBtn'))   $('heroWhyBtn').addEventListener('click', openWhyModal);
+  if ($('whyCloseBtn'))  $('whyCloseBtn').addEventListener('click', closeWhyModal);
+  if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
+  if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
+
+  // The Tea, Period. nav buttons — wired here so they survive version switching
+  const _openScoop = () => {
+    navigate('cycleScoopView');
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+  };
+  if ($('heroScoopBtn'))   $('heroScoopBtn').addEventListener('click', _openScoop);
+  if ($('teenScoopLink'))  $('teenScoopLink').addEventListener('click', _openScoop);
+  if ($('cycleScoopBack')) $('cycleScoopBack').addEventListener('click', () => navigate('home'));
+
+  // Newsletter hero button — re-wire here in case starter mode hid/restored it
+  if ($('heroNewsletterBtn')) {
+    $('heroNewsletterBtn').addEventListener('click', () => {
+      showNewsletterModal();
+    });
+  }
+
+
+  if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
+  if ($('commPostBtn'))   $('commPostBtn').addEventListener('click', submitCommPost);
+  if ($('commInput'))     $('commInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitCommPost(); } });
+  if ($('nicknameConfirm')) $('nicknameConfirm').addEventListener('click', confirmNickname);
+  if ($('nicknameInput'))   $('nicknameInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmNickname(); });
+  if ($('navCommunity'))  $('navCommunity').addEventListener('click', () => navigate('community'));
+  if ($('heroCommBar'))   $('heroCommBar').addEventListener('click', () => navigate('community'));
+
+
+  // Monthly upsell (post-order)
+  if ($('upsellYes')) $('upsellYes').addEventListener('click', () => {
+    $('orderSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('subscribe');
+  });
+  if ($('upsellNo')) $('upsellNo').addEventListener('click', () => {
+    $('orderSuccess').classList.remove('open');
+    document.body.style.overflow = '';
+    navigate('home');
+  });
+
+
+  // Fetch live trends + init tracker button state
+  fetchTrends();
+  updateTrackerBtn();
+
+
+  // Initial cart render
+  renderCart();
+  updateCartBadge();
+}
+
+
+/* =============================================
+   STRIPE CHECKOUT MODAL
+   ============================================= */
+function openStripeCheckout() {
+  const items = Object.entries(state.cart).filter(([,q]) => q > 0);
+  if (!items.length) { showToast('Add items to your cart first ✨'); return; }
+
+
+  const { subtotal, delivery, discount, total } = getOrderTotal();
+
+
+  // Order notes section — add before summary
+  // Build order summary
+  const sumEl = $('coSummary');
+  if (sumEl) {
+    const itemLines = items.map(([id, qty]) => {
+      const p = PRODUCTS.find(p => p.id === +id);
+      return `<div class="co-sum-row"><span>${p.emoji} ${p.name}${qty > 1 ? ` ×${qty}` : ''}</span><span>${fmt(p.price * qty)}</span></div>`;
+    }).join('');
+    const promoLine = (discount > 0 && state.appliedPromo)
+      ? `<div class="co-sum-row co-sum-discount"><span>Code: ${state.appliedPromo.code}</span><span>−${fmt(discount)}</span></div>`
+      : '';
+    const delivLine = delivery === 0
+      ? `<div class="co-sum-row co-sum-free"><span>Delivery</span><span>FREE 🎉</span></div>`
+      : `<div class="co-sum-row"><span>Delivery 🛵</span><span>${fmt(delivery)}</span></div>`;
+    sumEl.innerHTML = `
+      <div class="co-sum-items">${itemLines}</div>
+      <div class="co-sum-divider"></div>
+      ${promoLine}${delivLine}
+      <div class="co-sum-row co-sum-total"><span>Total</span><span>${fmt(total)}</span></div>`;
+  }
+
+
+  const payAmt = $('coPayAmt');
+  if (payAmt) payAmt.textContent = fmt(total);
+
+
+  // Mount Stripe Card Element (once per session)
+  if (_stripe && !state._stripeCardMounted) {
+    const elements = _stripe.elements();
+    state._stripeCard = elements.create('card', {
+      style: {
+        base: {
+          color: '#F3F0FF',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSize: '16px',
+          '::placeholder': { color: '#7C69A0' }
+        },
+        invalid: { color: '#F87171' }
+      }
+    });
+    state._stripeCard.mount('#stripeCardElement');
+    state._stripeCard.addEventListener('change', ev => {
+      const err = $('stripeCardError');
+      if (err) err.textContent = ev.error ? ev.error.message : '';
+    });
+    state._stripeCardMounted = true;
+  }
+
+
+  // Inject order notes + discreet delivery toggle
+  const coBody = document.querySelector('.co-body');
+  const existingNotesCheck = document.getElementById('orderNotesSection');
+  if (coBody && !existingNotesCheck) {
+    const notesDiv = document.createElement('div');
+    notesDiv.id = 'orderNotesSection';
+    notesDiv.style.cssText = 'margin-bottom:1rem;padding:1rem;background:var(--surface-2);border-radius:12px;';
+    notesDiv.innerHTML =
+      '<div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Order Notes (optional)</div>' +
+      '<textarea id="orderNoteInput" placeholder="Special instructions? e.g. leave at front desk, knock loudly, fragrance-free only..." style="width:100%;height:70px;padding:0.75rem;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;color:var(--text-primary);resize:none;outline:none;margin-bottom:0.75rem;" maxlength="300"></textarea>' +
+      '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:10px;border:1px solid rgba(168,85,247,0.2);">' +
+      '<div style="position:relative;flex-shrink:0;">' +
+      '<input type="checkbox" id="discreetToggle" style="opacity:0;position:absolute;width:0;height:0;">' +
+      '<div id="discreetToggleTrack" onclick="toggleDiscreetDelivery()" style="width:44px;height:24px;background:var(--surface-3,#333);border-radius:999px;cursor:pointer;position:relative;transition:background 0.2s;">' +
+      '<div id="discreetToggleThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>' +
+      '</div></div>' +
+      '<div><div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">?? Discreet delivery &mdash; bring it to me</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-muted);">School nurse, work reception, or similar</div></div>' +
+      '</div>';
+    const coSummary = document.getElementById('coSummary');
+    if (coSummary) coBody.insertBefore(notesDiv, coSummary);
+  }
+
+  const modal   = $('coModal');
+  const overlay = $('coOverlay');
+  if (modal)   { modal.style.display = ''; setTimeout(() => modal.classList.add('open'), 10); }
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+function closeStripeCheckout() {
+  const modal = $('coModal'), overlay = $('coOverlay');
+  if (modal)   modal.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  setTimeout(() => { if (modal) modal.style.display = 'none'; }, 300);
+  document.body.style.overflow = '';
+}
+
+
+async function processStripePayment() {
+  if (!_stripe || !state._stripeCard) return;
+  const btn = $('coPayBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = 'Processing…'; }
+
+
+  try {
+    const cardName = ($('coCardName') || {}).value || '';
+    // ── PRODUCTION FLOW ──────────────────────────────────────────
+    // 1. POST to your backend → create a Stripe PaymentIntent
+    //    Returns: { clientSecret: 'pi_xxx_secret_xxx' }
+    // 2. const { error, paymentIntent } = await _stripe.confirmCardPayment(
+    //      clientSecret,
+    //      { payment_method: { card: state._stripeCard, billing_details: { name: cardName } } }
+    //    );
+    // 3. If error → show err.message; else → placeOrder()
+    // ─────────────────────────────────────────────────────────────
+    throw new Error('BACKEND_NEEDED'); // remove once backend is wired
+  } catch(e) {
+    const errEl = $('stripeCardError');
+    if (errEl) errEl.textContent = e.message === 'BACKEND_NEEDED'
+      ? 'Connect your Stripe backend to process payments (see code comments).'
+      : (e.message || 'Payment failed — try again');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `Pay <span id="coPayAmt">${$('coPayAmt')?.textContent || ''}</span>`;
+    }
+  }
+}
+
+
+/* =================================================================
+   FIREBASE CONFIG  —  Community Posts Storage
+   =================================================================
+   HOW TO SET UP (takes about 10 minutes, totally free):
+
+
+   STEP 1 → Go to: https://console.firebase.google.com
+   STEP 2 → Click "Add project" → name it "period-app"
+   STEP 3 → Click the </> Web icon to add a web app
+   STEP 4 → Copy the firebaseConfig object they show you
+   STEP 5 → Paste it below, replacing "null" after FIREBASE_CONFIG =
+   STEP 6 → In Firebase: Build → Realtime Database → Create database
+             Choose "Start in test mode" (free Spark plan)
+
+
+   Until you set this up, community posts save to the user's device
+   (still works — Firebase just adds cross-device sharing later).
+   ================================================================= */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDjpDjka-euNeTPkwRE62lqojzGNzPSADI",
+  authDomain:        "period-delivers.firebaseapp.com",
+  projectId:         "period-delivers",
+  storageBucket:     "period-delivers.firebasestorage.app",
+  messagingSenderId: "1076074649022",
+  appId:             "1:1076074649022:web:3538dcd4b424bde16095ef"
+};
+
+
+let _firebaseDb = null;
+let _firebaseFs = null;
+(function initFirebase() {
+  if (!FIREBASE_CONFIG) return;
+  try {
+    if (typeof firebase === 'undefined') return;
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _firebaseDb = firebase.database();
+    _firebaseFs = firebase.firestore();
+  } catch(e) { console.warn('[Period.] Firebase init failed:', e); }
+})();
+
+
+/* =================================================================
+   EMAILJS CONFIG  —  Newsletter Send (Free: 200 emails/month)
+   =================================================================
+   HOW TO SET UP (takes about 5 minutes, totally free):
+
+
+   STEP 1 → Go to: https://www.emailjs.com → Create free account
+   STEP 2 → Email Services → Add Service → connect your Gmail
+   STEP 3 → Email Templates → Create Template
+             Subject: "Welcome to the . community! 💜"
+             Body: paste the template below
+   STEP 4 → Copy your Service ID, Template ID, and Public Key
+   STEP 5 → Paste them below
+
+
+   --- NEWSLETTER TEMPLATE (paste into EmailJS template body) ---
+   Hi there!
+
+
+   Welcome to the . community. 💜
+
+
+   You just unlocked your free Period Tracker — use it to log
+   your cycle, predict your next period, and get gentle reminders.
+
+
+   Every month you'll receive:
+   • Cycle education tailored to your phase
+   • Trending product picks
+   • Community support + exclusive drops
+
+
+   Shop now: https://perioddelivers.com
+
+
+   With love,
+   The . Team  |  Period. LLC — Cleveland, OH
+   Unsubscribe: reply "unsubscribe" to this email
+   ---------------------------------------------------------------
+
+
+   Until you set this up, subscribers are saved and you can
+   email them manually from your dashboard.
+   ================================================================= */
+const EMAILJS_CONFIG = {
+  serviceId:  'service_915qjs4',
+  templateId: 'template_22llltm',
+  publicKey:  'QcMi8VDsTqRYe59_D'
+};
+
+
+/* =================================================================
+   STRIPE CONFIG  —  Card Payments, Apple Pay, Google Pay
+   =================================================================
+   HOW TO ACTIVATE (10 min — free Stripe account):
+
+
+   STEP 1 → https://dashboard.stripe.com/register → create account
+   STEP 2 → Add your bank account (needed for payouts)
+   STEP 3 → Dashboard → Developers → API Keys
+   STEP 4 → Copy Publishable Key (starts with pk_live_... or pk_test_...)
+   STEP 5 → Replace null below:
+             { publishableKey: 'pk_live_...' }
+
+
+   Apple Pay + Google Pay: go live automatically once domain is verified.
+   Stripe Dashboard → Settings → Payment Methods → Apple Pay → Add domain
+   ================================================================= */
+const STRIPE_CONFIG = null; // ← { publishableKey: 'pk_live_...' }
+
+
+let _stripe = null;
+if (STRIPE_CONFIG && typeof Stripe !== 'undefined') {
+  try { _stripe = Stripe(STRIPE_CONFIG.publishableKey); }
+  catch(e) { console.warn('[Period.] Stripe init failed:', e); }
+}
+
+
+
+
+if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+  try { emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey }); } catch(e) { console.warn('[Period.] EmailJS init failed:', e); }
+}
+
+
+/* =============================================
+   COMMUNITY — NICKNAME + GREETING + DISCUSSION
+   ============================================= */
+
+
+const COMMUNITY_NICKNAME_KEY = 'period_nickname';
+const COMMUNITY_POSTS_KEY    = 'period_community_posts';
+
+
+const COMMUNITY_TOPICS = [
+  { id:'period-week',    title:'Period Week Talk',       emoji:'🩸', desc:'You\'re not alone this week. Share how you\'re feeling, ask for support, or just vent.' },
+  { id:'self-care',      title:'Self-Care Rituals',      emoji:'💆', desc:'What\'s working for you? Drop your go-to rituals, products, or comfort habits.' },
+  { id:'ask-anything',   title:'Ask Anything',           emoji:'💬', desc:'No question is too small. No judgment. We\'ve all been there.' },
+  { id:'wins',           title:'Wins & Encouragement',  emoji:'👑', desc:'Celebrate something — big or tiny. Uplift someone who needs it today.' },
+  { id:'reviews',        title:'Product Reviews',        emoji:'⭐', desc:'Which products are actually worth it? Help the community shop smarter.' },
+];
+
+
+const COMMUNITY_SEED = {
+  'period-week': [
+    { id:'s1', author:'Anonymous Queen',   time:'3h ago',  text:'Genuinely crying at a commercial right now and I have zero explanation. We are in it today 😭 Anyone else?', likes:24 },
+    { id:'s2', author:'TheaRose',          time:'5h ago',  text:'Day 2 is always my worst. Heat patches + dark chocolate + this app = survival kit. That is my entire plan today.', likes:18 },
+    { id:'s3', author:'JoyfulCycles',      time:'1d ago',  text:'Reminder that feeling EVERYTHING this week is literally hormonal — estrogen drops, serotonin drops with it. You are not being dramatic. You are being accurate. 💜', likes:41 },
+  ],
+  'self-care': [
+    { id:'s4', author:'NaturalQueen',      time:'2h ago',  text:'Castor oil pack on my lower abdomen last night + a heating pad on top. Slept through the whole night with no cramps for the first time in YEARS. Try it.', likes:35 },
+    { id:'s5', author:'WellnessWitch',     time:'6h ago',  text:'Magnesium glycinate two weeks before your period. Please trust me on this. It changed everything about my luteal phase.', likes:52 },
+  ],
+  'ask-anything': [
+    { id:'s6', author:'FirstTimer2024',    time:'1h ago',  text:'Is it normal for cramps to be worse in your 20s than they were as a teen? Mine have been SO much worse lately and I don\'t know if that\'s normal or if I should go to the doctor.', likes:7 },
+    { id:'s7', author:'CycleExpert',       time:'2h ago',  text:'@FirstTimer2024 Yes, and also no — worsening cramps can be normal hormonal shifts, but it can also be endometriosis or fibroids. If it\'s significantly worse, please see a doctor. You deserve to not be in that much pain. 💜', likes:19 },
+  ],
+  'wins': [
+    { id:'s8', author:'SundayQueen',       time:'4h ago',  text:'Got through a full workday on Day 1 without going home early for the FIRST time. A tiny win that felt enormous. Heating patch + 800mg ibuprofen + this community. Thank you.', likes:67 },
+    { id:'s9', author:'TamaraBee',         time:'8h ago',  text:'Finally made a doctor\'s appointment after years of just suffering through it. That alone felt like a win. Rooting for all of us 👑', likes:88 },
+  ],
+  'reviews': [
+    { id:'s10', author:'OrganicMaven',     time:'1d ago',  text:'The Organic Tampons Variety pack from here — 10/10. No irritation, no smell, they actually WORK. I\'ve switched fully.', likes:31 },
+    { id:'s11', author:'CuddleQueen',      time:'2d ago',  text:'The microwavable bunny is not a joke. I heated it up, held it against my lower back, fell asleep. Woke up with no cramps. SOLD.', likes:45 },
+  ],
+};
+
+
+let _commActiveTopic = null;
+
+
+function getNickname() {
+  const m = document.cookie.match(/period_nickname=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function setNickname(name) {
+  document.cookie = 'period_nickname=' + encodeURIComponent(name.trim()) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+
+function getTimeGreeting(name) {
+  const h = new Date().getHours();
+  const greets = h < 5
+    ? [`Still up, ${name}? We see you. Rest when you can. 💜`, `Late night, ${name}. Take care of yourself tonight.`]
+    : h < 12
+    ? [`Good morning, ${name}. You\'ve got this today. 💜`, `Morning, ${name}. Whatever this day holds — you\'re ready.`, `Rise and shine, ${name}. We\'re in your corner.`]
+    : h < 17
+    ? [`Hey ${name}. Hope your afternoon is treating you gently.`, `Good afternoon, ${name}. Taking care of yourself today? 💜`, `Hey ${name}. You\'re doing great — keep going.`]
+    : h < 21
+    ? [`Good evening, ${name}. Time to wind down a little. 💜`, `Hey ${name}. Hope today was kind to you.`, `Evening, ${name}. You deserve a moment to breathe.`]
+    : [`Good night, ${name}. Rest well — your body does its best work while you sleep. 💜`, `Hey ${name}. End of day rest is sacred. Take it.`];
+  return greets[Math.floor(Math.random() * greets.length)];
+}
+
+
+function getCommunityPosts(topicId) {
+  try {
+    const m = document.cookie.match(/period_community=([^;]+)/);
+    const all = m ? JSON.parse(decodeURIComponent(m[1])) : {};
+    return all[topicId] || [];
+  } catch { return []; }
+}
+
+
+function saveCommunityPost(topicId, text, author) {
+  try {
+    const cm = document.cookie.match(/period_community=([^;]+)/);
+    const all = cm ? JSON.parse(decodeURIComponent(cm[1])) : {};
+    if (!all[topicId]) all[topicId] = [];
+    const post = {
+      id: 'u' + Date.now(),
+      author: author || 'You',
+      time: 'just now',
+      text: text.trim(),
+      likes: 0,
+      isOwn: true,
+    };
+    all[topicId].unshift(post);
+    document.cookie = 'period_community=' + encodeURIComponent(JSON.stringify(all)) + ';max-age=946080000;path=/;SameSite=Lax';
+    // Also write to Firebase if configured (fire-and-forget)
+    if (_firebaseDb) {
+      const fbPost = Object.assign({}, post, { ts: Date.now() });
+      _firebaseDb.ref('community/' + topicId + '/' + post.id).set(fbPost)
+        .catch(e => console.warn('[Period.] Firebase write failed:', e));
+    }
+    return post;
+  } catch { return null; }
+}
+
+
+function renderCommunityHome() {
+  const name    = getNickname();
+  const greet   = $('commGreeting');
+  const topics  = $('commTopics');
+  const thread  = $('commThread');
+
+
+  if (thread)  thread.style.display  = 'none';
+  if (topics)  topics.style.display  = '';
+  if (greet)   greet.style.display   = '';
+  _commActiveTopic = null;
+
+
+  if (greet && name) {
+    const txt = $('commGreetingText');
+    if (txt) txt.textContent = getTimeGreeting(name);
+  }
+
+
+  const grid = $('commTopicGrid');
+  if (!grid) return;
+  grid.innerHTML = COMMUNITY_TOPICS.map(t => {
+    const seedCount  = (COMMUNITY_SEED[t.id] || []).length;
+    const userPosts  = getCommunityPosts(t.id).length;
+    const total      = seedCount + userPosts;
+    return `<button class="comm-topic-card" data-topic="${t.id}" onclick="openCommTopic('${t.id}')">
+      <span class="comm-topic-emoji" aria-hidden="true">${t.emoji}</span>
+      <div class="comm-topic-info">
+        <div class="comm-topic-title">${t.title}</div>
+        <div class="comm-topic-desc">${t.desc}</div>
       </div>
-      <div class="review-thanks" id="reviewThanks" style="display:none"><span class="review-thanks-emoji" id="reviewThanksEmoji"></span><span class="review-thanks-text">Thanks for the feedback!</span></div>
-    </div>
-    <div class="monthly-upsell" id="monthlyUpsell">
-      <div class="upsell-divider"></div>
-      <p class="upsell-question">Make this a monthly delivery? &#x1F451;</p>
-      <p class="upsell-sub">Never run out again. We'll send your essentials every month &mdash; cancel anytime.</p>
-      <div class="upsell-btns"><button class="upsell-yes" id="upsellYes">Yes, set it up &#x2728;</button><button class="upsell-no" id="upsellNo">Not right now</button></div>
-    </div>
-  </div>
-</div>
+      <div class="comm-topic-count">${total}</div>
+    </button>`;
+  }).join('');
+}
 
-<div class="success-modal" id="subscribeSuccess" role="dialog" aria-modal="true" aria-label="Subscription confirmed">
-  <div class="success-card">
-    <div class="success-icon">&#x1F451;</div>
-    <div class="success-eta" id="subscribeSuccessEta"></div>
-    <div class="success-title">You're Subscribed!</div>
-    <p class="success-sub" id="subscribeSuccessSub">Your first care package is on its way. You'll receive a confirmation with your delivery date shortly.</p>
-    <button class="success-btn" id="subscribeSuccessClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Back to Home</button>
-    <div class="manage-sub-row"><span class="manage-sub-hint">Need to change your mind?</span><button class="manage-sub-link" id="manageSubBtn">Manage or cancel subscription</button></div>
-  </div>
-</div>
 
-<!-- ADDRESS MODAL — enhanced with saved addresses + location -->
-<div class="overlay" id="addressOverlay" role="presentation" aria-hidden="true"></div>
-<div class="modal" id="addressModal" role="dialog" aria-modal="true" aria-label="Set delivery address" style="padding:var(--sp-6)">
-  <div class="modal-drag-handle" aria-hidden="true"></div>
-  <div style="padding:var(--sp-2) var(--sp-5) var(--sp-8)">
-    <h2 style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:600;margin-bottom:var(--sp-2)">Delivery Address</h2>
-    <p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-3)">Choose a saved address or enter a new one.</p>
-    <select id="savedAddressSelect" style="width:100%;height:44px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-3);color:var(--text-primary);">
-      <option value="">-- Choose saved address --</option>
-    </select>
-    <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Save as:</div>
-    <div id="addressLabelBtns" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;"></div>
-    <input id="addressLabelCustom" type="text" placeholder="Custom label (e.g. Aunt's House)" style="display:none;width:100%;height:40px;padding:0 var(--sp-3);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:0.75rem;"/>
-    <button id="useLocationBtn" onclick="autoPopulateLocation()" style="width:100%;height:44px;background:var(--surface-2);color:var(--text-primary);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:var(--text-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);margin-bottom:var(--sp-3);cursor:pointer;">&#x1F4CD; Use My Location</button>
-    <input id="addressInput" type="text" placeholder="123 Main St, Cleveland, OH&hellip;" style="width:100%;height:48px;padding:0 var(--sp-4);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);outline:none;margin-bottom:var(--sp-4)"/>
-    <button id="addressSave" style="width:100%;height:48px;background:var(--accent);color:white;border-radius:var(--r-full);font-size:var(--text-sm);font-weight:700;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Save Address
-    </button>
-  </div>
-</div>
+function openCommTopic(topicId) {
+  _commActiveTopic = topicId;
+  const topic   = COMMUNITY_TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- NEWSLETTER MODAL -->
-<div class="nl-modal" id="newsletterModal" role="dialog" aria-modal="true" aria-label="Subscribe to newsletter" style="display:none">
-  <div class="nl-modal-inner">
-    <button class="nl-close-btn" id="nlCloseBtn" aria-label="Close newsletter"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    <div class="nl-brand-mark" aria-hidden="true"><img class="nl-crown" src="crown.png" alt="" aria-hidden="true"><span class="nl-dot">.</span></div>
-    <div id="nlFormState">
-      <h2 class="nl-title" id="nlTitle">know your cycle.<br>own your health.</h2>
-      <p class="nl-eyebrow" id="nlEyebrow">monthly education &middot; free &middot; tailored to you</p>
-      <div class="nl-fact-card" id="nlFactCard"><span class="nl-fact-icon" id="nlFactIcon">&#x1F9E0;</span><p class="nl-fact-text" id="nlFactText">Loading this week's fact&hellip;</p></div>
-      <ul class="nl-perks">
-        <li><span>&#x1F4CA;</span><div><strong>Free period tracker</strong><br>Track your cycle, predict your phases, get wellness tips.</div></li>
-        <li><span id="nlPerkIcon">&#x1F9E0;</span><div><strong id="nlPerkTitle">Monthly cycle facts</strong><br>Physical &middot; mental &middot; emotional &mdash; tailored to your stage.</div></li>
-        <li><span>&#x1F525;</span><div><strong>Trending finds</strong><br>What's working right now in cycle wellness.</div></li>
-        <li><span>&#x1F485;</span><div><strong>Your journey, your content</strong><br>We personalize based on where you are in life.</div></li>
+  const greet  = $('commGreeting');
+  const topics = $('commTopics');
+  const thread = $('commThread');
+  if (greet)  greet.style.display  = 'none';
+  if (topics) topics.style.display = 'none';
+  if (thread) thread.style.display = '';
+
+
+  const header = $('commThreadHeader');
+  if (header) header.textContent = topic.emoji + ' ' + topic.title;
+
+
+  renderCommPosts(topicId);
+}
+
+
+function renderCommPosts(topicId) {
+  const container = $('commPosts');
+  if (!container) return;
+
+
+  const seed  = (COMMUNITY_SEED[topicId] || []).map(p => ({...p, isOwn: false}));
+  const user  = getCommunityPosts(topicId);
+  const all   = [...user, ...seed];
+
+
+  container.innerHTML = all.map(p => `
+    <div class="comm-post ${p.isOwn ? 'comm-post--own' : ''}">
+      <div class="comm-post-header">
+        <span class="comm-post-author">${p.isOwn ? '👑 ' + p.author : p.author}</span>
+        <span class="comm-post-time">${p.time}</span>
+      </div>
+      <div class="comm-post-text">${p.text}</div>
+      <div class="comm-post-footer">
+        <button class="comm-like-btn" data-id="${p.id}" onclick="likePost('${topicId}','${p.id}',this)" aria-label="Like post">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="${p.liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          ${p.likes}
+        </button>
+      </div>
+    </div>`).join('') || '<p class="comm-empty">Be the first to post here. 💜</p>';
+
+
+  container.scrollTop = 0;
+}
+
+
+function likePost(topicId, postId, btn) {
+  if (!btn) return;
+  btn.classList.toggle('liked');
+  const heart = btn.querySelector('svg');
+  const liked = btn.classList.contains('liked');
+  if (heart) heart.setAttribute('fill', liked ? 'currentColor' : 'none');
+  const current = parseInt(btn.textContent.trim()) || 0;
+  btn.innerHTML = btn.innerHTML.replace(/\d+$/, liked ? current + 1 : Math.max(0, current - 1));
+}
+
+
+function submitCommPost() {
+  const input  = $('commInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const name = getNickname() || 'You';
+  saveCommunityPost(_commActiveTopic, text, name);
+  input.value = '';
+  renderCommPosts(_commActiveTopic);
+  showToast('Posted! 💜');
+}
+
+
+function initCommunity() {
+  const name = getNickname();
+  if (!name) {
+    // Show nickname prompt
+    const modal   = $('nicknameModal');
+    const overlay = $('nicknameOverlay');
+    if (modal) {
+      modal.style.display = 'flex';
+      if (overlay) overlay.style.display = 'block';
+      requestAnimationFrame(() => {
+        modal.classList.add('open');
+        if (overlay) overlay.classList.add('open');
+      });
+      setTimeout(() => {
+        const inp = $('nicknameInput');
+        if (inp) inp.focus();
+      }, 400);
+    }
+  } else {
+    renderCommunityHome();
+  }
+}
+
+
+function confirmNickname() {
+  const inp = $('nicknameInput');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) { inp.placeholder = 'Please enter a name first...'; return; }
+  setNickname(val);
+  const modal   = $('nicknameModal');
+  const overlay = $('nicknameOverlay');
+  if (modal)   { modal.classList.remove('open'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
+  if (overlay) { overlay.classList.remove('open'); setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+  renderCommunityHome();
+}
+
+
+document.addEventListener('DOMContentLoaded', init);
+
+
+/* =============================================
+   TRENDS SYSTEM
+   ============================================= */
+
+
+// Bundled fallback — mirrors trends.json exactly
+const TRENDS_DEFAULT = {
+  version: '2026-W14',
+  trendingProductIds: [10, 17, 22, 25, 26, 4, 5],
+  trendBadge: '🔥 Trending',
+  weeklyFocus: {
+    teen:      { label: 'LutealTok Era 🌙',    desc: 'Understanding your pre-period phase' },
+    adult:     { label: 'Cycle Syncing 2026',  desc: 'Match your life to your hormones' },
+    emergency: { label: 'Always Prepared ⚡',  desc: 'Never get caught off guard again' },
+    gifter:    { label: 'Gift the Glow-Up 💝', desc: 'What she actually wants this cycle' },
+    holistic:  { label: 'Clean Cycle Era 🌿',  desc: 'All-natural period care, curated for you' },
+  },
+  slang: {
+    teen:      ["understood the assignment 💅","main character era ✨","it's giving wellness 🌸","slay, periodt 👑","LutealTok made me do it 🌙","cycle check queen 👑","that girl activated ✨","real for that, no cap 💜","hot girl healing era 🌸","understood the vibes 💅"],
+    adult:     ["living in alignment 🌙","luteal phase supported 💜","cycle-synced and thriving","hormonal health era 🌿","radical softness, always","doing the work 👑","follicular energy activated ✨","in my wellness era 🌸","cycle-aware baddie 👑","aligned and unbothered 🌙"],
+    emergency: ["we've got you, always ⚡","SOS handled 🚨","never caught off guard 💪","always stocked, always ready 🧷"],
+    gifter:    ["show up for her 👑","she deserves it, periodt 💝","thoughtful queen energy 🎁","because you see her 💜"],
+    holistic:  ["clean cycle era 🌿","toxin-free and thriving","organic baddie energy 💚","zero waste, full power ♻️","plant-based and intentional 🌱","she cycles naturally 🌿"],
+  },
+  facts: {
+    teen: [
+      { icon: '🌱', text: "It takes 2–3 years after your first period for your cycle to fully regulate. You're not broken — you're calibrating." },
+      { icon: '🧠', text: "Your brain literally changes throughout your cycle. In the days before your period, creative thinking actually peaks. No cap." },
+      { icon: '💜', text: "Estrogen affects serotonin. Low estrogen before your period means lower serotonin — the emotional sensitivity is real, not dramatic." },
+      { icon: '🔥', text: "'Period brain' is real. Iron loss during your period affects focus and memory. Iron-rich foods and rest genuinely help." },
+      { icon: '💊', text: "Cramps are caused by prostaglandins — the same chemicals that cause inflammation. Heat + ibuprofen work together for a reason." },
+      { icon: '🌙', text: "Your skin, energy, mood, digestion, and sleep all change throughout your cycle. Understanding the pattern is literally a superpower." },
+    ],
+    adult: [
+      { icon: '🧬', text: "Your luteal phase metabolism rises by ~5–10%. Those carb cravings before your period are your body asking for more fuel. Biochemistry, not weakness." },
+      { icon: '🧠', text: "Estrogen affects serotonin. Progesterone affects GABA. Your emotional map is hormonal — and it's always valid." },
+      { icon: '🩺', text: "1 in 10 women has endometriosis. Average time to diagnosis: 7–10 years. Advocating for your pain is always the right move." },
+      { icon: '💪', text: "Your pain tolerance actually drops in the luteal phase — up to 35% in some studies. You're not weak. You're hormonally accurate." },
+      { icon: '🌿', text: "PCOS affects up to 10% of women and is a leading cause of infertility. Many cases go undiagnosed for years. Know your cycle, know your body." },
+      { icon: '🌙', text: "Magnesium deficiency is common in the luteal phase and linked directly to PMS severity. Dark chocolate + magnesium glycinate: not a coincidence." },
+    ],
+    emergency: [
+      { icon: '⚡', text: "Always keep a backup. Setting up auto-delivery means you'll always have essentials — no more unexpected emergencies." },
+      { icon: '🧠', text: "Stress (like an unexpected period) spikes cortisol, which can actually worsen cramps. Having a plan literally reduces pain." },
+    ],
+    gifter: [
+      { icon: '💝', text: "Research shows that receiving care packages during a menstrual cycle significantly reduces reported emotional distress. Showing up matters." },
+      { icon: '🧠', text: "Dark chocolate contains magnesium — a mineral that's often deficient during the luteal phase and directly linked to PMS. That's why it's craved." },
+    ],
+    holistic: [
+      { icon: '🌿', text: "Conventional pads and tampons may contain pesticide residues, dioxins from bleaching, and synthetic fragrances. Organic and reusable alternatives eliminate this exposure entirely." },
+      { icon: '🌱', text: "The average person uses 10,000–16,000 disposable period products in their lifetime. Switching to reusable options reduces lifetime plastic waste by up to 99%." },
+      { icon: '🫚', text: "Castor oil applied topically to the lower abdomen has been used for centuries to relieve uterine cramping and bloating. The ricinoleic acid it contains has documented anti-inflammatory properties." },
+      { icon: '🍵', text: "Red raspberry leaf contains fragrine, a compound that tones the uterine muscle. Many herbalists recommend it in the luteal phase to reduce cramping and regulate flow." },
+      { icon: '🧪', text: "CBD (cannabidiol) applied topically interacts with the endocannabinoid receptors in pelvic tissue. Third-party tested CBD products show promise for localized cramp relief without systemic effects." },
+      { icon: '💚', text: "Magnesium glycinate is the most bioavailable form of magnesium. Studies show it reduces PMS symptoms by up to 40% when taken consistently in the second half of the cycle." },
+    ],
+  },
+};
+
+
+let _trends = TRENDS_DEFAULT;
+
+
+async function fetchTrends() {
+  try {
+    const res = await fetch('trends.json', { cache: 'no-store' });
+    if (res.ok) _trends = await res.json();
+  } catch (e) { /* fall back to TRENDS_DEFAULT */ }
+  renderTrendingStrip();
+  populateNewsletterFact();
+}
+
+
+function getWeeklySlang(version) {
+  const v   = version || state.version || 'adult';
+  const arr = (_trends.slang || {})[v] || (_trends.slang || {}).adult || [''];
+  const idx = Math.floor(Date.now() / (7 * 24 * 3600 * 1000)) % arr.length;
+  return arr[idx];
+}
+
+
+function renderTrendingStrip() {
+  const strip = $('trendingStrip');
+  if (strip) strip.style.display = 'none';
+}
+
+
+/* =============================================
+   NEWSLETTER SYSTEM
+   ============================================= */
+
+
+function getDeviceId() {
+  let id = localStorage.getItem('period_device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('period_device_id', id);
+  }
+  return id;
+}
+
+
+function getCookie(name) {
+  const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+
+function setCookie(name, val, days) {
+  const exp = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(val) + '; expires=' + exp + '; path=/; SameSite=Lax';
+}
+
+
+function setNLCookie(email, stage) {
+  document.cookie = 'period_nl=' + encodeURIComponent(email + '|' + stage) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+
+function getNLCookie() {
+  const m = document.cookie.match(/period_nl=([^;]+)/);
+  if (!m) return null;
+  const parts = decodeURIComponent(m[1]).split('|');
+  return { email: parts[0], stage: parts[1] || 'adult' };
+}
+
+
+function isNewsletterSubscribed() { return getNLCookie() !== null; }
+
+
+let _nlSelectedStage = null;
+
+
+function populateNewsletterFact() {
+  const v       = state.version || 'adult';
+  const key     = v === 'teen' ? 'teen' : v === 'gifter' ? 'gifter' : v === 'emergency' ? 'emergency' : 'adult';
+  const arr     = (_trends.facts || {})[key] || [];
+  if (!arr.length) return;
+  const weekIdx = Math.floor(Date.now() / (7 * 24 * 3600 * 1000)) % arr.length;
+  const fact    = arr[weekIdx];
+  if ($('nlFactIcon')) $('nlFactIcon').textContent = fact.icon;
+  if ($('nlFactText')) $('nlFactText').textContent = fact.text;
+}
+
+
+function showNewsletterModal() {
+  const modal = $('newsletterModal');
+  if (!modal) return;
+
+
+  // Reset to form state
+  const fs = $('nlFormState'), ss = $('nlSuccessState');
+  if (fs) fs.style.display = '';
+  if (ss) ss.style.display = 'none';
+
+
+  // Populate rotating fact
+  populateNewsletterFact();
+
+
+  // Pre-select stage matching current version
+  const autoStage = (state.version === 'teen') ? 'teen' : 'adult';
+  _nlSelectedStage = autoStage;
+  $$('.nl-stage-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === autoStage));
+
+
+  modal.style.display = 'flex';
+  modal.style.opacity = '';
+  modal.style.transition = '';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { const inp = $('nlEmailInput'); if (inp) inp.focus(); }, 350);
+}
+
+
+function closeNewsletterModal() {
+  const modal = $('newsletterModal');
+  if (!modal) return;
+  modal.style.transition = 'opacity 200ms ease';
+  modal.style.opacity    = '0';
+  setTimeout(() => {
+    modal.style.display    = 'none';
+    modal.style.opacity    = '';
+    modal.style.transition = '';
+    document.body.style.overflow = '';
+  }, 210);
+}
+
+
+function subscribeNewsletter() {
+  const emailInput = $('nlEmailInput');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const stage = _nlSelectedStage || 'adult';
+
+
+  const valid = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!valid) {
+    if (emailInput) {
+      emailInput.focus();
+      emailInput.style.borderColor = 'var(--error)';
+      emailInput.style.boxShadow   = '0 0 0 3px rgba(160,48,48,.18)';
+      setTimeout(() => { emailInput.style.borderColor = ''; emailInput.style.boxShadow = ''; }, 2200);
+    }
+    showToast('Please enter a valid email address');
+    return;
+  }
+
+
+  setNLCookie(email, stage);
+  updateTrackerBtn();
+updateTrackerWidget();
+  // Save subscriber to Firestore
+  if (_firebaseFs) {
+    _firebaseFs.collection('subscribers').add({
+      email,
+      stage,
+      version:   state.version || 'adult',
+      source:    'newsletter_modal',
+      device_id: getDeviceId(),
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Firestore subscriber save failed:', e));
+  }
+
+
+  // Send welcome email via EmailJS if configured
+  if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+    try {
+      const ejPromise = emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        {
+          to_email:   email,
+          to_name:    'there',
+          life_stage: stage,
+          version:    state.version || 'adult',
+          store_url:  'https://perioddelivers.com',
+        }
+      );
+      if (ejPromise && typeof ejPromise.catch === 'function') {
+        ejPromise.catch(e => console.warn('[Period.] EmailJS send failed:', e));
+      }
+    } catch(e) {
+      console.warn('[Period.] EmailJS send failed:', e);
+    }
+  }
+
+
+  const fs = $('nlFormState'), ss = $('nlSuccessState');
+  if (fs) fs.style.display = 'none';
+  if (ss) ss.style.display = '';
+
+
+  const msg = $('nlSuccessMsg');
+  if (msg) {
+    msg.textContent = (state.version === 'teen')
+      ? "bestie, your period tracker is unlocked! welcome to the community 🌸"
+      : "Your period tracker is now unlocked. Welcome to the community.";
+  }
+}
+
+
+function updateTrackerBtn() {
+  const btn  = $('trackerAccessBtn');
+  const lock = $('trackerLock');
+  if (!btn) return;
+  if (isNewsletterSubscribed()) {
+    btn.classList.add('unlocked');
+    if (lock) lock.style.display = 'none';
+  } else {
+    btn.classList.remove('unlocked');
+    if (lock) lock.style.display = '';
+  }
+  updateTrackerWidget();
+}
+
+
+function updateTrackerWidget() {
+  const locked   = $('trackerWidgetLocked');
+  const unlocked = $('trackerWidgetUnlocked');
+  const ftbLock  = $('ftbLock');
+  const subscribed = isNewsletterSubscribed();
+
+
+  if (locked)   locked.style.display   = subscribed ? 'none' : '';
+  if (unlocked) unlocked.style.display = subscribed ? ''     : 'none';
+  if (ftbLock)  ftbLock.style.display  = subscribed ? 'none' : '';
+
+
+  if (!subscribed) return;
+
+
+  // Populate widget with tracker data
+  const data      = getTrackerData();
+  const { cycles } = data;
+  const avgLength  = calcAvgCycleLength(cycles);
+  const today      = todayStr();
+  const nextPeriod = getNextPeriodDate(cycles, avgLength);
+  const lastCycle  = cycles.length ? cycles[cycles.length - 1] : null;
+
+
+  if (lastCycle) {
+    const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
+    if ($('twEmoji'))     $('twEmoji').textContent     = emoji;
+    if ($('twPhaseName')) $('twPhaseName').textContent = phase + ' Phase · Day ' + day;
+    if ($('twPhaseDay'))  $('twPhaseDay').textContent  = 'Tap to open your tracker';
+    if ($('twNext') && nextPeriod) {
+      const dtu = daysBetween(today, nextPeriod);
+      $('twNext').textContent = dtu > 0 ? '🩸 Next period in ' + dtu + ' days'
+        : dtu === 0 ? '🩸 Period expected today'
+        : '🩸 Period may be late — bodies vary';
+    }
+  } else {
+    if ($('twEmoji'))     $('twEmoji').textContent     = '🌸';
+    if ($('twPhaseName')) $('twPhaseName').textContent = 'Log a period to begin';
+    if ($('twPhaseDay'))  $('twPhaseDay').textContent  = 'Tap to open your tracker';
+    if ($('twNext'))      $('twNext').textContent      = '';
+  }
+}
+
+
+/* =============================================
+   THE CHANGE, SIS — SHOP FOR THIS STAGE
+   ============================================= */
+function openShopForStage() {
+  navigate('shop');
+  // After navigation, go directly to the Wellness category
+  setTimeout(() => {
+    showProductsMode('wellness');
+    showToast('Showing Wellness products for your stage 💜');
+  }, 120);
+}
+
+
+/* =============================================
+   WHY PERIOD MODAL
+   ============================================= */
+function openWhyModal() {
+  const modal   = $('whyModal');
+  const overlay = $('whyOverlay');
+  if (!modal) return;
+  renderWhyModal();
+  modal.style.display   = 'flex';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    modal.classList.add('open');
+    overlay.classList.add('open');
+  });
+}
+
+
+function closeWhyModal() {
+  const modal   = $('whyModal');
+  const overlay = $('whyOverlay');
+  if (!modal) return;
+  modal.classList.remove('open');
+  overlay.classList.remove('open');
+  setTimeout(() => {
+    modal.style.display   = 'none';
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+
+function renderWhyModal() {
+  const v    = state.version || 'adult';
+  const data = WHY_PERIOD[v] || WHY_PERIOD.adult;
+  if ($('whyHeadline'))  $('whyHeadline').textContent  = data.headline;
+  if ($('whyTagline2'))  $('whyTagline2').textContent  = data.tagline;
+  if ($('whyFooterSub')) $('whyFooterSub').textContent = data.footer;
+  const btn = $('whyShopBtn');
+  if (btn) btn.textContent = data.cta;
+  const cards = $('whyCards');
+  if (!cards) return;
+  cards.innerHTML = data.cards.map((card, i) => `
+    <div class="why-card" style="animation-delay:${i * 90}ms">
+      <div class="why-card-top">
+        <span class="why-card-icon" aria-hidden="true">${card.icon}</span>
+        <span class="why-card-label">${card.label}</span>
+      </div>
+      <div class="why-card-title">${card.title}</div>
+      <div class="why-card-body">${card.body}</div>
+    </div>`).join('');
+}
+
+
+/* =============================================
+   PERIOD TRACKER
+   ============================================= */
+
+
+function getTrackerData() {
+  const m = document.cookie.match(/period_cycles=([^;]+)/);
+  if (!m) return { cycles: [], avgLength: 28 };
+  try { return JSON.parse(decodeURIComponent(m[1])); } catch (e) { return { cycles: [], avgLength: 28 }; }
+}
+
+
+function setTrackerData(data) {
+  document.cookie = 'period_cycles=' + encodeURIComponent(JSON.stringify(data)) + ';max-age=978307200;path=/;SameSite=Lax';
+}
+
+
+let trackerDisplayMonth = null; // { year, month } — 0-indexed month
+
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+}
+
+
+function calcAvgCycleLength(cycles) {
+  if (cycles.length < 2) return 28;
+  const lengths = [];
+  for (let i = 1; i < cycles.length; i++) {
+    const d = daysBetween(cycles[i-1].s, cycles[i].s);
+    if (d > 14 && d < 60) lengths.push(d);
+  }
+  return lengths.length ? Math.round(lengths.reduce((a,b) => a+b, 0) / lengths.length) : 28;
+}
+
+
+function calcAvgDuration(cycles) {
+  const complete = cycles.filter(c => c.s && c.e);
+  if (!complete.length) return 5;
+  const durations = complete.map(c => daysBetween(c.s, c.e) + 1);
+  return Math.round(durations.reduce((a,b) => a+b, 0) / durations.length);
+}
+
+
+function getNextPeriodDate(cycles, avgLength) {
+  if (!cycles || !cycles.length) return null;
+  return addDays(cycles[cycles.length - 1].s, avgLength);
+}
+
+
+function getCurrentPhase(startDate) {
+  const day = daysBetween(startDate, todayStr()) + 1;
+  if (day < 1)   return { phase: 'Upcoming',   day, emoji: '🌙' };
+  if (day <= 5)  return { phase: 'Menstrual',  day, emoji: '🩸' };
+  if (day <= 13) return { phase: 'Follicular', day, emoji: '🌱' };
+  if (day <= 16) return { phase: 'Ovulatory',  day, emoji: '✨' };
+  return           { phase: 'Luteal',      day, emoji: '🌙' };
+}
+
+
+function getPhaseInfo(phase, version) {
+  const teen = version === 'teen';
+  const tips = {
+    Menstrual:  teen ? "rest is productive, bestie. heat patches + hydration — you're literally shedding your lining 🩸"
+                     : "Your body is working hard. Rest, warmth, and iron-rich foods support you most right now.",
+    Follicular: teen ? "main character energy is back ✨ estrogen is rising — lean into it, periodt"
+                     : "Rising estrogen brings clarity and energy. A great time to begin new projects.",
+    Ovulatory:  teen ? "peak you era 🌟 you're magnetic rn, no cap"
+                     : "Peak energy and confidence. Your communication and creativity are sharpest now.",
+    Luteal:     teen ? "LutealTok era incoming 🌙 slow down, hydrate, magnesium genuinely helps. your feelings are valid."
+                     : "Honor the slowdown. Magnesium, gentle movement, and rest support your luteal phase.",
+    Upcoming:   teen ? "your cycle is coming soon 🌙 be kind to yourself, stay stocked"
+                     : "Your next period is approaching. Rest and nourish your body.",
+  };
+  return tips[phase] || tips.Luteal;
+}
+
+
+
+
+/* =============================================
+   IMPACT CHECK SYSTEM
+   ============================================= */
+
+function showImpactCheck(dateStr) {
+  const overlay = document.createElement('div');
+  overlay.id = 'impactCheckOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="max-width:400px;width:100%;background:var(--surface);border-radius:24px;padding:1.75rem;border:1px solid rgba(168,85,247,0.25);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+        <div style="font-size:1.5rem;">&#x1F4CB;</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);background:var(--surface-2);padding:0.2rem 0.6rem;border-radius:999px;">takes ~30 seconds &#x2728;</span>
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Quick Impact Check</h2>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5;">Help us build a clearer picture for your healthcare provider.</p>
+
+      <!-- Q1: Daily impact -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">1. Did your symptoms affect your day today?</div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;" id="impactQ1">
+          <button class="impact-opt" data-q="impact" data-val="none" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F60A; Not at all</button>
+          <button class="impact-opt" data-q="impact" data-val="slight" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F610; Slightly &mdash; managed through it</button>
+          <button class="impact-opt" data-q="impact" data-val="moderate" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F614; Moderately &mdash; had to slow down</button>
+          <button class="impact-opt" data-q="impact" data-val="severe" style="padding:0.75rem 1rem;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.875rem;text-align:left;cursor:pointer;">&#x1F62B; Severely &mdash; could not function normally</button>
+        </div>
+      </div>
+
+      <!-- Q2: What was affected -->
+      <div style="margin-bottom:1.25rem;" id="impactQ2Section" style="display:none;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">2. What was affected? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ2">
+          ${['&#x1F3EB; School/classes','&#x1F4BC; Work','&#x1F3C3; Exercise','&#x1F634; Sleep','&#x1F91D; Social plans','&#x1F37D;&#xFE0F; Eating/appetite','&#x1F9E0; Focus/concentration'].map(item =>
+            '<button class="impact-multi" data-item="'+item+'" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.78rem;cursor:pointer;">'+item+'</button>'
+          ).join('')}
+          <button class="impact-multi" data-item="none" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;">None of the above</button>
+        </div>
+      </div>
+
+      <!-- Q3: Irregularities -->
+      <div style="margin-bottom:1.25rem;" id="impactQ3Section">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">3. Any cycle irregularities today? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ3">
+          ${['Heavier than normal','Lighter than normal','Unusual pain location','Spotting between periods','Longer than usual','Shorter than usual'].map(item =>
+            '<button class="impact-irreg" data-item="'+item+'" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-primary);font-size:0.78rem;cursor:pointer;">'+item+'</button>'
+          ).join('')}
+          <button class="impact-irreg" data-item="nothing" style="padding:0.5rem 0.75rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;">Nothing unusual</button>
+        </div>
+      </div>
+
+      <button id="saveImpactBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:0.5rem;">Save &amp; Done &#x1F49C;</button>
+      <button id="skipImpactBtn" style="width:100%;padding:0.5rem;background:none;border:none;color:var(--text-muted);font-size:0.82rem;cursor:pointer;">skip for today</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Wire Q1 - show Q2 when answered
+  let selectedImpact = null;
+  const selectedActivities = new Set();
+  const selectedIrreg = new Set();
+
+  overlay.querySelectorAll('.impact-opt').forEach(btn => {
+    btn.addEventListener('click', function() {
+      overlay.querySelectorAll('.impact-opt').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'var(--surface-2)';
+        b.style.fontWeight = '400';
+      });
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.background = 'rgba(168,85,247,0.12)';
+      btn.style.fontWeight = '600';
+      selectedImpact = btn.dataset.val;
+      // Show Q2 if impact > none
+      const q2 = document.getElementById('impactQ2Section');
+      if (q2) q2.style.display = selectedImpact !== 'none' ? '' : 'none';
+    });
+  });
+
+  // Wire Q2 multi-select
+  overlay.querySelectorAll('.impact-multi').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const item = btn.dataset.item;
+      if (item === 'none') {
+        selectedActivities.clear();
+        overlay.querySelectorAll('.impact-multi').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+        selectedActivities.add('none');
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.background = 'rgba(168,85,247,0.12)';
+      } else {
+        selectedActivities.delete('none');
+        if (selectedActivities.has(item)) {
+          selectedActivities.delete(item);
+          btn.style.borderColor = 'var(--border)';
+          btn.style.background = 'var(--surface-2)';
+        } else {
+          selectedActivities.add(item);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.background = 'rgba(168,85,247,0.12)';
+        }
+        // Deselect none
+        overlay.querySelectorAll('.impact-multi[data-item="none"]').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+      }
+    });
+  });
+
+  // Wire Q3 multi-select
+  overlay.querySelectorAll('.impact-irreg').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const item = btn.dataset.item;
+      if (item === 'nothing') {
+        selectedIrreg.clear();
+        overlay.querySelectorAll('.impact-irreg').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+        selectedIrreg.add('nothing');
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.background = 'rgba(168,85,247,0.12)';
+      } else {
+        selectedIrreg.delete('nothing');
+        if (selectedIrreg.has(item)) {
+          selectedIrreg.delete(item);
+          btn.style.borderColor = 'var(--border)';
+          btn.style.background = 'var(--surface-2)';
+        } else {
+          selectedIrreg.add(item);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.background = 'rgba(168,85,247,0.12)';
+        }
+        overlay.querySelectorAll('.impact-irreg[data-item="nothing"]').forEach(b => {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'var(--surface-2)';
+        });
+      }
+    });
+  });
+
+  // Save
+  document.getElementById('saveImpactBtn').addEventListener('click', function() {
+    const impactData = getSymptomsData();
+    if (!impactData[dateStr]) impactData[dateStr] = {};
+    if (selectedImpact) impactData[dateStr]._impact = selectedImpact;
+    if (selectedActivities.size) impactData[dateStr]._activities = Array.from(selectedActivities);
+    if (selectedIrreg.size) impactData[dateStr]._irregularities = Array.from(selectedIrreg);
+    saveSymptomsData(impactData);
+    overlay.remove();
+    showToast('Impact logged. Your health summary is being updated. &#x1F49C;');
+    setTimeout(() => navigate('home'), 600);
+  });
+
+  document.getElementById('skipImpactBtn').addEventListener('click', function() {
+    overlay.remove();
+    setTimeout(() => navigate('home'), 300);
+  });
+}
+
+function getImpactLabel(val) {
+  const map = { none:'Not affected', slight:'Slightly affected', moderate:'Moderately affected', severe:'Severely affected' };
+  return map[val] || val;
+}
+
+/* =============================================
+   SYMPTOM HEALTH SUMMARY REPORT
+   ============================================= */
+function generateHealthSummary() {
+  const cycleData = getTrackerData();
+  const symptomData = getSymptomsData();
+  const cycles = cycleData.cycles;
+
+  if (!cycles.length) {
+    showToast('Log at least one period to generate a summary');
+    return;
+  }
+
+  const lastCycle = cycles[cycles.length - 1];
+  const startDate = lastCycle.s;
+  const endDate   = lastCycle.e || todayStr();
+
+  // Collect all symptom entries for this cycle
+  const entries = [];
+  let d = startDate;
+  while (d <= endDate) {
+    const daySymptoms = symptomData[d];
+    if (daySymptoms && Object.keys(daySymptoms).length > 0) {
+      entries.push({ date: d, symptoms: daySymptoms });
+    }
+    d = addDays(d, 1);
+  }
+
+  if (!entries.length) {
+    showToast('No symptoms logged for this cycle yet');
+    return;
+  }
+
+  // Build summary HTML
+  const avgLen = calcAvgCycleLength(cycles);
+  const summaryEl = document.createElement('div');
+  summaryEl.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;padding:1.5rem;';
+
+  let entriesHtml = entries.map(e => {
+    const impact = e.symptoms._impact;
+    const activities = e.symptoms._activities;
+    const irregs = e.symptoms._irregularities;
+
+    const symptomList = Object.entries(e.symptoms)
+      .filter(([sid]) => !sid.startsWith('_'))
+      .map(([sid, val]) => {
+        const s = SYMPTOMS.find(s => s.id === sid);
+        const label = s ? s.icon + ' ' + s.label : sid;
+        const value = val === true ? 'Yes' : val;
+        return '<li style="margin-bottom:0.25rem;"><strong>' + label + ':</strong> ' + value + '</li>';
+      }).join('');
+
+    let impactHtml = '';
+    if (impact) {
+      const impactColors = { none:'#22c55e', slight:'#eab308', moderate:'#f97316', severe:'#ef4444' };
+      const color = impactColors[impact] || '#A855F7';
+      impactHtml = '<div style="margin-top:0.5rem;padding:0.4rem 0.75rem;background:rgba(168,85,247,0.08);border-radius:8px;font-size:0.8rem;">' +
+        '<strong style="color:' + color + ';">Daily Impact:</strong> ' + getImpactLabel(impact) + '</div>';
+    }
+
+    let activitiesHtml = '';
+    if (activities && activities.length && activities[0] !== 'none') {
+      activitiesHtml = '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted);"><strong>Affected:</strong> ' + activities.join(', ') + '</div>';
+    }
+
+    let irregHtml = '';
+    if (irregs && irregs.length && irregs[0] !== 'nothing') {
+      irregHtml = '<div style="margin-top:0.4rem;font-size:0.8rem;color:#f97316;"><strong>&#x26A0;&#xFE0F; Irregularities:</strong> ' + irregs.join(', ') + '</div>';
+    }
+
+    return '<div style="margin-bottom:1rem;padding:0.75rem;background:rgba(168,85,247,0.08);border-radius:10px;border-left:3px solid var(--accent);">' +
+      '<div style="font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">' + e.date + '</div>' +
+      (symptomList ? '<ul style="list-style:none;padding:0;margin:0;font-size:0.875rem;color:var(--text-muted);">' + symptomList + '</ul>' : '') +
+      impactHtml + activitiesHtml + irregHtml +
+      '</div>';
+  }).join('');
+
+  summaryEl.innerHTML = `
+    <div style="max-width:480px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);">&#x1F4CB; Health Summary</h2>
+        <button id="closeSummaryBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">&#xD7;</button>
+      </div>
+      <div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Cycle Overview</div>
+        <div style="font-size:0.875rem;color:var(--text-primary);line-height:1.8;">
+          <div>&#x1F4C5; Period start: <strong>${startDate}</strong></div>
+          <div>&#x1F4C5; Period end: <strong>${endDate}</strong></div>
+          <div>&#x1F4CA; Average cycle length: <strong>${avgLen} days</strong></div>
+          <div>&#x1F9E0; Symptom days logged: <strong>${entries.length}</strong></div>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Daily Symptom Log</div>
+      ${entriesHtml}
+      <div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-top:1.25rem;border:1px solid rgba(34,197,94,0.2);">
+        <div style="font-size:0.875rem;color:var(--text-primary);line-height:1.7;">
+          <strong>&#x1F4AC; Share with your healthcare provider</strong><br>
+          <span style="color:var(--text-muted);">This summary shows your logged symptoms during your most recent cycle. Screenshot or share this report at your next appointment.</span>
+        </div>
+      </div>
+      <button id="screenshotSummaryBtn" style="width:100%;margin-top:1.25rem;padding:1rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;">&#x1F4F8; Screenshot to Save</button>
+      <button id="emailSummaryBtn" style="width:100%;margin-top:0.75rem;padding:1rem;background:var(--surface-2);color:var(--text-primary);border:1.5px solid var(--border);border-radius:999px;font-size:0.875rem;font-weight:600;cursor:pointer;">&#x1F4E7; Email to Myself</button>
+    </div>`;
+
+  document.body.appendChild(summaryEl);
+
+  document.getElementById('closeSummaryBtn').addEventListener('click', () => summaryEl.remove());
+
+  document.getElementById('screenshotSummaryBtn').addEventListener('click', () => {
+    showToast('Take a screenshot now to save your summary ??');
+  });
+
+  document.getElementById('emailSummaryBtn').addEventListener('click', () => {
+    const nlData = getNLCookie();
+    if (!nlData || !nlData.email) {
+      showToast('Subscribe to the newsletter first to enable email summaries');
+      return;
+    }
+    if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
+      const body = entries.map(e => {
+        return e.date + ': ' + Object.entries(e.symptoms).map(([sid,val]) => {
+          const s = SYMPTOMS.find(s => s.id === sid);
+          return (s ? s.label : sid) + ' - ' + (val === true ? 'Yes' : val);
+        }).join(', ');
+      }).join('\n');
+
+      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        to_email: nlData.email,
+        to_name: 'there',
+        life_stage: 'health_summary',
+        version: state.version || 'adult',
+        store_url: 'Period: ' + startDate + ' to ' + endDate + '\n\n' + body
+
+
+      }).then(() => showToast('Summary sent to ' + nlData.email + ' ??'))
+        .catch(() => showToast('Could not send email. Try screenshotting instead.'));
+    } else {
+      showToast('Email not configured yet. Screenshot your summary for now ??');
+    }
+  });
+}
+
+function renderTracker() {
+  const data       = getTrackerData();
+  const { cycles } = data;
+  const avgLength  = calcAvgCycleLength(cycles);
+  const avgDur     = calcAvgDuration(cycles);
+  const today      = todayStr();
+  const nextPeriod = getNextPeriodDate(cycles, avgLength);
+  const v          = state.version || 'adult';
+  // Optional: seed with last period date if not yet tracked
+  const seedSection = $('trackerSeedSection');
+  if (seedSection) seedSection.style.display = cycles.length ? 'none' : '';
+
+
+  const lastCycle = cycles.length ? cycles[cycles.length - 1] : null;
+  // ---- Phase card ----
+  if (lastCycle) {
+    const { phase, day, emoji } = getCurrentPhase(lastCycle.s);
+    if ($('tpcEmoji')) $('tpcEmoji').textContent = emoji;
+    if ($('tpcPhase')) $('tpcPhase').textContent = phase + ' Phase';
+    if ($('tpcDay'))   $('tpcDay').textContent   = phase === 'Upcoming' ? 'Your next cycle is approaching' : `Cycle day ${day}`;
+    if ($('tpcTip'))   $('tpcTip').textContent   = getPhaseInfo(phase, v);
+
+
+    if ($('tpcNext') && nextPeriod) {
+      const dtu = daysBetween(today, nextPeriod);
+      $('tpcNext').textContent = dtu > 0 ? `🩸 Next period in ${dtu} days`
+        : dtu === 0 ? '🩸 Period expected today'
+        : '🩸 Period may be late — bodies vary';
+    }
+
+
+    // Edu card
+    const fKey = v === 'teen' ? 'teen' : 'adult';
+    const fArr = (_trends.facts || {})[fKey] || [];
+    const piMap = { Menstrual: 0, Follicular: 1, Ovulatory: 2, Luteal: v === 'teen' ? 1 : 4, Upcoming: 5 };
+    const fi    = Math.min(piMap[phase] || 0, fArr.length - 1);
+    if (fArr[fi]) {
+      if ($('tecText')) $('tecText').textContent = fArr[fi].text;
+      const ec = $('trackerEduCard');
+      if (ec) ec.style.display = '';
+    }
+  } else {
+    if ($('tpcEmoji')) $('tpcEmoji').textContent = '🌸';
+    if ($('tpcPhase')) $('tpcPhase').textContent = 'Log a period to begin';
+    if ($('tpcDay'))   $('tpcDay').textContent   = 'Tap "Log Period Start" below';
+    if ($('tpcNext'))  $('tpcNext').textContent  = '';
+    if ($('tpcTip'))   $('tpcTip').textContent   = '';
+  }
+
+
+  // ---- Stats ----
+  if ($('tstatAvg'))      $('tstatAvg').textContent      = cycles.length >= 2 ? avgLength + ' days' : '—';
+  if ($('tstatCount'))    $('tstatCount').textContent    = cycles.length || '—';
+  if ($('tstatDuration')) $('tstatDuration').textContent = cycles.filter(c => c.e).length ? avgDur + ' days' : '—';
+
+
+  // ---- Calendar ----
+  if (!trackerDisplayMonth) {
+    const now = new Date();
+    trackerDisplayMonth = { year: now.getFullYear(), month: now.getMonth() };
+  }
+  renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today);
+}
+
+
+function renderTrackerCalendar(cycles, avgLength, avgDur, nextPeriod, today) {
+  const { year, month } = trackerDisplayMonth;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  if ($('trackerMonthLabel')) $('trackerMonthLabel').textContent = MONTHS[month] + ' ' + year;
+
+
+  const firstDay    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+
+  // Build date sets
+  const loggedSet    = new Set();
+  const predictedSet = new Set();
+  const ovulationSet = new Set();
+
+
+  cycles.forEach(c => {
+    const end = c.e || c.s;
+    let d = c.s;
+    for (let i = 0; i <= 14 && d <= end; i++) { loggedSet.add(d); d = addDays(d, 1); }
+  });
+
+
+  if (nextPeriod) {
+    const pd = avgDur || 5;
+    for (let i = 0; i < pd; i++) predictedSet.add(addDays(nextPeriod, i));
+    for (let i = -16; i <= -11; i++) ovulationSet.add(addDays(nextPeriod, i));
+  }
+
+
+  const grid = $('trackerCalGrid');
+  if (!grid) return;
+
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += `<div class="tcal-day empty"></div>`;
+
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const cls = ['tcal-day'];
+    if (ds === today)              cls.push('today');
+    if (loggedSet.has(ds))         cls.push('period-logged');
+    else if (predictedSet.has(ds)) cls.push('period-predicted');
+    if (ovulationSet.has(ds) && !loggedSet.has(ds) && !predictedSet.has(ds)) cls.push('ovulation');
+    html += `<div class="${cls.join(' ')}" data-date="${ds}" aria-label="${ds}">${d}</div>`;
+  }
+
+
+  grid.innerHTML = html;
+
+
+  grid.querySelectorAll('.tcal-day:not(.empty)').forEach(day => {
+    day.addEventListener('click', () => { if (day.dataset.date > todayStr()) { showToast("Can't log future dates"); return; } logDateFromCalendar(day.dataset.date); });
+  });
+}
+
+
+function logDateFromCalendar(dateStr) {
+  const data = getTrackerData();
+  const existingIdx = data.cycles.findIndex(c => dateStr >= c.s && dateStr <= (c.e || c.s));
+
+
+  if (existingIdx > -1) {
+    // Date already logged — show edit/delete options
+    const cycle = data.cycles[existingIdx];
+    const action = window.confirm(
+      `📅 ${dateStr} is already logged.\n\nClick OK to DELETE this entry.\nClick Cancel to keep it.`
+    );
+    if (action) {
+      data.cycles.splice(existingIdx, 1);
+      data.avgLength = calcAvgCycleLength(data.cycles);
+      setTrackerData(data);
+      renderTracker();
+      showToast('Entry deleted ✓');
+    }
+    return;
+  }
+
+
+  data.cycles.push({ s: dateStr, e: null });
+  data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
+  data.avgLength = calcAvgCycleLength(data.cycles);
+  setTrackerData(data);
+  renderTracker();
+  showToast('Period start logged ✓');
+}
+
+
+function logPeriodStart() {
+  const data  = getTrackerData();
+  const today = todayStr();
+  if (data.cycles.find(c => c.s === today)) { showToast('Period start already logged for today'); return; }
+  if (data.cycles.find(c => today >= c.s && today <= (c.e || c.s))) { showToast('Today is already logged'); return; }
+  data.cycles.push({ s: today, e: null });
+  data.cycles.sort((a, b) => (a.s < b.s ? -1 : 1));
+  data.avgLength = calcAvgCycleLength(data.cycles);
+  setTrackerData(data);
+  renderTracker();
+  showToast('Period start logged ✓');
+}
+
+
+function logPeriodEnd() {
+  const data  = getTrackerData();
+  const today = todayStr();
+  const open  = [...data.cycles].reverse().find(c => !c.e);
+  if (!open)          { showToast('Log a period start first'); return; }
+  if (today < open.s) { showToast("End date can't be before start"); return; }
+  open.e = today;
+  data.avgLength = calcAvgCycleLength(data.cycles);
+  setTrackerData(data);
+  renderTracker();
+  showToast('Period end logged ✓');
+}
+
+
+/* =============================================
+   SYMPTOM LOGGING
+   ============================================= */
+const SYMPTOMS = [
+  { id:'cramps',  label:'Cramps',        icon:'🔥' },
+  { id:'bloating',label:'Bloating',      icon:'🌊' },
+  { id:'headache',label:'Headache',      icon:'🤕' },
+  { id:'cravings',label:'Cravings',      icon:'🍫' },
+  { id:'mood',    label:'Mood',          icon:'💭', options:['Happy 😊','Sad 😢','Anxious 😰','Irritable 😤'] },
+  { id:'energy',  label:'Energy',        icon:'⚡', options:['High ✨','Medium 😐','Low 😴'] },
+  { id:'sleep',   label:'Sleep Quality', icon:'🌙', options:['Great 😴','Okay 😐','Poor 😩'] },
+];
+
+
+function getSymptomsData() {
+  try {
+    const m = document.cookie.match(/period_symptoms=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : {};
+  } catch { return {}; }
+}
+
+
+function saveSymptomsData(data) {
+  document.cookie = 'period_symptoms=' + encodeURIComponent(JSON.stringify(data)) + ';max-age=978307200;path=/;SameSite=Lax';
+}
+
+
+function logSymptom(dateStr, symptomId, value) {
+  const data = getSymptomsData();
+  if (!data[dateStr]) data[dateStr] = {};
+  if (data[dateStr][symptomId] === value) {
+    delete data[dateStr][symptomId];
+    showToast('Symptom removed');
+  } else {
+    data[dateStr][symptomId] = value;
+    showToast('Symptom logged 💜');
+  }
+  saveSymptomsData(data);
+  renderSymptomLog(dateStr);
+}
+
+
+function renderSymptomLog(dateStr) {
+  const container = $('symptomLogSection');
+  if (!container) return;
+  const data = getSymptomsData();
+  const todaySymptoms = data[dateStr] || {};
+
+  let html = '<div class="symptom-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
+    '<div class="symptom-title" style="font-size:1rem;font-weight:700;color:var(--text-primary);">&#x1F338; How are you feeling?</div>' +
+    '<div class="symptom-date" style="font-size:0.75rem;color:var(--text-muted);">' + dateStr + '</div>' +
+    '</div>';
+
+  SYMPTOMS.forEach(function(s) {
+    const logged = todaySymptoms[s.id];
+    if (s.options) {
+      html += '<div style="margin-bottom:1.25rem;">' +
+        '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">' +
+        '<span style="font-size:1.1rem;">' + s.icon + '</span>' +
+        '<span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">' + s.label + '</span>' +
+        (logged ? '<span style="font-size:0.7rem;background:var(--accent);color:white;padding:0.15rem 0.5rem;border-radius:999px;margin-left:auto;">' + logged + '</span>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.5rem;">';
+      s.options.forEach(function(opt) {
+        const active = logged === opt;
+        html += '<button style="width:100%;padding:0.85rem 1rem;text-align:left;border-radius:12px;border:1.5px solid ' +
+          (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
+          (active ? 'rgba(168,85,247,0.12)' : 'var(--surface-2)') + ';color:var(--text-primary);font-size:0.9rem;font-weight:' +
+          (active ? '600' : '400') + ';cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;" ' +
+          'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="' + opt + '" type="button">' +
+          '<span>' + opt + '</span>' +
+          (active ? '<span style="color:var(--accent);">&#x2713;</span>' : '') +
+          '</button>';
+      });
+      html += '</div></div>';
+    } else {
+      const active = !!logged;
+      html += '<button style="width:100%;padding:0.85rem 1rem;border-radius:12px;border:1.5px solid ' +
+        (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
+        (active ? 'rgba(168,85,247,0.12)' : 'var(--surface-2)') + ';color:var(--text-primary);font-size:0.9rem;cursor:pointer;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;transition:all 0.15s;" ' +
+        'data-date="' + dateStr + '" data-sid="' + s.id + '" data-opt="__toggle__" type="button">' +
+        '<span style="font-size:1.1rem;">' + s.icon + '</span>' +
+        '<span style="font-weight:' + (active ? '600' : '400') + ';">' + s.label + '</span>' +
+        (active ? '<span style="margin-left:auto;color:var(--accent);font-weight:700;">&#x2713; Logged</span>' : '<span style="margin-left:auto;color:var(--text-muted);font-size:0.8rem;">tap to log</span>') +
+        '</button>';
+    }
+  });
+
+  // Save button
+  html += '<button id="saveSymptomBtn" style="width:100%;padding:1rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.5rem;">Save &amp; Done &#x2713;</button>';
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('[data-sid]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (btn.id === 'saveSymptomBtn') return;
+      var d = btn.dataset.date;
+      var sid = btn.dataset.sid;
+      var opt = btn.dataset.opt === '__toggle__' ? true : btn.dataset.opt;
+      if (d && sid) {
+        logSymptom(d, sid, opt);
+        renderSymptomLog(d);
+      }
+    });
+  });
+
+  const saveBtn = document.getElementById('saveSymptomBtn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      showToast('Symptoms saved! &#x1F49C;');
+      setTimeout(() => showImpactCheck(dateStr), 400);
+    });
+  }
+}
+function initSymptomLog() {
+  const section = $('symptomLogSection');
+  if (!section) return;
+  renderSymptomLog(todayStr());
+  // Event delegation for symptom option buttons
+  section.addEventListener('click', e => {
+    const btn = e.target.closest('.symptom-opt');
+    if (!btn) return;
+    const dateStr = btn.dataset.date;
+    const sid = btn.dataset.sid;
+    const opt = btn.dataset.opt;
+    if (dateStr && sid && opt) logSymptom(dateStr, sid, opt);
+  });
+  section.addEventListener('click', e => {
+    const btn = e.target.closest('.symptom-card--toggle');
+    if (!btn) return;
+    // handled by inline onclick
+  });
+}
+
+
+/* =============================================
+   PERIOD REMINDER SYSTEM
+   ============================================= */
+
+
+// Cookie: period_reminders = encodeURIComponent(JSON.stringify({browser:true, sms:'555-...', daysBefore:3}))
+function getReminderPrefs() {
+  const m = document.cookie.match(/period_reminders=([^;]+)/);
+  if (!m) return { browser: false, sms: '', daysBefore: 3 };
+  try { return JSON.parse(decodeURIComponent(m[1])); } catch (e) { return { browser: false, sms: '', daysBefore: 3 }; }
+}
+function setReminderPrefs(prefs) {
+  document.cookie = 'period_reminders=' + encodeURIComponent(JSON.stringify(prefs)) + ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+
+let _reminderTab = 'browser'; // 'browser' | 'sms'
+
+
+function initReminders() {
+  // Tab switching
+  const tabBrowser = $('remTabBrowser');
+  const tabSms     = $('remTabSms');
+  const panelBrowser = $('remPanelBrowser');
+  const panelSms     = $('remPanelSms');
+
+
+  function switchRemTab(tab) {
+    _reminderTab = tab;
+    if (tabBrowser)     tabBrowser.classList.toggle('active', tab === 'browser');
+    if (tabSms)         tabSms.classList.toggle('active',     tab === 'sms');
+    if (panelBrowser)   panelBrowser.style.display = tab === 'browser' ? '' : 'none';
+    if (panelSms)       panelSms.style.display     = tab === 'sms'     ? '' : 'none';
+  }
+
+
+  if (tabBrowser) tabBrowser.addEventListener('click', () => switchRemTab('browser'));
+  if (tabSms)     tabSms.addEventListener('click',     () => switchRemTab('sms'));
+
+
+  // Days-before selector
+  const daysRow = document.querySelectorAll('.rem-days-btn');
+  daysRow.forEach(btn => btn.addEventListener('click', () => {
+    daysRow.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }));
+
+
+  // Enable browser notifications
+  const enableBrowserBtn = $('remEnableBrowser');
+  if (enableBrowserBtn) enableBrowserBtn.addEventListener('click', requestBrowserNotifications);
+
+
+  // Save SMS
+  const saveSmsBtn = $('remSaveSms');
+  if (saveSmsBtn) saveSmsBtn.addEventListener('click', saveSmsReminder);
+
+
+  // Restore saved prefs
+  renderReminderState();
+}
+
+
+function getSelectedDaysBefore() {
+  const active = document.querySelector('.rem-days-btn.active');
+  return active ? parseInt(active.dataset.days, 10) : 3;
+}
+
+
+async function requestBrowserNotifications() {
+  if (!('Notification' in window)) {
+    showToast('Push notifications not supported on this browser. Try adding the app to your home screen first! ??');
+    return;
+  }
+  try {
+    if (Notification.permission === 'granted') {
+      saveBrowserReminder();
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      showToast('Notifications are blocked. Go to your browser settings → Site Settings → Notifications → Allow for perioddelivers.com');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      saveBrowserReminder();
+      showToast('Reminders enabled! ??');
+    } else {
+      showToast('Permission not granted. You can enable in browser settings anytime.');
+    }
+  } catch(e) {
+    // Fallback for browsers that don't support the promise version
+    Notification.requestPermission(function(perm) {
+      if (perm === 'granted') {
+        saveBrowserReminder();
+        showToast('Reminders enabled! ??');
+      }
+    });
+  }
+}
+
+
+function saveBrowserReminder() {
+  const prefs = getReminderPrefs();
+  prefs.browser    = true;
+  prefs.daysBefore = getSelectedDaysBefore();
+  setReminderPrefs(prefs);
+  renderReminderState();
+
+
+  // Schedule a demo notification now to confirm it works
+  const data     = getTrackerData();
+  const avgLen   = calcAvgCycleLength(data.cycles);
+  const nextDate = getNextPeriodDate(data.cycles, avgLen);
+  const msg      = nextDate
+    ? `Your period is predicted around ${nextDate}. We'll remind you ${prefs.daysBefore} day${prefs.daysBefore!==1?'s':''} before.`
+    : `Reminders set! Log a period start to activate predictions.`;
+
+
+  new Notification('👑 . Period Reminders Active', { body: msg, icon: 'icon-192.png' });
+  showToast(`Browser reminders set — ${prefs.daysBefore} days before`);
+  checkAndFireReminder(); // check immediately in case reminder is due
+}
+
+
+function saveSmsReminder() {
+  const input = $('remSmsInput');
+  const phone = input ? input.value.trim() : '';
+  if (!phone || phone.length < 7) {
+    if (input) { input.focus(); input.style.borderColor = 'var(--error)'; setTimeout(() => input.style.borderColor = '', 2000); }
+    showToast('Please enter a valid phone number');
+    return;
+  }
+  const prefs = getReminderPrefs();
+  prefs.sms        = phone;
+  prefs.daysBefore = getSelectedDaysBefore();
+  setReminderPrefs(prefs);
+  renderReminderState();
+  showToast('Got it! ?? SMS reminders are set. You will receive a text before your next predicted period.');
+  // Show info about SMS
+  const smsStatus = $('remSmsStatus');
+  if (smsStatus) {
+    smsStatus.style.display = '';
+    smsStatus.textContent   = '\u2705 Saved: ' + phone + ' \u2014 SMS reminders active ' + prefs.daysBefore + ' days before your period.';
+  }
+}
+
+
+function renderReminderState() {
+  const prefs = getReminderPrefs();
+
+
+  // Browser tab status
+  const browserStatus = $('remBrowserStatus');
+  const enableBtn     = $('remEnableBrowser');
+  if (browserStatus && enableBtn) {
+    if (prefs.browser && Notification.permission === 'granted') {
+      browserStatus.style.display = '';
+      browserStatus.textContent   = '\u2705 Browser reminders active \u2014 ' + prefs.daysBefore + ' day' + (prefs.daysBefore!==1?'s':'') + ' before your period.';
+      enableBtn.textContent = 'Update Reminder';
+    } else {
+      browserStatus.style.display = 'none';
+    }
+  }
+
+
+  // Pre-select days
+  document.querySelectorAll('.rem-days-btn').forEach(b => b.classList.toggle('active', +b.dataset.days === prefs.daysBefore));
+
+
+  // SMS tab
+  const smsStatus = $('remSmsStatus');
+  const smsInput  = $('remSmsInput');
+  if (smsStatus && prefs.sms) {
+    smsStatus.style.display = '';
+    smsStatus.textContent   = '\u2705 Saved: ' + prefs.sms + ' \u2014 ' + prefs.daysBefore + ' days before.';
+    if (smsInput) smsInput.value = prefs.sms;
+  }
+}
+
+
+// Check on app open whether a reminder notification should fire
+function checkAndFireReminder() {
+  const prefs = getReminderPrefs();
+  if (!prefs.browser || Notification.permission !== 'granted') return;
+
+
+  const data     = getTrackerData();
+  const avgLen   = calcAvgCycleLength(data.cycles);
+  const nextDate = getNextPeriodDate(data.cycles, avgLen);
+  if (!nextDate) return;
+
+
+  const today     = todayStr();
+  const daysUntil = daysBetween(today, nextDate);
+  const lastFired = document.cookie.match(/period_notif_fired=([^;]+)/);
+  const lastKey   = lastFired ? lastFired[1] : '';
+  const fireKey   = nextDate + '-' + prefs.daysBefore;
+
+
+  if (daysUntil === prefs.daysBefore && lastKey !== fireKey) {
+    document.cookie = 'period_notif_fired=' + fireKey + ';max-age=86400;path=/;SameSite=Lax';
+    new Notification('\ud83e\ude78 Period Coming Up', {
+      body: 'Your period is predicted in ' + prefs.daysBefore + ' day' + (prefs.daysBefore!==1?'s':'') + '. Stay stocked with \u00b7',
+      icon: 'icon-192.png',
+    });
+  }
+}
+
+
+/* =============================================
+   LEGAL — PRIVACY POLICY + TERMS OF SERVICE
+   ============================================= */
+
+
+const LEGAL = {
+  privacy: {
+    title: 'Privacy Policy',
+    lastUpdated: 'April 8, 2026',
+    content: `
+      <p class="legal-updated">Last updated: April 8, 2026</p>
+
+
+      <h3>Who We Are</h3>
+      <p>Period. LLC ("we," "us," or "our") operates the . (Period) platform — a feminine care delivery and subscription service based in Cleveland, Ohio. We are the middleman between you and our supplier partners. We do not manufacture or warehouse products.</p>
+
+
+      <h3>Information We Collect</h3>
+      <p><strong>You provide directly:</strong></p>
+      <ul>
+        <li>Email address (newsletter, account)</li>
+        <li>Phone number (optional, SMS reminders only)</li>
+        <li>Delivery address (for order fulfillment)</li>
+        <li>Payment information — processed securely by Stripe. We never store your card number.</li>
       </ul>
-      <div class="nl-stage-label">Who is this for?</div>
-      <div class="nl-stage-row" id="nlStageRow" role="group" aria-label="Your life stage">
-        <button class="nl-stage-btn" data-stage="teen" type="button">Teen &#x1F338;</button>
-        <button class="nl-stage-btn" data-stage="young" type="button">Young Adult &#x1F31F;</button>
-        <button class="nl-stage-btn" data-stage="adult" type="button">Adult &#x1F451;</button>
-        <button class="nl-stage-btn" data-stage="peri" type="button">40+ &#x1F33A;</button>
+      <p><strong>Automatically collected:</strong></p>
+      <ul>
+        <li>Cookies — we use browser cookies to remember your version preference, period tracker data, and cart. No third-party tracking cookies.</li>
+        <li>Usage data — general analytics to improve the app (no personally identifiable information).</li>
+      </ul>
+
+
+      <h3>How We Use Your Information</h3>
+      <ul>
+        <li>To process and fulfill your orders</li>
+        <li>To send your monthly care package</li>
+        <li>To send the newsletter you subscribed to (you can unsubscribe any time)</li>
+        <li>To send period reminder notifications or SMS messages you opted into</li>
+        <li>To improve our products and services</li>
+        <li>To comply with legal obligations</li>
+      </ul>
+
+
+      <h3>Third-Party Services</h3>
+      <p>We work with the following trusted partners who may process your data:</p>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing (stripe.com/privacy)</li>
+        <li><strong>DoorDash Drive / Uber Direct</strong> — on-demand order delivery</li>
+        <li><strong>Klaviyo</strong> — email newsletter platform</li>
+        <li><strong>Spocket</strong> — supplier fulfillment network</li>
+      </ul>
+      <p>We do not sell your personal information to any third party. Ever.</p>
+
+
+      <h3>Cookies</h3>
+      <p>We use first-party cookies only to store your preferences locally (version selection, tracker data, cart). No advertising or cross-site tracking cookies are used. You can clear cookies in your browser settings at any time.</p>
+
+
+      <h3>Children's Privacy</h3>
+      <p>Our service is intended for users aged 13 and older. Users between 13–17 should have parental awareness when making purchases. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has submitted information, contact us immediately.</p>
+
+
+      <h3>Your Rights</h3>
+      <ul>
+        <li><strong>Access</strong> — Request a copy of the data we hold about you</li>
+        <li><strong>Deletion</strong> — Request deletion of your personal data</li>
+        <li><strong>Opt-out</strong> — Unsubscribe from emails or SMS at any time</li>
+        <li><strong>Correction</strong> — Update inaccurate information</li>
+      </ul>
+      <p>To exercise any of these rights, email us at <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a>.</p>
+
+
+      <h3>Data Security</h3>
+      <p>We use industry-standard encryption (HTTPS/TLS) for all data in transit. Payment data is handled exclusively by Stripe and never touches our servers. We regularly review our security practices.</p>
+
+
+      <h3>Changes to This Policy</h3>
+      <p>We may update this policy from time to time. When we do, we'll update the "Last updated" date at the top and notify newsletter subscribers of material changes.</p>
+
+
+      <h3>Contact Us</h3>
+      <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:privacy@perioddelivers.com">privacy@perioddelivers.com</a></p>
+    `
+  },
+
+
+  terms: {
+    title: 'Terms of Service',
+    lastUpdated: 'April 8, 2026',
+    content: `
+      <p class="legal-updated">Last updated: April 8, 2026</p>
+
+
+      <h3>Agreement to Terms</h3>
+      <p>By accessing or using the . (Period) platform operated by Period. LLC ("we," "us," "our"), you agree to these Terms of Service. If you do not agree, please do not use our service. You must be at least 13 years old to use this platform.</p>
+
+
+      <h3>What We Do</h3>
+      <p>Period. LLC is a middleman service. We connect customers with third-party supplier partners for feminine care, wellness, and related products. We do not manufacture, store, or ship products ourselves. We coordinate on-demand delivery through third-party courier services (DoorDash Drive, Uber Direct) and monthly subscription fulfillment through our supplier network.</p>
+
+
+      <h3>Orders and Payment</h3>
+      <ul>
+        <li>All prices are listed in U.S. dollars.</li>
+        <li>Prices may change due to supplier costs or market conditions. Your cart price at checkout is the price you pay.</li>
+        <li>Payment is processed securely by Stripe. By placing an order, you authorize the charge to your payment method.</li>
+        <li>Orders are confirmed via email. We reserve the right to cancel orders if a product becomes unavailable.</li>
+      </ul>
+
+
+      <h3>Delivery</h3>
+      <ul>
+        <li>On-demand delivery is estimated at 30–60 minutes. Actual times depend on your location, courier availability, and conditions outside our control.</li>
+        <li>Delivery estimates are not guaranteed. We are not liable for delays caused by third-party couriers, weather, or other circumstances beyond our control.</li>
+        <li>Delivery is available within our service area. We'll notify you if we can't fulfill delivery to your address.</li>
+      </ul>
+
+
+      <h3>Subscriptions</h3>
+      <ul>
+        <li>Monthly care package subscriptions are billed on a recurring basis on your chosen plan date.</li>
+        <li><strong>Cancel anytime — no calls, no hassle, one tap.</strong> Tap "Manage or cancel subscription" on your confirmation screen, or email <a href="mailto:cancel@perioddelivers.com" color="#A855F7">cancel@perioddelivers.com</a> and we will cancel immediately. No questions asked.</li>
+        <li>To avoid being charged for the next cycle, cancel before your monthly billing date. Cancellations confirmed via email within 24 hours.</li>
+        <li>We do not offer refunds for subscription boxes that have already shipped.</li>
+        <li>You may swap items in your box at any time before your monthly cutoff date (3 days before billing).</li>
+        <li>You will receive an email reminder 3 days before each billing date with a direct cancel link.</li>
+      </ul>
+
+
+      <h3>Returns and Refunds</h3>
+      <ul>
+        <li>Due to the personal hygiene nature of our products, opened items cannot be returned.</li>
+        <li>Unopened, unused items may be eligible for return within 7 days of delivery. Contact us to initiate a return.</li>
+        <li>If you received the wrong item or a damaged product, we will replace it at no cost to you.</li>
+        <li>Refunds are issued to the original payment method within 5–10 business days.</li>
+      </ul>
+
+
+      <h3>Your Account</h3>
+      <ul>
+        <li>You are responsible for keeping your delivery address and payment method up to date.</li>
+        <li>You are responsible for all activity associated with your orders.</li>
+        <li>We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity.</li>
+      </ul>
+
+
+      <h3>Intellectual Property</h3>
+      <p>The . (Period) name, crown logo, app design, copy, and all original content are owned by Period. LLC. You may not copy, reproduce, or use our brand assets without written permission. All rights reserved.</p>
+
+
+      <h3>Prohibited Uses</h3>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Use the platform for any unlawful purpose</li>
+        <li>Attempt to reverse-engineer, copy, or replicate our platform</li>
+        <li>Submit false or fraudulent orders</li>
+        <li>Harass, abuse, or harm other users or our team</li>
+      </ul>
+
+
+      <h3>Limitation of Liability</h3>
+      <p>To the fullest extent permitted by Ohio law, Period. LLC is not liable for indirect, incidental, or consequential damages arising from use of our service, including delivery delays, product allergic reactions (please review product ingredients), or third-party service failures. Our total liability for any claim shall not exceed the amount you paid for the specific order in question.</p>
+
+
+      <h3>Health Disclaimer</h3>
+      <p>Products sold through our platform are not intended to diagnose, treat, cure, or prevent any medical condition. The period tracker and health content on this platform are for informational purposes only and do not constitute medical advice. Consult a healthcare provider for medical concerns.</p>
+
+
+      <h3>Governing Law</h3>
+      <p>These Terms are governed by the laws of the State of Ohio, United States. Any disputes shall be resolved in the courts of Cuyahoga County, Ohio.</p>
+
+
+      <h3>Changes to Terms</h3>
+      <p>We may update these Terms at any time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll notify subscribers of material changes.</p>
+
+
+      <h3>Contact Us</h3>
+      <p>Period. LLC<br>Cleveland, Ohio<br>Email: <a href="mailto:legal@perioddelivers.com">legal@perioddelivers.com</a></p>
+    `
+  }
+};
+
+
+function openLegal(type) {
+  const doc   = LEGAL[type];
+  const modal = $('legalModal');
+  const overlay = $('legalOverlay');
+  if (!modal || !doc) return;
+  $('legalModalTitle').textContent = doc.title;
+  $('legalModalBody').innerHTML    = doc.content;
+  modal.style.display = 'flex';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  modal.scrollTop = 0;
+}
+
+
+function closeLegal() {
+  const modal = $('legalModal');
+  const overlay = $('legalOverlay');
+  if (!modal) return;
+  modal.style.display = 'none';
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+
+/* =============================================================
+   FEATURE A: ONBOARDING QUIZ + PERSONALIZATION ENGINE
+   ============================================================= */
+
+
+const QUIZ_QUESTIONS = [
+ {
+    id: 'flow',
+    q: 'How does your flow usually run?',
+    sub: "We'll suggest products that match your needs.",
+    choices: [
+      { value: 'first',     label: 'First Time', icon: '🌸', desc: 'Just getting started' },
+      { value: 'light',     label: 'Light',      icon: '🍃', desc: '1–3 days, light' },
+      { value: 'medium',    label: 'Medium',     icon: '💧', desc: 'Moderate & predictable' },
+      { value: 'heavy',     label: 'Heavy',      icon: '🌊', desc: 'Heavy — need extra coverage' },
+      { value: 'irregular', label: 'Irregular',  icon: '🌀', desc: 'Varies cycle to cycle' },
+    ]
+  },
+  {
+    id: 'product',
+    q: "What's your go-to product?",
+    sub: "We'll put your favorites up front.",
+    choices: [
+      { value: 'pads',    label: 'Pads',             icon: '🌸', desc: 'I prefer pads' },
+      { value: 'tampons', label: 'Tampons',           icon: '💜', desc: 'Tampons are my thing' },
+      { value: 'cup',     label: 'Cup / Disc',        icon: '♻️', desc: 'Reusable all the way' },
+      { value: 'underwear', label: 'Period Underwear', icon: '👙', desc: 'Leak-proof undies' },
+     { value: 'mix',     label: 'Mix It Up',         icon: '✨', desc: 'Depends on the day' },
+    ]
+  },
+  {
+    id: 'priority',
+    q: 'What matters most to you?',
+    sub: "We'll highlight products that fit your life.",
+    choices: [
+      { value: 'comfort', label: 'Comfort',      icon: '🛋️', desc: 'Soft, reliable, cozy' },
+      { value: 'eco',     label: 'Eco-Friendly', icon: '🌿', desc: 'Planet-first choices' },
+      { value: 'budget',  label: 'Budget',       icon: '💸', desc: 'Best value always' },
+      { value: 'natural', label: 'All Natural',  icon: '🌱', desc: 'No synthetics, ever' },
+    ]
+  },
+  {
+    id: 'cramp',
+    q: "How's the cramp situation?",
+    sub: "We'll surface the right relief for you.",
+    choices: [
+      { value: 'mild',     label: 'Pretty Mild', icon: '☀️', desc: 'Barely notice it' },
+      { value: 'moderate', label: 'Moderate',    icon: '😤', desc: 'A bit uncomfortable' },
+      { value: 'rough',    label: 'Rough',       icon: '🔥', desc: 'I need real relief' },
+      { value: 'variable', label: 'It Varies',   icon: '🌀', desc: 'Depends on the cycle' },
+    ]
+  },
+  {
+    id: 'lifestyle',
+    q: 'Which describes you best?',
+    sub: 'Helps us personalize your whole experience.',
+    choices: [
+      { value: 'student', label: 'Student',     icon: '📚', desc: 'School or college life' },
+      { value: 'working', label: 'Working Pro', icon: '💼', desc: 'Office or WFH grind' },
+      { value: 'active',  label: 'Active Life', icon: '⚡', desc: 'Always on the move' },
+      { value: 'vibing',  label: 'Just Vibing', icon: '✨', desc: 'Taking it easy, cozy' },
+    ]
+  },
+];
+
+
+let _quizStep = 0;
+let _quizAnswers = {};
+let _quizSelectedVal = null;
+
+
+function getQuizPrefs() {
+  try {
+    const raw = getCookie('period_prefs');
+    return raw ? JSON.parse(decodeURIComponent(raw)) : null;
+  } catch { return null; }
+}
+
+
+function saveQuizPrefs(prefs) {
+  setCookie('period_prefs', encodeURIComponent(JSON.stringify(prefs)), 365 * 10);
+  setCookie('period_quiz_done', '1', 365 * 10);
+}
+
+
+function isQuizDone() {
+  return getCookie('period_quiz_done') === '1';
+}
+
+
+function showQuiz() {
+  _quizStep = 0;
+  _quizAnswers = {};
+  _quizSelectedVal = null;
+  const overlay = $('quizOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  showQuizUrgencyCheck();
+}
+
+
+function showQuizUrgencyCheck() {
+  const body    = $('quizBody');
+  const nextBtn = $('quizNextBtn');
+  const progFill = $('quizProgressFill');
+  if (!body || !nextBtn) return;
+
+
+  if (progFill) progFill.style.width = '0%';
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Continue →';
+  nextBtn.classList.remove('done-btn');
+
+
+  body.innerHTML = `
+    <div class="quiz-urgency-card">
+      <div class="quiz-urgency-icon">⚡</div>
+      <div class="quiz-urgency-title">Quick check — do you need something right now?</div>
+      <div class="quiz-urgency-sub">We want to personalize your experience, but if you're in a pinch we'll get you sorted first.</div>
+      <div class="quiz-urgency-btns">
+        <button class="quiz-urgency-yes" id="quizUrgencyYes">🚨 Yes — I need it now</button>
+        <button class="quiz-urgency-no" id="quizUrgencyNo">No — I'm good, let's personalize ✨</button>
       </div>
-      <div class="nl-input-row">
-        <input type="email" id="nlEmailInput" placeholder="your@email.com" autocomplete="email" aria-label="Email address"/>
-        <button class="nl-submit-btn" id="nlSubmitBtn" type="button" aria-label="Subscribe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>
+    </div>`;
+
+
+  const yesBtn = document.getElementById('quizUrgencyYes');
+  const noBtn  = document.getElementById('quizUrgencyNo');
+  if (yesBtn) yesBtn.addEventListener('click', () => { closeQuiz(); setTimeout(() => navigate('shop'), 200); });
+  if (noBtn)  noBtn.addEventListener('click',  () => { renderQuizSlide(); });
+}
+
+
+function closeQuiz() {
+  const overlay = $('quizOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  setCookie('period_quiz_done', '1', 365 * 10);
+}
+
+
+function renderQuizSlide() {
+  const body     = $('quizBody');
+  const nextBtn  = $('quizNextBtn');
+  const progFill = $('quizProgressFill');
+  if (!body || !nextBtn) return;
+
+  _quizSelectedVal = null;
+  nextBtn.style.display = 'none';
+
+  const pct = (_quizStep / QUIZ_QUESTIONS.length) * 100;
+  if (progFill) progFill.style.width = pct + '%';
+
+  if (_quizStep >= QUIZ_QUESTIONS.length) {
+    if (progFill) progFill.style.width = '100%';
+    const chips = Object.values(_quizAnswers).map(v =>
+      `<span class="quiz-pref-chip">${v}</span>`
+    ).join('');
+    body.innerHTML = `
+      <div class="quiz-done-slide">
+        <div class="quiz-done-icon">&#x1F451;</div>
+        <div class="quiz-done-title">You're all set!</div>
+        <div class="quiz-done-sub">Your shop is now personalized. We'll surface what fits your cycle.</div>
+        <div class="quiz-prefs-chips">${chips}</div>
+      </div>`;
+    nextBtn.style.display = 'block';
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Let's shop ✨";
+    nextBtn.classList.add('done-btn');
+    saveQuizPrefs(_quizAnswers);
+    return;
+  }
+
+  const q = QUIZ_QUESTIONS[_quizStep];
+  const showBack = _quizStep > 0;
+  body.innerHTML = `
+    <div class="quiz-q-eyebrow">
+      ${showBack ? '<button class="quiz-back-btn" id="quizBackBtn">← back</button>' : ''}
+      <span>Question ${_quizStep + 1} of ${QUIZ_QUESTIONS.length}</span>
+      ${_quizStep === 0 ? '<span class="quiz-hint">no cap, takes 30 sec ✨</span>' : ''}
+    </div>
+    <div class="quiz-q-text">${q.q}</div>
+    <div class="quiz-q-sub">${q.sub}</div>
+    <div class="quiz-choices">
+      ${q.choices.map(c =>
+        '<button class="quiz-choice" data-val="' + c.value + '" aria-pressed="false">' +
+        '<span class="quiz-choice-icon">' + c.icon + '</span>' +
+        '<span class="quiz-choice-label">' + c.label + '</span>' +
+        '</button>'
+      ).join('')}
+    </div>`;
+
+  if (showBack) {
+    const backBtn = document.getElementById('quizBackBtn');
+    if (backBtn) backBtn.addEventListener('click', () => { _quizStep--; renderQuizSlide(); });
+  }
+
+  body.querySelectorAll('.quiz-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.querySelectorAll('.quiz-choice').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+      _quizSelectedVal = btn.dataset.val;
+      _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
+      _quizStep++;
+      setTimeout(() => renderQuizSlide(), 400);
+    });
+  });
+}
+function quizNext() {
+  if (_quizStep < QUIZ_QUESTIONS.length) {
+    if (_quizSelectedVal === null) return;
+    _quizAnswers[QUIZ_QUESTIONS[_quizStep].id] = _quizSelectedVal;
+    _quizStep++;
+    renderQuizSlide();
+  } else {
+    closeQuiz();
+    // Personalize if shop is open
+    setTimeout(() => {
+      if (state.shopMode === 'products') renderProductGrid();
+    }, 200);
+  }
+}
+
+
+function initQuiz() {
+  const nextBtn = $('quizNextBtn');
+  const skipBtn = $('quizSkipBtn');
+  if (nextBtn) nextBtn.addEventListener('click', quizNext);
+  if (skipBtn) skipBtn.addEventListener('click', closeQuiz);
+}
+
+
+/* --- Personalization scoring --- */
+function getQuizPersonalizedProducts(arr) {
+  const prefs = getQuizPrefs();
+  if (!prefs) return arr;
+  return [...arr].sort((a, b) => scoreProductForPrefs(b, prefs) - scoreProductForPrefs(a, prefs));
+}
+
+
+function scoreProductForPrefs(p, prefs) {
+  let score = 0;
+  if (prefs.product === 'pads'    && (p.id === 1 || p.id === 2))          score += 10;
+  if (prefs.product === 'tampons' && p.id === 3)                           score += 10;
+  if (prefs.product === 'cup'     && (p.id === 4 || p.id === 28))          score += 10;
+  if (prefs.flow === 'heavy'   && (p.id === 2 || p.id === 5))              score += 8;
+  if (prefs.flow === 'light'   && p.id === 1)                              score += 6;
+  if ((prefs.priority==='eco' || prefs.priority==='natural') && p.category === 'holistic') score += 8;
+  if (prefs.priority === 'budget'  && p.price < 15)                        score += 5;
+  if (prefs.priority === 'comfort' && p.category === 'comfort')            score += 7;
+  if (prefs.cramp === 'rough'    && [10, 30, 33, 31, 32, 16].includes(p.id)) score += 9;
+  if (prefs.cramp === 'moderate' && [10, 33].includes(p.id))               score += 5;
+  if (prefs.lifestyle === 'student' && p.price < 15)                       score += 3;
+  return score;
+}
+
+
+/* =============================================================
+   FEATURE B: GIVE-BACK — ROUND-UP & DONATE A KIT
+   ============================================================= */
+
+
+let _roundUpEnabled   = false;
+let _donateKitEnabled = false;
+
+
+function getRoundUpAmt() {
+  const total = cartTotal();
+  if (total <= 0) return 0.01;
+  const ceil = Math.ceil(total);
+  const diff = parseFloat((ceil - total).toFixed(2));
+  return diff === 0 ? 1.00 : diff;
+}
+
+
+function updateRoundUpDisplay() {
+  const el = $('roundUpAmt');
+  if (el) el.textContent = '+$' + getRoundUpAmt().toFixed(2);
+}
+
+
+function recordGiveBackOnOrder() {
+  if (_donateKitEnabled) {
+    const kits = parseInt(getCookie('period_donated_kits') || '0', 10);
+    setCookie('period_donated_kits', String(kits + 1), 365 * 10);
+    showToast('💜 A period kit is being donated to a Cleveland school!');
+  }
+  if (_roundUpEnabled) {
+    const cents    = Math.round(getRoundUpAmt() * 100);
+    const existing = parseInt(getCookie('period_roundup_cents') || '0', 10);
+    setCookie('period_roundup_cents', String(existing + cents), 365 * 10);
+  }
+  _roundUpEnabled   = false;
+  _donateKitEnabled = false;
+  const rt = $('roundUpToggle');
+  const dt = $('donateKitToggle');
+  if (rt) rt.checked = false;
+  if (dt) dt.checked = false;
+  setTimeout(updateImpactCounters, 400);
+}
+
+
+function initGiveBack() {
+  const roundUpToggle = $('roundUpToggle');
+  const donateToggle  = $('donateKitToggle');
+
+
+  if (roundUpToggle) {
+    roundUpToggle.addEventListener('change', () => {
+      _roundUpEnabled = roundUpToggle.checked;
+      updateRoundUpDisplay();
+    });
+  }
+  if (donateToggle) {
+    donateToggle.addEventListener('change', () => {
+      _donateKitEnabled = donateToggle.checked;
+      if (_donateKitEnabled) showToast('💜 Kit donation added — we\'ll handle the rest!');
+    });
+  }
+
+
+  // Update round-up amount whenever cart renders (MutationObserver on cart sidebar)
+  const cartSidebar = $('cartSidebar');
+  if (cartSidebar) {
+    new MutationObserver(() => {
+      if (cartSidebar.classList.contains('open')) updateRoundUpDisplay();
+    }).observe(cartSidebar, { attributes: true, attributeFilter: ['class'] });
+  }
+
+
+  // Hook into orderSuccess opening to record give-back
+  const orderSuccessEl = $('orderSuccess');
+  if (orderSuccessEl) {
+    new MutationObserver(() => {
+      if (orderSuccessEl.classList.contains('open')) recordGiveBackOnOrder();
+    }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+
+/* =============================================================
+   FEATURE C: COMMUNITY IMPACT COUNTER
+   ============================================================= */
+
+
+const IMPACT_BASELINE_KITS    = 0;
+const IMPACT_BASELINE_ROUNDUP = 0;
+
+
+function getTotalImpact() {
+  const launchMs  = new Date('2026-01-01').getTime();
+  const daysLive  = Math.max(0, Math.floor((Date.now() - launchMs) / 86400000));
+  const growth    = 0; // Will grow with real orders only
+  const localKits = parseInt(getCookie('period_donated_kits')    || '0', 10);
+  const roundCents= parseInt(getCookie('period_roundup_cents')   || '0', 10);
+  return {
+    kits:    IMPACT_BASELINE_KITS    + growth + localKits,
+    students:IMPACT_BASELINE_KITS    + growth + localKits,
+    roundup: IMPACT_BASELINE_ROUNDUP + Math.floor(roundCents / 100),
+  };
+}
+
+
+let _impactAnimated = false;
+
+
+function animateImpactCount(el, target, prefix, suffix) {
+  if (!el) return;
+  const duration = 1800;
+  const start    = Date.now();
+  function tick() {
+    const elapsed  = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased    = 1 - Math.pow(1 - progress, 3);
+    const current  = Math.floor(target * eased);
+    el.textContent = (prefix || '') + current.toLocaleString() + (suffix || '');
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+
+function updateImpactCounters() {
+  const t = getTotalImpact();
+  const kEl = $('impactKits');
+  const sEl = $('impactStudents');
+  const rEl = $('impactRoundup');
+  if (kEl && !_impactAnimated) kEl.textContent = t.kits.toLocaleString();
+  if (sEl && !_impactAnimated) sEl.textContent = t.students.toLocaleString();
+  if (rEl && !_impactAnimated) rEl.textContent = '$' + t.roundup.toLocaleString();
+}
+
+
+function initImpactCounter() {
+  updateImpactCounters();
+
+
+  const section = $('impactSection');
+  if (!section) return;
+
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !_impactAnimated) {
+        _impactAnimated = true;
+        const t = getTotalImpact();
+        animateImpactCount($('impactKits'),     t.kits,    '',  '');
+        animateImpactCount($('impactStudents'), t.students,'',  '');
+        animateImpactCount($('impactRoundup'),  t.roundup, '$', '');
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(section);
+
+
+  const donateBtn = $('impactDonateBtn');
+  if (donateBtn) {
+    donateBtn.addEventListener('click', () => {
+      openCart();
+      setTimeout(() => {
+        const dt = $('donateKitToggle');
+        if (dt && !dt.checked) {
+          dt.checked = true;
+          _donateKitEnabled = true;
+          showToast('💜 Kit donation added to your cart!');
+        }
+      }, 400);
+    });
+  }
+}
+
+
+/* =============================================================
+   URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
+   ============================================================= */
+function handleURLParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('v');
+    if (v && ['teen','adult','emergency','gifter','holistic'].includes(v)) {
+      setVersion(v);
+      dismissVersionPicker();
+      if (v === 'emergency') setTimeout(() => navigate('shop'), 400);
+    }
+  } catch(e) {}
+}
+
+
+/* =============================================================
+   PATCH renderProductGrid to apply personalization
+   ============================================================= */
+(function patchRenderProductGrid() {
+  const _orig = renderProductGrid;
+  renderProductGrid = function() {
+    _orig();
+    // After render, re-sort if prefs exist — re-render with personalization
+    const prefs = getQuizPrefs();
+    if (!prefs) return;
+    const grid = document.querySelector('#shopView .product-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.children);
+    if (!cards.length) return;
+    // Score each card by product id (data-product-id attr)
+    const scored = cards.map(card => {
+      const id  = parseInt(card.dataset.productId || card.querySelector('[data-id]')?.dataset?.id || '0', 10);
+      const prod = PRODUCTS.find(p => p.id === id);
+      return { card, score: prod ? scoreProductForPrefs(prod, prefs) : 0 };
+    }).sort((a, b) => b.score - a.score);
+    scored.forEach(({ card }) => grid.appendChild(card));
+  };
+})();
+
+
+/* =============================================================
+   BOOT ALL NEW FEATURES after init() runs
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  handleURLParams();
+  initGiveBack();
+  initImpactCounter();
+  initQuiz();
+});
+
+
+/* =============================================================
+   TRACKER TUTORIAL (5-second, 4-step, first-time only)
+   ============================================================= */
+const TUTORIAL_STEPS = [
+  {
+    emoji: '\uD83D\uDCC5',
+    title: 'Tap a date',
+    desc:  'Tap any date on the calendar to log when your period starts. Red dots = days you tracked. That\u2019s literally it \u2014 we handle the rest!'
+  },
+  {
+    emoji: '\uD83C\uDF38',
+    title: 'Check your phase',
+    desc:  'The card at the top tells you where you are in your cycle \u2014 period, ovulation, fertile window, or luteal. Your body has patterns, now you\u2019ll know them.'
+  },
+  {
+    emoji: '\uD83D\uDC9C',
+    title: 'Read the legend',
+    desc:  'The color key at the bottom explains every dot: red = period days you logged, purple = predicted, teal = ovulation window. No guessing.'
+  },
+  {
+    emoji: '\uD83D\uDD14',
+    title: 'Set your reminder',
+    desc:  'Scroll down and set a push or text reminder \u2014 so you\u2019re NEVER caught off guard again. Pick push or text. Best thing you can do for yourself, fr.'
+  }
+];
+
+
+const TUT_STEP_MS = 1250;   // 1.25s per step = 5s total
+let _tutStep = 0;
+let _tutIntervalId = null;
+let _tutStepStart  = 0;
+
+
+function showTrackerTutorial() {
+  const TUTORIAL_KEY = 'period_tracker_tutdone';
+  if (document.cookie.includes(TUTORIAL_KEY)) return;
+
+  const steps = [
+    { emoji:'📅', title:'Tap a date', desc:'Tap any date on the calendar to log when your period starts. Simple as that!' },
+    { emoji:'🩸', title:'Log start and end', desc:'Tap a date to mark your period start. Tap it again or use the Log Period End button when it is over.' },
+    { emoji:'📊', title:'Track your symptoms', desc:'After logging, scroll down to track your mood, energy, cramps and more each day. Your body tells a story.' },
+    { emoji:'🔔', title:'Set reminders', desc:'Enable push notifications or text reminders so you are never caught off guard again.' },
+  ];
+
+  let step = 0;
+  const overlay = $('trackerTutorial');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+
+  function renderStep() {
+    const s = steps[step];
+    const emoji = document.getElementById('tutEmoji');
+    const title = document.getElementById('tutTitle');
+    const desc  = document.getElementById('tutDesc');
+    const fill  = document.getElementById('tutProgressFill');
+    const dots  = document.querySelectorAll('.tut-dot');
+    if (emoji) emoji.textContent = s.emoji;
+    if (title) title.textContent = s.title;
+    if (desc)  desc.textContent  = s.desc;
+    if (fill)  fill.style.width  = ((step + 1) / steps.length * 100) + '%';
+    dots.forEach((d, i) => d.classList.toggle('active', i === step));
+    const nextBtn = document.getElementById('tutNextBtn');
+    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
+  }
+
+  // Replace tap hint with proper button - only once
+  const tapHint = overlay.querySelector('.tut-tap-hint');
+  if (tapHint && !document.getElementById('tutNextBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'tutNextBtn';
+    btn.style.cssText = 'margin-top:0.75rem;padding:0.75rem 2rem;background:var(--accent);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;width:100%;';
+    btn.textContent = 'Got it, next →';
+    tapHint.parentNode.replaceChild(btn, tapHint);
+    btn.addEventListener('click', function() {
+      step++;
+      if (step >= steps.length) {
+        overlay.classList.add('hidden');
+        document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
+      } else {
+        renderStep();
+      }
+    });
+  }
+
+  const skipBtn = $('tutSkipBtn');
+  if (skipBtn) {
+    const newSkip = skipBtn.cloneNode(true);
+    skipBtn.parentNode.replaceChild(newSkip, skipBtn);
+    newSkip.addEventListener('click', function() {
+      overlay.classList.add('hidden');
+      document.cookie = TUTORIAL_KEY + '=1;max-age=946080000;path=/;SameSite=Lax';
+    });
+  }
+
+  renderStep();
+}
+function _renderTutStep() {
+  const s = TUTORIAL_STEPS[_tutStep];
+  if (!s) return;
+  $('tutEmoji').textContent = s.emoji;
+  $('tutTitle').textContent = s.title;
+  $('tutDesc').textContent  = s.desc;
+  // Progress fill reset
+  const fill = $('tutProgressFill');
+  if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; fill.offsetHeight; fill.style.transition = ''; }
+  // Update dots
+  document.querySelectorAll('.tut-dot').forEach((d, i) => d.classList.toggle('active', i === _tutStep));
+  // Re-trigger card animation
+  const card = $('tutCard');
+  if (card) { card.style.animation = 'none'; card.offsetHeight; card.style.animation = ''; }
+}
+
+
+function _startTutTimer() {
+  clearInterval(_tutIntervalId);
+  _tutStepStart = Date.now();
+  _tutIntervalId = setInterval(() => {
+    const elapsed = Date.now() - _tutStepStart;
+    const pct     = Math.min(100, (elapsed / TUT_STEP_MS) * 100);
+    const fill    = $('tutProgressFill');
+    if (fill) fill.style.width = pct + '%';
+    if (elapsed >= TUT_STEP_MS) _advanceTutorial();
+  }, 30);
+}
+
+
+function _advanceTutorial() {
+  clearInterval(_tutIntervalId);
+  _tutStep++;
+  if (_tutStep >= TUTORIAL_STEPS.length) {
+    _dismissTutorial();
+  } else {
+    _renderTutStep();
+    _startTutTimer();
+  }
+}
+
+
+function _dismissTutorial() {
+  clearInterval(_tutIntervalId);
+  const overlay = $('trackerTutorial');
+  if (!overlay) return;
+  overlay.style.opacity    = '0';
+  overlay.style.transition = 'opacity 0.4s';
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    overlay.style.opacity    = '';
+    overlay.style.transition = '';
+  }, 420);
+  document.cookie = 'period_tracker_tutorial=done;max-age=31536000;path=/;SameSite=Lax';
+}
+
+
+// Wire tutorial buttons once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const card     = $('tutCard');
+  const skipBtn  = $('tutSkipBtn');
+  if (card)    card.addEventListener('click',    (e) => { if (e.target !== skipBtn) _advanceTutorial(); });
+  if (skipBtn) skipBtn.addEventListener('click', (e) => { e.stopPropagation(); _dismissTutorial(); });
+});
+
+
+/* =============================================================
+   HOW IT WORKS JUMP BUTTON
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  // ── How It Works jump ──
+  const howBtn = $('heroHowBtn');
+  if (howBtn) {
+    howBtn.addEventListener('click', () => {
+      const section = document.querySelector('.how-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // ── My Tracker hero pill ──
+  const heroTrackerBtn = $('heroTrackerBtn');
+  if (heroTrackerBtn) {
+    heroTrackerBtn.addEventListener('click', () => {
+      if (isNewsletterSubscribed()) navigate('tracker');
+      else showNewsletterModal();
+    });
+  }
+
+  // Newsletter hero pill handled in init()
+
+  // ── Feature card buttons (may not exist if spotlight removed) ──
+  const featureTrackerBtn = $('featureTrackerBtn');
+  if (featureTrackerBtn) {
+    featureTrackerBtn.addEventListener('click', () => {
+      if (isNewsletterSubscribed()) navigate('tracker');
+      else showNewsletterModal();
+    });
+  }
+  const featureNewsletterBtn = $('featureNewsletterBtn');
+  if (featureNewsletterBtn) {
+    featureNewsletterBtn.addEventListener('click', showNewsletterModal);
+  }
+});
+
+
+/* =============================================================
+   EMOJI REVIEW SYSTEM
+   ============================================================= */
+
+
+function getReviews() {
+  try {
+    const raw = getCookie('period_reviews');
+    return raw ? JSON.parse(decodeURIComponent(raw)) : [];
+  } catch { return []; }
+}
+
+
+function saveReview(emoji, label, text) {
+  const reviews = getReviews();
+  reviews.push({ emoji, label, ts: Date.now(), v: state.version });
+  // Keep last 50 reviews
+  if (reviews.length > 50) reviews.shift();
+  setCookie('period_reviews', encodeURIComponent(JSON.stringify(reviews)), 365 * 5);
+}
+
+
+function wasReviewedRecently() {
+  const reviews = getReviews();
+  if (!reviews.length) return false;
+  const last = reviews[reviews.length - 1];
+  // Don't re-prompt within 7 days
+  return (Date.now() - last.ts) < 7 * 24 * 60 * 60 * 1000;
+}
+
+
+function initReviewPrompt() {
+  const prompt   = $('reviewPrompt');
+  const row      = $('reviewEmojiRow');
+  const thanks   = $('reviewThanks');
+  const thanksEm = $('reviewThanksEmoji');
+  const textBox  = $('reviewTextBox');
+  const textIn   = $('reviewTextInput');
+  const submitBtn= $('reviewSubmitBtn');
+  const skipBtn  = $('reviewSkipBtn');
+
+
+  if (!prompt || !row) return;
+
+
+  // Hide prompt if reviewed recently
+  if (wasReviewedRecently()) {
+    prompt.style.display = 'none';
+    return;
+  }
+
+
+  // Determine if this version gets text feedback
+  const v = state.version || 'adult';
+  const hasTextFeedback = (v === 'adult' || v === 'holistic');
+
+
+  let selectedEmoji = null;
+  let selectedLabel = null;
+
+
+  function showThanks() {
+    row.style.display = 'none';
+    if (textBox) textBox.style.display = 'none';
+    if (thanksEm) thanksEm.textContent = selectedEmoji;
+    if (thanks)   thanks.style.display = 'flex';
+    document.querySelector('.review-prompt-q').textContent = selectedLabel + '!';
+  }
+
+
+  // Wire emoji buttons
+  row.querySelectorAll('.review-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedEmoji = btn.dataset.emoji;
+      selectedLabel = btn.dataset.label;
+
+
+      // Mark selected
+      row.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+
+      if (hasTextFeedback) {
+        // Slide in the text box for adult / holistic
+        if (textBox) {
+          textBox.style.display = 'block';
+          if (textIn) { textIn.value = ''; textIn.focus(); }
+        }
+      } else {
+        // Teen — immediate thanks, no text
+        saveReview(selectedEmoji, selectedLabel, '');
+        setTimeout(showThanks, 300);
+      }
+    });
+  });
+
+
+  // Submit with text
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      const text = textIn ? textIn.value.trim() : '';
+      saveReview(selectedEmoji, selectedLabel, text);
+      showThanks();
+    });
+  }
+
+
+  // Skip (submit with no text)
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => {
+      saveReview(selectedEmoji, selectedLabel, '');
+      showThanks();
+    });
+  }
+}
+
+
+// Re-init review prompt every time the order success modal opens
+document.addEventListener('DOMContentLoaded', () => {
+  const orderSuccessEl = $('orderSuccess');
+  if (!orderSuccessEl) return;
+
+
+  new MutationObserver(() => {
+    if (orderSuccessEl.classList.contains('open')) {
+      // Reset prompt state each time modal opens
+      const prompt   = $('reviewPrompt');
+      const row      = $('reviewEmojiRow');
+      const thanks   = $('reviewThanks');
+      const promptQ  = prompt?.querySelector('.review-prompt-q');
+
+
+      if (wasReviewedRecently()) {
+        if (prompt) prompt.style.display = 'none';
+        return;
+      }
+      if (prompt)  prompt.style.display = '';
+      if (row)     { row.style.display = 'flex'; }
+      if (thanks)  thanks.style.display = 'none';
+      if (promptQ) promptQ.textContent = 'How are you feeling about us?';
+      row?.querySelectorAll('.review-emoji-btn').forEach(b => b.classList.remove('selected'));
+      const tb = $('reviewTextBox');
+      const ti = $('reviewTextInput');
+      if (tb) { tb.style.display = 'none'; }
+      if (ti) { ti.value = ''; }
+      initReviewPrompt();
+    }
+  }).observe(orderSuccessEl, { attributes: true, attributeFilter: ['class'] });
+
+
+  initReviewPrompt();
+});
+
+
+/* =============================================================
+   IMPACT STRIP — sync numbers + scroll on click
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  // Sync strip numbers with the main counter values
+  function syncImpactStrip() {
+    const t = getTotalImpact();
+    const sk = $('stripKits');
+    const sr = $('stripRoundup');
+    if (sk) sk.textContent = t.kits.toLocaleString();
+    if (sr) sr.textContent = '$' + t.roundup.toLocaleString();
+  }
+  syncImpactStrip();
+
+
+  // Tap strip → smooth scroll to full impact section
+  const strip = $('impactStrip');
+  if (strip) {
+    strip.addEventListener('click', () => {
+      const section = $('impactSection');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+});
+
+
+/* =====================================================
+   AGE GATE — check on load, store answer in cookie
+   ===================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap       = document.getElementById('ageGateWrap');
+  const askScreen  = document.getElementById('ageGateAsk');
+  const blocked    = document.getElementById('ageGateBlocked');
+  const yesBtn     = document.getElementById('ageGateYes');
+  const noBtn      = document.getElementById('ageGateNo');
+
+  if (!wrap) return;
+
+  const COOKIE = 'period_age_ok';
+
+  function getAgeCookie() {
+    const m = document.cookie.match('(?:^|; )' + COOKIE + '=([^;]*)');
+    return m ? m[1] : null;
+  }
+  function setAgeCookie(val, days) {
+    const exp = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = COOKIE + '=' + val + '; expires=' + exp + '; path=/; SameSite=Lax';
+  }
+
+  function dismissGate() {
+    wrap.style.opacity = '0';
+    wrap.style.transition = 'opacity .3s ease';
+    setTimeout(() => {
+      wrap.style.display = 'none';
+      document.body.style.overflow = '';
+      // AFTER age gate dismissed — show app intro then picker
+      showAppIntroCard();
+    }, 300);
+  }
+
+  // Already verified — skip age gate, go straight to intro/picker
+  if (getAgeCookie() === 'yes') {
+    wrap.style.display = 'none';
+    return; // initVersion() already handled showing intro or home
+  }
+
+  // First visit — show age gate
+  wrap.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  yesBtn.addEventListener('click', () => {
+    setAgeCookie('yes', 365);
+    dismissGate();
+  });
+
+  noBtn.addEventListener('click', () => {
+    askScreen.style.display = 'none';
+    blocked.style.display   = 'flex';
+  });
+});
+
+
+/* =====================================================
+   MANAGE / CANCEL SUBSCRIPTION modal
+   ===================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const manageBtn = document.getElementById('manageSubBtn');
+  if (!manageBtn) return;
+
+
+  manageBtn.addEventListener('click', () => {
+    // Build a simple inline cancel confirmation overlay
+    const existing = document.getElementById('cancelSubOverlay');
+    if (existing) { existing.remove(); }
+
+
+    const overlay = document.createElement('div');
+    overlay.id = 'cancelSubOverlay';
+    overlay.style.cssText = `
+      position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.85);
+      display:flex;align-items:center;justify-content:center;padding:1.5rem;
+      animation:ageFadeIn .25s ease;
+    `;
+    overlay.innerHTML = `
+      <div style="background:#1a1625;border:1px solid #333;border-radius:20px;padding:2rem 1.5rem;
+                  max-width:340px;width:100%;text-align:center;display:flex;flex-direction:column;gap:1rem;">
+        <div style="font-size:2rem;">👑</div>
+        <h2 style="color:#fff;font-size:1.2rem;font-weight:700;margin:0;">Manage Your Subscription</h2>
+        <p style="color:#aaa;font-size:.9rem;line-height:1.6;margin:0;">
+          To cancel or change your plan, email us at
+          <a href="mailto:cancel@perioddelivers.com"
+             style="color:#A855F7;text-decoration:none;font-weight:600;">cancel@perioddelivers.com</a>
+          and we'll take care of it within 24 hours — no questions asked.
+        </p>
+        <p style="color:#888;font-size:.8rem;margin:0;">
+          Or call/text <a href="tel:+12162501993" style="color:#D4AF37;font-weight:600;">(216) 250-1993</a>
+        </p>
+        <button id="cancelSubClose" style="
+          margin-top:.5rem;width:100%;padding:.8rem;
+          background:linear-gradient(135deg,#A855F7,#7C3AED);
+          color:#fff;border:none;border-radius:12px;
+          font-size:.95rem;font-weight:600;cursor:pointer;">
+          Got it
+        </button>
+      </div>`;
+    document.body.appendChild(overlay);
+
+
+    document.getElementById('cancelSubClose').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  });
+});
+
+
+/* =============================================================
+   THE CYCLE SCOOP — Facts, FAQ, Teen Rotating Facts
+   Add new facts to PERIOD_FACTS array to expand the library.
+   ============================================================= */
+
+
+const PERIOD_FACTS = [
+  { emoji:'💜', text:'Your whole period is only about 2–3 tablespoons of blood total. It just FEELS like more.', tag:'Body' },
+  { emoji:'🍫', text:'Chocolate cravings on your period? Your body is literally asking for magnesium. The craving is real AND scientific.', tag:'Body' },
+  { emoji:'😅', text:'You can\'t lose a tampon inside you. It can only go so far. Your cervix is a closed door. Periodt.', tag:'Myths' },
+  { emoji:'⚡', text:'Some athletes actually train harder during their follicular phase — right after their period ends. Your cycle is a superpower, not a setback.', tag:'Body' },
+  { emoji:'👑', text:'The average person has about 450 periods in their lifetime. That\'s a lot of reasons to have Period. in your corner.', tag:'Fun' },
+  { emoji:'🌡️', text:'Heat relaxes your uterine muscles — that\'s the literal science behind why a heating pad helps with cramps.', tag:'Body' },
+  { emoji:'🧠', text:'PMS is real — the hormone shift before your period actually affects serotonin, your "happy chemical." You\'re not overreacting.', tag:'Body' },
+  { emoji:'✨', text:'Period blood isn\'t dirty. It\'s the same blood in your veins plus uterine lining. Clean, natural, completely normal.', tag:'Myths' },
+  { emoji:'🏃‍♀️', text:'Exercise actually helps with cramps. Your body releases endorphins — natural painkillers — when you move. Even a short walk counts.', tag:'Wellness' },
+  { emoji:'🌊', text:'Irregular periods are super common in the first few years of having your cycle. Your body is still figuring out its rhythm — and that\'s okay.', tag:'Body' },
+  { emoji:'👃', text:'Your sense of smell actually gets sharper around ovulation. Like, scientifically measurable sharper. Bodies are wild.', tag:'Fun' },
+  { emoji:'😤', text:'Stress can delay your period. Your brain and your cycle are directly connected — when life is a lot, your body feels it too.', tag:'Body' },
+  { emoji:'🏊‍♀️', text:'You can absolutely swim, run, dance, compete, and do anything else on your period. Your cycle doesn\'t get to cancel your life.', tag:'Myths' },
+  { emoji:'🎨', text:'The follicular phase (right after your period) is when most people feel their most creative and focused. Plan your big moments then.', tag:'Body' },
+  { emoji:'🩸', text:'Period underwear can absorb as much as 4 tampons worth of flow — with nothing extra needed. Technology did that.', tag:'Products' },
+  { emoji:'🌿', text:'Menstrual cups are made of medical-grade silicone and can be worn for up to 12 hours. One cup can last years.', tag:'Products' },
+  { emoji:'💊', text:'Iron levels drop during your period — that\'s part of why you feel more tired. Iron-rich foods (or supplements) actually help.', tag:'Wellness' },
+  { emoji:'😴', text:'The luteal phase (before your period) is when your body temperature rises slightly and sleep gets harder. It\'s hormonal, not in your head.', tag:'Body' },
+  { emoji:'🍵', text:'Red raspberry leaf tea has been used for centuries to ease cramps and support uterine health. Some things just work.', tag:'Wellness' },
+  { emoji:'📅', text:'Your cycle length is counted from Day 1 of your period to Day 1 of your next period — not just the bleeding days. Knowing that changes everything.', tag:'Body' },
+  { emoji:'💙', text:'Blood clots during your period are normal up to about the size of a quarter. Your body is doing exactly what it\'s supposed to.', tag:'Body' },
+  { emoji:'🌙', text:'Melatonin (your sleep hormone) is affected by your cycle. Some people genuinely sleep better or worse depending on their phase.', tag:'Body' },
+];
+
+
+const FAQ_DATA = [
+  { q:'How long does a period usually last?',
+    a:'Most periods last between 3 and 7 days. The first couple of days tend to be the heaviest, then it lightens up. If yours is consistently shorter or longer, that can just be your normal — but it\'s worth mentioning to a doctor if it\'s over 7 days.' },
+  { q:'Why do I get cramps?',
+    a:'Your uterus contracts to push out its lining — and those contractions are what cause cramps. Heat, light movement, and hydration all genuinely help. If your cramps are severe enough to stop you from doing things, that\'s worth talking to a doctor about.' },
+  { q:'What\'s the difference between pads, tampons, and cups?',
+    a:'Pads sit in your underwear and absorb outside your body — great starting point. Tampons are inserted and absorb inside — comfortable once you get the hang of them. Menstrual cups are reusable silicone cups that collect instead of absorb. There\'s no "right" choice — it\'s personal.' },
+  { q:'What is PMS?',
+    a:'PMS (premenstrual syndrome) is a group of symptoms that show up in the 1–2 weeks before your period — mood shifts, cravings, bloating, fatigue, feeling more emotional. It\'s caused by hormone changes and it\'s very real. You\'re not imagining it.' },
+  { q:'Why is my period irregular?',
+    a:'Irregular periods are incredibly common, especially in the first few years. Stress, diet changes, illness, and major life events can all shift your cycle. Tracking your period (use the tracker here) helps you start to understand your own pattern.' },
+  { q:'Can I exercise on my period?',
+    a:'Yes — and it often helps. Movement releases endorphins, which can ease cramps and improve your mood. You don\'t have to push through anything that hurts, but gentle movement like walking, yoga, or stretching can genuinely make you feel better.' },
+  { q:'What\'s a "normal" amount of blood?',
+    a:'Most people lose 2–6 tablespoons of blood per period total — which sounds like a lot but is actually pretty small. Needing to change a pad or tampon every 1–2 hours consistently, or soaking through overnight, is worth mentioning to a doctor.' },
+  { q:'Is it okay to skip a period?',
+    a:'Missing a period can happen for lots of reasons — stress, sudden weight changes, illness, intense exercise. If it\'s a one-time thing and you\'re not sexually active, it\'s often nothing. If it happens regularly or there\'s any chance of pregnancy, talk to a healthcare provider.' },
+  { q:'What should I bring with me so I\'m never caught off guard?',
+    a:'A mini period kit in your bag goes a long way: 2 pads or tampons (or your preferred product), a small pack of wipes, a pair of spare underwear (just in case), and a pain reliever if you use one. And of course — Period. is always a tap away.' },
+  { q:'How do I know what flow level I am?',
+    a:'Light flow: can go 4–6 hours between changes. Medium: 2–4 hours. Heavy: needing to change every 1–2 hours. Most people are heaviest on days 1–2 and lighter toward the end. A "super" or "overnight" product is made for heavy flow days.' },
+];
+
+
+// ── Teen rotating facts ──────────────────────────────────────────
+let teenFactIndex  = 0;
+let teenFactTimer  = null;
+
+
+function renderTeenFact(idx) {
+  const fact     = PERIOD_FACTS[idx];
+  const emoji    = $('teenFactEmoji');
+  const text     = $('teenFactText');
+  const dotsEl   = $('tfcDots');
+  if (!fact || !emoji || !text) return;
+
+
+  emoji.textContent = fact.emoji;
+  text.textContent  = fact.text;
+
+
+  if (dotsEl) {
+    dotsEl.innerHTML = PERIOD_FACTS.map((_, i) =>
+      `<span class="tfc-dot ${i===idx?'active':''}" aria-hidden="true"></span>`
+    ).join('');
+  }
+}
+
+
+function startTeenFactRotation() {
+  if (teenFactTimer) clearInterval(teenFactTimer);
+  // Start at a random fact each visit
+  teenFactIndex = Math.floor(Math.random() * PERIOD_FACTS.length);
+  renderTeenFact(teenFactIndex);
+  teenFactTimer = setInterval(() => {
+    teenFactIndex = (teenFactIndex + 1) % PERIOD_FACTS.length;
+    const inner = $('teenFactInner');
+    if (inner) {
+      inner.style.opacity = '0';
+      inner.style.transform = 'translateY(6px)';
+      setTimeout(() => {
+        renderTeenFact(teenFactIndex);
+        inner.style.opacity = '1';
+        inner.style.transform = 'translateY(0)';
+      }, 280);
+    }
+  }, 7000); // rotate every 7 seconds
+}
+
+
+function stopTeenFactRotation() {
+  if (teenFactTimer) { clearInterval(teenFactTimer); teenFactTimer = null; }
+}
+
+
+// ── The Tea, Period. view ─────────────────────────────────────────────
+function renderScoopFacts() {
+  const grid = $('scoopFactsGrid');
+  if (!grid) return;
+  grid.innerHTML = PERIOD_FACTS.map((f, i) => `
+    <div class="scoop-fact-card" role="listitem" data-fact-idx="${i}" tabindex="0"
+         aria-label="${f.text}">
+      <div class="sfc-tag">${f.tag}</div>
+      <div class="sfc-emoji" aria-hidden="true">${f.emoji}</div>
+      <p class="sfc-text">${f.text}</p>
+    </div>`).join('');
+
+
+  // Tap to "save" (visual highlight toggle)
+  grid.querySelectorAll('.scoop-fact-card').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('saved'));
+    card.addEventListener('keydown', e => {
+      if (e.key==='Enter'||e.key===' ') card.classList.toggle('saved');
+    });
+  });
+}
+
+
+function renderScoopFaq() {
+  const list = $('faqList');
+  if (!list) return;
+  list.innerHTML = FAQ_DATA.map((item, i) => `
+    <div class="faq-item" id="faqItem${i}">
+      <button class="faq-q" aria-expanded="false" aria-controls="faqAnswer${i}">
+        <span>${item.q}</span>
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a" id="faqAnswer${i}" hidden>
+        <p>${item.a}</p>
       </div>
-      <p class="nl-privacy">We respect your privacy. Unsubscribe any time. No spam, ever.</p>
-    </div>
-    <div id="nlSuccessState" style="display:none" class="nl-success">
-      <div class="nl-success-icon">&#x1F451;</div>
-      <h3 class="nl-success-h3">You're in!</h3>
-      <p class="nl-success-p" id="nlSuccessMsg">Your period tracker is now unlocked. Welcome to the community.</p>
-      <button class="nl-open-tracker" id="nlOpenTracker" type="button">Open My Tracker &rarr;</button>
-    </div>
-  </div>
-</div>
-
-<!-- TRACKER VIEW -->
-<div class="view" id="trackerView">
-  <nav class="back-bar" aria-label="Navigation">
-    <button class="back-btn tracker-back-btn" id="trackerBack" aria-label="Back to home">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </button>
-    <div class="back-bar-title">My Tracker</div>
-    <button id="trackerMaybeLater" style="font-size:0.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0.25rem 0.75rem;border-radius:8px;white-space:nowrap;" onclick="navigate('home')">maybe later</button>
-  </nav>
-  <div class="tracker-phase-card" id="trackerPhaseCard">
-    <div class="tpc-row"><span class="tpc-emoji" id="tpcEmoji">&#x1F338;</span><div><div class="tpc-phase" id="tpcPhase">Log a period to begin</div><div class="tpc-day" id="tpcDay">Tap a date below to start tracking</div></div></div>
-    <div class="tpc-next" id="tpcNext"></div>
-    <div class="tpc-tip" id="tpcTip"></div>
-  </div>
-  <div class="tracker-nav">
-    <button class="tracker-nav-btn" id="trackerPrev" aria-label="Previous month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <div class="tracker-month-label" id="trackerMonthLabel">April 2026</div>
-    <button class="tracker-nav-btn" id="trackerNext" aria-label="Next month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-  </div>
-  <div class="tracker-dow-row" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-  <div class="tracker-cal-grid" id="trackerCalGrid" role="grid" aria-label="Period calendar"></div>
-  <div class="tracker-tutorial hidden" id="trackerTutorial" role="dialog" aria-modal="true" aria-label="How to use your tracker">
-    <div class="tut-card" id="tutCard">
-      <div class="tut-progress-bar"><div class="tut-progress-fill" id="tutProgressFill"></div></div>
-      <span class="tut-step-emoji" id="tutEmoji" aria-hidden="true">&#x1F4C5;</span>
-      <h3 class="tut-title" id="tutTitle">Tap a date</h3>
-      <p class="tut-desc" id="tutDesc">Tap any date on the calendar to log when your period starts. That's it &mdash; we do the rest!</p>
-      <div class="tut-dots" aria-hidden="true"><span class="tut-dot active"></span><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div>
-      <p class="tut-tap-hint">Tap to continue</p>
-      <button class="tut-skip-btn" id="tutSkipBtn" type="button">Skip tutorial</button>
-    </div>
-  </div>
-  <div class="tracker-legend">
-    <div class="tleg-item"><span class="tleg-dot tleg-logged"></span> Period</div>
-    <div class="tleg-item"><span class="tleg-dot tleg-predicted"></span> Predicted</div>
-    <div class="tleg-item"><span class="tleg-dot tleg-ovulation"></span> Ovulation</div>
-    <div class="tleg-item"><span class="tleg-dot tleg-today"></span> Today</div>
-  </div>
-  <div class="reminder-section" id="reminderSection">
-    <div class="rem-header"><div class="rem-title">&#x1F514; Period Reminders</div><div class="rem-sub">Get notified before your period arrives &mdash; never get caught off guard.</div></div>
-    <div class="rem-tabs" role="tablist">
-      <button class="rem-tab active" id="remTabBrowser" role="tab" aria-selected="true">&#x1F4F1; Push Notification</button>
-      <button class="rem-tab" id="remTabSms" role="tab" aria-selected="false">&#x1F4AC; Text Message</button>
-    </div>
-    <div class="rem-panel" id="remPanelBrowser">
-      <p class="rem-panel-desc">Get a push notification on this device. Works best when Period. is added to your home screen. <strong>Recommended for mobile users &#x1F4F1;</strong></p>
-      <div class="rem-days-label">Remind me this many days before:</div>
-      <div class="rem-days-row">
-        <button class="rem-days-btn" data-days="1" type="button">1 day</button>
-        <button class="rem-days-btn active" data-days="3" type="button">3 days</button>
-        <button class="rem-days-btn" data-days="5" type="button">5 days</button>
-        <button class="rem-days-btn" data-days="7" type="button">1 week</button>
-      </div>
-      <button class="rem-enable-btn" id="remEnableBrowser" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Enable Reminders</button>
-      <div class="rem-status" id="remBrowserStatus" style="display:none"></div>
-    </div>
-    <div class="rem-panel" id="remPanelSms" style="display:none">
-      <p class="rem-panel-desc">Enter your mobile number to receive a text message reminder before your predicted period.</p>
-      <div class="rem-days-label">Remind me this many days before:</div>
-      <div class="rem-days-row">
-        <button class="rem-days-btn" data-days="1" type="button">1 day</button>
-        <button class="rem-days-btn active" data-days="3" type="button">3 days</button>
-        <button class="rem-days-btn" data-days="5" type="button">5 days</button>
-        <button class="rem-days-btn" data-days="7" type="button">1 week</button>
-      </div>
-      <div class="rem-input-row">
-        <input type="tel" id="remSmsInput" placeholder="+1 (555) 000-0000" autocomplete="tel" aria-label="Mobile phone number"/>
-        <button class="rem-save-btn" id="remSaveSms" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Save</button>
-      </div>
-      <div class="rem-sms-note">&#x1F4F2; SMS requires an active connection. Standard messaging rates may apply.</div>
-      <div class="rem-status" id="remSmsStatus" style="display:none"></div>
-    </div>
-  </div>
-  <div id="trackerSeedSection" style="display:none" class="tracker-seed-section">
-    <div class="seed-title">&#x1F4C5; Have a recent period date?</div>
-    <p class="seed-sub">Optional &mdash; helps us predict your next cycle right away.</p>
-    <div class="seed-row"><input type="date" id="seedDateInput" class="seed-input" aria-label="Last period start date"/><button class="seed-btn" id="seedDateBtn">Use this date</button></div>
-  </div>
-  <div id="symptomLogSection" class="symptom-log-section"></div>
-  <div class="tracker-log-row">
-    <button class="tracker-log-btn tracker-log-start" id="logStart" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Log Period Start</button>
-    <button class="tracker-log-btn tracker-log-end" id="logEnd" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Log Period End</button>
-  </div>
-  <div class="tracker-stats-row" id="trackerStats">
-    <div class="tstat"><div class="tstat-val" id="tstatAvg">&mdash;</div><div class="tstat-label">Avg Cycle</div></div>
-    <div class="tstat"><div class="tstat-val" id="tstatCount">&mdash;</div><div class="tstat-label">Cycles Tracked</div></div>
-    <div class="tstat"><div class="tstat-val" id="tstatDuration">&mdash;</div><div class="tstat-label">Avg Duration</div></div>
-  </div>
-  <div class="tracker-edu-card" id="trackerEduCard" style="display:none">
-    <div class="tec-eyebrow">&#x1F9E0; did you know?</div>
-    <p class="tec-text" id="tecText"></p>
-    <a class="tec-link" href="#" id="tecLink">Learn more in your next newsletter &rarr;</a>
-  </div>
-</div>
-
-<!-- COMMUNITY VIEW -->
-<div class="view" id="communityView">
-  <div class="comm-greeting" id="commGreeting"><div class="comm-greeting-inner"><p class="comm-greeting-text" id="commGreetingText">Welcome to the community. &#x1F49C;</p></div></div>
-  <div class="comm-header"><h2 class="comm-title">Our Community</h2><p class="comm-subtitle">A space to connect, share, and support each other.</p><p class="comm-phase-note">Posts are private to your device right now &mdash; real-time community is coming soon. &#x1F49C;</p></div>
-  <div class="comm-topics" id="commTopics"><div class="comm-topic-grid" id="commTopicGrid"></div></div>
-  <div class="comm-thread" id="commThread" style="display:none">
-    <div class="comm-thread-topbar"><button class="comm-back-btn" id="commBackBtn" aria-label="Back to topics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Topics</button><span class="comm-thread-header" id="commThreadHeader"></span></div>
-    <div class="comm-posts" id="commPosts"></div>
-    <div class="comm-compose">
-      <textarea class="comm-input" id="commInput" placeholder="Share something with the community... (Enter to post)" rows="2" maxlength="500"></textarea>
-      <button class="comm-post-btn" id="commPostBtn" aria-label="Post"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
-    </div>
-  </div>
-</div>
-
-<div class="why-overlay" id="whyOverlay" aria-hidden="true" style="display:none"></div>
-<div class="why-modal" id="whyModal" role="dialog" aria-modal="true" aria-label="Why Period.?" style="display:none">
-  <div class="why-modal-header"><div class="why-modal-logo" aria-hidden="true"><img src="crown.png" alt="" aria-hidden="true" style="width:28px;height:auto;"><span class="why-modal-dot">.</span></div><button class="why-close-btn" id="whyCloseBtn" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="why-modal-body"><h2 class="why-headline" id="whyHeadline"></h2><p class="why-tagline2" id="whyTagline2"></p><div class="why-cards" id="whyCards"></div><div class="why-cta-block"><button class="why-shop-btn" id="whyShopBtn">Shop Now</button><p class="why-footer-sub" id="whyFooterSub"></p></div></div>
-</div>
-
-<div class="nickname-overlay" id="nicknameOverlay" style="display:none"></div>
-<div class="nickname-modal" id="nicknameModal" role="dialog" aria-modal="true" aria-label="Set your name" style="display:none">
-  <div class="nickname-inner">
-    <div class="nickname-crown" aria-hidden="true">&#x1F451;</div>
-    <h2 class="nickname-title">Welcome to the community</h2>
-    <p class="nickname-sub">What should we call you? Just a first name or nickname &mdash; you choose.</p>
-    <input class="nickname-input" id="nicknameInput" type="text" placeholder="Your name or nickname..." maxlength="24" autocomplete="off"/>
-    <button class="nickname-confirm-btn" id="nicknameConfirm">Enter the Community</button>
-    <p class="nickname-privacy">Only visible to you on this device. &#x1F49C;</p>
-  </div>
-</div>
-
-<!-- VERSION PICKER -->
-<div class="version-picker" id="versionPicker" role="dialog" aria-modal="true" aria-label="Choose your experience" style="display:none;">
-  <div class="vp-inner">
-    <div class="vp-brand" aria-hidden="true"><img class="vp-crown" src="crown.png" alt="" aria-hidden="true"><span class="vp-dot">.</span></div>
-    <h1 class="vp-headline">how can we help you today?</h1>
-    <p class="vp-sub vp-note">pick your situation &mdash; we'll tailor everything for you &#x1F49C;</p>
-    <div class="vp-cards" style="display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:0.75rem;">
-
-      <!-- JUST STARTING — ages 9-12 -->
-      <button class="vp-card" id="pickStarter" aria-label="Choose: Just starting out" style="background:linear-gradient(150deg,#2D0A3E,#1A1040,#0D2040);border:2px solid rgba(255,150,220,0.45);touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 20px rgba(255,120,200,0.2);">
-        <div aria-hidden="true" style="position:absolute;top:-16px;right:-16px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(255,150,220,0.25),transparent 70%);pointer-events:none;"></div>
-        <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#FF9BE0;margin-bottom:2px;">ages 9&ndash;12 &#x1F338;</div>
-        <div style="font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#FFD580;">new here &#x2728;</div>
-        <div class="vp-card-emoji" aria-hidden="true" style="font-size:1.6rem;">&#x1F31F;</div>
-        <div class="vp-card-title" style="color:#FFD6F0;">Just Starting<br>Out</div>
-        <div class="vp-card-desc" style="color:rgba(255,210,240,0.65);">First period? No worries! We explain everything in a fun, easy way. You are not alone &mdash; we&apos;ve got you! &#x1F338;</div>
-        <div class="vp-card-cta" style="color:#FF9BE0;">Start here <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9BE0" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
-
-      <!-- TEEN — ages 13-17 -->
-      <button class="vp-card vp-card--teen" id="pickTeen" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;" aria-label="Choose: Just starting my journey">
-        <div class="vp-card-glow vp-card-glow--teen" aria-hidden="true"></div>
-        <div class="vp-card-audience">ages 13&ndash;17 &#x1F338;</div>
-        <div class="vp-card-tag">that girl era &#x2728;</div>
-        <div class="vp-card-emoji" aria-hidden="true">&#x1F451;</div>
-        <div class="vp-card-title">I know what<br>the vibe is</div>
-        <div class="vp-card-desc">You understand your body, you just need the right supplies delivered fast. We speak your language and we move at your speed. Let&apos;s go! &#x1F525;</div>
-        <div class="vp-card-cta">That&apos;s me &#x2728; <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
-
-      <!-- ADULT — ages 18-39 -->
-      <button class="vp-card vp-card--adult" id="pickAdult" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;" aria-label="Choose: I know what I need">
-        <div class="vp-card-glow vp-card-glow--adult" aria-hidden="true"></div>
-        <div class="vp-card-audience">ages 18+ &#x1F451;</div>
-        <div class="vp-card-tag">resilient baddies &#x1F451;</div>
-        <div class="vp-card-emoji" aria-hidden="true">&#x270A;</div>
-        <div class="vp-card-title">I know what<br>I need</div>
-        <div class="vp-card-desc">You know your body, we know delivery. Essentials stocked, delivered, handled &mdash; every single month on your terms. Let us get it.</div>
-        <div class="vp-card-cta">We rise up &#x1F4AA; <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
-
-      <!-- EMERGENCY — all ages -->
-      <button class="vp-card vp-card--emergency" id="pickEmergency" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;" aria-label="Choose: I need it right now">
-        <div class="vp-card-glow vp-card-glow--emergency" aria-hidden="true"></div>
-        <div class="vp-card-audience" style="color:rgba(248,113,113,0.8);">all ages &#x1F6A8;</div>
-        <div class="vp-card-tag">&#x1F6A8; urgent</div>
-        <div class="vp-card-emoji" aria-hidden="true">&#x26A1;</div>
-        <div class="vp-card-title">I need it<br>RIGHT NOW</div>
-        <div class="vp-card-desc">No time, no patience, no problem. Pads, fresh underwear, essentials &mdash; wherever you are in under 30 min. We move fast. &#x1F6A8;</div>
-        <div class="vp-card-cta">Get help now <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
-
-      <!-- HOLISTIC — all ages -->
-      <button class="vp-card vp-card--holistic" id="pickHolistic" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;" aria-label="Choose: Holistic and all-natural">
-        <div class="vp-card-glow vp-card-glow--holistic" aria-hidden="true"></div>
-        <div class="vp-card-audience" style="color:rgba(34,197,94,0.8);">all natural &#x1F33F;</div>
-        <div class="vp-card-tag">&#x1F33F; holistic</div>
-        <div class="vp-card-emoji" aria-hidden="true">&#x1F33E;</div>
-        <div class="vp-card-title">All-Natural,<br>all the way</div>
-        <div class="vp-card-desc">No toxins, no synthetics. Cloth pads, discs, CBD &amp; magnesium &mdash; your cycle, honored naturally. &#x1F33F;</div>
-        <div class="vp-card-cta">Go natural <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
-
-      <!-- GIFTER — all ages -->
-      <button class="vp-card vp-card--gifter" id="pickGifter" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;" aria-label="Choose: Shopping for someone else">
-        <div class="vp-card-glow vp-card-glow--gifter" aria-hidden="true"></div>
-        <div class="vp-card-audience" style="color:rgba(251,191,36,0.8);">shopping for someone &#x1F381;</div>
-        <div class="vp-card-tag">&#x1F381; gifting</div>
-        <div class="vp-card-emoji" aria-hidden="true">&#x1F49D;</div>
-        <div class="vp-card-title">Shopping<br>for her</div>
-        <div class="vp-card-desc">Real ones show up. Candy, cozy picks, undies &amp; more &mdash; be the reason she smiles through it. She will remember this. &#x1F49D;</div>
-        <div class="vp-card-cta">Shop for her <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      </button>
+    </div>`).join('');
 
 
-    </div>
+  list.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      // Close all others
+      list.querySelectorAll('.faq-q').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        const ans = document.getElementById(b.getAttribute('aria-controls'));
+        if (ans) ans.hidden = true;
+        b.closest('.faq-item')?.classList.remove('open');
+      });
+      if (!expanded) {
+        btn.setAttribute('aria-expanded', 'true');
+        const ans = document.getElementById(btn.getAttribute('aria-controls'));
+        if (ans) ans.hidden = false;
+        btn.closest('.faq-item')?.classList.add('open');
+      }
+    });
+  });
+}
 
-    <p class="vp-note">you can always switch later &middot; your choice, your control</p>
 
-  </div>
-</div>
+function initCycleScoopTabs() {
+  const tabs = $$('[data-scoop-tab]');
+  if (!tabs.length) return;
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      const which = tab.dataset.scoopTab;
+      const factsPanel    = $('scoopFactsPanel');
+      const faqPanel      = $('scoopFaqPanel');
+      const athleticPanel = $('scoopAthleticPanel');
+      if (factsPanel)    factsPanel.style.display    = which==='facts'    ? 'block' : 'none';
+      if (faqPanel)      faqPanel.style.display      = which==='faq'      ? 'block' : 'none';
+      if (athleticPanel) athleticPanel.style.display = which==='athletic' ? 'block' : 'none';
+      if (which === 'athletic') renderAthleticContent();
+    });
+  });
+}
 
-<!-- ===== ONBOARDING QUIZ ===== -->
-<div class="quiz-overlay" id="quizOverlay" role="dialog" aria-modal="true" aria-label="Personalization Quiz" style="display:none">
-  <div class="quiz-card" id="quizCard">
-    <div class="quiz-top-bar">
-      <div class="quiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
-      <button class="quiz-skip-btn" id="quizSkipBtn" aria-label="Skip quiz">Skip</button>
-    </div>
-    <div class="quiz-body" id="quizBody"></div>
-    <div class="quiz-footer"><button class="quiz-next-btn" id="quizNextBtn" disabled>Continue &rarr;</button></div>
-  </div>
-</div>
 
-<button class="floating-tracker-btn" id="floatingTrackerBtn" aria-label="Open tracker">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-  <span class="ftb-lock" id="ftbLock">&#x1F512;</span>
-</button>
+/* =============================================
+   ACTIVE & ATHLETIC — Per Experience Content
+   Sources: ACOG, Mayo Clinic, Women's Sports
+   Foundation, NIH/PubMed, Period.org
+   ============================================= */
 
-<script src="app.js"></script>
+const ATHLETIC_CONTENT = {
+  starter: {
+    headline: "Can I Still Do Gym Class? YES! \uD83C\uDFC3\u200D\u2640\uFE0F",
+    intro: "Getting your period does NOT mean you have to sit out. You can run, jump, swim, dance, and do every single thing you normally do. Your body is not broken \u2014 it is just doing something new! Here is everything you need to know to keep moving. \u2728",
+    sections: [
+      {
+        emoji: "\uD83D\uDC4D",
+        title: "Good news: moving actually helps!",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "Exercise releases feel-good chemicals called endorphins that actually make cramps feel better.",
+          "You do NOT have to skip gym class. Seriously \u2014 you are allowed to move.",
+          "Swimming, running, dancing, volleyball \u2014 all of it is totally fine on your period.",
+          "If you feel tired, slow down a little. But you do not have to stop completely."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDDE6",
+        title: "What to wear so you feel confident",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear is AMAZING for sports \u2014 no pads slipping, no worries.",
+          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons are great for swimming and active sports \u2014 ask a trusted adult to help you try one.",
+          "\uD83C\uDF38 Pads work fine for most gym activities \u2014 pick a thin one so it stays in place.",
+          "\uD83D\uDC51 Dark-colored leggings or shorts give you extra confidence just in case."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCAC",
+        title: "Talking to your coach or teacher",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "You never have to explain WHY you need a bathroom break \u2014 just say you need one.",
+          "If cramps are really bad one day, it is okay to tell your coach you are not feeling well.",
+          "You do not have to say the word \u201Cperiod\u201D if you are not comfortable. \u201CI am not feeling well today\u201D is enough.",
+          "Most coaches and teachers totally understand \u2014 they have been there too!"
+        ]
+      },
+      {
+        emoji: "\uD83D\uDEAB",
+        title: "When to actually take it easy",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Day 1 with really bad cramps? It is okay to do less today. Rest is not quitting.",
+          "Feeling dizzy, very weak, or in a lot of pain? Sit out and tell an adult.",
+          "Feeling tired is normal \u2014 but if you feel extremely exhausted every period, tell your doctor."
+        ]
+      }
+    ],
+    citations: [
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation is safe and often beneficial for symptom relief." },
+      { org: "Mayo Clinic", note: "Physical activity can help reduce menstrual cramps through endorphin release." },
+      { org: "Period.org", note: "Period poverty and education resources for young people." }
+    ]
+  },
 
-<!-- ===== LEGAL MODAL ===== -->
-<div class="legal-overlay" id="legalOverlay" aria-hidden="true"></div>
-<div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle" style="display:none">
-  <div class="legal-modal-header"><h2 class="legal-modal-title" id="legalModalTitle"></h2><button class="legal-modal-close" id="legalModalClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="legal-modal-body" id="legalModalBody"></div>
-  <div class="legal-modal-footer">
-    <a href="legal.pdf" target="_blank" class="legal-download-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF</a>
-    <span class="legal-copy-small">&copy; 2026 Period. LLC &middot; Cleveland, OH</span>
-  </div>
-</div>
+  teen: {
+    headline: "Period & the Grind Don\u2019t Have to Fight \uD83D\uDCAA",
+    intro: "Real talk bestie \u2014 your period does not have to bench you. Athletes, dancers, gymnasts, and everyone in between compete and train on their periods every single day. Here is how to work WITH your cycle instead of fighting it. No cap. \uD83D\uDC9C",
+    sections: [
+      {
+        emoji: "\uD83D\uDD25",
+        title: "The truth about training on your period",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "Day 1 and 2 are usually the hardest \u2014 lower energy, higher inflammation. Go easier those days, not zero.",
+          "By day 3-4? Most people feel their energy coming back. This is when you can push again.",
+          "Exercise literally releases endorphins which counteract prostaglandins (the cramp chemicals). Moving = less cramping. Facts.",
+          "Your follicular phase (after your period ends) is when you are STRONGEST. That is when to PR. Plan for it."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDC5F",
+        title: "What to wear for practice",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear + shorts = the combo. No pad shifting, no leaks, no anxiety.",
+          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons or menstrual discs are best for swimming, gymnastics, and anything high-movement.",
+          "\uD83D\uDC5A Compression shorts over your underwear give extra security and confidence.",
+          "\uD83C\uDF99\uFE0F Dark uniform bottoms on heavy days \u2014 most coaches will not even notice or question it."
+        ]
+      },
+      {
+        emoji: "\u26A0\uFE0F",
+        title: "Iron deficiency warning for athletes",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Heavy flow + heavy training = real risk of iron deficiency. This is not rare for teen athletes.",
+          "Signs: extreme fatigue, getting winded easily, slower times, brain fog, pale skin.",
+          "Fix: iron-rich foods (red meat, spinach, lentils, fortified cereals) + vitamin C to absorb it better.",
+          "If symptoms persist, ask your doctor for a blood test. Low iron is totally fixable \u2014 but it needs attention."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDDE3\uFE0F",
+        title: "Talking to your coach",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "You are never required to explain your period to your coach \u2014 \u201CI am not feeling 100% today\u201D is enough.",
+          "If you have a coach you trust, being honest actually helps them support you better.",
+          "Missing one practice for severe cramps is not going to ruin your season. Your health comes first.",
+          "More coaches than you think understand \u2014 and the ones who do not are wrong, not you."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "Menstruation and athletic performance research, including phase-based training." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise and menstrual health guidance for adolescents." },
+      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: clinical evidence and dietary recommendations." },
+      { org: "Mayo Clinic", note: "Menstrual cramps: lifestyle and home remedies including exercise." }
+    ]
+  },
 
-<div class="co-overlay" id="coOverlay" aria-hidden="true"></div>
-<div class="co-modal" id="coModal" role="dialog" aria-modal="true" aria-label="Secure checkout" style="display:none">
-  <div class="co-header"><button class="icon-btn co-back-btn" id="coBackBtn" aria-label="Back to cart"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button><h2 class="co-title">Checkout</h2><div style="width:32px"></div></div>
-  <div class="co-body">
-    <div class="co-summary" id="coSummary"></div>
-    <div class="co-card-section">
-      <div class="co-section-label">Card Details</div>
-      <div class="co-field-wrap"><label class="co-label" for="coCardName">Name on card</label><input type="text" id="coCardName" class="co-input" placeholder="Destiny Holloway" autocomplete="cc-name"></div>
-      <div class="co-field-wrap"><label class="co-label">Card number</label><div id="stripeCardElement" class="co-stripe-element"></div><div id="stripeCardError" class="co-stripe-error" aria-live="polite"></div></div>
-      <button class="co-pay-btn" id="coPayBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay <span id="coPayAmt"></span></button>
-    </div>
-  </div>
-  <div class="co-footer-trust"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Payments secured by Stripe &middot; SSL encrypted</div>
-</div>
+  adult: {
+    headline: "Cycle Syncing Your Training \uD83E\uDEC0",
+    intro: "Your hormones do not just affect your mood \u2014 they directly impact your strength, endurance, recovery time, and injury risk throughout the month. Training with your cycle instead of ignoring it is not a trend. It is smart physiology.",
+    sections: [
+      {
+        emoji: "\uD83D\uDCC5",
+        title: "The 4 phases of your training cycle",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "\uD83E\uDE78 Menstrual (Days 1-5): Lower estrogen + progesterone. Energy is low, inflammation is high. Prioritize rest, light movement, yoga, walking. This is recovery time, not failure.",
+          "\uD83C\uDF31 Follicular (Days 6-13): Estrogen rises. Energy and strength climb. Excellent time for high-intensity training, heavy lifting, and skill work.",
+          "\u2728 Ovulatory (Days 14-17): Peak estrogen. Strength, coordination, and confidence are highest. Ideal window for competition, PRs, and max effort.",
+          "\uD83C\uDF19 Luteal (Days 18-28): Progesterone rises. Endurance may feel easier but strength decreases. Good for moderate cardio. Reduce high-intensity toward end of phase."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDD29",
+        title: "Hormonal performance facts",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "Estrogen has an anabolic (muscle-building) effect \u2014 your follicular phase is when your body responds best to strength training.",
+          "Pain tolerance drops by up to 35% in the luteal phase. You are not getting weaker \u2014 your body is more sensitive. Adjust accordingly.",
+          "Core temperature rises slightly in the luteal phase, making heat-based exercise harder. Hydration matters even more.",
+          "Relaxin levels peak around ovulation, increasing joint laxity. Injury risk is slightly higher \u2014 prioritize warm-up and proper form."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDD69",
+        title: "Nutrition for active cycles",
+        color: "rgba(251,191,36,0.1)",
+        border: "rgba(251,191,36,0.2)",
+        items: [
+          "Iron + Vitamin C together after your period: your body loses iron during menstruation and exercise depletes it further. Pair spinach or red meat with citrus for optimal absorption.",
+          "Magnesium glycinate (200-400mg daily): reduces both PMS symptoms and exercise-related muscle cramps. Two problems, one solution.",
+          "Carbohydrate needs rise in the luteal phase \u2014 this is biochemical, not a lack of willpower. Fuel your body appropriately.",
+          "Anti-inflammatory foods (salmon, turmeric, berries, leafy greens) reduce menstrual inflammation AND support exercise recovery simultaneously."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDEAB",
+        title: "When to push vs. when to rest",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Push: Follicular and ovulatory phases. Your body is primed \u2014 use the window.",
+          "Moderate: Late luteal phase. Endurance is fine, max effort is not ideal.",
+          "Rest or restore: Menstrual phase days 1-2. This is strategic recovery, not giving up.",
+          "Always: If you experience dizziness, unusual fatigue, or pain beyond normal menstrual discomfort, stop and check in with your provider."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "The Female Athlete Triad and cycle-based performance research." },
+      { org: "NIH / PubMed", note: "Hormonal fluctuations and athletic performance across the menstrual cycle." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation: clinical guidelines for adults." },
+      { org: "Mayo Clinic", note: "Iron deficiency anemia in female athletes: symptoms and dietary recommendations." }
+    ]
+  },
 
-<div id="pwaInstallBanner" role="banner" aria-label="Install Period. app">
-  <div class="pwa-banner-inner">
-    <div class="pwa-banner-top">
-      <div class="pwa-banner-text"><div class="pwa-banner-title">Add Period. to your home screen</div><div class="pwa-banner-sub" id="pwaBannerSub">Install the app for faster access &mdash; no App Store needed.</div></div>
-      <button class="pwa-banner-close" id="pwaBannerClose" aria-label="Dismiss">&times;</button>
-    </div>
-    <div class="pwa-banner-steps" id="pwaBannerSteps"></div>
-    <button class="pwa-banner-btn" id="pwaBannerBtn">Install Free App</button>
-  </div>
-</div>
-</body>
-</html>
+  holistic: {
+    headline: "Supporting Your Active Body Naturally \uD83C\uDF3F",
+    intro: "Movement and your menstrual cycle are deeply connected. Honoring your body\u2019s natural rhythms while staying active is not a compromise \u2014 it is the most intelligent approach to training. Here is how to support yourself from the inside out.",
+    sections: [
+      {
+        emoji: "\uD83C\uDF3F",
+        title: "Cycle-aware movement",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "Menstrual phase: Yin yoga, walking in nature, qigong. Let your body release without forcing it to perform.",
+          "Follicular phase: Build intensity gradually. This is when your body is most receptive to new training stimuli.",
+          "Ovulatory phase: Peak performance window. Try the thing you have been afraid of. Your body is ready.",
+          "Luteal phase: Shift to endurance, dance, moderate hiking. Listen to when your body signals slowdown."
+        ]
+      },
+      {
+        emoji: "\uD83C\uDF3B",
+        title: "Natural support for active bodies",
+        color: "rgba(251,191,36,0.1)",
+        border: "rgba(251,191,36,0.2)",
+        items: [
+          "Magnesium (from pumpkin seeds, dark chocolate, avocado): reduces both menstrual cramps AND exercise-induced muscle cramps.",
+          "CBD topical on lower abdomen post-workout: addresses inflammation from both exercise and prostaglandins simultaneously. Third-party tested only.",
+          "Turmeric with black pepper before training in your menstrual phase: curcumin reduces prostaglandin-driven inflammation.",
+          "Seed cycling supports hormonal balance over time \u2014 supporting the foundation your training sits on."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCA7",
+        title: "Hydration and recovery naturally",
+        color: "rgba(14,165,233,0.1)",
+        border: "rgba(14,165,233,0.2)",
+        items: [
+          "Coconut water provides natural electrolytes lost during both menstruation and exercise \u2014 without synthetic additives.",
+          "Red raspberry leaf tea post-workout during your menstrual phase supports uterine recovery alongside muscle recovery.",
+          "Castor oil pack on lower abdomen on rest days: reduces uterine inflammation and supports lymphatic drainage.",
+          "Epsom salt baths after training during your period: magnesium absorbs transdermally while warm water eases both muscle and menstrual tension."
+        ]
+      }
+    ],
+    citations: [
+      { org: "NIH / PubMed", note: "Magnesium supplementation and menstrual pain: randomized controlled trial evidence." },
+      { org: "Women\u2019s Sports Foundation", note: "Natural approaches to cycle-aware athletic training." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Complementary and integrative medicine in menstrual health." }
+    ]
+  },
+
+  emergency: {
+    headline: "Moving Through It \u26A1",
+    intro: "You are handling an emergency right now \u2014 so keep this brief. You absolutely can keep moving. Here is the short version.",
+    sections: [
+      {
+        emoji: "\u26A1",
+        title: "Quick facts",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Exercise helps cramps. Even a short walk releases endorphins that reduce pain.",
+          "Get your supplies sorted first, then move when you feel ready.",
+          "If you are at school or work \u2014 you do not have to skip anything. Get what you need and carry on.",
+          "Heavy flow does not mean you are unwell. It means you need better supplies, fast."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Mayo Clinic", note: "Exercise and menstrual cramp relief." }
+    ]
+  },
+
+  gifter: {
+    headline: "She Stays Active \uD83C\uDFC3\u200D\u2640\uFE0F Gift Her What She Needs",
+    intro: "If she is an athlete, dancer, runner, or just someone who does not let her period stop her \u2014 she needs supplies that keep up. Here is what actually helps her stay active and confident.",
+    sections: [
+      {
+        emoji: "\uD83C\uDF81",
+        title: "What active women actually need",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear: the gift that keeps on giving. No shifting, no leaks, no anxiety mid-practice.",
+          "\uD83D\uDCA8 Menstrual disc or cup: for swimmers, gymnasts, or anyone who hates feeling anything during movement.",
+          "\uD83E\uDE78 Magnesium lotion: apply before bed for cramp relief that supports recovery too.",
+          "\uD83D\uDEB4\u200D\u2640\uFE0F Iron + folate supplement: especially if she has heavy flow and trains regularly. Iron deficiency is common and fixable."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCAC",
+        title: "What to say",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\u201CI got you something that actually works during training.\u201D",
+          "\u201CYou do not have to slow down for this \u2014 here is what helps.\u201D",
+          "Sometimes the most powerful thing is just acknowledging that her period is real and you see her. That matters more than the gift."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "Supporting female athletes\u2019 menstrual health and performance." },
+      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: prevalence and dietary solutions." }
+    ]
+  }
+};
+
+function renderAthleticContent() {
+  const container = document.getElementById('scoopAthleticContent');
+  if (!container) return;
+
+  const v = state.version || 'adult';
+  const data = ATHLETIC_CONTENT[v] || ATHLETIC_CONTENT.adult;
+
+  let html = '<div style="padding:0.5rem 0;">';
+
+  // Headline + intro
+  html += '<div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(236,72,153,0.08));border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">';
+  html += '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">' + data.headline + '</h2>';
+  html += '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>';
+  html += '</div>';
+
+  // Sections
+  data.sections.forEach(function(section) {
+    html += '<div style="background:' + section.color + ';border:1px solid ' + section.border + ';border-radius:16px;padding:1rem;margin-bottom:1rem;">';
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;">';
+    html += '<span style="font-size:1.3rem;">' + section.emoji + '</span>';
+    html += '<span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">' + section.title + '</span>';
+    html += '</div>';
+    html += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">';
+    section.items.forEach(function(item) {
+      html += '<li style="font-size:0.875rem;color:var(--text-muted);line-height:1.65;padding-left:0.5rem;border-left:2px solid ' + section.border + ';">' + item + '</li>';
+    });
+    html += '</ul></div>';
+  });
+
+  // Citations
+  html += '<div style="background:rgba(168,85,247,0.06);border-radius:16px;padding:1rem;margin-top:0.5rem;border:1px solid rgba(168,85,247,0.15);">';
+  html += '<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.6rem;">\uD83D\uDCDA Sources & Education</div>';
+  data.citations.forEach(function(cite) {
+    html += '<div style="margin-bottom:0.4rem;">';
+    html += '<span style="font-size:0.78rem;color:var(--accent);font-weight:600;">' + cite.org + '</span>';
+    html += '<span style="font-size:0.75rem;color:var(--text-muted);"> \u2014 ' + cite.note + '</span>';
+    html += '</div>';
+  });
+  html += '<p style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin:0.75rem 0 0;">General education only \u2014 not medical advice. For personal health questions, consult a healthcare provider.</p>';
+  html += '</div>';
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+
+
+// ── Navigation wiring ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // The Tea nav buttons wired in init()
+
+
+  // Freak Out Guide order button
+  const freakOrder = $('freakOrderBtn');
+  if (freakOrder) freakOrder.addEventListener('click', () => navigate('emergency'));
+
+
+  // Start teen rotation when home is visible AND version is teen
+  const homeEl = $('homeView');
+  if (homeEl) {
+    const observer = new MutationObserver(() => {
+      if (homeEl.classList.contains('active') && state.version === 'teen') {
+        startTeenFactRotation();
+      } else {
+        stopTeenFactRotation();
+      }
+    });
+    observer.observe(homeEl, { attributes: true, attributeFilter: ['class'] });
+    // Also start immediately if already on home + teen
+    if (state.version === 'teen') startTeenFactRotation();
+  }
+});
+
+
+// ── PWA INSTALL BANNER ──
+(function() {
+  const DISMISSED_KEY = 'period_pwa_dismissed';
+  const INSTALLED_KEY = 'period_pwa_installed';
+
+
+  // Don't show if already installed (standalone) or dismissed permanently
+  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) return;
+  if (localStorage.getItem(INSTALLED_KEY)) return;
+  if (localStorage.getItem(DISMISSED_KEY) > Date.now()) return;
+
+
+  const banner   = document.getElementById('pwaInstallBanner');
+  const closeBtn = document.getElementById('pwaBannerClose');
+  const subText  = document.getElementById('pwaBannerSub');
+  const steps    = document.getElementById('pwaBannerSteps');
+  const mainBtn  = document.getElementById('pwaBannerBtn');
+
+
+  const ua       = navigator.userAgent;
+  const isIOS    = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid= /android/i.test(ua);
+
+
+  let deferredPrompt = null;
+
+
+  function showBanner() {
+    if (!banner) return;
+    banner.style.display = 'block';
+  }
+
+
+  function hideBanner(permanent) {
+    if (!banner) return;
+    banner.style.display = 'none';
+    if (permanent) {
+      // Dismiss for 30 days
+      localStorage.setItem(DISMISSED_KEY, Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+  }
+
+
+  if (isIOS) {
+    // iOS: show manual steps — can only install from Safari
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+    if (!isSafari) {
+      // On iOS but not Safari — different message
+      subText.textContent = 'Open this page in Safari to install the free app.';
+      steps.innerHTML = '<span class="pwa-step">1. Copy the link</span><span class="pwa-step-arrow">›</span><span class="pwa-step">2. Open Safari</span><span class="pwa-step-arrow">›</span><span class="pwa-step">3. Paste & install</span>';
+      mainBtn.style.display = 'none';
+    } else {
+      subText.textContent = 'Tap the share button below, then "Add to Home Screen."';
+      steps.innerHTML = '<span class="pwa-step">1. Tap Share ⬆</span><span class="pwa-step-arrow">›</span><span class="pwa-step">2. Add to Home Screen</span><span class="pwa-step-arrow">›</span><span class="pwa-step">3. Tap Add</span>';
+      mainBtn.textContent = 'Got it — I\'ll follow the steps';
+      mainBtn.onclick = function() { hideBanner(true); };
+    }
+    // Show after 3 seconds
+    setTimeout(showBanner, 3000);
+
+
+  } else if (isAndroid) {
+    // Android: use native beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      subText.textContent = 'Install the free app in one tap — no App Store needed.';
+      steps.innerHTML = '';
+      mainBtn.textContent = 'Install Free App';
+      mainBtn.onclick = async function() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          localStorage.setItem(INSTALLED_KEY, '1');
+          hideBanner(false);
+        }
+        deferredPrompt = null;
+      };
+      setTimeout(showBanner, 3000);
+    });
+
+
+  } else {
+    // Desktop fallback — don't show
+    return;
+  }
+
+
+  if (closeBtn) {
+    closeBtn.onclick = function() { hideBanner(true); };
+  }
+})();
