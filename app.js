@@ -620,11 +620,9 @@ function showAppIntroCard() {
 function initVersionPicker() {
   const picker = $('versionPicker');
   if (picker) {
-    picker.style.removeProperty('display');
     picker.style.display = 'flex';
     picker.style.opacity = '1';
     picker.style.visibility = 'visible';
-    picker.style.pointerEvents = 'auto';
   }
   document.body.style.overflow = 'hidden';
   const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
@@ -666,9 +664,6 @@ function initVersion() {
    NAVIGATION
    ============================================= */
 function navigate(view) {
-  // Always ensure body scroll is restored when navigating
-  document.body.style.overflow = '';
-  document.documentElement.style.overflow = '';
   if (view === 'cycleScoopView') {
     $$('.view').forEach(v => v.classList.remove('active'));
     const scoopEl = document.getElementById('cycleScoopView');
@@ -1974,7 +1969,7 @@ function showTrustedAdultGate(onApproved) {
 // School Profile System (placeholder — ready for launch)
 function showSchoolProfileSetup() {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);overflow-y:auto;-webkit-overflow-scrolling:touch;';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
   overlay.innerHTML = `
     <div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(251,191,36,0.3);text-align:center;">
       <div style="font-size:2.5rem;margin-bottom:0.75rem;">&#x1F3EB;</div>
@@ -2663,55 +2658,6 @@ function toggleDiscreetDelivery() {
   state.discreetDelivery = on;
 }
 
-/* =============================================
-   INLINE ADDRESS POPUP (slides up over cart)
-   ============================================= */
-function showInlineAddressPopup(onSaved) {
-  var ex = document.getElementById('inlineAddrPopup');
-  if (ex) ex.remove();
-  var popup = document.createElement('div');
-  popup.id = 'inlineAddrPopup';
-  popup.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.85);display:flex;align-items:flex-end;justify-content:center;';
-  popup.innerHTML =
-    '<div style="width:100%;max-width:480px;background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem;border-top:2px solid rgba(168,85,247,0.3);">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">' +
-    '<h3 style="font-size:1rem;font-weight:700;color:var(--text-primary);">📍 Delivery Address</h3>' +
-    '<button id="iapClose" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;">&#xD7;</button>' +
-    '</div>' +
-    '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">Where should we deliver?</p>' +
-    '<input id="iapInput" type="text" placeholder="Street address, City, State ZIP" autocomplete="street-address" style="width:100%;height:48px;padding:0 1rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.9rem;color:var(--text-primary);outline:none;margin-bottom:0.6rem;box-sizing:border-box;"/>' +
-    '<div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">' +
-    ['Home','Work','School','Other'].map(function(lbl) {
-      return '<button class="iap-lbl" data-lbl="' + lbl + '" style="flex:1;padding:0.45rem 0;border-radius:999px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:0.72rem;cursor:pointer;">' + lbl + '</button>';
-    }).join('') +
-    '</div>' +
-    '<button id="iapSave" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#7C3AED,#A855F7);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">Save & Continue →</button>' +
-    '</div>';
-  document.body.appendChild(popup);
-  setTimeout(function() { var i=document.getElementById('iapInput'); if(i) i.focus(); }, 250);
-  var chosen = 'Home';
-  popup.querySelectorAll('.iap-lbl').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      popup.querySelectorAll('.iap-lbl').forEach(function(b) { b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)'; b.style.background='var(--surface-2)'; });
-      btn.style.borderColor='var(--accent)'; btn.style.color='var(--text-primary)'; btn.style.background='rgba(168,85,247,0.1)';
-      chosen = btn.dataset.lbl;
-    });
-  });
-  document.getElementById('iapClose').addEventListener('click', function() { popup.remove(); });
-  document.getElementById('iapSave').addEventListener('click', function() {
-    var inp = document.getElementById('iapInput');
-    var val = inp ? inp.value.trim() : '';
-    if (!val) { if(inp) inp.style.borderColor='#ef4444'; showToast('Please enter your delivery address'); return; }
-    state.deliveryAddress = val;
-    addSavedAddress(chosen, val);
-    var pill = $('addressPill');
-    if (pill) pill.innerHTML = '📍 ' + val.split(',')[0];
-    popup.remove();
-    showToast('✓ Address saved!');
-    if (typeof onSaved === 'function') onSaved();
-  });
-}
-
 function placeOrder() {
   const { subtotal, delivery, discount, total } = getOrderTotal();
 
@@ -3108,6 +3054,24 @@ function init() {
   if ($('whyCloseBtn'))  $('whyCloseBtn').addEventListener('click', closeWhyModal);
   if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
   if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
+
+  // The Tea, Period. nav buttons — wired here so they survive version switching
+  const _openScoop = () => {
+    navigate('cycleScoopView');
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+  };
+  if ($('heroScoopBtn'))   $('heroScoopBtn').addEventListener('click', _openScoop);
+  if ($('teenScoopLink'))  $('teenScoopLink').addEventListener('click', _openScoop);
+  if ($('cycleScoopBack')) $('cycleScoopBack').addEventListener('click', () => navigate('home'));
+
+  // Newsletter hero button — re-wire here in case starter mode hid/restored it
+  if ($('heroNewsletterBtn')) {
+    $('heroNewsletterBtn').addEventListener('click', () => {
+      showNewsletterModal();
+    });
+  }
 
 
   if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
@@ -4149,7 +4113,7 @@ function showImpactCheck(dateStr) {
   overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
 
   overlay.innerHTML = `
-    <div style="max-width:400px;width:100%;margin:1rem auto;background:var(--surface);border-radius:24px;padding:1.25rem 1rem;border:1px solid rgba(168,85,247,0.25);">
+    <div style="max-width:400px;width:100%;background:var(--surface);border-radius:24px;padding:1.75rem;border:1px solid rgba(168,85,247,0.25);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
         <div style="font-size:1.5rem;">&#x1F4CB;</div>
         <span style="font-size:0.72rem;color:var(--text-muted);background:var(--surface-2);padding:0.2rem 0.6rem;border-radius:999px;">takes ~30 seconds &#x2728;</span>
@@ -4169,7 +4133,7 @@ function showImpactCheck(dateStr) {
       </div>
 
       <!-- Q2: What was affected -->
-      <div id="impactQ2Section" style="margin-bottom:1.25rem;display:none;">
+      <div style="margin-bottom:1.25rem;" id="impactQ2Section" style="display:none;">
         <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.6rem;">2. What was affected? <span style="font-weight:400;color:var(--text-muted);">(select all that apply)</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="impactQ2">
           ${['&#x1F3EB; School/classes','&#x1F4BC; Work','&#x1F3C3; Exercise','&#x1F634; Sleep','&#x1F91D; Social plans','&#x1F37D;&#xFE0F; Eating/appetite','&#x1F9E0; Focus/concentration'].map(item =>
@@ -4904,7 +4868,7 @@ function saveSmsReminder() {
   prefs.daysBefore = getSelectedDaysBefore();
   setReminderPrefs(prefs);
   renderReminderState();
-  showToast('💜 SMS reminders set! We’ll text you before your next period.');
+  showToast('Got it! ?? SMS reminders are set. You will receive a text before your next predicted period.');
   // Show info about SMS
   const smsStatus = $('remSmsStatus');
   if (smsStatus) {
@@ -5286,48 +5250,35 @@ function showQuiz() {
 
 
 function showQuizUrgencyCheck() {
-  const body     = $('quizBody');
-  const nextBtn  = $('quizNextBtn');
+  const body    = $('quizBody');
+  const nextBtn = $('quizNextBtn');
   const progFill = $('quizProgressFill');
   if (!body || !nextBtn) return;
+
 
   if (progFill) progFill.style.width = '0%';
   nextBtn.disabled = true;
   nextBtn.textContent = 'Continue →';
   nextBtn.classList.remove('done-btn');
 
-  const isGifter = state.version === 'gifter';
-  const title    = isGifter
-    ? 'What do they need RIGHT NOW? 🚨'
-    : 'Quick check — do you need something right now?';
-  const sub      = isGifter
-    ? 'Someone is counting on you. If they need supplies urgently, skip ahead — personalization can wait.'
-    : "We want to personalize your experience, but if you're in a pinch we'll get you sorted first.";
-  const yesLabel = isGifter ? '🚨 Yes — they need it NOW' : '🚨 Yes — I need it now';
-  const noLabel  = isGifter ? 'No — I have time, let me browse ✨' : "No — I'm good, let's personalize ✨";
 
-  body.innerHTML =
-    '<div class="quiz-urgency-card">' +
-    '<div class="quiz-urgency-icon">⚡</div>' +
-    '<div class="quiz-urgency-title">' + title + '</div>' +
-    '<div class="quiz-urgency-sub">' + sub + '</div>' +
-    '<div class="quiz-urgency-btns">' +
-    '<button class="quiz-urgency-yes" id="quizUrgencyYes">' + yesLabel + '</button>' +
-    '<button class="quiz-urgency-no" id="quizUrgencyNo">' + noLabel + '</button>' +
-    '</div>' +
-    (isGifter ? '' : '<p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>') +
-    '</div>';
+  body.innerHTML = `
+    <div class="quiz-urgency-card">
+      <div class="quiz-urgency-icon">⚡</div>
+      <div class="quiz-urgency-title">Quick check — do you need something right now?</div>
+      <div class="quiz-urgency-sub">We want to personalize your experience, but if you're in a pinch we'll get you sorted first.</div>
+      <div class="quiz-urgency-btns">
+        <button class="quiz-urgency-yes" id="quizUrgencyYes">🚨 Yes — I need it now</button>
+        <button class="quiz-urgency-no" id="quizUrgencyNo">No — I'm good, let's personalize ✨</button>
+      </div>
+      <p class="quiz-urgency-note">If you skip, the quiz will pop up next visit so you can set your preferences then 💜</p>
+    </div>`;
 
-  const yesBtn2 = document.getElementById('quizUrgencyYes');
-  const noBtn2  = document.getElementById('quizUrgencyNo');
-  if (yesBtn2) yesBtn2.addEventListener('click', function() {
-    closeQuiz();
-    setTimeout(function() { navigate('shop'); }, 200);
-  });
-  if (noBtn2) noBtn2.addEventListener('click', function() {
-    if (isGifter) { closeQuiz(); setTimeout(function() { navigate('shop'); }, 200); }
-    else { renderQuizSlide(); }
-  });
+
+  const yesBtn = document.getElementById('quizUrgencyYes');
+  const noBtn  = document.getElementById('quizUrgencyNo');
+  if (yesBtn) yesBtn.addEventListener('click', () => { closeQuiz(); setTimeout(() => navigate('shop'), 200); });
+  if (noBtn)  noBtn.addEventListener('click',  () => { renderQuizSlide(); });
 }
 
 
@@ -5749,7 +5700,7 @@ function showTrackerTutorial() {
     if (fill)  fill.style.width  = ((step + 1) / steps.length * 100) + '%';
     dots.forEach((d, i) => d.classList.toggle('active', i === step));
     const nextBtn = document.getElementById('tutNextBtn');
-    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking 💜';
+    if (nextBtn) nextBtn.textContent = step < steps.length - 1 ? 'Got it, next →' : 'Start tracking ??';
   }
 
   // Replace tap hint with proper button - only once
@@ -5862,43 +5813,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
-  // ── My Tracker hero pill → scroll to feature cards, then open tracker ──
+  // ── My Tracker hero pill ──
   const heroTrackerBtn = $('heroTrackerBtn');
   if (heroTrackerBtn) {
     heroTrackerBtn.addEventListener('click', () => {
-      const spotlight = $('featureSpotlight');
-      if (spotlight) {
-        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Small delay so scroll completes before action fires
-        setTimeout(() => {
-          if (isNewsletterSubscribed()) navigate('tracker');
-          else showNewsletterModal();
-        }, 420);
-      } else {
-        if (isNewsletterSubscribed()) navigate('tracker');
-        else showNewsletterModal();
-      }
+      if (isNewsletterSubscribed()) navigate('tracker');
+      else showNewsletterModal();
     });
   }
 
+  // Newsletter hero pill handled in init()
 
-  // ── Newsletter hero pill → scroll to feature cards, then open modal ──
-  const heroNewsletterBtn = $('heroNewsletterBtn');
-  if (heroNewsletterBtn) {
-    heroNewsletterBtn.addEventListener('click', () => {
-      const spotlight = $('featureSpotlight');
-      if (spotlight) {
-        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setTimeout(() => showNewsletterModal(), 420);
-      } else {
-        showNewsletterModal();
-      }
-    });
-  }
-
-
-  // ── Feature card: Tracker button ──
+  // ── Feature card buttons (may not exist if spotlight removed) ──
   const featureTrackerBtn = $('featureTrackerBtn');
   if (featureTrackerBtn) {
     featureTrackerBtn.addEventListener('click', () => {
@@ -5906,9 +5832,6 @@ document.addEventListener('DOMContentLoaded', () => {
       else showNewsletterModal();
     });
   }
-
-
-  // ── Feature card: Newsletter button ──
   const featureNewsletterBtn = $('featureNewsletterBtn');
   if (featureNewsletterBtn) {
     featureNewsletterBtn.addEventListener('click', showNewsletterModal);
@@ -6379,30 +6302,361 @@ function initCycleScoopTabs() {
       tab.classList.add('active');
       tab.setAttribute('aria-selected','true');
       const which = tab.dataset.scoopTab;
-      const factsPanel = $('scoopFactsPanel');
-      const faqPanel   = $('scoopFaqPanel');
-      if (factsPanel) factsPanel.style.display = which==='facts' ? 'block' : 'none';
-      if (faqPanel)   faqPanel.style.display   = which==='faq'   ? 'block' : 'none';
+      const factsPanel    = $('scoopFactsPanel');
+      const faqPanel      = $('scoopFaqPanel');
+      const athleticPanel = $('scoopAthleticPanel');
+      if (factsPanel)    factsPanel.style.display    = which==='facts'    ? 'block' : 'none';
+      if (faqPanel)      faqPanel.style.display      = which==='faq'      ? 'block' : 'none';
+      if (athleticPanel) athleticPanel.style.display = which==='athletic' ? 'block' : 'none';
+      if (which === 'athletic') renderAthleticContent();
     });
   });
 }
 
 
+/* =============================================
+   ACTIVE & ATHLETIC — Per Experience Content
+   Sources: ACOG, Mayo Clinic, Women's Sports
+   Foundation, NIH/PubMed, Period.org
+   ============================================= */
+
+const ATHLETIC_CONTENT = {
+  starter: {
+    headline: "Can I Still Do Gym Class? YES! \uD83C\uDFC3\u200D\u2640\uFE0F",
+    intro: "Getting your period does NOT mean you have to sit out. You can run, jump, swim, dance, and do every single thing you normally do. Your body is not broken \u2014 it is just doing something new! Here is everything you need to know to keep moving. \u2728",
+    sections: [
+      {
+        emoji: "\uD83D\uDC4D",
+        title: "Good news: moving actually helps!",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "Exercise releases feel-good chemicals called endorphins that actually make cramps feel better.",
+          "You do NOT have to skip gym class. Seriously \u2014 you are allowed to move.",
+          "Swimming, running, dancing, volleyball \u2014 all of it is totally fine on your period.",
+          "If you feel tired, slow down a little. But you do not have to stop completely."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDDE6",
+        title: "What to wear so you feel confident",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear is AMAZING for sports \u2014 no pads slipping, no worries.",
+          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons are great for swimming and active sports \u2014 ask a trusted adult to help you try one.",
+          "\uD83C\uDF38 Pads work fine for most gym activities \u2014 pick a thin one so it stays in place.",
+          "\uD83D\uDC51 Dark-colored leggings or shorts give you extra confidence just in case."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCAC",
+        title: "Talking to your coach or teacher",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "You never have to explain WHY you need a bathroom break \u2014 just say you need one.",
+          "If cramps are really bad one day, it is okay to tell your coach you are not feeling well.",
+          "You do not have to say the word \u201Cperiod\u201D if you are not comfortable. \u201CI am not feeling well today\u201D is enough.",
+          "Most coaches and teachers totally understand \u2014 they have been there too!"
+        ]
+      },
+      {
+        emoji: "\uD83D\uDEAB",
+        title: "When to actually take it easy",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Day 1 with really bad cramps? It is okay to do less today. Rest is not quitting.",
+          "Feeling dizzy, very weak, or in a lot of pain? Sit out and tell an adult.",
+          "Feeling tired is normal \u2014 but if you feel extremely exhausted every period, tell your doctor."
+        ]
+      }
+    ],
+    citations: [
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation is safe and often beneficial for symptom relief." },
+      { org: "Mayo Clinic", note: "Physical activity can help reduce menstrual cramps through endorphin release." },
+      { org: "Period.org", note: "Period poverty and education resources for young people." }
+    ]
+  },
+
+  teen: {
+    headline: "Period & the Grind Don\u2019t Have to Fight \uD83D\uDCAA",
+    intro: "Real talk bestie \u2014 your period does not have to bench you. Athletes, dancers, gymnasts, and everyone in between compete and train on their periods every single day. Here is how to work WITH your cycle instead of fighting it. No cap. \uD83D\uDC9C",
+    sections: [
+      {
+        emoji: "\uD83D\uDD25",
+        title: "The truth about training on your period",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "Day 1 and 2 are usually the hardest \u2014 lower energy, higher inflammation. Go easier those days, not zero.",
+          "By day 3-4? Most people feel their energy coming back. This is when you can push again.",
+          "Exercise literally releases endorphins which counteract prostaglandins (the cramp chemicals). Moving = less cramping. Facts.",
+          "Your follicular phase (after your period ends) is when you are STRONGEST. That is when to PR. Plan for it."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDC5F",
+        title: "What to wear for practice",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear + shorts = the combo. No pad shifting, no leaks, no anxiety.",
+          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons or menstrual discs are best for swimming, gymnastics, and anything high-movement.",
+          "\uD83D\uDC5A Compression shorts over your underwear give extra security and confidence.",
+          "\uD83C\uDF99\uFE0F Dark uniform bottoms on heavy days \u2014 most coaches will not even notice or question it."
+        ]
+      },
+      {
+        emoji: "\u26A0\uFE0F",
+        title: "Iron deficiency warning for athletes",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Heavy flow + heavy training = real risk of iron deficiency. This is not rare for teen athletes.",
+          "Signs: extreme fatigue, getting winded easily, slower times, brain fog, pale skin.",
+          "Fix: iron-rich foods (red meat, spinach, lentils, fortified cereals) + vitamin C to absorb it better.",
+          "If symptoms persist, ask your doctor for a blood test. Low iron is totally fixable \u2014 but it needs attention."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDDE3\uFE0F",
+        title: "Talking to your coach",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "You are never required to explain your period to your coach \u2014 \u201CI am not feeling 100% today\u201D is enough.",
+          "If you have a coach you trust, being honest actually helps them support you better.",
+          "Missing one practice for severe cramps is not going to ruin your season. Your health comes first.",
+          "More coaches than you think understand \u2014 and the ones who do not are wrong, not you."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "Menstruation and athletic performance research, including phase-based training." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise and menstrual health guidance for adolescents." },
+      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: clinical evidence and dietary recommendations." },
+      { org: "Mayo Clinic", note: "Menstrual cramps: lifestyle and home remedies including exercise." }
+    ]
+  },
+
+  adult: {
+    headline: "Cycle Syncing Your Training \uD83E\uDEC0",
+    intro: "Your hormones do not just affect your mood \u2014 they directly impact your strength, endurance, recovery time, and injury risk throughout the month. Training with your cycle instead of ignoring it is not a trend. It is smart physiology.",
+    sections: [
+      {
+        emoji: "\uD83D\uDCC5",
+        title: "The 4 phases of your training cycle",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "\uD83E\uDE78 Menstrual (Days 1-5): Lower estrogen + progesterone. Energy is low, inflammation is high. Prioritize rest, light movement, yoga, walking. This is recovery time, not failure.",
+          "\uD83C\uDF31 Follicular (Days 6-13): Estrogen rises. Energy and strength climb. Excellent time for high-intensity training, heavy lifting, and skill work.",
+          "\u2728 Ovulatory (Days 14-17): Peak estrogen. Strength, coordination, and confidence are highest. Ideal window for competition, PRs, and max effort.",
+          "\uD83C\uDF19 Luteal (Days 18-28): Progesterone rises. Endurance may feel easier but strength decreases. Good for moderate cardio. Reduce high-intensity toward end of phase."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDD29",
+        title: "Hormonal performance facts",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "Estrogen has an anabolic (muscle-building) effect \u2014 your follicular phase is when your body responds best to strength training.",
+          "Pain tolerance drops by up to 35% in the luteal phase. You are not getting weaker \u2014 your body is more sensitive. Adjust accordingly.",
+          "Core temperature rises slightly in the luteal phase, making heat-based exercise harder. Hydration matters even more.",
+          "Relaxin levels peak around ovulation, increasing joint laxity. Injury risk is slightly higher \u2014 prioritize warm-up and proper form."
+        ]
+      },
+      {
+        emoji: "\uD83E\uDD69",
+        title: "Nutrition for active cycles",
+        color: "rgba(251,191,36,0.1)",
+        border: "rgba(251,191,36,0.2)",
+        items: [
+          "Iron + Vitamin C together after your period: your body loses iron during menstruation and exercise depletes it further. Pair spinach or red meat with citrus for optimal absorption.",
+          "Magnesium glycinate (200-400mg daily): reduces both PMS symptoms and exercise-related muscle cramps. Two problems, one solution.",
+          "Carbohydrate needs rise in the luteal phase \u2014 this is biochemical, not a lack of willpower. Fuel your body appropriately.",
+          "Anti-inflammatory foods (salmon, turmeric, berries, leafy greens) reduce menstrual inflammation AND support exercise recovery simultaneously."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDEAB",
+        title: "When to push vs. when to rest",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Push: Follicular and ovulatory phases. Your body is primed \u2014 use the window.",
+          "Moderate: Late luteal phase. Endurance is fine, max effort is not ideal.",
+          "Rest or restore: Menstrual phase days 1-2. This is strategic recovery, not giving up.",
+          "Always: If you experience dizziness, unusual fatigue, or pain beyond normal menstrual discomfort, stop and check in with your provider."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "The Female Athlete Triad and cycle-based performance research." },
+      { org: "NIH / PubMed", note: "Hormonal fluctuations and athletic performance across the menstrual cycle." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation: clinical guidelines for adults." },
+      { org: "Mayo Clinic", note: "Iron deficiency anemia in female athletes: symptoms and dietary recommendations." }
+    ]
+  },
+
+  holistic: {
+    headline: "Supporting Your Active Body Naturally \uD83C\uDF3F",
+    intro: "Movement and your menstrual cycle are deeply connected. Honoring your body\u2019s natural rhythms while staying active is not a compromise \u2014 it is the most intelligent approach to training. Here is how to support yourself from the inside out.",
+    sections: [
+      {
+        emoji: "\uD83C\uDF3F",
+        title: "Cycle-aware movement",
+        color: "rgba(34,197,94,0.1)",
+        border: "rgba(34,197,94,0.2)",
+        items: [
+          "Menstrual phase: Yin yoga, walking in nature, qigong. Let your body release without forcing it to perform.",
+          "Follicular phase: Build intensity gradually. This is when your body is most receptive to new training stimuli.",
+          "Ovulatory phase: Peak performance window. Try the thing you have been afraid of. Your body is ready.",
+          "Luteal phase: Shift to endurance, dance, moderate hiking. Listen to when your body signals slowdown."
+        ]
+      },
+      {
+        emoji: "\uD83C\uDF3B",
+        title: "Natural support for active bodies",
+        color: "rgba(251,191,36,0.1)",
+        border: "rgba(251,191,36,0.2)",
+        items: [
+          "Magnesium (from pumpkin seeds, dark chocolate, avocado): reduces both menstrual cramps AND exercise-induced muscle cramps.",
+          "CBD topical on lower abdomen post-workout: addresses inflammation from both exercise and prostaglandins simultaneously. Third-party tested only.",
+          "Turmeric with black pepper before training in your menstrual phase: curcumin reduces prostaglandin-driven inflammation.",
+          "Seed cycling supports hormonal balance over time \u2014 supporting the foundation your training sits on."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCA7",
+        title: "Hydration and recovery naturally",
+        color: "rgba(14,165,233,0.1)",
+        border: "rgba(14,165,233,0.2)",
+        items: [
+          "Coconut water provides natural electrolytes lost during both menstruation and exercise \u2014 without synthetic additives.",
+          "Red raspberry leaf tea post-workout during your menstrual phase supports uterine recovery alongside muscle recovery.",
+          "Castor oil pack on lower abdomen on rest days: reduces uterine inflammation and supports lymphatic drainage.",
+          "Epsom salt baths after training during your period: magnesium absorbs transdermally while warm water eases both muscle and menstrual tension."
+        ]
+      }
+    ],
+    citations: [
+      { org: "NIH / PubMed", note: "Magnesium supplementation and menstrual pain: randomized controlled trial evidence." },
+      { org: "Women\u2019s Sports Foundation", note: "Natural approaches to cycle-aware athletic training." },
+      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Complementary and integrative medicine in menstrual health." }
+    ]
+  },
+
+  emergency: {
+    headline: "Moving Through It \u26A1",
+    intro: "You are handling an emergency right now \u2014 so keep this brief. You absolutely can keep moving. Here is the short version.",
+    sections: [
+      {
+        emoji: "\u26A1",
+        title: "Quick facts",
+        color: "rgba(239,68,68,0.1)",
+        border: "rgba(239,68,68,0.2)",
+        items: [
+          "Exercise helps cramps. Even a short walk releases endorphins that reduce pain.",
+          "Get your supplies sorted first, then move when you feel ready.",
+          "If you are at school or work \u2014 you do not have to skip anything. Get what you need and carry on.",
+          "Heavy flow does not mean you are unwell. It means you need better supplies, fast."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Mayo Clinic", note: "Exercise and menstrual cramp relief." }
+    ]
+  },
+
+  gifter: {
+    headline: "She Stays Active \uD83C\uDFC3\u200D\u2640\uFE0F Gift Her What She Needs",
+    intro: "If she is an athlete, dancer, runner, or just someone who does not let her period stop her \u2014 she needs supplies that keep up. Here is what actually helps her stay active and confident.",
+    sections: [
+      {
+        emoji: "\uD83C\uDF81",
+        title: "What active women actually need",
+        color: "rgba(168,85,247,0.1)",
+        border: "rgba(168,85,247,0.2)",
+        items: [
+          "\uD83E\uDE72 Period underwear: the gift that keeps on giving. No shifting, no leaks, no anxiety mid-practice.",
+          "\uD83D\uDCA8 Menstrual disc or cup: for swimmers, gymnasts, or anyone who hates feeling anything during movement.",
+          "\uD83E\uDE78 Magnesium lotion: apply before bed for cramp relief that supports recovery too.",
+          "\uD83D\uDEB4\u200D\u2640\uFE0F Iron + folate supplement: especially if she has heavy flow and trains regularly. Iron deficiency is common and fixable."
+        ]
+      },
+      {
+        emoji: "\uD83D\uDCAC",
+        title: "What to say",
+        color: "rgba(236,72,153,0.1)",
+        border: "rgba(236,72,153,0.2)",
+        items: [
+          "\u201CI got you something that actually works during training.\u201D",
+          "\u201CYou do not have to slow down for this \u2014 here is what helps.\u201D",
+          "Sometimes the most powerful thing is just acknowledging that her period is real and you see her. That matters more than the gift."
+        ]
+      }
+    ],
+    citations: [
+      { org: "Women\u2019s Sports Foundation", note: "Supporting female athletes\u2019 menstrual health and performance." },
+      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: prevalence and dietary solutions." }
+    ]
+  }
+};
+
+function renderAthleticContent() {
+  const container = document.getElementById('scoopAthleticContent');
+  if (!container) return;
+
+  const v = state.version || 'adult';
+  const data = ATHLETIC_CONTENT[v] || ATHLETIC_CONTENT.adult;
+
+  let html = '<div style="padding:0.5rem 0;">';
+
+  // Headline + intro
+  html += '<div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(236,72,153,0.08));border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">';
+  html += '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">' + data.headline + '</h2>';
+  html += '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>';
+  html += '</div>';
+
+  // Sections
+  data.sections.forEach(function(section) {
+    html += '<div style="background:' + section.color + ';border:1px solid ' + section.border + ';border-radius:16px;padding:1rem;margin-bottom:1rem;">';
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;">';
+    html += '<span style="font-size:1.3rem;">' + section.emoji + '</span>';
+    html += '<span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">' + section.title + '</span>';
+    html += '</div>';
+    html += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">';
+    section.items.forEach(function(item) {
+      html += '<li style="font-size:0.875rem;color:var(--text-muted);line-height:1.65;padding-left:0.5rem;border-left:2px solid ' + section.border + ';">' + item + '</li>';
+    });
+    html += '</ul></div>';
+  });
+
+  // Citations
+  html += '<div style="background:rgba(168,85,247,0.06);border-radius:16px;padding:1rem;margin-top:0.5rem;border:1px solid rgba(168,85,247,0.15);">';
+  html += '<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.6rem;">\uD83D\uDCDA Sources & Education</div>';
+  data.citations.forEach(function(cite) {
+    html += '<div style="margin-bottom:0.4rem;">';
+    html += '<span style="font-size:0.78rem;color:var(--accent);font-weight:600;">' + cite.org + '</span>';
+    html += '<span style="font-size:0.75rem;color:var(--text-muted);"> \u2014 ' + cite.note + '</span>';
+    html += '</div>';
+  });
+  html += '<p style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin:0.75rem 0 0;">General education only \u2014 not medical advice. For personal health questions, consult a healthcare provider.</p>';
+  html += '</div>';
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+
+
 // ── Navigation wiring ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // The Tea, Period. nav buttons
-  const openScoop = () => {
-    navigate('cycleScoopView');
-    renderScoopFacts();
-    renderScoopFaq();
-    initCycleScoopTabs();
-  };
-  const heroScoop   = $('heroScoopBtn');
-  const teenScoop   = $('teenScoopLink');
-  const scoopBack   = $('cycleScoopBack');
-  if (heroScoop)  heroScoop.addEventListener('click', openScoop);
-  if (teenScoop)  teenScoop.addEventListener('click', openScoop);
-  if (scoopBack)  scoopBack.addEventListener('click', () => navigate('home'));
+  // The Tea nav buttons wired in init()
 
 
   // Freak Out Guide order button
