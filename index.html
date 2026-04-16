@@ -38,17 +38,23 @@
 </head>
 <body>
 <script>
-  // Immediately hide age gate if this is the guys experience
+  // Immediately hide female-only elements if this is the guys experience
   // Runs before any other JS to prevent flash
   try {
     if (new URLSearchParams(window.location.search).get('for') === 'him') {
+      var _guysHideIds = ['ageGateWrap', 'trendingStrip', 'versionBadge', 'comingSoonBanner'];
       document.addEventListener('DOMContentLoaded', function() {
-        var ag = document.getElementById('ageGateWrap');
-        if (ag) { ag.style.display = 'none'; ag.style.visibility = 'hidden'; }
+        _guysHideIds.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) { el.style.display = 'none'; el.style.visibility = 'hidden'; }
+        });
+        // Also hide header elements not needed for guys
+        var header = document.querySelector('.header');
+        if (header) {
+          var badge = header.querySelector('#versionBadge');
+          if (badge) badge.style.display = 'none';
+        }
       });
-      // Also set immediately if body exists
-      var _ag = document.getElementById('ageGateWrap');
-      if (_ag) { _ag.style.display = 'none'; _ag.style.visibility = 'hidden'; }
     }
   } catch(e) {}
 </script>
