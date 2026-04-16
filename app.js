@@ -6049,10 +6049,23 @@ function openGuysRole(role) {
     // Wire send link button — opens native SMS
     const sendBtn = document.getElementById('guysSendLinkBtn');
     if (sendBtn) sendBtn.addEventListener('click', () => {
-      const msg = encodeURIComponent(
-        "Hey, I got you something but I want to make sure it's actually what you want. Pick what you need here and I'll take care of it \ud83d\udc9c\nhttps://perioddelivers.com"
-      );
-      window.location.href = 'sms:?body=' + msg;
+      const rawMsg = "Hey, I got you something but I want to make sure it's actually what you want. Pick what you need here and I'll take care of it \ud83d\udc9c\nhttps://perioddelivers.com";
+      const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+      if (isMobile) {
+        // Mobile: open native SMS app with pre-written message
+        window.location.href = 'sms:?body=' + encodeURIComponent(rawMsg);
+      } else {
+        // Desktop: copy message to clipboard + show instructions
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(rawMsg).then(() => {
+            showToast('\ud83d\udccb Message copied! Paste it in a text to her.');
+          }).catch(() => {
+            prompt('Copy this message and send it to her:', rawMsg);
+          });
+        } else {
+          prompt('Copy this message and send it to her:', rawMsg);
+        }
+      }
     });
   }
 }
@@ -6110,6 +6123,13 @@ function navigateGuys() {
   // Remove any intro overlay
   const intro = document.getElementById('appIntroOverlay');
   if (intro) intro.remove();
+  // Hide version badge (Choose Your Experience button)
+  const vBadge = document.getElementById('versionBadge');
+  if (vBadge) vBadge.style.display = 'none';
+  // Hide coming soon banner if it exists
+  const csBanner = document.getElementById('comingSoonBanner');
+  if (csBanner) csBanner.style.display = 'none';
+  document.body.style.paddingTop = '0';
   document.body.style.overflow = '';
   // Remove active from all views
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
