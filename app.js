@@ -2777,6 +2777,17 @@ function registerSW() {
    INIT — Wire all events
    ============================================= */
 function init() {
+  // Check for ?for=him FIRST before any female experience loads
+  try {
+    const _urlParams = new URLSearchParams(window.location.search);
+    if (_urlParams.get('for') === 'him') {
+      initTheme();
+      registerSW();
+      navigateGuys();
+      return; // Stop here — don't run any female experience code
+    }
+  } catch(e) {}
+
   initVersion();
   initTheme();
   registerSW();
