@@ -6129,6 +6129,9 @@ function navigateGuys() {
   // Hide coming soon banner if it exists
   const csBanner = document.getElementById('comingSoonBanner');
   if (csBanner) csBanner.style.display = 'none';
+  // Hide trending strip
+  const tStrip = document.getElementById('trendingStrip');
+  if (tStrip) tStrip.style.display = 'none';
   document.body.style.paddingTop = '0';
   document.body.style.overflow = '';
   // Remove active from all views
