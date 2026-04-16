@@ -5587,12 +5587,523 @@ function initImpactCounter() {
 }
 
 
+
+/* =============================================================
+   FOR THE GUYS — Male Education Experience
+   Entry point: perioddelivers.com?for=him
+   ============================================================= */
+
+const GUYS_HEADLINES = [
+  "You found this. That already says something. \u{1F44A}",
+  "Real ones educate themselves. Let's go. \u{1F4AA}",
+  "She didn't have to tell you twice. Respect. \u{1F44A}",
+  "Most guys wouldn't click this. You're not most guys. \u{1F4AA}",
+  "You showed up. That's already half the battle. \u{1F44A}",
+  "No cap \u2014 this is the move. Let's get you right. \u{1F4AA}",
+  "Legend behavior. Let's make sure you know what to do. \u{1F44A}",
+  "She noticed you're here. Even if she doesn't know it yet. \u{1F4AA}",
+];
+
+const GUYS_SAFE_PICKS = [10, 22, 23, 26, 27, 25, 1, 15];
+
+const GUYS_CONTENT = {
+  dad: {
+    emoji: "\u{1F9D4}", role: "The Dad",
+    tagline: "Your daughter needs you to show up differently right now.",
+    period101: {
+      title: "Period 101 \u2014 What's Actually Happening",
+      body: "Your daughter's body is doing exactly what it's supposed to do. Once a month, her uterus sheds its lining \u2014 that's the bleeding. It lasts 3\u20137 days and comes with cramps, fatigue, mood changes, and discomfort. It is not an illness. It is not weakness. It is biology. And how you respond to it right now will shape how she feels about her body for the rest of her life."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's physically uncomfortable. Cramps are real. Fatigue is real. She needs warmth, rest, and zero added stress from you." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Energy is coming back. She's feeling more like herself. Great time for normal dad-daughter activities." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak energy and mood. She's at her best. Enjoy it." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"PMS territory. Mood shifts are hormonal \u2014 not personal. She's not attacking you. Her hormones are loud right now." },
+    ],
+    doThis: [
+      "Ask her what she needs \u2014 then actually get it without making it weird",
+      "Keep heating pads, her preferred pain relief, and comfort snacks stocked at home",
+      "Give her space when she needs it without making her feel guilty for needing it",
+      "Normalize it \u2014 the more matter-of-fact you are, the more confident she'll feel",
+      "Learn what products she uses so you can restock without her having to ask",
+    ],
+    notThat: [
+      "Don't make a face, a comment, or a joke about it \u2014 ever",
+      "Don't say 'it's just a period' \u2014 it's not 'just' anything to her body right now",
+      "Don't ghost or disappear when she's struggling \u2014 that's when she needs dad energy most",
+      "Don't make her feel embarrassed for needing supplies, pain relief, or a day off",
+      "Don't pretend it's not happening \u2014 awkward silence teaches her to be ashamed",
+    ],
+    wishYoudStop: [
+      "'Are you on your period?' every time she has a feeling",
+      "Acting uncomfortable when she mentions it \u2014 she notices",
+      "Sending her to ask mom for everything period-related \u2014 you can handle this too",
+      "Making it a bigger deal than it is OR a smaller deal than it is",
+    ],
+    heroNote: "You don't have to have all the answers. You just have to not make her feel alone in it. That's the whole job right now."
+  },
+  brother: {
+    emoji: "\u{1F466}", role: "The Brother",
+    tagline: "Yeah, it's a little awkward. Do it anyway.",
+    period101: {
+      title: "Period 101 \u2014 The Short Version",
+      body: "Once a month her body sheds its uterine lining. That's the blood. It comes with cramps (think: muscle spasms in her abdomen), fatigue, headaches, and mood swings caused by actual hormone drops. It lasts 3\u20137 days. It happens every single month. It's not a big deal to make a big deal out of \u2014 but it IS a big deal to her body."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"Worst days physically. She might be quieter, more tired, or snappier than usual. Don't take it personally." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's coming back online. Normal sibling chaos can resume." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"She's at peak energy. Best time to ask her for favors, not gonna lie." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period tension. She might be more sensitive or irritable. This is hormonal. Pick your battles." },
+    ],
+    doThis: [
+      "If she's out of supplies and can't get them \u2014 go get them. It's not that deep.",
+      "Don't make her feel gross or dramatic for having a normal biological function",
+      "Offer to grab snacks or food she's craving without making it a whole thing",
+      "If she's clearly in pain, ask if she needs anything \u2014 one time, genuinely",
+      "Have her back if anyone else gives her a hard time about it",
+    ],
+    notThat: [
+      "Don't roast her for being on her period \u2014 even as a joke, it hits different when it's your brother",
+      "Don't ghost or disappear when she's clearly having a hard time",
+      "Don't tell her she's being dramatic \u2014 her cramps can be as painful as a mild heart attack. Look it up.",
+      "Don't make buying her pads a whole production \u2014 it's literally just a store run",
+      "Don't weaponize her mood against her ('you're just PMSing') \u2014 that's a low blow",
+    ],
+    wishYoudStop: [
+      "The face you make when period stuff comes up",
+      "Announcing to other people when she seems off that 'she's probably on her period'",
+      "Acting like buying feminine products is embarrassing \u2014 brothers who do this without hesitation are legends",
+      "'You're so dramatic' \u2014 she's really not",
+    ],
+    heroNote: "You don't have to fully get it. You just have to not make her feel worse about something she already didn't choose. That's it. That's the whole bar."
+  },
+  boyfriend: {
+    emoji: "\u{1F499}", role: "The Boyfriend",
+    tagline: "This is literally how you keep her.",
+    period101: {
+      title: "Period 101 \u2014 What's Going On In Her Body",
+      body: "Once a month, her hormone levels drop sharply \u2014 estrogen and progesterone both crash. This triggers her period AND affects her serotonin (the happy chemical). So the physical pain AND the emotional sensitivity are both real and both happening at the same time. She's not being difficult. Her body is running a full system reset. How you show up during this week is one of the most remembered things in a relationship."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"Physical pain + emotional vulnerability. She needs warmth, patience, and to feel like you're not checked out." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Rising estrogen = rising energy and mood. She's more communicative, more affectionate, more herself." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak confidence and connection. She's magnetic. Make plans, go on dates, be present." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"PMS territory. She might need more reassurance, more space, or both. Ask, don't assume." },
+    ],
+    doThis: [
+      "Ask 'what do you need from me right now?' and actually mean it",
+      "Show up with her comfort items without being asked \u2014 heating pad, her snacks, whatever she loves",
+      "Be physically present \u2014 sit with her, watch something she wants, just exist in the same space",
+      "Validate what she's feeling \u2014 'that sounds really hard' goes a long way",
+      "Learn her cycle so you're never caught off guard and can anticipate her needs",
+    ],
+    notThat: [
+      "Don't ghost or disappear \u2014 that is the single worst thing you can do this week",
+      "Don't say 'you're being emotional' like it's an insult \u2014 she knows, and she can't help it",
+      "Don't make her feel like a burden for being in pain",
+      "Don't bring up arguments or heavy conversations during her period \u2014 terrible timing",
+      "Don't act inconvenienced \u2014 she didn't choose this",
+    ],
+    wishYoudStop: [
+      "'Are you on your period?' as a response to literally any emotion she expresses",
+      "Disappearing when she needs you most and calling it 'giving her space'",
+      "'I don't know what you want me to do' \u2014 ask her. She'll tell you.",
+      "Acting like her period is a break from the relationship \u2014 it's part of the relationship",
+    ],
+    heroNote: "The guy who shows up during her period is the guy she talks about to her friends. Be that guy."
+  },
+  bestie: {
+    emoji: "\u{1F91D}", role: "The Bestie",
+    tagline: "You already know. Now level up.",
+    period101: {
+      title: "Period 101 \u2014 Real Talk",
+      body: "You probably already know the basics \u2014 monthly bleeding, cramps, mood swings. But here's what most people miss: the hormone crash before her period literally lowers her serotonin. So when she's in her feelings, it's not just attitude \u2014 her brain chemistry is actually different right now. And the cramps? Some studies compare them to mild heart attack pain. So yeah. She's not being extra. She's actually going through it."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's in it. Check in. Bring snacks. Watch the show she picked. Zero complaints." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's back. Make plans, be chaotic, do your thing." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Main character activated. She's at her best. Match her energy." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period. She might be in her head. Be a safe space, not another thing to manage." },
+    ],
+    doThis: [
+      "Check in without being asked \u2014 a simple 'you good?' text hits different",
+      "Show up with her snacks, no explanation needed",
+      "Be the person who doesn't make it weird \u2014 she appreciates that more than you know",
+      "Hype her up when she's feeling gross \u2014 she needs it",
+      "Go on the midnight snack run. No questions. Ride or die.",
+    ],
+    notThat: [
+      "Don't ghost when she goes quiet \u2014 that's when besties check IN not out",
+      "Don't make jokes at her expense about it \u2014 you can laugh WITH her, never AT her",
+      "Don't cancel plans without offering alternatives \u2014 she might need the distraction",
+      "Don't make her explain herself for being tired, quiet, or emotional",
+      "Don't disappear and then act confused when she's distant later",
+    ],
+    wishYoudStop: [
+      "Acting like her period is an inconvenience to YOUR plans",
+      "The 'just take some Advil' advice \u2014 she knows, and it's not always enough",
+      "Being weird about going to the store for her \u2014 real ones don't hesitate",
+      "Forgetting that she did this for you when you needed it",
+    ],
+    heroNote: "Day ones don't need a reason to show up. That's the whole definition. Go be her person this week."
+  },
+  coparent: {
+    emoji: "\u{1F46A}", role: "The Co-Parent",
+    tagline: "This is about her. Not you two.",
+    period101: {
+      title: "Period 101 \u2014 What Your Daughter Is Going Through",
+      body: "Your daughter's body is going through a monthly hormonal cycle that affects her physically and emotionally. The bleeding lasts 3\u20137 days and is accompanied by cramping, fatigue, headaches, and mood shifts caused by dropping hormone levels. She didn't choose this, she can't control it, and how both of you respond to it will directly shape her relationship with her own body. Co-parenting through her cycle means being consistent, informed, and keeping adult conflict completely out of it."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's physically uncomfortable. Consistent support from both parents \u2014 regardless of your situation \u2014 matters most right now." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's recovering and feeling better. Normal routines can resume." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak energy. Good time for activities, outings, quality time." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period sensitivity. She may be more emotional. Keep environments calm and low-conflict." },
+    ],
+    doThis: [
+      "Keep her supplies stocked at your home \u2014 both homes should have what she needs",
+      "Communicate with her other parent about her cycle if it affects custody schedules \u2014 calmly and practically",
+      "Let her rest when she needs to rest \u2014 school and activities can be managed around her worst days",
+      "Ask her what she needs and make it safe for her to tell you without embarrassment",
+      "Present a united, drama-free front \u2014 her wellbeing comes first",
+    ],
+    notThat: [
+      "Don't use her discomfort as a bargaining chip in co-parenting conflict",
+      "Don't make her feel like she has to manage adult emotions on top of her own pain",
+      "Don't ghost or check out during her hard days because it's 'her mother's week'",
+      "Don't make her feel embarrassed or dramatic for needing extra support",
+      "Don't put her in the middle of supply or schedule disagreements",
+    ],
+    wishYoudStop: [
+      "Making her period a logistical problem instead of a human experience",
+      "Expecting her other parent to handle it all \u2014 you're both her parents",
+      "Letting adult conflict bleed into how supported she feels during her cycle",
+      "Treating it like something she should just quietly manage on her own",
+    ],
+    heroNote: "You don't have to have a perfect co-parenting relationship. You just have to make sure she never has to choose between her parents when she's already in pain."
+  },
+  educator: {
+    emoji: "\u{1F9D1}\u200D\u{1F3EB}", role: "The Educator",
+    tagline: "What your student needs \u2014 and how to actually help.",
+    period101: {
+      title: "Period 101 \u2014 What's Happening in Your Classroom",
+      body: "Menstruation is a monthly biological process affecting approximately half your student population. During their period (typically days 1\u20135 of their cycle), students may experience cramping, fatigue, headaches, nausea, and mood changes caused by hormonal fluctuation. These are not excuses \u2014 they are documented physiological experiences that directly impact concentration, participation, and physical comfort in a classroom setting."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period Phase (Days 1\u20135)", desc:"Peak physical discomfort. Students may struggle to concentrate or sit still. Bathroom access and flexibility matter most." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Recovery and rising energy. Students are typically more engaged and focused." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak cognitive performance for many. Best days for complex tasks and presentations." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Some students experience anxiety or difficulty concentrating. Low-stress environments help." },
+    ],
+    doThis: [
+      "Allow bathroom access without requiring public explanation or justification",
+      "Keep a discreet supply of pads and tampons in your classroom or know where students can get them",
+      "Offer flexible seating options \u2014 sometimes a position change helps with cramping",
+      "Handle conversations with privacy and matter-of-fact professionalism",
+      "Know your school's period poverty policy and advocate for better resources if needed",
+    ],
+    notThat: [
+      "Don't require students to publicly explain why they need the bathroom",
+      "Don't deny bathroom access \u2014 this is a health and dignity issue, not a discipline one",
+      "Don't make comments about mood or behavior that reference their cycle publicly",
+      "Don't ghost the issue \u2014 pretending it doesn't exist doesn't make it easier for students",
+      "Don't treat period-related absences differently than other health needs",
+    ],
+    wishYoudStop: [
+      "Requiring public justification for bathroom visits",
+      "Making students feel like their biology is an inconvenience to your lesson plan",
+      "Assuming emotional responses during the luteal phase are behavioral issues",
+      "Leaving students without access to supplies when they're caught off guard",
+    ],
+    heroNote: "The educators who handle this with discretion and zero drama are the ones students remember as safe adults. That reputation is worth everything."
+  },
+  friend: {
+    emoji: "\u{1F465}", role: "The Friend",
+    tagline: "You don't have to fully get it. You just have to show up.",
+    period101: {
+      title: "Period 101 \u2014 The Basics",
+      body: "Once a month, her body goes through a cycle that ends with 3\u20137 days of bleeding, cramps, fatigue, and mood changes. The mood stuff isn't attitude \u2014 it's actual hormone changes affecting her brain chemistry. The physical pain is real. She's not asking you to understand all of it. She's just asking you to not make it harder than it already is."
+    },
+    phases: [
+      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's dealing with physical discomfort on top of everything else. Low-key support goes a long way." },
+      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's feeling more like herself. Normal friendship stuff." },
+      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"She's at her best. Match the energy." },
+      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"She might be more in her head. Just be a calm, easy presence." },
+    ],
+    doThis: [
+      "Check in \u2014 a simple text is enough",
+      "If she needs something from the store and you're going anyway, grab it. No big deal.",
+      "Be a low-maintenance, easy presence when she's having a hard week",
+      "Let her set the tone \u2014 if she wants to talk, talk. If she wants to watch TV, watch TV.",
+      "Just don't disappear. That's genuinely the main thing.",
+    ],
+    notThat: [
+      "Don't ghost when she goes quiet \u2014 check in instead",
+      "Don't make it weird \u2014 it's a normal biological thing",
+      "Don't offer unsolicited advice about what she should be doing for her symptoms",
+      "Don't make her feel like she's a lot \u2014 she's just having a hard few days",
+      "Don't disappear and then act confused why things feel different later",
+    ],
+    wishYoudStop: [
+      "Treating period stuff like it's contagious or embarrassing",
+      "The awkward silence every time it comes up",
+      "Acting like buying her something is a huge favor \u2014 it's just being a good friend",
+      "'I don't really know anything about that stuff' \u2014 you know enough to be kind",
+    ],
+    heroNote: "You don't need to be an expert. You don't need to say the perfect thing. You just need to not ghost, not make it weird, and show up. That's friendship."
+  }
+};
+
+
+/* =============================================================
+   GUYS VIEW FUNCTIONS
+   ============================================================= */
+let _guysRole = null;
+let _guysHeadlineTimer = null;
+let _guysHeadlineIdx = 0;
+let _guysShopMode = false;
+
+function initGuysView() {
+  _guysHeadlineIdx = Math.floor(Math.random() * GUYS_HEADLINES.length);
+  renderGuysHeadline();
+  if (_guysHeadlineTimer) clearInterval(_guysHeadlineTimer);
+  _guysHeadlineTimer = setInterval(() => {
+    const el = document.getElementById('guysHeadline');
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+      _guysHeadlineIdx = (_guysHeadlineIdx + 1) % GUYS_HEADLINES.length;
+      renderGuysHeadline();
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 400);
+  }, 5000);
+
+  document.querySelectorAll('.guys-role-btn').forEach(btn => {
+    btn.addEventListener('click', () => openGuysRole(btn.dataset.role));
+    btn.addEventListener('mouseenter', () => {
+      btn.style.background = 'rgba(212,175,55,0.12)';
+      btn.style.borderColor = 'rgba(212,175,55,0.5)';
+      btn.style.transform = 'translateY(-2px)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.background = 'rgba(255,255,255,0.05)';
+      btn.style.borderColor = 'rgba(255,255,255,0.1)';
+      btn.style.transform = 'translateY(0)';
+    });
+  });
+
+  const backBtn = document.getElementById('guysBackBtn');
+  if (backBtn) backBtn.addEventListener('click', showGuysLanding);
+}
+
+function renderGuysHeadline() {
+  const el = document.getElementById('guysHeadline');
+  if (el) el.textContent = GUYS_HEADLINES[_guysHeadlineIdx];
+}
+
+function showGuysLanding() {
+  const landing = document.getElementById('guysLanding');
+  const guide   = document.getElementById('guysGuide');
+  if (landing) { landing.style.display = 'flex'; }
+  if (guide)   { guide.style.display   = 'none'; }
+  window.scrollTo({ top:0, behavior:'instant' });
+}
+
+function openGuysRole(role) {
+  _guysRole = role;
+  const data = GUYS_CONTENT[role];
+  if (!data) return;
+
+  const landing = document.getElementById('guysLanding');
+  const guide   = document.getElementById('guysGuide');
+  const badge   = document.getElementById('guysRoleBadge');
+  const content = document.getElementById('guysGuideContent');
+
+  if (landing) landing.style.display = 'none';
+  if (guide)   guide.style.display   = 'block';
+  window.scrollTo({ top:0, behavior:'instant' });
+
+  if (badge) {
+    badge.innerHTML =
+      '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1.25rem 2rem;' +
+      'background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:20px;margin-bottom:0.5rem;">' +
+      '<span style="font-size:2.5rem;">' + data.emoji + '</span>' +
+      '<span style="font-size:1.1rem;font-weight:800;color:white;">' + data.role + '</span>' +
+      '<span style="font-size:0.8rem;color:rgba(255,255,255,0.5);font-style:italic;">' + data.tagline + '</span>' +
+      '</div>' +
+      '<p style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.75rem;line-height:1.6;">' +
+      'Got more than one woman in your life? <button onclick="showGuysLanding()" ' +
+      'style="background:none;border:none;color:#D4AF37;font-size:0.75rem;cursor:pointer;text-decoration:underline;">' +
+      'Switch roles here</button> \u2014 you can always go back.' +
+      '</p>';
+  }
+
+  if (content) {
+    const phasesHtml = data.phases.map(p =>
+      '<div style="display:flex;gap:0.875rem;padding:0.875rem;background:rgba(255,255,255,0.04);' +
+      'border-radius:12px;border:1px solid rgba(255,255,255,0.07);margin-bottom:0.5rem;">' +
+      '<span style="font-size:1.3rem;flex-shrink:0;">' + p.emoji + '</span>' +
+      '<div><div style="font-size:0.85rem;font-weight:700;color:white;margin-bottom:0.2rem;">' + p.name + '</div>' +
+      '<div style="font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.55;">' + p.desc + '</div></div></div>'
+    ).join('');
+
+    const doHtml = data.doThis.map(t =>
+      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;">' +
+      '<span style="color:#4CAF50;font-weight:700;flex-shrink:0;">\u2713</span>' +
+      '<span style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.55;">' + t + '</span></div>'
+    ).join('');
+
+    const notHtml = data.notThat.map(t =>
+      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;">' +
+      '<span style="color:#EF4444;font-weight:700;flex-shrink:0;">\u2717</span>' +
+      '<span style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.55;">' + t + '</span></div>'
+    ).join('');
+
+    const wishHtml = data.wishYoudStop.map(t =>
+      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.5rem;">' +
+      '<span style="color:#D4AF37;flex-shrink:0;">\u2192</span>' +
+      '<span style="font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.55;font-style:italic;">&ldquo;' + t + '&rdquo;</span></div>'
+    ).join('');
+
+    content.innerHTML =
+      // Period 101
+      '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udcd6 ' + data.period101.title + '</div>' +
+      '<div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:1rem;border:1px solid rgba(255,255,255,0.08);">' +
+      '<p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.75;margin:0;">' + data.period101.body + '</p>' +
+      '</div></div>' +
+      // Phases
+      '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udd04 Her Monthly Phases</div>' +
+      phasesHtml + '</div>' +
+      // Do This
+      '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#4CAF50;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\u2705 Do This</div>' +
+      '<div style="background:rgba(76,175,80,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(76,175,80,0.15);">' +
+      doHtml + '</div></div>' +
+      // Not That
+      '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\u274c Not That</div>' +
+      '<div style="background:rgba(239,68,68,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(239,68,68,0.15);">' +
+      notHtml + '</div></div>' +
+      // Wishes
+      '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udeab Things She Wishes You\'d Stop Saying</div>' +
+      '<div style="background:rgba(212,175,55,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(212,175,55,0.15);">' +
+      wishHtml + '</div></div>' +
+      // Bottom line
+      '<div style="margin-bottom:2rem;padding:1.25rem;background:linear-gradient(135deg,rgba(212,175,55,0.12),rgba(212,175,55,0.06));border:1.5px solid rgba(212,175,55,0.3);border-radius:16px;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem;">\ud83d\udc51 The Bottom Line</div>' +
+      '<p style="font-size:0.9rem;color:rgba(255,255,255,0.85);line-height:1.7;margin:0;font-style:italic;">' + data.heroNote + '</p>' +
+      '</div>' +
+      // Hero Move
+      '<div style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;">' +
+      '<div style="font-size:1.4rem;margin-bottom:0.5rem;">\ud83d\udc51</div>' +
+      '<div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.4rem;">Now Go Be Her Hero</div>' +
+      '<p style="font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:1.25rem;">Two ways to show up right now:</p>' +
+      '<button id="guysShopBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#D4AF37,#B8962E);color:#0A0E1A;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;">' +
+      '\ud83d\uded2 Shop for Her Now \u2014 Safe Picks Curated' +
+      '</button>' +
+      '<button id="guysSendLinkBtn" style="width:100%;padding:1rem;background:rgba(255,255,255,0.08);color:white;border:1.5px solid rgba(255,255,255,0.2);border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">' +
+      '\ud83d\udc8c Let Her Pick \u2014 You Just Pay' +
+      '</button>' +
+      '<p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.75rem;line-height:1.5;">Not sure what she needs? Send her the link. She picks. You cover it. Real hero move.</p>' +
+      '</div>';
+
+    // Wire shop button
+    const shopBtn = document.getElementById('guysShopBtn');
+    if (shopBtn) shopBtn.addEventListener('click', () => {
+      if (_guysHeadlineTimer) clearInterval(_guysHeadlineTimer);
+      setVersion('gifter');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      navigate('shop');
+      _guysShopMode = true;
+      setTimeout(renderGuysSafePicks, 200);
+    });
+
+    // Wire send link button — opens native SMS
+    const sendBtn = document.getElementById('guysSendLinkBtn');
+    if (sendBtn) sendBtn.addEventListener('click', () => {
+      const msg = encodeURIComponent(
+        "Hey, I got you something but I want to make sure it's actually what you want. Pick what you need here and I'll take care of it \ud83d\udc9c\nhttps://perioddelivers.com"
+      );
+      window.location.href = 'sms:?body=' + msg;
+    });
+  }
+}
+
+function renderGuysSafePicks() {
+  const grid = document.getElementById('productGrid');
+  if (!grid) return;
+  const picks = GUYS_SAFE_PICKS.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+  const title = document.getElementById('sectionTitle');
+  const count = document.getElementById('productCount');
+  if (title) title.textContent = '\ud83d\udc51 Safe Picks \u2014 She\'ll Love These';
+  if (count) count.textContent = picks.length + ' curated picks';
+  grid.innerHTML = picks.map(p => {
+    const inCart = state.cart[p.id] > 0;
+    return '<div class="product-card" data-id="' + p.id + '" role="listitem">' +
+      '<div class="product-img" data-cat="' + p.category + '">' +
+      '<span>' + p.emoji + '</span>' +
+      '<span class="product-img-badge">Safe Pick \ud83d\udc51</span>' +
+      '<span class="product-eta">\ud83d\udef5 ' + p.eta + '</span>' +
+      '</div>' +
+      '<div class="product-body">' +
+      '<div class="product-name">' + p.name + '</div>' +
+      '<div class="product-sub">' + p.sub + '</div>' +
+      '<div class="product-footer">' +
+      '<div class="product-price">' + fmt(p.price) + '</div>' +
+      '<button class="add-btn ' + (inCart ? 'in-cart' : '') + '" data-add="' + p.id + '">' +
+      (inCart
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
+      '</button></div></div></div>';
+  }).join('');
+  grid.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      addToCart(+btn.dataset.add);
+      showGoToCartBtn();
+      renderGuysSafePicks();
+    });
+  });
+  grid.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-add]')) return;
+      openProductModal(+card.dataset.id);
+    });
+  });
+}
+
+function navigateGuys() {
+  // Hide age gate
+  const ageGate = document.getElementById('ageGateWrap');
+  if (ageGate) ageGate.style.display = 'none';
+  document.body.style.overflow = '';
+  // Remove active from all views
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  // Show guys view
+  const guysView = document.getElementById('guysView');
+  if (guysView) guysView.classList.add('active');
+  setTimeout(initGuysView, 100);
+}
+
+
 /* =============================================================
    URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
    ============================================================= */
 function handleURLParams() {
   try {
     const params = new URLSearchParams(window.location.search);
+    // For The Guys entry point
+    const forHim = params.get('for');
+    if (forHim === 'him') {
+      navigateGuys();
+      return;
+    }
+    // Standard version override
     const v = params.get('v');
     if (v && ['teen','adult','emergency','gifter','holistic'].includes(v)) {
       setVersion(v);
