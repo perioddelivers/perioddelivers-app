@@ -555,6 +555,8 @@ function setVersion(version) {
 
 
 function showVersionPicker() {
+  // Don't show for guys experience
+  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   const picker = $('versionPicker');
   if (!picker) return;
   picker.style.display    = 'flex';
@@ -581,6 +583,8 @@ function dismissVersionPicker() {
    APP INTRO CARD — shown before experience picker
    ============================================= */
 function showAppIntroCard() {
+  // Don't show for guys experience
+  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   const overlay = document.createElement('div');
   overlay.id = 'appIntroOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
@@ -2503,6 +2507,7 @@ function calcDistanceFee(distanceMiles) {
    PWA INSTALL EDUCATION
    ============================================= */
 function showPWAEducation() {
+  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   if (document.cookie.includes('period_pwa_edu')) return;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isAndroid = /android/i.test(navigator.userAgent);
@@ -2538,6 +2543,7 @@ function showPWAEducation() {
 const COMING_SOON_MODE = true;
 
 function showComingSoonBanner() {
+  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   if (!COMING_SOON_MODE) return;
   if (document.getElementById('comingSoonBanner')) return;
   const banner = document.createElement('div');
@@ -6021,6 +6027,12 @@ function openGuysRole(role) {
       '\ud83d\udc8c Let Her Pick \u2014 You Just Pay' +
       '</button>' +
       '<p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.75rem;line-height:1.5;">Not sure what she needs? Send her the link. She picks. You cover it. Real hero move.</p>' +
+      '<div style="margin-top:1rem;padding:0.875rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:left;">' +
+      '<p style="font-size:0.72rem;color:rgba(255,255,255,0.3);line-height:1.65;margin:0;">' +
+      '<strong style="color:rgba(255,255,255,0.45);">Under 18?</strong> This guide is appropriate for all ages. If you\'d like to place an order, please have a parent or guardian assist with checkout. ' +
+      'By proceeding you confirm you are 18+ or have parental consent. Payments are processed securely by Stripe — Period. LLC never stores card information. ' +
+      '© 2026 Period. LLC — Cleveland, OH.' +
+      '</p></div>' +
       '</div>';
 
     // Wire shop button
@@ -6089,15 +6101,21 @@ function renderGuysSafePicks() {
 }
 
 function navigateGuys() {
-  // Hide age gate
+  // Hide age gate and ALL overlays immediately
   const ageGate = document.getElementById('ageGateWrap');
-  if (ageGate) ageGate.style.display = 'none';
+  if (ageGate) { ageGate.style.display = 'none'; ageGate.style.visibility = 'hidden'; }
+  // Hide version picker if showing
+  const picker = document.getElementById('versionPicker');
+  if (picker) { picker.style.display = 'none'; picker.style.opacity = '0'; }
+  // Remove any intro overlay
+  const intro = document.getElementById('appIntroOverlay');
+  if (intro) intro.remove();
   document.body.style.overflow = '';
   // Remove active from all views
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   // Show guys view
   const guysView = document.getElementById('guysView');
-  if (guysView) guysView.classList.add('active');
+  if (guysView) { guysView.classList.add('active'); guysView.style.display = 'block'; }
   setTimeout(initGuysView, 100);
 }
 
@@ -6546,6 +6564,9 @@ document.addEventListener('DOMContentLoaded', () => {
    AGE GATE — check on load, store answer in cookie
    ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+  // Skip age gate entirely for ?for=him
+  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
+
   const wrap       = document.getElementById('ageGateWrap');
   const askScreen  = document.getElementById('ageGateAsk');
   const blocked    = document.getElementById('ageGateBlocked');
