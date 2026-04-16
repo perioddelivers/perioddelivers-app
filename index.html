@@ -37,6 +37,21 @@
   <script>(function(){var m=document.cookie.match(/period_version=([^;]+)/);var v=m?m[1]:null;var valid=['teen','adult','emergency','gifter','holistic','starter'];if(v&&valid.indexOf(v)>-1)document.documentElement.setAttribute('data-version',v);})();</script>
 </head>
 <body>
+<script>
+  // Immediately hide age gate if this is the guys experience
+  // Runs before any other JS to prevent flash
+  try {
+    if (new URLSearchParams(window.location.search).get('for') === 'him') {
+      document.addEventListener('DOMContentLoaded', function() {
+        var ag = document.getElementById('ageGateWrap');
+        if (ag) { ag.style.display = 'none'; ag.style.visibility = 'hidden'; }
+      });
+      // Also set immediately if body exists
+      var _ag = document.getElementById('ageGateWrap');
+      if (_ag) { _ag.style.display = 'none'; _ag.style.visibility = 'hidden'; }
+    }
+  } catch(e) {}
+</script>
 
 <div id="ageGateWrap" role="dialog" aria-modal="true" aria-label="Age verification" style="display:flex">
   <div id="ageGateAsk" class="age-gate-screen">
@@ -1109,6 +1124,24 @@
       <p style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:1.25rem;line-height:1.6;">
         💡 Got more than one woman in your life? You can always come back and switch roles — no judgment here.
       </p>
+
+      <!-- Legal notice -->
+      <div style="margin-top:1.5rem;padding:1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;text-align:left;">
+        <div style="font-size:0.72rem;font-weight:700;color:rgba(212,175,55,0.7);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">&#x1F4CB; A Quick Note</div>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.7;margin:0 0 0.5rem;">
+          This guide is educational and appropriate for all ages. The content here is designed to build understanding, empathy, and support — nothing more.
+        </p>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.7;margin:0 0 0.5rem;">
+          <strong style="color:rgba(255,255,255,0.5);">Under 18?</strong> You're welcome here. If you'd like to place an order, please involve a parent or guardian at checkout.
+        </p>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.7;margin:0 0 0.5rem;">
+          <strong style="color:rgba(255,255,255,0.5);">Purchasing:</strong> By proceeding to checkout you confirm you are 18+ or have parental consent. All transactions are processed securely by Stripe. Period. LLC does not store payment information.
+        </p>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.25);line-height:1.6;margin:0;">
+          By using this guide you agree to our <button onclick="openLegal('terms')" style="background:none;border:none;color:rgba(212,175,55,0.6);font-size:0.75rem;cursor:pointer;text-decoration:underline;padding:0;">Terms of Service</button> and <button onclick="openLegal('privacy')" style="background:none;border:none;color:rgba(212,175,55,0.6);font-size:0.75rem;cursor:pointer;text-decoration:underline;padding:0;">Privacy Policy</button>. &copy; 2026 Period. LLC &mdash; Cleveland, OH.
+        </p>
+      </div>
+
     </div>
   </div>
 
