@@ -6201,14 +6201,21 @@ function initSisView() {
   // Wire product picker chips
   document.querySelectorAll('.sis-pick-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const active = btn.style.background.includes('0.25');
-      btn.style.background = active
-        ? 'rgba(168,85,247,0.08)'
-        : 'rgba(168,85,247,0.25)';
-      btn.style.borderColor = active
-        ? 'rgba(168,85,247,0.3)'
-        : 'rgba(168,85,247,0.8)';
-      btn.style.fontWeight = active ? '400' : '700';
+      const active = btn.classList.contains('sis-selected');
+      if (active) {
+        btn.classList.remove('sis-selected');
+        btn.style.background   = 'rgba(168,85,247,0.08)';
+        btn.style.borderColor  = 'rgba(168,85,247,0.3)';
+        btn.style.fontWeight   = '400';
+        btn.style.color        = '#EDE8FA';
+      } else {
+        btn.classList.add('sis-selected');
+        btn.style.background   = 'rgba(168,85,247,0.35)';
+        btn.style.borderColor  = 'rgba(168,85,247,1)';
+        btn.style.fontWeight   = '700';
+        btn.style.color        = 'white';
+        btn.style.boxShadow    = '0 0 12px rgba(168,85,247,0.4)';
+      }
     });
   });
 }
@@ -6259,10 +6266,8 @@ function sisSubmitRequest() {
 
   // Collect selected items
   const selected = [];
-  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
-    if (btn.style.background.includes('0.25')) {
-      selected.push(btn.dataset.item);
-    }
+  document.querySelectorAll('.sis-pick-btn.sis-selected').forEach(btn => {
+    selected.push(btn.dataset.item);
   });
 
   if (!selected.length) {
@@ -6299,20 +6304,66 @@ function sisSubmitRequest() {
 }
 
 function sisExploreApp() {
-  // Navigate to the main female experience
-  // Reset the URL param handling and show age gate / full app
+  // Hide sis view
   const sisView = document.getElementById('sisView');
   if (sisView) sisView.classList.remove('active');
-  // Show age gate for proper female onboarding
-  const ageGate = document.getElementById('ageGateWrap');
-  if (ageGate) {
-    ageGate.style.display = 'flex';
-    ageGate.style.visibility = 'visible';
-  }
+
   // Show version badge again
   const vBadge = document.getElementById('versionBadge');
   if (vBadge) vBadge.style.display = '';
+
+  // Check if already has a version saved — go straight to home
+  const savedVersion = getVersionCookie();
+  const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
+  if (validVersions.includes(savedVersion)) {
+    navigate('home');
+    setVersion(savedVersion);
+    return;
+  }
+
+  // New user — show and wire the age gate properly
+  const ageGate    = document.getElementById('ageGateWrap');
+  const askScreen  = document.getElementById('ageGateAsk');
+  const blocked    = document.getElementById('ageGateBlocked');
+  const yesBtn     = document.getElementById('ageGateYes');
+  const noBtn      = document.getElementById('ageGateNo');
+
+  if (!ageGate) return;
+
+  // Activate home view so it's ready after age gate
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const homeView = document.getElementById('homeView');
+  if (homeView) homeView.classList.add('active');
+
+  ageGate.style.display     = 'flex';
+  ageGate.style.visibility  = 'visible';
   document.body.style.overflow = 'hidden';
+
+  // Wire buttons fresh — clone to remove any old listeners
+  if (yesBtn) {
+    const freshYes = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(freshYes, yesBtn);
+    freshYes.addEventListener('click', () => {
+      const exp = new Date(Date.now() + 365 * 864e5).toUTCString();
+      document.cookie = 'period_age_ok=yes; expires=' + exp + '; path=/; SameSite=Lax';
+      ageGate.style.opacity = '0';
+      ageGate.style.transition = 'opacity .3s ease';
+      setTimeout(() => {
+        ageGate.style.display = 'none';
+        document.body.style.overflow = '';
+        showAppIntroCard();
+      }, 300);
+    });
+  }
+
+  if (noBtn) {
+    const freshNo = noBtn.cloneNode(true);
+    noBtn.parentNode.replaceChild(freshNo, noBtn);
+    freshNo.addEventListener('click', () => {
+      if (askScreen) askScreen.style.display = 'none';
+      if (blocked)   blocked.style.display   = 'flex';
+    });
+  }
 }
 
 
