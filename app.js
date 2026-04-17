@@ -555,20 +555,12 @@ function setVersion(version) {
 
 
 function showVersionPicker() {
-  // Don't show for guys or sis experience
-  try {
-    const _p = new URLSearchParams(window.location.search);
-    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
-  } catch(e) {}
   const picker = $('versionPicker');
   if (!picker) return;
   picker.style.display    = 'flex';
   picker.style.opacity    = '1';
   picker.style.transition = 'none';
   document.body.style.overflow = 'hidden';
-  // Always re-wire cards when picker is shown
-  // cloneNode in initVersionPicker ensures no duplicate listeners
-  initVersionPicker();
 }
 
 
@@ -588,41 +580,7 @@ function dismissVersionPicker() {
 /* =============================================
    APP INTRO CARD — shown before experience picker
    ============================================= */
-function _showIntroCardDirect() {
-  // Direct version — no URL param check
-  // Used when navigating from Sis/Guys view to main app
-  const overlay = document.createElement('div');
-  overlay.id = 'appIntroOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  overlay.innerHTML = `
-    <div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">
-      <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:#EDE8FA;line-height:1.1;">Period.</div>
-      <div style="width:48px;height:2px;background:linear-gradient(135deg,#A855F7,#7C3AED);border-radius:999px;"></div>
-      <p style="font-size:0.9rem;color:rgba(237,232,250,0.75);line-height:1.7;max-width:300px;">
-        We deliver period care, wellness essentials &amp; more &mdash; on demand or monthly. &#x1F49C;
-      </p>
-      <p style="font-size:0.82rem;color:rgba(237,232,250,0.5);line-height:1.6;">
-        On the next screen, <strong style="color:rgba(237,232,250,0.8);">select the experience that best describes you</strong>.
-      </p>
-      <button id="appIntroNextBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
-        Let&#39;s Go &#x2728;
-      </button>
-    </div>`;
-  document.body.appendChild(overlay);
-  document.body.style.overflow = 'hidden';
-  document.getElementById('appIntroNextBtn').addEventListener('click', () => {
-    overlay.style.transition = 'opacity 0.3s ease';
-    overlay.style.opacity = '0';
-    setTimeout(() => { overlay.remove(); initVersionPicker(); }, 300);
-  });
-}
-
 function showAppIntroCard() {
-  // Don't show for guys or sis experience
-  try {
-    const _p = new URLSearchParams(window.location.search);
-    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
-  } catch(e) {}
   const overlay = document.createElement('div');
   overlay.id = 'appIntroOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
@@ -665,47 +623,28 @@ function initVersionPicker() {
     picker.style.display = 'flex';
     picker.style.opacity = '1';
     picker.style.visibility = 'visible';
-    picker.style.pointerEvents = 'auto';
   }
   document.body.style.overflow = 'hidden';
-
-  // Clone each button before wiring to prevent duplicate listeners
-  // This is safe to call multiple times (badge tap, Sis return, etc.)
-  function wireCard(id, fn) {
-    const el = $(id);
-    if (!el) return;
-    const fresh = el.cloneNode(true);
-    el.parentNode.replaceChild(fresh, el);
-    fresh.addEventListener('click', fn);
-  }
-
-  wireCard('pickTeen',      () => { setVersion('teen');      dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
-  wireCard('pickAdult',     () => { setVersion('adult');     dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
-  wireCard('pickEmergency', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
-  wireCard('pickGifter',    () => { setVersion('gifter');    dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
-  wireCard('pickHolistic',  () => { setVersion('holistic');  dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
-  wireCard('pickStarter',   () => { setVersion('starter');   dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
-
-  const switchBtn = $('switchModeBtn');
-  if (switchBtn) {
-    const freshSwitch = switchBtn.cloneNode(true);
-    switchBtn.parentNode.replaceChild(freshSwitch, switchBtn);
-    freshSwitch.addEventListener('click', showVersionPicker);
-  }
+  const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
+  const pickEmergency = $('pickEmergency'), pickGifter = $('pickGifter');
+  const pickHolistic = $('pickHolistic'), switchBtn = $('switchModeBtn');
+  if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
+  if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
+  if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
+  if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
+  if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
+  const pickStarter = $('pickStarter');
+  if (pickStarter)   pickStarter.addEventListener('click',   () => { setVersion('starter');   dismissVersionPicker(); });
+  if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
   const versionBadge = $('versionBadge');
-  if (versionBadge) {
-    const freshBadge = versionBadge.cloneNode(true);
-    versionBadge.parentNode.replaceChild(freshBadge, versionBadge);
-    freshBadge.addEventListener('click', showVersionPicker);
-  }
+  if (versionBadge)  versionBadge.addEventListener('click', showVersionPicker);
 }
 
 function initVersion() {
   const stored = getVersionCookie();
   const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
   if (validVersions.includes(stored)) {
-    // Already has a version — activate home view and go
-    navigate('home');
+    // Already has a version — go to home
     setVersion(stored);
   } else {
     // No version yet — check if age already verified
@@ -2563,7 +2502,6 @@ function calcDistanceFee(distanceMiles) {
    PWA INSTALL EDUCATION
    ============================================= */
 function showPWAEducation() {
-  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   if (document.cookie.includes('period_pwa_edu')) return;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isAndroid = /android/i.test(navigator.userAgent);
@@ -2599,7 +2537,6 @@ function showPWAEducation() {
 const COMING_SOON_MODE = true;
 
 function showComingSoonBanner() {
-  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
   if (!COMING_SOON_MODE) return;
   if (document.getElementById('comingSoonBanner')) return;
   const banner = document.createElement('div');
@@ -2839,23 +2776,6 @@ function registerSW() {
    INIT — Wire all events
    ============================================= */
 function init() {
-  // Check for special URL params FIRST before any female experience loads
-  try {
-    const _urlParams = new URLSearchParams(window.location.search);
-    if (_urlParams.get('for') === 'him') {
-      initTheme();
-      registerSW();
-      navigateGuys();
-      return;
-    }
-    if (_urlParams.get('program') === 'sis') {
-      initTheme();
-      registerSW();
-      navigateSis();
-      return;
-    }
-  } catch(e) {}
-
   initVersion();
   initTheme();
   registerSW();
@@ -2996,7 +2916,7 @@ function init() {
   });
 
 
-  // Just Flow With It
+  // Newsletter
   if ($('openNewsletterBtn'))  $('openNewsletterBtn').addEventListener('click', showNewsletterModal);
   if ($('nlCloseBtn'))         $('nlCloseBtn').addEventListener('click', closeNewsletterModal);
   if ($('nlSubmitBtn'))        $('nlSubmitBtn').addEventListener('click', subscribeNewsletter);
@@ -3020,7 +2940,7 @@ function init() {
   }
 
 
-  // Just Flow With It — life-stage buttons (use event delegation)
+  // Newsletter life-stage buttons (use event delegation)
   const stageRow = $('nlStageRow');
   if (stageRow) stageRow.addEventListener('click', e => {
     const btn = e.target.closest('.nl-stage-btn');
@@ -3134,24 +3054,6 @@ function init() {
   if ($('whyCloseBtn'))  $('whyCloseBtn').addEventListener('click', closeWhyModal);
   if ($('whyOverlay'))   $('whyOverlay').addEventListener('click', closeWhyModal);
   if ($('whyShopBtn'))   $('whyShopBtn').addEventListener('click', () => { closeWhyModal(); navigate('shop'); });
-
-  // The Tea, Period. nav buttons — wired here so they survive version switching
-  const _openScoop = () => {
-    navigate('cycleScoopView');
-    renderScoopFacts();
-    renderScoopFaq();
-    initCycleScoopTabs();
-  };
-  if ($('heroScoopBtn'))   $('heroScoopBtn').addEventListener('click', _openScoop);
-  if ($('teenScoopLink'))  $('teenScoopLink').addEventListener('click', _openScoop);
-  if ($('cycleScoopBack')) $('cycleScoopBack').addEventListener('click', () => navigate('home'));
-
-  // Just Flow With It hero button — re-wire here in case starter mode hid/restored it
-  if ($('heroNewsletterBtn')) {
-    $('heroNewsletterBtn').addEventListener('click', () => {
-      showNewsletterModal();
-    });
-  }
 
 
   if ($('commBackBtn'))   $('commBackBtn').addEventListener('click', renderCommunityHome);
@@ -3663,8 +3565,6 @@ function submitCommPost() {
 
 
 function initCommunity() {
-  // Init community tabs (Community + Sis on Standby)
-  initCommTabs();
   const name = getNickname();
   if (!name) {
     // Show nickname prompt
@@ -3960,8 +3860,8 @@ updateTrackerWidget();
   const msg = $('nlSuccessMsg');
   if (msg) {
     msg.textContent = (state.version === 'teen')
-      ? "you're in the flow now, bestie! tracker unlocked. welcome to the community 🌸"
-      : "You're in the flow now. Tracker unlocked. Welcome to the community. 💜";
+      ? "bestie, your period tracker is unlocked! welcome to the community 🌸"
+      : "Your period tracker is now unlocked. Welcome to the community.";
   }
 }
 
@@ -4468,7 +4368,7 @@ function generateHealthSummary() {
   document.getElementById('emailSummaryBtn').addEventListener('click', () => {
     const nlData = getNLCookie();
     if (!nlData || !nlData.email) {
-      showToast('Just Flow With It first to enable email summaries 💜');
+      showToast('Subscribe to the newsletter first to enable email summaries');
       return;
     }
     if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
@@ -5668,1090 +5568,12 @@ function initImpactCounter() {
 }
 
 
-
-
-/* =============================================================
-   SIS ON STANDBY — Community Tab & Opt-In System
-   ============================================================= */
-
-const SIS_CODE_OF_CONDUCT = [
-  {
-    title: "1. Delivery Only — No Personal Contact",
-    body: "As a Sis, your role is to deliver supplies to the location specified in the request. You are not required to make personal contact with the requester. Knock, leave the supplies, and go. Under no circumstances should you attempt to enter a private space, engage in conversation beyond a brief acknowledgment, or collect personal information from the requester."
-  },
-  {
-    title: "2. In-App Communication Only",
-    body: "All coordination between you and the requester occurs through the Period. platform exclusively. You must not share your personal phone number, social media, or any other contact information with a requester, nor request theirs. Any attempt to establish contact outside the app is a violation of this agreement and grounds for immediate removal from the program."
-  },
-  {
-    title: "3. Confirmation Required Before Reward",
-    body: "Rewards are issued only after the requester confirms delivery through the app. You agree not to pressure, rush, or contact a requester regarding delivery confirmation. If a requester does not confirm within 24 hours, Period. LLC will review the delivery record and make a determination at its sole discretion."
-  },
-  {
-    title: "4. Safety Is Non-Negotiable",
-    body: "If at any point you feel unsafe during a delivery — for any reason — you have the right to cancel immediately with no penalty. Tap 'Cancel Delivery' in the app. Your safety is never secondary to completing a request. Period. LLC will never penalize a Sis for prioritizing her personal safety."
-  },
-  {
-    title: "5. Ratings & Program Standards",
-    body: "Requesters rate their Sis after each delivery. Three ratings below 3 stars within any 90-day period will result in an automatic review of your Sis status. Ratings below 2 stars on two consecutive deliveries will result in immediate suspension pending review. You agree to accept these standards as a condition of participation."
-  },
-  {
-    title: "6. Period. LLC Is a Coordination Platform",
-    body: "Period. LLC facilitates connections between users who wish to help and users who need assistance. Period. LLC is not responsible for the actions of individual Sis volunteers beyond what is explicitly covered in these terms. By opting in, you acknowledge that you are acting as an independent community member, not as an employee, contractor, or agent of Period. LLC."
-  },
-  {
-    title: "7. Reimbursement & Rewards",
-    body: "Sis volunteers who complete verified deliveries are eligible for reimbursement of product costs and reward tier benefits as published in the app. Reimbursement is contingent upon delivery confirmation by the requester and verification by Period. LLC. Period. LLC reserves the right to modify reward tiers with 30 days notice to active Sis volunteers."
-  },
-  {
-    title: "8. Opt-Out Rights",
-    body: "You may opt out of the Sis program at any time by visiting the Sis on Standby tab in the Community section and tapping 'Opt Out.' Opting out immediately removes you from the active notification pool. Earned rewards prior to opt-out remain valid. Re-enrollment is permitted after a 7-day waiting period."
-  },
-  {
-    title: "9. Zero Tolerance Policy",
-    body: "Period. LLC maintains a zero tolerance policy for harassment, discrimination, intimidation, or any behavior that compromises the safety or dignity of a requester. Violations of this policy result in immediate and permanent removal from the program with no appeal. We built this for women to help women. That standard is non-negotiable."
-  },
-  {
-    title: "10. Agreement & Acknowledgment",
-    body: "By tapping 'I Agree — I'm Ready to Be a Sis,' you confirm that you have read, understood, and agreed to all terms of this Code of Conduct. You acknowledge that your participation is voluntary, that you may opt out at any time, and that Period. LLC reserves the right to update these terms with reasonable notice. We are so grateful you're here. 💜"
-  }
-];
-
-function getSisVolunteerStatus() {
-  try {
-    const m = document.cookie.match(/period_sis_volunteer=([^;]+)/);
-    return m ? JSON.parse(decodeURIComponent(m[1])) : null;
-  } catch { return null; }
-}
-
-function setSisVolunteerStatus(data) {
-  document.cookie = 'period_sis_volunteer=' + encodeURIComponent(JSON.stringify(data)) +
-    ';max-age=946080000;path=/;SameSite=Lax';
-}
-
-function initCommTabs() {
-  const tabs = document.querySelectorAll('.comm-tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Update tab styles
-      tabs.forEach(t => {
-        t.style.borderBottom    = '2.5px solid transparent';
-        t.style.color           = 'rgba(255,255,255,0.4)';
-        t.classList.remove('active');
-      });
-      tab.style.borderBottom  = '2.5px solid var(--accent)';
-      tab.style.color         = 'var(--text-primary)';
-      tab.classList.add('active');
-
-      // Show correct panel
-      const which = tab.dataset.commTab;
-      const commPanel = document.getElementById('commPanelCommunity');
-      const sisPanel  = document.getElementById('commPanelSis');
-      if (commPanel) commPanel.style.display = which === 'community' ? '' : 'none';
-      if (sisPanel)  sisPanel.style.display  = which === 'sis'       ? '' : 'none';
-
-      // Init sis panel if switching to it
-      if (which === 'sis') initSisPanel();
-    });
-  });
-}
-
-function initSisPanel() {
-  const status = getSisVolunteerStatus();
-  const statusCard    = document.getElementById('sisStatusCard');
-  const statusText    = document.getElementById('sisStatusText');
-  const optInSection  = document.getElementById('sisOptInSection');
-  const becomeBtn     = document.getElementById('becomeASisBtn');
-
-  if (status && status.optedIn) {
-    // Already a Sis — show status
-    if (statusCard)   statusCard.style.display   = '';
-    if (optInSection) optInSection.style.display  = 'none';
-    if (statusText) {
-      const deliveries = status.deliveries || 0;
-      const tier = deliveries >= 10 ? 'OG Sis \ud83d\udc51 \u2014 15% off everything, always'
-        : deliveries >= 5  ? 'Free subscription box earned \u2b50'
-        : deliveries >= 3  ? 'Free product tier unlocked \ud83c\udfc9'
-        : deliveries >= 2  ? '30% off your next order \ud83c\udfc8'
-        : deliveries >= 1  ? '20% off your next order \ud83c\udfc7'
-        : 'Complete your first delivery to earn rewards \ud83d\udce6';
-      statusText.innerHTML =
-        'You\u2019re opted in and ready to help. \ud83d\udc9c<br>' +
-        '<span style="color:var(--accent);font-weight:600;">' + tier + '</span>';
-    }
-  } else {
-    // Not yet a Sis
-    if (statusCard)   statusCard.style.display   = 'none';
-    if (optInSection) optInSection.style.display  = '';
-    if (becomeBtn) {
-      const fresh = becomeBtn.cloneNode(true);
-      becomeBtn.parentNode.replaceChild(fresh, becomeBtn);
-      fresh.addEventListener('click', showSisCodeOfConduct);
-    }
-  }
-}
-
-function showSisCodeOfConduct() {
-  const overlay = document.createElement('div');
-  overlay.id = 'sisCodeOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.98);overflow-y:auto;padding:1.5rem;';
-
-  const sectionsHtml = SIS_CODE_OF_CONDUCT.map(item =>
-    '<div style="margin-bottom:1.25rem;padding:1rem;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:14px;">' +
-    '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:0.4rem;">' + item.title + '</div>' +
-    '<div style="font-size:0.8rem;color:var(--text-muted);line-height:1.7;">' + item.body + '</div>' +
-    '</div>'
-  ).join('');
-
-  overlay.innerHTML =
-    '<div style="max-width:480px;margin:0 auto;">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
-    '<div>' +
-    '<div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.2rem;">Period. LLC</div>' +
-    '<h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--text-primary);">Sis Code of Conduct</h2>' +
-    '</div>' +
-    '<button id="sisCodeCloseBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">\u00d7</button>' +
-    '</div>' +
-
-    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
-    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.75;margin:0;">' +
-    'This Code of Conduct governs your participation in the Period. "Help a Girl Out, Sis" peer delivery program. ' +
-    'Please read every section carefully before agreeing. This is a binding agreement. ' +
-    'We wrote it to protect you, to protect the women you help, and to make sure this program stays something we\u2019re all proud of. \ud83d\udc9c' +
-    '</p></div>' +
-
-    sectionsHtml +
-
-    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(34,197,94,0.2);">' +
-    '<p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7;margin:0;">' +
-    '\ud83d\udc9c <strong>From Destiny &amp; the Period. Team:</strong> The fact that you\u2019re reading this means you\u2019re already the kind of person this program was built for. ' +
-    'Thank you for showing up for women you don\u2019t even know yet. That\u2019s what this is all about.' +
-    '</p></div>' +
-
-    '<label style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;background:var(--surface-2);border-radius:14px;border:1px solid var(--border);margin-bottom:1rem;cursor:pointer;">' +
-    '<input type="checkbox" id="sisCodeCheck" style="margin-top:0.2rem;flex-shrink:0;accent-color:#A855F7;width:18px;height:18px;"/>' +
-    '<span style="font-size:0.82rem;color:var(--text-muted);line-height:1.65;">I have read and agree to all 10 terms of the Sis Code of Conduct. I understand this is a binding agreement and that violations may result in removal from the program.</span>' +
-    '</label>' +
-
-    '<button id="sisAgreeBtn" style="width:100%;padding:1.1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;opacity:0.5;" disabled>' +
-    '\ud83e\udd1d I Agree \u2014 I\u2019m Ready to Be a Sis' +
-    '</button>' +
-    '<button id="sisCodeCloseBtn2" style="width:100%;padding:0.875rem;background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Not right now</button>' +
-    '</div>';
-
-  document.body.appendChild(overlay);
-
-  // Wire checkbox to enable agree button
-  const check    = document.getElementById('sisCodeCheck');
-  const agreeBtn = document.getElementById('sisAgreeBtn');
-  check.addEventListener('change', () => {
-    agreeBtn.disabled = !check.checked;
-    agreeBtn.style.opacity = check.checked ? '1' : '0.5';
-  });
-
-  // Wire close buttons
-  document.getElementById('sisCodeCloseBtn').addEventListener('click',  () => overlay.remove());
-  document.getElementById('sisCodeCloseBtn2').addEventListener('click', () => overlay.remove());
-
-  // Wire agree button
-  agreeBtn.addEventListener('click', () => {
-    if (!check.checked) return;
-    overlay.remove();
-    showSisLocationConsent();
-  });
-}
-
-function showSisLocationConsent() {
-  const overlay = document.createElement('div');
-  overlay.id = 'sisConsentOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-
-  overlay.innerHTML =
-    '<div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">' +
-    '<div style="font-size:2.5rem;margin-bottom:0.75rem;">\ud83d\udccd</div>' +
-    '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">One Last Thing</h2>' +
-    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin-bottom:0.75rem;">' +
-    'To notify you when someone nearby needs help, we need your permission to send you push notifications and access your general location when the app is open.' +
-    '</p>' +
-    '<div style="background:rgba(168,85,247,0.06);border-radius:14px;padding:0.875rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.15);">' +
-    '<p style="font-size:0.78rem;color:var(--text-muted);line-height:1.65;margin:0;">' +
-    '\ud83d\udd12 <strong>Your privacy is protected.</strong> Your exact location is never stored or shared. We only use it in the moment to check if you\u2019re within 0.5 miles of a request. ' +
-    'You can opt out of notifications at any time in your device settings.' +
-    '</p></div>' +
-    '<button id="sisConsentYes" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;">' +
-    '\ud83d\udcf2 Enable Notifications \u2014 I\u2019m In' +
-    '</button>' +
-    '<button id="sisConsentNo" style="width:100%;padding:0.875rem;background:none;border:1.5px solid var(--border);border-radius:999px;color:var(--text-muted);font-size:0.875rem;font-weight:600;cursor:pointer;">' +
-    'Opt in without notifications for now' +
-    '</button>' +
-    '</div>';
-
-  document.body.appendChild(overlay);
-
-  document.getElementById('sisConsentYes').addEventListener('click', () => {
-    overlay.remove();
-    // Request push notification permission
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission().then(perm => {
-        completeSisOptIn(perm === 'granted');
-      }).catch(() => completeSisOptIn(false));
-    } else {
-      completeSisOptIn(Notification.permission === 'granted');
-    }
-  });
-
-  document.getElementById('sisConsentNo').addEventListener('click', () => {
-    overlay.remove();
-    completeSisOptIn(false);
-  });
-}
-
-function completeSisOptIn(notificationsEnabled) {
-  const data = {
-    optedIn:              true,
-    notificationsEnabled: notificationsEnabled,
-    deliveries:           0,
-    rating:               null,
-    joinedAt:             new Date().toISOString(),
-    nickname:             getNickname() || 'Anonymous Sis'
-  };
-
-  setSisVolunteerStatus(data);
-
-  // Save to Firebase
-  if (_firebaseFs) {
-    _firebaseFs.collection('sis_volunteers').add({
-      ...data,
-      device_id:  getDeviceId(),
-      version:    state.version || 'adult',
-      created_at: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(e => console.warn('[Period.] Sis volunteer save failed:', e));
-  }
-
-  // Show confirmation overlay
-  const conf = document.createElement('div');
-  conf.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  conf.innerHTML =
-    '<div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">' +
-    '<div style="font-size:3rem;">\ud83d\udc51</div>' +
-    '<h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--text-primary);">You\u2019re a Sis now.</h2>' +
-    '<p style="font-size:0.9rem;color:var(--text-muted);line-height:1.7;max-width:280px;">' +
-    'Welcome to the program. When a woman nearby needs help, you\u2019ll be notified. ' +
-    'You\u2019re already someone\u2019s hero \u2014 she just doesn\u2019t know it yet. \ud83d\udc9c' +
-    '</p>' +
-    (notificationsEnabled
-      ? '<div style="padding:0.75rem 1rem;background:rgba(34,197,94,0.1);border-radius:12px;border:1px solid rgba(34,197,94,0.2);font-size:0.82rem;color:var(--text-muted);">\u2705 Push notifications enabled \u2014 you\u2019ll know the moment someone needs you.</div>'
-      : '<div style="padding:0.75rem 1rem;background:rgba(168,85,247,0.08);border-radius:12px;border:1px solid rgba(168,85,247,0.15);font-size:0.82rem;color:var(--text-muted);">\ud83d\udcf2 Enable notifications in your device settings anytime to get real-time alerts.</div>') +
-    '<button id="sisConfDone" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;">' +
-    'Let\u2019s Go \ud83d\udc51' +
-    '</button>' +
-    '</div>';
-  document.body.appendChild(conf);
-
-  document.getElementById('sisConfDone').addEventListener('click', () => {
-    conf.remove();
-    // Refresh the Sis panel to show status
-    initSisPanel();
-  });
-}
-
-
-/* =============================================================
-   FOR THE GUYS — Male Education Experience
-   Entry point: perioddelivers.com?for=him
-   ============================================================= */
-
-const GUYS_HEADLINES = [
-  "You found this. That already says something. \u{1F44A}",
-  "Real ones educate themselves. Let's go. \u{1F4AA}",
-  "She didn't have to tell you twice. Respect. \u{1F44A}",
-  "Most guys wouldn't click this. You're not most guys. \u{1F4AA}",
-  "You showed up. That's already half the battle. \u{1F44A}",
-  "No cap \u2014 this is the move. Let's get you right. \u{1F4AA}",
-  "Legend behavior. Let's make sure you know what to do. \u{1F44A}",
-  "She noticed you're here. Even if she doesn't know it yet. \u{1F4AA}",
-];
-
-const GUYS_SAFE_PICKS = [10, 22, 23, 26, 27, 25, 1, 15];
-
-const GUYS_CONTENT = {
-  dad: {
-    emoji: "\u{1F9D4}", role: "The Dad",
-    tagline: "Your daughter needs you to show up differently right now.",
-    period101: {
-      title: "Period 101 \u2014 What's Actually Happening",
-      body: "Your daughter's body is doing exactly what it's supposed to do. Once a month, her uterus sheds its lining \u2014 that's the bleeding. It lasts 3\u20137 days and comes with cramps, fatigue, mood changes, and discomfort. It is not an illness. It is not weakness. It is biology. And how you respond to it right now will shape how she feels about her body for the rest of her life."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's physically uncomfortable. Cramps are real. Fatigue is real. She needs warmth, rest, and zero added stress from you." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Energy is coming back. She's feeling more like herself. Great time for normal dad-daughter activities." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak energy and mood. She's at her best. Enjoy it." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"PMS territory. Mood shifts are hormonal \u2014 not personal. She's not attacking you. Her hormones are loud right now." },
-    ],
-    doThis: [
-      "Ask her what she needs \u2014 then actually get it without making it weird",
-      "Keep heating pads, her preferred pain relief, and comfort snacks stocked at home",
-      "Give her space when she needs it without making her feel guilty for needing it",
-      "Normalize it \u2014 the more matter-of-fact you are, the more confident she'll feel",
-      "Learn what products she uses so you can restock without her having to ask",
-    ],
-    notThat: [
-      "Don't make a face, a comment, or a joke about it \u2014 ever",
-      "Don't say 'it's just a period' \u2014 it's not 'just' anything to her body right now",
-      "Don't ghost or disappear when she's struggling \u2014 that's when she needs dad energy most",
-      "Don't make her feel embarrassed for needing supplies, pain relief, or a day off",
-      "Don't pretend it's not happening \u2014 awkward silence teaches her to be ashamed",
-    ],
-    wishYoudStop: [
-      "'Are you on your period?' every time she has a feeling",
-      "Acting uncomfortable when she mentions it \u2014 she notices",
-      "Sending her to ask mom for everything period-related \u2014 you can handle this too",
-      "Making it a bigger deal than it is OR a smaller deal than it is",
-    ],
-    heroNote: "You don't have to have all the answers. You just have to not make her feel alone in it. That's the whole job right now."
-  },
-  brother: {
-    emoji: "\u{1F466}", role: "The Brother",
-    tagline: "Yeah, it's a little awkward. Do it anyway.",
-    period101: {
-      title: "Period 101 \u2014 The Short Version",
-      body: "Once a month her body sheds its uterine lining. That's the blood. It comes with cramps (think: muscle spasms in her abdomen), fatigue, headaches, and mood swings caused by actual hormone drops. It lasts 3\u20137 days. It happens every single month. It's not a big deal to make a big deal out of \u2014 but it IS a big deal to her body."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"Worst days physically. She might be quieter, more tired, or snappier than usual. Don't take it personally." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's coming back online. Normal sibling chaos can resume." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"She's at peak energy. Best time to ask her for favors, not gonna lie." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period tension. She might be more sensitive or irritable. This is hormonal. Pick your battles." },
-    ],
-    doThis: [
-      "If she's out of supplies and can't get them \u2014 go get them. It's not that deep.",
-      "Don't make her feel gross or dramatic for having a normal biological function",
-      "Offer to grab snacks or food she's craving without making it a whole thing",
-      "If she's clearly in pain, ask if she needs anything \u2014 one time, genuinely",
-      "Have her back if anyone else gives her a hard time about it",
-    ],
-    notThat: [
-      "Don't roast her for being on her period \u2014 even as a joke, it hits different when it's your brother",
-      "Don't ghost or disappear when she's clearly having a hard time",
-      "Don't tell her she's being dramatic \u2014 her cramps can be as painful as a mild heart attack. Look it up.",
-      "Don't make buying her pads a whole production \u2014 it's literally just a store run",
-      "Don't weaponize her mood against her ('you're just PMSing') \u2014 that's a low blow",
-    ],
-    wishYoudStop: [
-      "The face you make when period stuff comes up",
-      "Announcing to other people when she seems off that 'she's probably on her period'",
-      "Acting like buying feminine products is embarrassing \u2014 brothers who do this without hesitation are legends",
-      "'You're so dramatic' \u2014 she's really not",
-    ],
-    heroNote: "You don't have to fully get it. You just have to not make her feel worse about something she already didn't choose. That's it. That's the whole bar."
-  },
-  boyfriend: {
-    emoji: "\u{1F499}", role: "The Boyfriend",
-    tagline: "This is literally how you keep her.",
-    period101: {
-      title: "Period 101 \u2014 What's Going On In Her Body",
-      body: "Once a month, her hormone levels drop sharply \u2014 estrogen and progesterone both crash. This triggers her period AND affects her serotonin (the happy chemical). So the physical pain AND the emotional sensitivity are both real and both happening at the same time. She's not being difficult. Her body is running a full system reset. How you show up during this week is one of the most remembered things in a relationship."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"Physical pain + emotional vulnerability. She needs warmth, patience, and to feel like you're not checked out." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Rising estrogen = rising energy and mood. She's more communicative, more affectionate, more herself." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak confidence and connection. She's magnetic. Make plans, go on dates, be present." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"PMS territory. She might need more reassurance, more space, or both. Ask, don't assume." },
-    ],
-    doThis: [
-      "Ask 'what do you need from me right now?' and actually mean it",
-      "Show up with her comfort items without being asked \u2014 heating pad, her snacks, whatever she loves",
-      "Be physically present \u2014 sit with her, watch something she wants, just exist in the same space",
-      "Validate what she's feeling \u2014 'that sounds really hard' goes a long way",
-      "Learn her cycle so you're never caught off guard and can anticipate her needs",
-    ],
-    notThat: [
-      "Don't ghost or disappear \u2014 that is the single worst thing you can do this week",
-      "Don't say 'you're being emotional' like it's an insult \u2014 she knows, and she can't help it",
-      "Don't make her feel like a burden for being in pain",
-      "Don't bring up arguments or heavy conversations during her period \u2014 terrible timing",
-      "Don't act inconvenienced \u2014 she didn't choose this",
-    ],
-    wishYoudStop: [
-      "'Are you on your period?' as a response to literally any emotion she expresses",
-      "Disappearing when she needs you most and calling it 'giving her space'",
-      "'I don't know what you want me to do' \u2014 ask her. She'll tell you.",
-      "Acting like her period is a break from the relationship \u2014 it's part of the relationship",
-    ],
-    heroNote: "The guy who shows up during her period is the guy she talks about to her friends. Be that guy."
-  },
-  bestie: {
-    emoji: "\u{1F91D}", role: "The Bestie",
-    tagline: "You already know. Now level up.",
-    period101: {
-      title: "Period 101 \u2014 Real Talk",
-      body: "You probably already know the basics \u2014 monthly bleeding, cramps, mood swings. But here's what most people miss: the hormone crash before her period literally lowers her serotonin. So when she's in her feelings, it's not just attitude \u2014 her brain chemistry is actually different right now. And the cramps? Some studies compare them to mild heart attack pain. So yeah. She's not being extra. She's actually going through it."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's in it. Check in. Bring snacks. Watch the show she picked. Zero complaints." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's back. Make plans, be chaotic, do your thing." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Main character activated. She's at her best. Match her energy." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period. She might be in her head. Be a safe space, not another thing to manage." },
-    ],
-    doThis: [
-      "Check in without being asked \u2014 a simple 'you good?' text hits different",
-      "Show up with her snacks, no explanation needed",
-      "Be the person who doesn't make it weird \u2014 she appreciates that more than you know",
-      "Hype her up when she's feeling gross \u2014 she needs it",
-      "Go on the midnight snack run. No questions. Ride or die.",
-    ],
-    notThat: [
-      "Don't ghost when she goes quiet \u2014 that's when besties check IN not out",
-      "Don't make jokes at her expense about it \u2014 you can laugh WITH her, never AT her",
-      "Don't cancel plans without offering alternatives \u2014 she might need the distraction",
-      "Don't make her explain herself for being tired, quiet, or emotional",
-      "Don't disappear and then act confused when she's distant later",
-    ],
-    wishYoudStop: [
-      "Acting like her period is an inconvenience to YOUR plans",
-      "The 'just take some Advil' advice \u2014 she knows, and it's not always enough",
-      "Being weird about going to the store for her \u2014 real ones don't hesitate",
-      "Forgetting that she did this for you when you needed it",
-    ],
-    heroNote: "Day ones don't need a reason to show up. That's the whole definition. Go be her person this week."
-  },
-  coparent: {
-    emoji: "\u{1F46A}", role: "The Co-Parent",
-    tagline: "This is about her. Not you two.",
-    period101: {
-      title: "Period 101 \u2014 What Your Daughter Is Going Through",
-      body: "Your daughter's body is going through a monthly hormonal cycle that affects her physically and emotionally. The bleeding lasts 3\u20137 days and is accompanied by cramping, fatigue, headaches, and mood shifts caused by dropping hormone levels. She didn't choose this, she can't control it, and how both of you respond to it will directly shape her relationship with her own body. Co-parenting through her cycle means being consistent, informed, and keeping adult conflict completely out of it."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's physically uncomfortable. Consistent support from both parents \u2014 regardless of your situation \u2014 matters most right now." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's recovering and feeling better. Normal routines can resume." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak energy. Good time for activities, outings, quality time." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Pre-period sensitivity. She may be more emotional. Keep environments calm and low-conflict." },
-    ],
-    doThis: [
-      "Keep her supplies stocked at your home \u2014 both homes should have what she needs",
-      "Communicate with her other parent about her cycle if it affects custody schedules \u2014 calmly and practically",
-      "Let her rest when she needs to rest \u2014 school and activities can be managed around her worst days",
-      "Ask her what she needs and make it safe for her to tell you without embarrassment",
-      "Present a united, drama-free front \u2014 her wellbeing comes first",
-    ],
-    notThat: [
-      "Don't use her discomfort as a bargaining chip in co-parenting conflict",
-      "Don't make her feel like she has to manage adult emotions on top of her own pain",
-      "Don't ghost or check out during her hard days because it's 'her mother's week'",
-      "Don't make her feel embarrassed or dramatic for needing extra support",
-      "Don't put her in the middle of supply or schedule disagreements",
-    ],
-    wishYoudStop: [
-      "Making her period a logistical problem instead of a human experience",
-      "Expecting her other parent to handle it all \u2014 you're both her parents",
-      "Letting adult conflict bleed into how supported she feels during her cycle",
-      "Treating it like something she should just quietly manage on her own",
-    ],
-    heroNote: "You don't have to have a perfect co-parenting relationship. You just have to make sure she never has to choose between her parents when she's already in pain."
-  },
-  educator: {
-    emoji: "\u{1F9D1}\u200D\u{1F3EB}", role: "The Educator",
-    tagline: "What your student needs \u2014 and how to actually help.",
-    period101: {
-      title: "Period 101 \u2014 What's Happening in Your Classroom",
-      body: "Menstruation is a monthly biological process affecting approximately half your student population. During their period (typically days 1\u20135 of their cycle), students may experience cramping, fatigue, headaches, nausea, and mood changes caused by hormonal fluctuation. These are not excuses \u2014 they are documented physiological experiences that directly impact concentration, participation, and physical comfort in a classroom setting."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period Phase (Days 1\u20135)", desc:"Peak physical discomfort. Students may struggle to concentrate or sit still. Bathroom access and flexibility matter most." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"Recovery and rising energy. Students are typically more engaged and focused." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"Peak cognitive performance for many. Best days for complex tasks and presentations." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"Some students experience anxiety or difficulty concentrating. Low-stress environments help." },
-    ],
-    doThis: [
-      "Allow bathroom access without requiring public explanation or justification",
-      "Keep a discreet supply of pads and tampons in your classroom or know where students can get them",
-      "Offer flexible seating options \u2014 sometimes a position change helps with cramping",
-      "Handle conversations with privacy and matter-of-fact professionalism",
-      "Know your school's period poverty policy and advocate for better resources if needed",
-    ],
-    notThat: [
-      "Don't require students to publicly explain why they need the bathroom",
-      "Don't deny bathroom access \u2014 this is a health and dignity issue, not a discipline one",
-      "Don't make comments about mood or behavior that reference their cycle publicly",
-      "Don't ghost the issue \u2014 pretending it doesn't exist doesn't make it easier for students",
-      "Don't treat period-related absences differently than other health needs",
-    ],
-    wishYoudStop: [
-      "Requiring public justification for bathroom visits",
-      "Making students feel like their biology is an inconvenience to your lesson plan",
-      "Assuming emotional responses during the luteal phase are behavioral issues",
-      "Leaving students without access to supplies when they're caught off guard",
-    ],
-    heroNote: "The educators who handle this with discretion and zero drama are the ones students remember as safe adults. That reputation is worth everything."
-  },
-  friend: {
-    emoji: "\u{1F465}", role: "The Friend",
-    tagline: "You don't have to fully get it. You just have to show up.",
-    period101: {
-      title: "Period 101 \u2014 The Basics",
-      body: "Once a month, her body goes through a cycle that ends with 3\u20137 days of bleeding, cramps, fatigue, and mood changes. The mood stuff isn't attitude \u2014 it's actual hormone changes affecting her brain chemistry. The physical pain is real. She's not asking you to understand all of it. She's just asking you to not make it harder than it already is."
-    },
-    phases: [
-      { emoji:"\u{1FA78}", name:"Period (Days 1\u20135)", desc:"She's dealing with physical discomfort on top of everything else. Low-key support goes a long way." },
-      { emoji:"\u{1F331}", name:"Follicular (Days 6\u201313)", desc:"She's feeling more like herself. Normal friendship stuff." },
-      { emoji:"\u2728", name:"Ovulation (Days 14\u201316)", desc:"She's at her best. Match the energy." },
-      { emoji:"\u{1F319}", name:"Luteal (Days 17\u201328)", desc:"She might be more in her head. Just be a calm, easy presence." },
-    ],
-    doThis: [
-      "Check in \u2014 a simple text is enough",
-      "If she needs something from the store and you're going anyway, grab it. No big deal.",
-      "Be a low-maintenance, easy presence when she's having a hard week",
-      "Let her set the tone \u2014 if she wants to talk, talk. If she wants to watch TV, watch TV.",
-      "Just don't disappear. That's genuinely the main thing.",
-    ],
-    notThat: [
-      "Don't ghost when she goes quiet \u2014 check in instead",
-      "Don't make it weird \u2014 it's a normal biological thing",
-      "Don't offer unsolicited advice about what she should be doing for her symptoms",
-      "Don't make her feel like she's a lot \u2014 she's just having a hard few days",
-      "Don't disappear and then act confused why things feel different later",
-    ],
-    wishYoudStop: [
-      "Treating period stuff like it's contagious or embarrassing",
-      "The awkward silence every time it comes up",
-      "Acting like buying her something is a huge favor \u2014 it's just being a good friend",
-      "'I don't really know anything about that stuff' \u2014 you know enough to be kind",
-    ],
-    heroNote: "You don't need to be an expert. You don't need to say the perfect thing. You just need to not ghost, not make it weird, and show up. That's friendship."
-  }
-};
-
-
-/* =============================================================
-   GUYS VIEW FUNCTIONS
-   ============================================================= */
-let _guysRole = null;
-let _guysHeadlineTimer = null;
-let _guysHeadlineIdx = 0;
-let _guysShopMode = false;
-
-function initGuysView() {
-  _guysHeadlineIdx = Math.floor(Math.random() * GUYS_HEADLINES.length);
-  renderGuysHeadline();
-  if (_guysHeadlineTimer) clearInterval(_guysHeadlineTimer);
-  _guysHeadlineTimer = setInterval(() => {
-    const el = document.getElementById('guysHeadline');
-    if (!el) return;
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(6px)';
-    setTimeout(() => {
-      _guysHeadlineIdx = (_guysHeadlineIdx + 1) % GUYS_HEADLINES.length;
-      renderGuysHeadline();
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    }, 400);
-  }, 5000);
-
-  document.querySelectorAll('.guys-role-btn').forEach(btn => {
-    btn.addEventListener('click', () => openGuysRole(btn.dataset.role));
-    btn.addEventListener('mouseenter', () => {
-      btn.style.background = 'rgba(212,175,55,0.12)';
-      btn.style.borderColor = 'rgba(212,175,55,0.5)';
-      btn.style.transform = 'translateY(-2px)';
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.background = 'rgba(255,255,255,0.05)';
-      btn.style.borderColor = 'rgba(255,255,255,0.1)';
-      btn.style.transform = 'translateY(0)';
-    });
-  });
-
-  const backBtn = document.getElementById('guysBackBtn');
-  if (backBtn) backBtn.addEventListener('click', showGuysLanding);
-}
-
-function renderGuysHeadline() {
-  const el = document.getElementById('guysHeadline');
-  if (el) el.textContent = GUYS_HEADLINES[_guysHeadlineIdx];
-}
-
-function showGuysLanding() {
-  const landing = document.getElementById('guysLanding');
-  const guide   = document.getElementById('guysGuide');
-  if (landing) { landing.style.display = 'flex'; }
-  if (guide)   { guide.style.display   = 'none'; }
-  window.scrollTo({ top:0, behavior:'instant' });
-}
-
-function openGuysRole(role) {
-  _guysRole = role;
-  const data = GUYS_CONTENT[role];
-  if (!data) return;
-
-  const landing = document.getElementById('guysLanding');
-  const guide   = document.getElementById('guysGuide');
-  const badge   = document.getElementById('guysRoleBadge');
-  const content = document.getElementById('guysGuideContent');
-
-  if (landing) landing.style.display = 'none';
-  if (guide)   guide.style.display   = 'block';
-  window.scrollTo({ top:0, behavior:'instant' });
-
-  if (badge) {
-    badge.innerHTML =
-      '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1.25rem 2rem;' +
-      'background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:20px;margin-bottom:0.5rem;">' +
-      '<span style="font-size:2.5rem;">' + data.emoji + '</span>' +
-      '<span style="font-size:1.1rem;font-weight:800;color:white;">' + data.role + '</span>' +
-      '<span style="font-size:0.8rem;color:rgba(255,255,255,0.5);font-style:italic;">' + data.tagline + '</span>' +
-      '</div>' +
-      '<p style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.75rem;line-height:1.6;">' +
-      'Got more than one woman in your life? <button onclick="showGuysLanding()" ' +
-      'style="background:none;border:none;color:#D4AF37;font-size:0.75rem;cursor:pointer;text-decoration:underline;">' +
-      'Switch roles here</button> \u2014 you can always go back.' +
-      '</p>';
-  }
-
-  if (content) {
-    const phasesHtml = data.phases.map(p =>
-      '<div style="display:flex;gap:0.875rem;padding:0.875rem;background:rgba(255,255,255,0.04);' +
-      'border-radius:12px;border:1px solid rgba(255,255,255,0.07);margin-bottom:0.5rem;">' +
-      '<span style="font-size:1.3rem;flex-shrink:0;">' + p.emoji + '</span>' +
-      '<div><div style="font-size:0.85rem;font-weight:700;color:white;margin-bottom:0.2rem;">' + p.name + '</div>' +
-      '<div style="font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.55;">' + p.desc + '</div></div></div>'
-    ).join('');
-
-    const doHtml = data.doThis.map(t =>
-      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;">' +
-      '<span style="color:#4CAF50;font-weight:700;flex-shrink:0;">\u2713</span>' +
-      '<span style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.55;">' + t + '</span></div>'
-    ).join('');
-
-    const notHtml = data.notThat.map(t =>
-      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;">' +
-      '<span style="color:#EF4444;font-weight:700;flex-shrink:0;">\u2717</span>' +
-      '<span style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.55;">' + t + '</span></div>'
-    ).join('');
-
-    const wishHtml = data.wishYoudStop.map(t =>
-      '<div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.5rem;">' +
-      '<span style="color:#D4AF37;flex-shrink:0;">\u2192</span>' +
-      '<span style="font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.55;font-style:italic;">&ldquo;' + t + '&rdquo;</span></div>'
-    ).join('');
-
-    content.innerHTML =
-      // Period 101
-      '<div style="margin-bottom:1.5rem;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udcd6 ' + data.period101.title + '</div>' +
-      '<div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:1rem;border:1px solid rgba(255,255,255,0.08);">' +
-      '<p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.75;margin:0;">' + data.period101.body + '</p>' +
-      '</div></div>' +
-      // Phases
-      '<div style="margin-bottom:1.5rem;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udd04 Her Monthly Phases</div>' +
-      phasesHtml + '</div>' +
-      // Do This
-      '<div style="margin-bottom:1.5rem;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#4CAF50;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\u2705 Do This</div>' +
-      '<div style="background:rgba(76,175,80,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(76,175,80,0.15);">' +
-      doHtml + '</div></div>' +
-      // Not That
-      '<div style="margin-bottom:1.5rem;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\u274c Not That</div>' +
-      '<div style="background:rgba(239,68,68,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(239,68,68,0.15);">' +
-      notHtml + '</div></div>' +
-      // Wishes
-      '<div style="margin-bottom:1.5rem;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">\ud83d\udeab Things She Wishes You\'d Stop Saying</div>' +
-      '<div style="background:rgba(212,175,55,0.06);border-radius:14px;padding:1rem;border:1px solid rgba(212,175,55,0.15);">' +
-      wishHtml + '</div></div>' +
-      // Bottom line
-      '<div style="margin-bottom:2rem;padding:1.25rem;background:linear-gradient(135deg,rgba(212,175,55,0.12),rgba(212,175,55,0.06));border:1.5px solid rgba(212,175,55,0.3);border-radius:16px;">' +
-      '<div style="font-size:0.72rem;font-weight:700;color:#D4AF37;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem;">\ud83d\udc51 The Bottom Line</div>' +
-      '<p style="font-size:0.9rem;color:rgba(255,255,255,0.85);line-height:1.7;margin:0;font-style:italic;">' + data.heroNote + '</p>' +
-      '</div>' +
-      // Hero Move
-      '<div style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;">' +
-      '<div style="font-size:1.4rem;margin-bottom:0.5rem;">\ud83d\udc51</div>' +
-      '<div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.4rem;">Now Go Be Her Hero</div>' +
-      '<p style="font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:1.25rem;">Two ways to show up right now:</p>' +
-      '<button id="guysShopBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#D4AF37,#B8962E);color:#0A0E1A;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;">' +
-      '\ud83d\uded2 Shop for Her Now \u2014 Safe Picks Curated' +
-      '</button>' +
-      '<button id="guysSendLinkBtn" style="width:100%;padding:1rem;background:rgba(255,255,255,0.08);color:white;border:1.5px solid rgba(255,255,255,0.2);border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">' +
-      '\ud83d\udc8c Let Her Pick \u2014 You Just Pay' +
-      '</button>' +
-      '<p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.75rem;line-height:1.5;">Not sure what she needs? Send her the link. She picks. You cover it. Real hero move.</p>' +
-      '<div style="margin-top:1rem;padding:0.875rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:left;">' +
-      '<p style="font-size:0.72rem;color:rgba(255,255,255,0.3);line-height:1.65;margin:0;">' +
-      '<strong style="color:rgba(255,255,255,0.45);">Under 18?</strong> This guide is appropriate for all ages. If you\'d like to place an order, please have a parent or guardian assist with checkout. ' +
-      'By proceeding you confirm you are 18+ or have parental consent. Payments are processed securely by Stripe — Period. LLC never stores card information. ' +
-      '© 2026 Period. LLC — Cleveland, OH.' +
-      '</p></div>' +
-      '</div>';
-
-    // Wire shop button
-    const shopBtn = document.getElementById('guysShopBtn');
-    if (shopBtn) shopBtn.addEventListener('click', () => {
-      if (_guysHeadlineTimer) clearInterval(_guysHeadlineTimer);
-      setVersion('gifter');
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      navigate('shop');
-      _guysShopMode = true;
-      setTimeout(renderGuysSafePicks, 200);
-    });
-
-    // Wire send link button — opens native SMS
-    const sendBtn = document.getElementById('guysSendLinkBtn');
-    if (sendBtn) sendBtn.addEventListener('click', () => {
-      const rawMsg = "Hey, I got you something but I want to make sure it's actually what you want. Pick what you need here and I'll take care of it \ud83d\udc9c\nhttps://perioddelivers.com";
-      const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
-      if (isMobile) {
-        // Mobile: open native SMS app with pre-written message
-        window.location.href = 'sms:?body=' + encodeURIComponent(rawMsg);
-      } else {
-        // Desktop: copy message to clipboard + show instructions
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(rawMsg).then(() => {
-            showToast('\ud83d\udccb Message copied! Paste it in a text to her.');
-          }).catch(() => {
-            prompt('Copy this message and send it to her:', rawMsg);
-          });
-        } else {
-          prompt('Copy this message and send it to her:', rawMsg);
-        }
-      }
-    });
-  }
-}
-
-function renderGuysSafePicks() {
-  const grid = document.getElementById('productGrid');
-  if (!grid) return;
-  const picks = GUYS_SAFE_PICKS.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
-  const title = document.getElementById('sectionTitle');
-  const count = document.getElementById('productCount');
-  if (title) title.textContent = '\ud83d\udc51 Safe Picks \u2014 She\'ll Love These';
-  if (count) count.textContent = picks.length + ' curated picks';
-  grid.innerHTML = picks.map(p => {
-    const inCart = state.cart[p.id] > 0;
-    return '<div class="product-card" data-id="' + p.id + '" role="listitem">' +
-      '<div class="product-img" data-cat="' + p.category + '">' +
-      '<span>' + p.emoji + '</span>' +
-      '<span class="product-img-badge">Safe Pick \ud83d\udc51</span>' +
-      '<span class="product-eta">\ud83d\udef5 ' + p.eta + '</span>' +
-      '</div>' +
-      '<div class="product-body">' +
-      '<div class="product-name">' + p.name + '</div>' +
-      '<div class="product-sub">' + p.sub + '</div>' +
-      '<div class="product-footer">' +
-      '<div class="product-price">' + fmt(p.price) + '</div>' +
-      '<button class="add-btn ' + (inCart ? 'in-cart' : '') + '" data-add="' + p.id + '">' +
-      (inCart
-        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
-        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
-      '</button></div></div></div>';
-  }).join('');
-  grid.querySelectorAll('[data-add]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      addToCart(+btn.dataset.add);
-      showGoToCartBtn();
-      renderGuysSafePicks();
-    });
-  });
-  grid.querySelectorAll('.product-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('[data-add]')) return;
-      openProductModal(+card.dataset.id);
-    });
-  });
-}
-
-function navigateGuys() {
-  // Hide age gate and ALL overlays immediately
-  const ageGate = document.getElementById('ageGateWrap');
-  if (ageGate) { ageGate.style.display = 'none'; ageGate.style.visibility = 'hidden'; }
-  // Hide version picker if showing
-  const picker = document.getElementById('versionPicker');
-  if (picker) { picker.style.display = 'none'; picker.style.opacity = '0'; }
-  // Remove any intro overlay
-  const intro = document.getElementById('appIntroOverlay');
-  if (intro) intro.remove();
-  // Hide version badge (Choose Your Experience button)
-  const vBadge = document.getElementById('versionBadge');
-  if (vBadge) vBadge.style.display = 'none';
-  // Hide coming soon banner if it exists
-  const csBanner = document.getElementById('comingSoonBanner');
-  if (csBanner) csBanner.style.display = 'none';
-  // Hide trending strip
-  const tStrip = document.getElementById('trendingStrip');
-  if (tStrip) tStrip.style.display = 'none';
-  document.body.style.paddingTop = '0';
-  document.body.style.overflow = '';
-  // Remove active from all views
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  // Show guys view
-  const guysView = document.getElementById('guysView');
-  if (guysView) { guysView.classList.add('active'); guysView.style.display = 'block'; }
-  setTimeout(initGuysView, 100);
-}
-
-
-
-/* =============================================================
-   HELP A GIRL OUT, SIS — Emergency Peer Delivery Program
-   Entry point: perioddelivers.com?program=sis
-   ============================================================= */
-
-function navigateSis() {
-  // Hide age gate and all female overlays
-  const ageGate = document.getElementById('ageGateWrap');
-  if (ageGate) { ageGate.style.display = 'none'; ageGate.style.visibility = 'hidden'; }
-  const picker = document.getElementById('versionPicker');
-  if (picker) { picker.style.display = 'none'; }
-  const intro = document.getElementById('appIntroOverlay');
-  if (intro) intro.remove();
-  // Hide header elements
-  const vBadge = document.getElementById('versionBadge');
-  if (vBadge) vBadge.style.display = 'none';
-  const tStrip = document.getElementById('trendingStrip');
-  if (tStrip) tStrip.style.display = 'none';
-  const csBanner = document.getElementById('comingSoonBanner');
-  if (csBanner) csBanner.style.display = 'none';
-  document.body.style.paddingTop = '0';
-  document.body.style.overflow = '';
-  // Remove active from all views
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  // Show sis view
-  const sisView = document.getElementById('sisView');
-  if (sisView) { sisView.classList.add('active'); sisView.style.display = 'block'; }
-  setTimeout(initSisView, 100);
-}
-
-function initSisView() {
-  // Wire request buttons
-  const reqBtn  = document.getElementById('sisRequestBtn');
-  const reqBtn2 = document.getElementById('sisRequestBtn2');
-  const cancelBtn = document.getElementById('sisCancelBtn');
-  const submitBtn = document.getElementById('sisSubmitBtn');
-
-  if (reqBtn)    reqBtn.addEventListener('click', sisShowRequestForm);
-  if (reqBtn2)   reqBtn2.addEventListener('click', sisShowRequestForm);
-  if (cancelBtn) cancelBtn.addEventListener('click', sisCancelRequest);
-  if (submitBtn) submitBtn.addEventListener('click', sisSubmitRequest);
-
-  // Wire product picker chips
-  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const active = btn.classList.contains('sis-selected');
-      if (active) {
-        btn.classList.remove('sis-selected');
-        btn.style.background   = 'rgba(168,85,247,0.08)';
-        btn.style.borderColor  = 'rgba(168,85,247,0.3)';
-        btn.style.fontWeight   = '400';
-        btn.style.color        = '#EDE8FA';
-      } else {
-        btn.classList.add('sis-selected');
-        btn.style.background   = 'rgba(168,85,247,0.35)';
-        btn.style.borderColor  = 'rgba(168,85,247,1)';
-        btn.style.fontWeight   = '700';
-        btn.style.color        = 'white';
-        btn.style.boxShadow    = '0 0 12px rgba(168,85,247,0.4)';
-      }
-    });
-  });
-}
-
-function sisHowItWorks() {
-  const section = document.getElementById('sisHowSection');
-  if (section) {
-    const showing = section.style.display !== 'none';
-    section.style.display = showing ? 'none' : 'block';
-  }
-}
-
-function sisShowRequestForm() {
-  const s1 = document.getElementById('sisScreen1');
-  const s2 = document.getElementById('sisScreen2');
-  const cta = document.getElementById('sisExploreCta');
-  if (s1) s1.style.display = 'none';
-  if (s2) s2.style.display = 'block';
-  if (cta) cta.style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'instant' });
-
-  // Wire chips NOW that Screen 2 is visible
-  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
-    // Remove any old listener by cloning
-    const fresh = btn.cloneNode(true);
-    btn.parentNode.replaceChild(fresh, btn);
-    fresh.addEventListener('click', () => {
-      const active = fresh.classList.contains('sis-selected');
-      if (active) {
-        fresh.classList.remove('sis-selected');
-        fresh.style.background  = 'rgba(168,85,247,0.08)';
-        fresh.style.borderColor = 'rgba(168,85,247,0.3)';
-        fresh.style.fontWeight  = '400';
-        fresh.style.color       = '#EDE8FA';
-        fresh.style.boxShadow   = 'none';
-      } else {
-        fresh.classList.add('sis-selected');
-        fresh.style.background  = 'rgba(168,85,247,0.35)';
-        fresh.style.borderColor = 'rgba(168,85,247,1)';
-        fresh.style.fontWeight  = '700';
-        fresh.style.color       = 'white';
-        fresh.style.boxShadow   = '0 0 12px rgba(168,85,247,0.4)';
-      }
-    });
-  });
-}
-
-function sisCancelRequest() {
-  const s1 = document.getElementById('sisScreen1');
-  const s2 = document.getElementById('sisScreen2');
-  const cta = document.getElementById('sisExploreCta');
-  if (s1) s1.style.display = 'flex';
-  if (s2) s2.style.display = 'none';
-  if (cta) cta.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  showToast('Request cancelled. You\'re safe. \u{1F49C}');
-}
-
-function sisSubmitRequest() {
-  const location = document.getElementById('sisLocation');
-  const address  = document.getElementById('sisAddress');
-  const notes    = document.getElementById('sisNotes');
-
-  // Validate location
-  if (!location || !location.value.trim()) {
-    if (location) {
-      location.style.borderColor = '#EF4444';
-      setTimeout(() => location.style.borderColor = 'rgba(168,85,247,0.3)', 2000);
-    }
-    showToast('Please tell us where you are \u{1F4CD}');
-    return;
-  }
-
-  // Collect selected items
-  const selected = [];
-  document.querySelectorAll('.sis-pick-btn.sis-selected').forEach(btn => {
-    selected.push(btn.dataset.item);
-  });
-
-  if (!selected.length) {
-    showToast('Please pick at least one item you need \u{1F91D}');
-    return;
-  }
-
-  // Save to Firebase
-  const request = {
-    location:   location.value.trim(),
-    address:    address ? address.value.trim() : '',
-    items:      selected,
-    notes:      notes ? notes.value.trim() : '',
-    status:     'pending',
-    created_at: new Date().toISOString(),
-    source:     'sis_qr_scan'
-  };
-
-  if (_firebaseFs) {
-    _firebaseFs.collection('sis_requests').add({
-      ...request,
-      created_at: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(e => console.warn('[Period.] Sis request save failed:', e));
-  }
-
-  // Show waiting screen
-  const s2 = document.getElementById('sisScreen2');
-  const s3 = document.getElementById('sisScreen3');
-  const cta = document.getElementById('sisExploreCta');
-  if (s2) s2.style.display = 'none';
-  if (s3) { s3.style.display = 'flex'; s3.style.flexDirection = 'column'; s3.style.alignItems = 'center'; s3.style.justifyContent = 'center'; s3.style.padding = '2rem 1.5rem'; s3.style.textAlign = 'center'; }
-  if (cta) cta.style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-function sisExploreApp() {
-  // Hide sis view
-  const sisView = document.getElementById('sisView');
-  if (sisView) sisView.classList.remove('active');
-
-  // Show version badge again
-  const vBadge = document.getElementById('versionBadge');
-  if (vBadge) vBadge.style.display = '';
-
-  // Check if already has a version saved — go straight to home
-  const savedVersion = getVersionCookie();
-  const validVersions = ['teen', 'adult', 'emergency', 'gifter', 'holistic', 'starter'];
-  if (validVersions.includes(savedVersion)) {
-    navigate('home');
-    setVersion(savedVersion);
-    return;
-  }
-
-  // New user — show and wire the age gate properly
-  const ageGate    = document.getElementById('ageGateWrap');
-  const askScreen  = document.getElementById('ageGateAsk');
-  const blocked    = document.getElementById('ageGateBlocked');
-  const yesBtn     = document.getElementById('ageGateYes');
-  const noBtn      = document.getElementById('ageGateNo');
-
-  if (!ageGate) return;
-
-  // Activate home view so it's ready after age gate
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const homeView = document.getElementById('homeView');
-  if (homeView) homeView.classList.add('active');
-
-  ageGate.style.display     = 'flex';
-  ageGate.style.visibility  = 'visible';
-  document.body.style.overflow = 'hidden';
-
-  // Wire buttons fresh — clone to remove any old listeners
-  if (yesBtn) {
-    const freshYes = yesBtn.cloneNode(true);
-    yesBtn.parentNode.replaceChild(freshYes, yesBtn);
-    freshYes.addEventListener('click', () => {
-      const exp = new Date(Date.now() + 365 * 864e5).toUTCString();
-      document.cookie = 'period_age_ok=yes; expires=' + exp + '; path=/; SameSite=Lax';
-      ageGate.style.opacity = '0';
-      ageGate.style.transition = 'opacity .3s ease';
-      setTimeout(() => {
-        ageGate.style.display = 'none';
-        document.body.style.overflow = '';
-        // Call intro card directly — bypassing URL param check
-        // since URL still has ?program=sis
-        _showIntroCardDirect();
-      }, 300);
-    });
-  }
-
-  if (noBtn) {
-    const freshNo = noBtn.cloneNode(true);
-    noBtn.parentNode.replaceChild(freshNo, noBtn);
-    freshNo.addEventListener('click', () => {
-      if (askScreen) askScreen.style.display = 'none';
-      if (blocked)   blocked.style.display   = 'flex';
-    });
-  }
-}
-
-
 /* =============================================================
    URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
    ============================================================= */
 function handleURLParams() {
   try {
     const params = new URLSearchParams(window.location.search);
-    // For The Guys entry point
-    const forHim = params.get('for');
-    if (forHim === 'him') {
-      navigateGuys();
-      return;
-    }
-    // Help a Girl Out Sis entry point
-    const program = params.get('program');
-    if (program === 'sis') {
-      navigateSis();
-      return;
-    }
-    // Standard version override
     const v = params.get('v');
     if (v && ['teen','adult','emergency','gifter','holistic'].includes(v)) {
       setVersion(v);
@@ -6973,18 +5795,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── My Tracker hero pill ──
+
+  // ── My Tracker hero pill → scroll to feature cards, then open tracker ──
   const heroTrackerBtn = $('heroTrackerBtn');
   if (heroTrackerBtn) {
     heroTrackerBtn.addEventListener('click', () => {
-      if (isNewsletterSubscribed()) navigate('tracker');
-      else showNewsletterModal();
+      const spotlight = $('featureSpotlight');
+      if (spotlight) {
+        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Small delay so scroll completes before action fires
+        setTimeout(() => {
+          if (isNewsletterSubscribed()) navigate('tracker');
+          else showNewsletterModal();
+        }, 420);
+      } else {
+        if (isNewsletterSubscribed()) navigate('tracker');
+        else showNewsletterModal();
+      }
     });
   }
 
-  // Just Flow With It hero pill handled in init()
 
-  // ── Feature card buttons (may not exist if spotlight removed) ──
+  // ── Newsletter hero pill → scroll to feature cards, then open modal ──
+  const heroNewsletterBtn = $('heroNewsletterBtn');
+  if (heroNewsletterBtn) {
+    heroNewsletterBtn.addEventListener('click', () => {
+      const spotlight = $('featureSpotlight');
+      if (spotlight) {
+        spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => showNewsletterModal(), 420);
+      } else {
+        showNewsletterModal();
+      }
+    });
+  }
+
+
+  // ── Feature card: Tracker button ──
   const featureTrackerBtn = $('featureTrackerBtn');
   if (featureTrackerBtn) {
     featureTrackerBtn.addEventListener('click', () => {
@@ -6992,6 +5839,9 @@ document.addEventListener('DOMContentLoaded', () => {
       else showNewsletterModal();
     });
   }
+
+
+  // ── Feature card: Newsletter button ──
   const featureNewsletterBtn = $('featureNewsletterBtn');
   if (featureNewsletterBtn) {
     featureNewsletterBtn.addEventListener('click', showNewsletterModal);
@@ -7183,12 +6033,6 @@ document.addEventListener('DOMContentLoaded', () => {
    AGE GATE — check on load, store answer in cookie
    ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-  // Skip age gate entirely for ?for=him
-  try {
-    const _p = new URLSearchParams(window.location.search);
-    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
-  } catch(e) {}
-
   const wrap       = document.getElementById('ageGateWrap');
   const askScreen  = document.getElementById('ageGateAsk');
   const blocked    = document.getElementById('ageGateBlocked');
@@ -7468,361 +6312,30 @@ function initCycleScoopTabs() {
       tab.classList.add('active');
       tab.setAttribute('aria-selected','true');
       const which = tab.dataset.scoopTab;
-      const factsPanel    = $('scoopFactsPanel');
-      const faqPanel      = $('scoopFaqPanel');
-      const athleticPanel = $('scoopAthleticPanel');
-      if (factsPanel)    factsPanel.style.display    = which==='facts'    ? 'block' : 'none';
-      if (faqPanel)      faqPanel.style.display      = which==='faq'      ? 'block' : 'none';
-      if (athleticPanel) athleticPanel.style.display = which==='athletic' ? 'block' : 'none';
-      if (which === 'athletic') renderAthleticContent();
+      const factsPanel = $('scoopFactsPanel');
+      const faqPanel   = $('scoopFaqPanel');
+      if (factsPanel) factsPanel.style.display = which==='facts' ? 'block' : 'none';
+      if (faqPanel)   faqPanel.style.display   = which==='faq'   ? 'block' : 'none';
     });
   });
 }
-
-
-/* =============================================
-   ACTIVE & ATHLETIC — Per Experience Content
-   Sources: ACOG, Mayo Clinic, Women's Sports
-   Foundation, NIH/PubMed, Period.org
-   ============================================= */
-
-const ATHLETIC_CONTENT = {
-  starter: {
-    headline: "Can I Still Do Gym Class? YES! \uD83C\uDFC3\u200D\u2640\uFE0F",
-    intro: "Getting your period does NOT mean you have to sit out. You can run, jump, swim, dance, and do every single thing you normally do. Your body is not broken \u2014 it is just doing something new! Here is everything you need to know to keep moving. \u2728",
-    sections: [
-      {
-        emoji: "\uD83D\uDC4D",
-        title: "Good news: moving actually helps!",
-        color: "rgba(168,85,247,0.1)",
-        border: "rgba(168,85,247,0.2)",
-        items: [
-          "Exercise releases feel-good chemicals called endorphins that actually make cramps feel better.",
-          "You do NOT have to skip gym class. Seriously \u2014 you are allowed to move.",
-          "Swimming, running, dancing, volleyball \u2014 all of it is totally fine on your period.",
-          "If you feel tired, slow down a little. But you do not have to stop completely."
-        ]
-      },
-      {
-        emoji: "\uD83E\uDDE6",
-        title: "What to wear so you feel confident",
-        color: "rgba(236,72,153,0.1)",
-        border: "rgba(236,72,153,0.2)",
-        items: [
-          "\uD83E\uDE72 Period underwear is AMAZING for sports \u2014 no pads slipping, no worries.",
-          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons are great for swimming and active sports \u2014 ask a trusted adult to help you try one.",
-          "\uD83C\uDF38 Pads work fine for most gym activities \u2014 pick a thin one so it stays in place.",
-          "\uD83D\uDC51 Dark-colored leggings or shorts give you extra confidence just in case."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDCAC",
-        title: "Talking to your coach or teacher",
-        color: "rgba(34,197,94,0.1)",
-        border: "rgba(34,197,94,0.2)",
-        items: [
-          "You never have to explain WHY you need a bathroom break \u2014 just say you need one.",
-          "If cramps are really bad one day, it is okay to tell your coach you are not feeling well.",
-          "You do not have to say the word \u201Cperiod\u201D if you are not comfortable. \u201CI am not feeling well today\u201D is enough.",
-          "Most coaches and teachers totally understand \u2014 they have been there too!"
-        ]
-      },
-      {
-        emoji: "\uD83D\uDEAB",
-        title: "When to actually take it easy",
-        color: "rgba(239,68,68,0.1)",
-        border: "rgba(239,68,68,0.2)",
-        items: [
-          "Day 1 with really bad cramps? It is okay to do less today. Rest is not quitting.",
-          "Feeling dizzy, very weak, or in a lot of pain? Sit out and tell an adult.",
-          "Feeling tired is normal \u2014 but if you feel extremely exhausted every period, tell your doctor."
-        ]
-      }
-    ],
-    citations: [
-      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation is safe and often beneficial for symptom relief." },
-      { org: "Mayo Clinic", note: "Physical activity can help reduce menstrual cramps through endorphin release." },
-      { org: "Period.org", note: "Period poverty and education resources for young people." }
-    ]
-  },
-
-  teen: {
-    headline: "Period & the Grind Don\u2019t Have to Fight \uD83D\uDCAA",
-    intro: "Real talk bestie \u2014 your period does not have to bench you. Athletes, dancers, gymnasts, and everyone in between compete and train on their periods every single day. Here is how to work WITH your cycle instead of fighting it. No cap. \uD83D\uDC9C",
-    sections: [
-      {
-        emoji: "\uD83D\uDD25",
-        title: "The truth about training on your period",
-        color: "rgba(168,85,247,0.1)",
-        border: "rgba(168,85,247,0.2)",
-        items: [
-          "Day 1 and 2 are usually the hardest \u2014 lower energy, higher inflammation. Go easier those days, not zero.",
-          "By day 3-4? Most people feel their energy coming back. This is when you can push again.",
-          "Exercise literally releases endorphins which counteract prostaglandins (the cramp chemicals). Moving = less cramping. Facts.",
-          "Your follicular phase (after your period ends) is when you are STRONGEST. That is when to PR. Plan for it."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDC5F",
-        title: "What to wear for practice",
-        color: "rgba(236,72,153,0.1)",
-        border: "rgba(236,72,153,0.2)",
-        items: [
-          "\uD83E\uDE72 Period underwear + shorts = the combo. No pad shifting, no leaks, no anxiety.",
-          "\uD83C\uDFC3\u200D\u2640\uFE0F Tampons or menstrual discs are best for swimming, gymnastics, and anything high-movement.",
-          "\uD83D\uDC5A Compression shorts over your underwear give extra security and confidence.",
-          "\uD83C\uDF99\uFE0F Dark uniform bottoms on heavy days \u2014 most coaches will not even notice or question it."
-        ]
-      },
-      {
-        emoji: "\u26A0\uFE0F",
-        title: "Iron deficiency warning for athletes",
-        color: "rgba(239,68,68,0.1)",
-        border: "rgba(239,68,68,0.2)",
-        items: [
-          "Heavy flow + heavy training = real risk of iron deficiency. This is not rare for teen athletes.",
-          "Signs: extreme fatigue, getting winded easily, slower times, brain fog, pale skin.",
-          "Fix: iron-rich foods (red meat, spinach, lentils, fortified cereals) + vitamin C to absorb it better.",
-          "If symptoms persist, ask your doctor for a blood test. Low iron is totally fixable \u2014 but it needs attention."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDDE3\uFE0F",
-        title: "Talking to your coach",
-        color: "rgba(34,197,94,0.1)",
-        border: "rgba(34,197,94,0.2)",
-        items: [
-          "You are never required to explain your period to your coach \u2014 \u201CI am not feeling 100% today\u201D is enough.",
-          "If you have a coach you trust, being honest actually helps them support you better.",
-          "Missing one practice for severe cramps is not going to ruin your season. Your health comes first.",
-          "More coaches than you think understand \u2014 and the ones who do not are wrong, not you."
-        ]
-      }
-    ],
-    citations: [
-      { org: "Women\u2019s Sports Foundation", note: "Menstruation and athletic performance research, including phase-based training." },
-      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise and menstrual health guidance for adolescents." },
-      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: clinical evidence and dietary recommendations." },
-      { org: "Mayo Clinic", note: "Menstrual cramps: lifestyle and home remedies including exercise." }
-    ]
-  },
-
-  adult: {
-    headline: "Cycle Syncing Your Training \uD83E\uDEC0",
-    intro: "Your hormones do not just affect your mood \u2014 they directly impact your strength, endurance, recovery time, and injury risk throughout the month. Training with your cycle instead of ignoring it is not a trend. It is smart physiology.",
-    sections: [
-      {
-        emoji: "\uD83D\uDCC5",
-        title: "The 4 phases of your training cycle",
-        color: "rgba(168,85,247,0.1)",
-        border: "rgba(168,85,247,0.2)",
-        items: [
-          "\uD83E\uDE78 Menstrual (Days 1-5): Lower estrogen + progesterone. Energy is low, inflammation is high. Prioritize rest, light movement, yoga, walking. This is recovery time, not failure.",
-          "\uD83C\uDF31 Follicular (Days 6-13): Estrogen rises. Energy and strength climb. Excellent time for high-intensity training, heavy lifting, and skill work.",
-          "\u2728 Ovulatory (Days 14-17): Peak estrogen. Strength, coordination, and confidence are highest. Ideal window for competition, PRs, and max effort.",
-          "\uD83C\uDF19 Luteal (Days 18-28): Progesterone rises. Endurance may feel easier but strength decreases. Good for moderate cardio. Reduce high-intensity toward end of phase."
-        ]
-      },
-      {
-        emoji: "\uD83E\uDD29",
-        title: "Hormonal performance facts",
-        color: "rgba(236,72,153,0.1)",
-        border: "rgba(236,72,153,0.2)",
-        items: [
-          "Estrogen has an anabolic (muscle-building) effect \u2014 your follicular phase is when your body responds best to strength training.",
-          "Pain tolerance drops by up to 35% in the luteal phase. You are not getting weaker \u2014 your body is more sensitive. Adjust accordingly.",
-          "Core temperature rises slightly in the luteal phase, making heat-based exercise harder. Hydration matters even more.",
-          "Relaxin levels peak around ovulation, increasing joint laxity. Injury risk is slightly higher \u2014 prioritize warm-up and proper form."
-        ]
-      },
-      {
-        emoji: "\uD83E\uDD69",
-        title: "Nutrition for active cycles",
-        color: "rgba(251,191,36,0.1)",
-        border: "rgba(251,191,36,0.2)",
-        items: [
-          "Iron + Vitamin C together after your period: your body loses iron during menstruation and exercise depletes it further. Pair spinach or red meat with citrus for optimal absorption.",
-          "Magnesium glycinate (200-400mg daily): reduces both PMS symptoms and exercise-related muscle cramps. Two problems, one solution.",
-          "Carbohydrate needs rise in the luteal phase \u2014 this is biochemical, not a lack of willpower. Fuel your body appropriately.",
-          "Anti-inflammatory foods (salmon, turmeric, berries, leafy greens) reduce menstrual inflammation AND support exercise recovery simultaneously."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDEAB",
-        title: "When to push vs. when to rest",
-        color: "rgba(239,68,68,0.1)",
-        border: "rgba(239,68,68,0.2)",
-        items: [
-          "Push: Follicular and ovulatory phases. Your body is primed \u2014 use the window.",
-          "Moderate: Late luteal phase. Endurance is fine, max effort is not ideal.",
-          "Rest or restore: Menstrual phase days 1-2. This is strategic recovery, not giving up.",
-          "Always: If you experience dizziness, unusual fatigue, or pain beyond normal menstrual discomfort, stop and check in with your provider."
-        ]
-      }
-    ],
-    citations: [
-      { org: "Women\u2019s Sports Foundation", note: "The Female Athlete Triad and cycle-based performance research." },
-      { org: "NIH / PubMed", note: "Hormonal fluctuations and athletic performance across the menstrual cycle." },
-      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Exercise during menstruation: clinical guidelines for adults." },
-      { org: "Mayo Clinic", note: "Iron deficiency anemia in female athletes: symptoms and dietary recommendations." }
-    ]
-  },
-
-  holistic: {
-    headline: "Supporting Your Active Body Naturally \uD83C\uDF3F",
-    intro: "Movement and your menstrual cycle are deeply connected. Honoring your body\u2019s natural rhythms while staying active is not a compromise \u2014 it is the most intelligent approach to training. Here is how to support yourself from the inside out.",
-    sections: [
-      {
-        emoji: "\uD83C\uDF3F",
-        title: "Cycle-aware movement",
-        color: "rgba(34,197,94,0.1)",
-        border: "rgba(34,197,94,0.2)",
-        items: [
-          "Menstrual phase: Yin yoga, walking in nature, qigong. Let your body release without forcing it to perform.",
-          "Follicular phase: Build intensity gradually. This is when your body is most receptive to new training stimuli.",
-          "Ovulatory phase: Peak performance window. Try the thing you have been afraid of. Your body is ready.",
-          "Luteal phase: Shift to endurance, dance, moderate hiking. Listen to when your body signals slowdown."
-        ]
-      },
-      {
-        emoji: "\uD83C\uDF3B",
-        title: "Natural support for active bodies",
-        color: "rgba(251,191,36,0.1)",
-        border: "rgba(251,191,36,0.2)",
-        items: [
-          "Magnesium (from pumpkin seeds, dark chocolate, avocado): reduces both menstrual cramps AND exercise-induced muscle cramps.",
-          "CBD topical on lower abdomen post-workout: addresses inflammation from both exercise and prostaglandins simultaneously. Third-party tested only.",
-          "Turmeric with black pepper before training in your menstrual phase: curcumin reduces prostaglandin-driven inflammation.",
-          "Seed cycling supports hormonal balance over time \u2014 supporting the foundation your training sits on."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDCA7",
-        title: "Hydration and recovery naturally",
-        color: "rgba(14,165,233,0.1)",
-        border: "rgba(14,165,233,0.2)",
-        items: [
-          "Coconut water provides natural electrolytes lost during both menstruation and exercise \u2014 without synthetic additives.",
-          "Red raspberry leaf tea post-workout during your menstrual phase supports uterine recovery alongside muscle recovery.",
-          "Castor oil pack on lower abdomen on rest days: reduces uterine inflammation and supports lymphatic drainage.",
-          "Epsom salt baths after training during your period: magnesium absorbs transdermally while warm water eases both muscle and menstrual tension."
-        ]
-      }
-    ],
-    citations: [
-      { org: "NIH / PubMed", note: "Magnesium supplementation and menstrual pain: randomized controlled trial evidence." },
-      { org: "Women\u2019s Sports Foundation", note: "Natural approaches to cycle-aware athletic training." },
-      { org: "American College of Obstetricians and Gynecologists (ACOG)", note: "Complementary and integrative medicine in menstrual health." }
-    ]
-  },
-
-  emergency: {
-    headline: "Moving Through It \u26A1",
-    intro: "You are handling an emergency right now \u2014 so keep this brief. You absolutely can keep moving. Here is the short version.",
-    sections: [
-      {
-        emoji: "\u26A1",
-        title: "Quick facts",
-        color: "rgba(239,68,68,0.1)",
-        border: "rgba(239,68,68,0.2)",
-        items: [
-          "Exercise helps cramps. Even a short walk releases endorphins that reduce pain.",
-          "Get your supplies sorted first, then move when you feel ready.",
-          "If you are at school or work \u2014 you do not have to skip anything. Get what you need and carry on.",
-          "Heavy flow does not mean you are unwell. It means you need better supplies, fast."
-        ]
-      }
-    ],
-    citations: [
-      { org: "Mayo Clinic", note: "Exercise and menstrual cramp relief." }
-    ]
-  },
-
-  gifter: {
-    headline: "She Stays Active \uD83C\uDFC3\u200D\u2640\uFE0F Gift Her What She Needs",
-    intro: "If she is an athlete, dancer, runner, or just someone who does not let her period stop her \u2014 she needs supplies that keep up. Here is what actually helps her stay active and confident.",
-    sections: [
-      {
-        emoji: "\uD83C\uDF81",
-        title: "What active women actually need",
-        color: "rgba(168,85,247,0.1)",
-        border: "rgba(168,85,247,0.2)",
-        items: [
-          "\uD83E\uDE72 Period underwear: the gift that keeps on giving. No shifting, no leaks, no anxiety mid-practice.",
-          "\uD83D\uDCA8 Menstrual disc or cup: for swimmers, gymnasts, or anyone who hates feeling anything during movement.",
-          "\uD83E\uDE78 Magnesium lotion: apply before bed for cramp relief that supports recovery too.",
-          "\uD83D\uDEB4\u200D\u2640\uFE0F Iron + folate supplement: especially if she has heavy flow and trains regularly. Iron deficiency is common and fixable."
-        ]
-      },
-      {
-        emoji: "\uD83D\uDCAC",
-        title: "What to say",
-        color: "rgba(236,72,153,0.1)",
-        border: "rgba(236,72,153,0.2)",
-        items: [
-          "\u201CI got you something that actually works during training.\u201D",
-          "\u201CYou do not have to slow down for this \u2014 here is what helps.\u201D",
-          "Sometimes the most powerful thing is just acknowledging that her period is real and you see her. That matters more than the gift."
-        ]
-      }
-    ],
-    citations: [
-      { org: "Women\u2019s Sports Foundation", note: "Supporting female athletes\u2019 menstrual health and performance." },
-      { org: "NIH / PubMed", note: "Iron deficiency in female athletes: prevalence and dietary solutions." }
-    ]
-  }
-};
-
-function renderAthleticContent() {
-  const container = document.getElementById('scoopAthleticContent');
-  if (!container) return;
-
-  const v = state.version || 'adult';
-  const data = ATHLETIC_CONTENT[v] || ATHLETIC_CONTENT.adult;
-
-  let html = '<div style="padding:0.5rem 0;">';
-
-  // Headline + intro
-  html += '<div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(236,72,153,0.08));border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">';
-  html += '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">' + data.headline + '</h2>';
-  html += '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin:0;">' + data.intro + '</p>';
-  html += '</div>';
-
-  // Sections
-  data.sections.forEach(function(section) {
-    html += '<div style="background:' + section.color + ';border:1px solid ' + section.border + ';border-radius:16px;padding:1rem;margin-bottom:1rem;">';
-    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;">';
-    html += '<span style="font-size:1.3rem;">' + section.emoji + '</span>';
-    html += '<span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">' + section.title + '</span>';
-    html += '</div>';
-    html += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">';
-    section.items.forEach(function(item) {
-      html += '<li style="font-size:0.875rem;color:var(--text-muted);line-height:1.65;padding-left:0.5rem;border-left:2px solid ' + section.border + ';">' + item + '</li>';
-    });
-    html += '</ul></div>';
-  });
-
-  // Citations
-  html += '<div style="background:rgba(168,85,247,0.06);border-radius:16px;padding:1rem;margin-top:0.5rem;border:1px solid rgba(168,85,247,0.15);">';
-  html += '<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.6rem;">\uD83D\uDCDA Sources & Education</div>';
-  data.citations.forEach(function(cite) {
-    html += '<div style="margin-bottom:0.4rem;">';
-    html += '<span style="font-size:0.78rem;color:var(--accent);font-weight:600;">' + cite.org + '</span>';
-    html += '<span style="font-size:0.75rem;color:var(--text-muted);"> \u2014 ' + cite.note + '</span>';
-    html += '</div>';
-  });
-  html += '<p style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin:0.75rem 0 0;">General education only \u2014 not medical advice. For personal health questions, consult a healthcare provider.</p>';
-  html += '</div>';
-
-  html += '</div>';
-  container.innerHTML = html;
-}
-
 
 
 // ── Navigation wiring ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // The Tea nav buttons wired in init()
+  // The Tea, Period. nav buttons
+  const openScoop = () => {
+    navigate('cycleScoopView');
+    renderScoopFacts();
+    renderScoopFaq();
+    initCycleScoopTabs();
+  };
+  const heroScoop   = $('heroScoopBtn');
+  const teenScoop   = $('teenScoopLink');
+  const scoopBack   = $('cycleScoopBack');
+  if (heroScoop)  heroScoop.addEventListener('click', openScoop);
+  if (teenScoop)  teenScoop.addEventListener('click', openScoop);
+  if (scoopBack)  scoopBack.addEventListener('click', () => navigate('home'));
 
 
   // Freak Out Guide order button
