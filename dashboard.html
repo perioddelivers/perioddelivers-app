@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Period. Admin Dashboard</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:        #080612;
+  --surface:   #110D24;
+  --surface2:  #1A1535;
+  --surface3:  #221D3F;
+  --border:    rgba(168,85,247,0.15);
+  --accent:    #A855F7;
+  --accent2:   #7C3AED;
+  --gold:      #D4AF37;
+  --text:      #EDE8FA;
+  --muted:     rgba(237,232,250,0.45);
+  --green:     #22C55E;
+  --red:       #EF4444;
+  --amber:     #F59E0B;
+  --blue:      #3B82F6;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at top, #1A0A2E 0%, #080612 70%);
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  text-align: center;
+}
+.login-brand { font-size: 3rem; color: var(--gold); font-family: Georgia, serif; margin-bottom: 0.25rem; }
+.login-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 2rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.login-input {
+  width: 100%; padding: 0.875rem 1rem;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; color: var(--text); font-size: 1rem;
+  margin-bottom: 1rem; outline: none;
+}
+.login-input:focus { border-color: var(--accent); }
+.login-btn {
+  width: 100%; padding: 0.875rem;
+  background: linear-gradient(135deg, #A855F7, #7C3AED);
+  color: white; border: none; border-radius: 999px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-error { color: var(--red); font-size: 0.82rem; margin-top: 0.75rem; display: none; }
+
+/* ── DASHBOARD ── */
+#dashboard { display: none; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,6,18,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.875rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-brand { font-size: 1.2rem; font-weight: 800; color: var(--gold); font-family: Georgia, serif; }
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+.topbar-date { font-size: 0.78rem; color: var(--muted); }
+.refresh-btn {
+  padding: 0.4rem 0.875rem; background: rgba(168,85,247,0.15);
+  border: 1px solid var(--border); border-radius: 999px;
+  color: var(--accent); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+}
+.refresh-btn:hover { background: rgba(168,85,247,0.25); }
+.logout-btn {
+  padding: 0.4rem 0.875rem; background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2); border-radius: 999px;
+  color: var(--red); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+}
+
+.content { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+/* ── SECTION HEADER ── */
+.section-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.14em;
+  margin-bottom: 0.875rem; margin-top: 1.75rem;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── STAT CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.stat-card.green::before  { background: linear-gradient(90deg, #22C55E, #16A34A); }
+.stat-card.gold::before   { background: linear-gradient(90deg, #D4AF37, #B8962E); }
+.stat-card.blue::before   { background: linear-gradient(90deg, #3B82F6, #2563EB); }
+.stat-card.red::before    { background: linear-gradient(90deg, #EF4444, #DC2626); }
+.stat-card.pink::before   { background: linear-gradient(90deg, #EC4899, #BE185D); }
+.stat-eyebrow { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+.stat-value   { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 0.25rem; }
+.stat-sub     { font-size: 0.75rem; color: var(--muted); }
+.stat-icon    { position: absolute; top: 1rem; right: 1rem; font-size: 1.4rem; opacity: 0.4; }
+
+/* ── TABLES ── */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.table-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.table-count { font-size: 0.75rem; color: var(--muted); }
+table { width: 100%; border-collapse: collapse; }
+th {
+  padding: 0.6rem 1.25rem; text-align: left;
+  font-size: 0.7rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+td {
+  padding: 0.875rem 1.25rem;
+  font-size: 0.85rem; color: var(--text);
+  border-bottom: 1px solid rgba(168,85,247,0.06);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(168,85,247,0.04); }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-block; padding: 0.2rem 0.6rem;
+  border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+}
+.badge-green  { background: rgba(34,197,94,0.15);  color: #4ADE80; }
+.badge-red    { background: rgba(239,68,68,0.15);   color: #F87171; }
+.badge-amber  { background: rgba(245,158,11,0.15);  color: #FCD34D; }
+.badge-purple { background: rgba(168,85,247,0.15);  color: #C4B5FD; }
+.badge-pink   { background: rgba(236,72,153,0.15);  color: #F9A8D4; }
+.badge-gold   { background: rgba(212,175,55,0.15);  color: #D4AF37; }
+
+/* ── CHART BARS ── */
+.bar-chart { padding: 1.25rem; }
+.bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+.bar-label { font-size: 0.78rem; color: var(--muted); width: 90px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 8px; background: var(--surface3); border-radius: 999px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #A855F7, #7C3AED); transition: width 0.8s ease; }
+.bar-fill.green { background: linear-gradient(90deg, #22C55E, #16A34A); }
+.bar-fill.gold  { background: linear-gradient(90deg, #D4AF37, #B8962E); }
+.bar-count { font-size: 0.78rem; color: var(--text); font-weight: 600; width: 32px; text-align: right; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  padding: 2.5rem; text-align: center;
+  color: var(--muted); font-size: 0.85rem;
+}
+.empty-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+
+/* ── LOADING ── */
+.loading {
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem; color: var(--muted); font-size: 0.85rem; gap: 0.5rem;
+}
+.spinner {
+  width: 16px; height: 16px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ── ALERT BANNER ── */
+.alert-banner {
+  padding: 0.875rem 1.25rem;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: #FCD34D;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+/* ── NURSE REQUESTS FLAG ── */
+.nurse-flag { color: #F9A8D4; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">.</div>
+    <div class="login-sub">Period. Admin Dashboard</div>
+    <input type="password" id="passwordInput" class="login-input"
+      placeholder="Enter dashboard password"
+      onkeydown="if(event.key==='Enter') attemptLogin()">
+    <button class="login-btn" onclick="attemptLogin()">Access Dashboard</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard">
+
+  <div class="topbar">
+    <div class="topbar-brand">&#x1F451; Period. Admin</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbarDate"></div>
+      <button class="refresh-btn" onclick="loadAll()">&#x21BB; Refresh</button>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Nurse assistance alert -->
+    <div class="alert-banner" id="nurseAlert">
+      &#x1F3E5; <strong>Staff Assistance Requested</strong> — <span id="nurseAlertCount">0</span> pending order(s) flagged for nurse/staff coordination. Review in Orders below.
+    </div>
+
+    <!-- ── KEY METRICS ── -->
+    <div class="section-label">&#x1F4CA; Key Metrics</div>
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-icon">&#x1F4B0;</div>
+        <div class="stat-eyebrow">Total Orders</div>
+        <div class="stat-value" id="totalOrders">—</div>
+        <div class="stat-sub" id="emergencyOrders">— emergency</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">&#x1F4B3;</div>
+        <div class="stat-eyebrow">Est. Revenue</div>
+        <div class="stat-value" id="totalRevenue">—</div>
+        <div class="stat-sub" id="avgOrder">avg order: —</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F4E7;</div>
+        <div class="stat-eyebrow">Subscribers</div>
+        <div class="stat-value" id="totalSubscribers">—</div>
+        <div class="stat-sub">Just Flow With It signups</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">&#x23F3;</div>
+        <div class="stat-eyebrow">Waitlist</div>
+        <div class="stat-value" id="totalWaitlist">—</div>
+        <div class="stat-sub">launch day ready</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-icon">&#x1F91D;</div>
+        <div class="stat-eyebrow">Sis Volunteers</div>
+        <div class="stat-value" id="totalSisVolunteers">—</div>
+        <div class="stat-sub" id="sisNotifEnabled">— with notifications</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">&#x1F6A8;</div>
+        <div class="stat-eyebrow">Sis Requests</div>
+        <div class="stat-value" id="totalSisRequests">—</div>
+        <div class="stat-sub" id="sisPending">— pending</div>
+      </div>
+    </div>
+
+    <!-- ── EXPERIENCE BREAKDOWN ── -->
+    <div class="two-col">
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x1F4CA; Orders by Experience</div>
+        </div>
+        <div class="bar-chart" id="experienceChart">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x1F4CA; Subscribers by Stage</div>
+        </div>
+        <div class="bar-chart" id="subscriberChart">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RECENT ORDERS ── -->
+    <div class="section-label">&#x1F6D2; Recent Orders</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Latest Orders</div>
+        <div class="table-count" id="ordersCount"></div>
+      </div>
+      <div id="ordersTable">
+        <div class="loading"><div class="spinner"></div> Loading orders...</div>
+      </div>
+    </div>
+
+    <!-- ── SUBSCRIBERS ── -->
+    <div class="section-label">&#x1F4E7; Just Flow With It — Subscribers</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Subscriber List</div>
+        <div class="table-count" id="subscribersCount"></div>
+      </div>
+      <div id="subscribersTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── SIS REQUESTS ── -->
+    <div class="section-label">&#x1F6A8; Help a Girl Out — Sis Requests</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Emergency Requests</div>
+        <div class="table-count" id="sisRequestsCount"></div>
+      </div>
+      <div id="sisRequestsTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── SIS VOLUNTEERS ── -->
+    <div class="section-label">&#x1F91D; Sis Volunteer Network</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Active Sis Volunteers</div>
+        <div class="table-count" id="sisVolunteersCount"></div>
+      </div>
+      <div id="sisVolunteersTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── WAITLIST ── -->
+    <div class="section-label">&#x23F3; Launch Waitlist</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Waitlist Signups</div>
+        <div class="table-count" id="waitlistCount"></div>
+      </div>
+      <div id="waitlistTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── RATINGS & REVIEWS ── -->
+    <div class="section-label">&#x2B50; Ratings &amp; Reviews</div>
+
+    <!-- Review stats row -->
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:1rem;">
+      <div class="stat-card gold">
+        <div class="stat-icon">&#x2B50;</div>
+        <div class="stat-eyebrow">Avg Rating</div>
+        <div class="stat-value" id="avgRating">—</div>
+        <div class="stat-sub" id="totalReviews">— total reviews</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">&#x1F600;</div>
+        <div class="stat-eyebrow">5 Stars</div>
+        <div class="stat-value" id="fiveStars">—</div>
+        <div class="stat-sub">excellent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F642;</div>
+        <div class="stat-eyebrow">4 Stars</div>
+        <div class="stat-value" id="fourStars">—</div>
+        <div class="stat-sub">good</div>
+      </div>
+      <div class="stat-card amber" style="--accent:#F59E0B;">
+        <div class="stat-icon">&#x1F610;</div>
+        <div class="stat-eyebrow">3 Stars or Below</div>
+        <div class="stat-value" id="lowStars">—</div>
+        <div class="stat-sub">needs attention</div>
+      </div>
+    </div>
+
+    <!-- Star distribution chart -->
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x2B50; Rating Distribution</div>
+        </div>
+        <div class="bar-chart" id="ratingChart">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x26A0;&#xFE0F; Reviews Needing Attention</div>
+          <div class="table-count" id="lowRatingCount"></div>
+        </div>
+        <div id="lowRatingsTable">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All reviews table -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Reviews</div>
+        <div class="table-count" id="allReviewsCount"></div>
+      </div>
+      <div id="reviewsTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- Sis delivery ratings -->
+    <div class="section-label">&#x1F91D; Sis Delivery Ratings</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Sis Performance Ratings</div>
+        <div class="table-count" id="sisRatingsCount"></div>
+      </div>
+      <div id="sisRatingsTable">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem 0;color:var(--muted);font-size:0.78rem;">
+      Period. LLC &bull; Admin Dashboard &bull; &copy; 2026 &bull; Confidential
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const DASHBOARD_PASSWORD = 'Period2026!';
+
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDjpDjka-euNeTPkwRE62lqojzGNzPSADI",
+  authDomain:        "period-delivers.firebaseapp.com",
+  projectId:         "period-delivers",
+  storageBucket:     "period-delivers.firebasestorage.app",
+  messagingSenderId: "1076074649022",
+  appId:             "1:1076074649022:web:3538dcd4b424bde16095ef"
+};
+
+let db = null;
+
+// ── AUTH ─────────────────────────────────────────────────────
+function attemptLogin() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === DASHBOARD_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initFirebase();
+    updateClock();
+    loadAll();
+  } else {
+    const err = document.getElementById('loginError');
+    err.style.display = 'block';
+    document.getElementById('passwordInput').value = '';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+function logout() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('passwordInput').value = '';
+}
+
+// ── FIREBASE ─────────────────────────────────────────────────
+function initFirebase() {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  } catch(e) { console.error('Firebase init failed:', e); }
+}
+
+// ── CLOCK ────────────────────────────────────────────────────
+function updateClock() {
+  const el = document.getElementById('topbarDate');
+  function tick() {
+    el.textContent = new Date().toLocaleString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+  tick();
+  setInterval(tick, 60000);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────
+function fmt(n) { return '$' + Number(n).toFixed(2); }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function badge(text, cls) { return `<span class="badge badge-${cls}">${text}</span>`; }
+function experienceBadge(type) {
+  const map = {
+    teen: ['Teen', 'purple'], adult: ['Adult', 'purple'],
+    emergency: ['Emergency', 'red'], gifter: ['Gifter', 'gold'],
+    holistic: ['Holistic', 'green'], starter: ['Starter', 'pink']
+  };
+  const [label, cls] = map[type] || [type, 'purple'];
+  return badge(label, cls);
+}
+function empty(msg) {
+  return `<div class="empty-state"><div class="empty-icon">&#x1F4ED;</div>${msg}</div>`;
+}
+
+// ── LOAD ALL ─────────────────────────────────────────────────
+async function loadAll() {
+  if (!db) { initFirebase(); }
+  try {
+    await Promise.all([
+      loadOrders(),
+      loadSubscribers(),
+      loadSisRequests(),
+      loadSisVolunteers(),
+      loadWaitlist(),
+      loadReviews(),
+      loadSisRatings(),
+    ]);
+  } catch(e) { console.error('Load error:', e); }
+}
+
+// ── ORDERS ───────────────────────────────────────────────────
+async function loadOrders() {
+  try {
+    const snap = await db.collection('orders')
+      .orderBy('created_at', 'desc').limit(50).get();
+
+    const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Metrics
+    const total = orders.length;
+    const emergency = orders.filter(o => o.is_emergency || o.type === 'emergency').length;
+    const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+    const avg = total > 0 ? revenue / total : 0;
+    const nurseOrders = orders.filter(o => o.nurse_assist);
+
+    document.getElementById('totalOrders').textContent    = total;
+    document.getElementById('emergencyOrders').textContent = `${emergency} emergency`;
+    document.getElementById('totalRevenue').textContent   = fmt(revenue);
+    document.getElementById('avgOrder').textContent       = `avg order: ${fmt(avg)}`;
+    document.getElementById('ordersCount').textContent    = `${total} orders`;
+
+    // Nurse alert
+    const nurseAlert = document.getElementById('nurseAlert');
+    if (nurseOrders.length > 0) {
+      nurseAlert.style.display = 'block';
+      document.getElementById('nurseAlertCount').textContent = nurseOrders.length;
+    }
+
+    // Experience breakdown chart
+    const expCounts = {};
+    orders.forEach(o => { const t = o.type || 'unknown'; expCounts[t] = (expCounts[t] || 0) + 1; });
+    const maxExp = Math.max(...Object.values(expCounts), 1);
+    const expColors = { emergency: 'red', teen: '', adult: '', holistic: 'green', gifter: 'gold', starter: '' };
+    document.getElementById('experienceChart').innerHTML = Object.entries(expCounts)
+      .sort((a,b) => b[1]-a[1])
+      .map(([k,v]) => `
+        <div class="bar-row">
+          <div class="bar-label">${k}</div>
+          <div class="bar-track"><div class="bar-fill ${expColors[k]||''}" style="width:${Math.round(v/maxExp*100)}%"></div></div>
+          <div class="bar-count">${v}</div>
+        </div>`).join('') || empty('No orders yet');
+
+    // Orders table
+    if (orders.length === 0) {
+      document.getElementById('ordersTable').innerHTML = empty('No orders yet. They\'re coming. 💜');
+      return;
+    }
+
+    const rows = orders.map(o => {
+      const nurseFlag = o.nurse_assist ? ' <span class="nurse-flag">🏥 Staff</span>' : '';
+      const emergFlag = o.is_emergency ? badge('⚡ Emergency', 'red') + ' ' : '';
+      const itemList  = Array.isArray(o.items) ? o.items.map(i => i.name || i).join(', ') : '—';
+      const notes = o.notes ? `<br><span style="font-size:0.75rem;color:var(--muted);">📝 ${o.notes}</span>` : '';
+      return `<tr>
+        <td>${fmtDate(o.created_at)}</td>
+        <td>${emergFlag}${experienceBadge(o.type)}${nurseFlag}</td>
+        <td style="max-width:200px;font-size:0.78rem;">${itemList}${notes}</td>
+        <td>${fmt(o.subtotal || 0)}</td>
+        <td style="color:${(o.delivery||0)===0?'var(--green)':'var(--text)'};">${(o.delivery||0)===0?'FREE':fmt(o.delivery)}</td>
+        <td style="font-weight:700;color:var(--gold);">${fmt(o.total || 0)}</td>
+        <td>${o.address ? '<span style="color:var(--green)">&#x2714;</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('ordersTable').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Type</th><th>Items</th>
+          <th>Subtotal</th><th>Delivery</th><th>Total</th><th>Address</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('ordersTable').innerHTML = empty('Could not load orders — check Firebase connection.');
+    console.error(e);
+  }
+}
+
+// ── SUBSCRIBERS ──────────────────────────────────────────────
+async function loadSubscribers() {
+  try {
+    const snap = await db.collection('subscribers')
+      .orderBy('created_at', 'desc').limit(100).get();
+    const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    document.getElementById('totalSubscribers').textContent = subs.length;
+    document.getElementById('subscribersCount').textContent = `${subs.length} subscribers`;
+
+    // Stage breakdown chart
+    const stageCounts = {};
+    subs.forEach(s => { const st = s.stage || 'unknown'; stageCounts[st] = (stageCounts[st] || 0) + 1; });
+    const maxSt = Math.max(...Object.values(stageCounts), 1);
+    document.getElementById('subscriberChart').innerHTML = Object.entries(stageCounts)
+      .sort((a,b) => b[1]-a[1])
+      .map(([k,v]) => `
+        <div class="bar-row">
+          <div class="bar-label">${k}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxSt*100)}%"></div></div>
+          <div class="bar-count">${v}</div>
+        </div>`).join('') || '<div class="empty-state">No subscribers yet</div>';
+
+    if (subs.length === 0) {
+      document.getElementById('subscribersTable').innerHTML = empty('No subscribers yet. Once Just Flow With It goes live they\'ll roll in. 💜');
+      return;
+    }
+
+    const rows = subs.map(s => `<tr>
+      <td>${fmtDate(s.created_at)}</td>
+      <td>${s.email || '—'}</td>
+      <td>${experienceBadge(s.version || s.stage || 'adult')}</td>
+      <td style="font-size:0.75rem;color:var(--muted);">${s.device_id ? s.device_id.slice(0,12)+'...' : '—'}</td>
+    </tr>`).join('');
+
+    document.getElementById('subscribersTable').innerHTML = `
+      <table>
+        <thead><tr><th>Date</th><th>Email</th><th>Experience</th><th>Device</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('subscribersTable').innerHTML = empty('Could not load subscribers.');
+    console.error(e);
+  }
+}
+
+// ── SIS REQUESTS ─────────────────────────────────────────────
+async function loadSisRequests() {
+  try {
+    const snap = await db.collection('sis_requests')
+      .orderBy('created_at', 'desc').limit(50).get();
+    const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const pending = reqs.filter(r => r.status === 'pending').length;
+    document.getElementById('totalSisRequests').textContent = reqs.length;
+    document.getElementById('sisPending').textContent       = `${pending} pending`;
+    document.getElementById('sisRequestsCount').textContent = `${reqs.length} requests`;
+
+    if (reqs.length === 0) {
+      document.getElementById('sisRequestsTable').innerHTML = empty('No Sis requests yet — QR codes will drive these once deployed. 💜');
+      return;
+    }
+
+    const rows = reqs.map(r => `<tr>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${r.location || '—'}</td>
+      <td style="font-size:0.78rem;">${Array.isArray(r.items) ? r.items.join(', ') : '—'}</td>
+      <td style="font-size:0.78rem;color:var(--muted);">${r.notes || '—'}</td>
+      <td>${r.status === 'pending' ? badge('Pending', 'amber') : badge(r.status, 'green')}</td>
+    </tr>`).join('');
+
+    document.getElementById('sisRequestsTable').innerHTML = `
+      <table>
+        <thead><tr><th>Date</th><th>Location</th><th>Items Needed</th><th>Notes</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('sisRequestsTable').innerHTML = empty('Could not load Sis requests.');
+    console.error(e);
+  }
+}
+
+// ── SIS VOLUNTEERS ───────────────────────────────────────────
+async function loadSisVolunteers() {
+  try {
+    const snap = await db.collection('sis_volunteers')
+      .orderBy('created_at', 'desc').limit(100).get();
+    const vols = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const withNotifs = vols.filter(v => v.notificationsEnabled).length;
+    document.getElementById('totalSisVolunteers').textContent = vols.length;
+    document.getElementById('sisNotifEnabled').textContent    = `${withNotifs} with notifications`;
+    document.getElementById('sisVolunteersCount').textContent = `${vols.length} volunteers`;
+
+    if (vols.length === 0) {
+      document.getElementById('sisVolunteersTable').innerHTML = empty('No Sis volunteers yet — they sign up through the Community tab. 💜');
+      return;
+    }
+
+    const rows = vols.map(v => `<tr>
+      <td>${fmtDate(v.created_at)}</td>
+      <td>${v.nickname || 'Anonymous Sis'}</td>
+      <td>${v.notificationsEnabled ? badge('✓ Enabled', 'green') : badge('Off', 'amber')}</td>
+      <td>${v.deliveries || 0}</td>
+      <td>${v.rating ? v.rating + ' ★' : '—'}</td>
+      <td>${experienceBadge(v.version || 'adult')}</td>
+    </tr>`).join('');
+
+    document.getElementById('sisVolunteersTable').innerHTML = `
+      <table>
+        <thead><tr><th>Joined</th><th>Nickname</th><th>Notifications</th><th>Deliveries</th><th>Rating</th><th>Experience</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('sisVolunteersTable').innerHTML = empty('Could not load volunteers.');
+    console.error(e);
+  }
+}
+
+// ── WAITLIST ─────────────────────────────────────────────────
+async function loadWaitlist() {
+  try {
+    // Try both 'waitlist' and 'subscribers' collections for waitlist entries
+    const snap = await db.collection('waitlist')
+      .orderBy('created_at', 'desc').limit(100).get();
+    const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    document.getElementById('totalWaitlist').textContent = list.length;
+    document.getElementById('waitlistCount').textContent = `${list.length} signups`;
+
+    if (list.length === 0) {
+      document.getElementById('waitlistTable').innerHTML = empty('No waitlist signups yet — the Coming Soon banner drives these. 💜');
+      return;
+    }
+
+    const rows = list.map(w => `<tr>
+      <td>${fmtDate(w.created_at)}</td>
+      <td>${w.email || '—'}</td>
+      <td style="font-size:0.75rem;color:var(--muted);">${w.source || 'banner'}</td>
+    </tr>`).join('');
+
+    document.getElementById('waitlistTable').innerHTML = `
+      <table>
+        <thead><tr><th>Date</th><th>Email</th><th>Source</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    // Waitlist collection may not exist yet
+    document.getElementById('totalWaitlist').textContent = '0';
+    document.getElementById('waitlistTable').innerHTML = empty('Waitlist collection not yet created in Firebase.');
+  }
+}
+
+// ── RATINGS & REVIEWS ─────────────────────────────────────────
+async function loadReviews() {
+  try {
+    const snap = await db.collection('reviews')
+      .orderBy('created_at', 'desc').limit(200).get();
+    const reviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const total    = reviews.length;
+    const fiveStr  = reviews.filter(r => r.rating === 5).length;
+    const fourStr  = reviews.filter(r => r.rating === 4).length;
+    const lowStr   = reviews.filter(r => r.rating <= 3).length;
+    const avg      = total > 0
+      ? (reviews.reduce((s,r) => s + (r.rating||0), 0) / total).toFixed(1)
+      : '—';
+
+    document.getElementById('avgRating').textContent    = avg + (total > 0 ? ' ★' : '');
+    document.getElementById('totalReviews').textContent = total + ' total reviews';
+    document.getElementById('fiveStars').textContent    = fiveStr;
+    document.getElementById('fourStars').textContent    = fourStr;
+    document.getElementById('lowStars').textContent     = lowStr;
+    document.getElementById('allReviewsCount').textContent = total + ' reviews';
+
+    // Rating distribution chart
+    const dist = {5: fiveStr, 4: fourStr, 3: reviews.filter(r=>r.rating===3).length,
+                  2: reviews.filter(r=>r.rating===2).length, 1: reviews.filter(r=>r.rating===1).length};
+    const maxDist = Math.max(...Object.values(dist), 1);
+    const distColors = {5:'green', 4:'green', 3:'gold', 2:'', 1:''};
+    document.getElementById('ratingChart').innerHTML = [5,4,3,2,1].map(s => `
+      <div class="bar-row">
+        <div class="bar-label">${'★'.repeat(s)}${'☆'.repeat(5-s)}</div>
+        <div class="bar-track"><div class="bar-fill ${distColors[s]}" style="width:${Math.round((dist[s]||0)/maxDist*100)}%"></div></div>
+        <div class="bar-count">${dist[s]||0}</div>
+      </div>`).join('');
+
+    // Low ratings needing attention
+    const low = reviews.filter(r => r.rating <= 3).slice(0, 10);
+    document.getElementById('lowRatingCount').textContent = low.length + ' need attention';
+    if (low.length === 0) {
+      document.getElementById('lowRatingsTable').innerHTML = empty('No low ratings — keep it up! 💜');
+    } else {
+      const lowRows = low.map(r => `<tr>
+        <td>${fmtDate(r.created_at)}</td>
+        <td>${badge('★'.repeat(r.rating || 0) + ' ' + (r.rating||0), r.rating <= 2 ? 'red' : 'amber')}</td>
+        <td>${experienceBadge(r.experience || r.type || 'adult')}</td>
+        <td style="font-size:0.82rem;max-width:220px;">${r.comment || '<span style="color:var(--muted)">No comment</span>'}</td>
+      </tr>`).join('');
+      document.getElementById('lowRatingsTable').innerHTML = `
+        <table>
+          <thead><tr><th>Date</th><th>Rating</th><th>Experience</th><th>Comment</th></tr></thead>
+          <tbody>${lowRows}</tbody>
+        </table>`;
+    }
+
+    // All reviews table
+    if (total === 0) {
+      document.getElementById('reviewsTable').innerHTML = empty('No reviews yet — they'll come once orders start flowing. 💜');
+      return;
+    }
+
+    const stars = n => '★'.repeat(n||0) + '☆'.repeat(5-(n||0));
+    const ratingBadge = n => badge(stars(n) + ' ' + n, n >= 4 ? 'green' : n === 3 ? 'amber' : 'red');
+
+    const rows = reviews.map(r => `<tr>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${ratingBadge(r.rating)}</td>
+      <td>${experienceBadge(r.experience || r.type || 'adult')}</td>
+      <td style="font-size:0.82rem;max-width:240px;">${r.comment || '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:0.75rem;color:var(--muted);">${r.order_id ? r.order_id.slice(0,8)+'...' : '—'}</td>
+    </tr>`).join('');
+
+    document.getElementById('reviewsTable').innerHTML = `
+      <table>
+        <thead><tr><th>Date</th><th>Rating</th><th>Experience</th><th>Comment</th><th>Order Ref</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('reviewsTable').innerHTML = empty('Reviews collection not yet created in Firebase.');
+    document.getElementById('ratingChart').innerHTML = empty('No data yet.');
+    document.getElementById('lowRatingsTable').innerHTML = empty('No data yet.');
+    document.getElementById('avgRating').textContent = '—';
+    document.getElementById('totalReviews').textContent = '0 reviews';
+    document.getElementById('fiveStars').textContent = '0';
+    document.getElementById('fourStars').textContent = '0';
+    document.getElementById('lowStars').textContent = '0';
+    console.warn('Reviews:', e);
+  }
+}
+
+// ── SIS DELIVERY RATINGS ──────────────────────────────────────
+async function loadSisRatings() {
+  try {
+    const snap = await db.collection('sis_deliveries')
+      .orderBy('created_at', 'desc').limit(100).get();
+    const deliveries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    document.getElementById('sisRatingsCount').textContent = deliveries.length + ' deliveries';
+
+    if (deliveries.length === 0) {
+      document.getElementById('sisRatingsTable').innerHTML = empty('No Sis deliveries yet — once the matching system goes live these will appear here. 💜');
+      return;
+    }
+
+    const rows = deliveries.map(d => {
+      const stars = n => n ? '★'.repeat(n)+'☆'.repeat(5-n) : '—';
+      const rb = d.rating ? badge(stars(d.rating)+' '+d.rating, d.rating>=4?'green':d.rating===3?'amber':'red') : badge('Unrated','amber');
+      return `<tr>
+        <td>${fmtDate(d.created_at)}</td>
+        <td>${d.sis_nickname || 'Anonymous Sis'}</td>
+        <td>${rb}</td>
+        <td style="font-size:0.82rem;color:var(--muted);">${d.comment || '—'}</td>
+        <td>${d.status === 'completed' ? badge('Completed','green') : badge(d.status||'Pending','amber')}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('sisRatingsTable').innerHTML = `
+      <table>
+        <thead><tr><th>Date</th><th>Sis</th><th>Rating</th><th>Comment</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('sisRatingsTable').innerHTML = empty('Sis deliveries collection not yet created.');
+    console.warn('Sis ratings:', e);
+  }
+}
+
+</script>
+
+</body>
+</html>
