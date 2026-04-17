@@ -2768,6 +2768,65 @@ function getOrderNotes() {
   return inp ? inp.value.trim() : '';
 }
 
+
+/* =============================================
+   HEALTH REPORT FOLLOW-UP PROMPT
+   ============================================= */
+function checkHealthReportFollowup() {
+  try {
+    const followupDate = localStorage.getItem('period_report_followup');
+    if (!followupDate) return;
+    if (Date.now() < parseInt(followupDate)) return;
+    // Time to show the follow-up
+    localStorage.removeItem('period_report_followup');
+    setTimeout(showHealthReportFollowup, 2000);
+  } catch(e) {}
+}
+
+function showHealthReportFollowup() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML =
+    '<div style="max-width:360px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1.5px solid rgba(168,85,247,0.3);text-align:center;">' +
+    '<div style="font-size:2.5rem;margin-bottom:0.75rem;">??</div>' +
+    '<h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">Quick check-in</h2>' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.25rem;">' +
+    'A few weeks ago you sent your period health report to your doctor. Did it help your conversation?' +
+    '</p>' +
+    '<div style="display:flex;flex-direction:column;gap:0.6rem;">' +
+    '<button onclick="submitFollowup(&quot;yes&quot;)" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.9rem;font-weight:700;cursor:pointer;">✅ Yes, it really helped!</button>' +
+    '<button onclick="submitFollowup(&quot;somewhat&quot;)" style="width:100%;padding:0.875rem;background:rgba(168,85,247,0.1);color:var(--text-primary);border:1.5px solid rgba(168,85,247,0.3);border-radius:999px;font-size:0.9rem;font-weight:600;cursor:pointer;">?? Somewhat helpful</button>' +
+    '<button onclick="submitFollowup(&quot;no&quot;)" style="width:100%;padding:0.875rem;background:rgba(255,255,255,0.04);color:var(--text-muted);border:1.5px solid rgba(255,255,255,0.1);border-radius:999px;font-size:0.9rem;font-weight:600;cursor:pointer;">❌ Not yet / Did not share it</button>' +
+    '<button onclick="submitFollowup(&quot;skip&quot;)" style="background:none;border:none;color:var(--text-muted);font-size:0.8rem;cursor:pointer;margin-top:0.25rem;">Skip</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  window._followupOverlay = overlay;
+}
+
+function submitFollowup(response) {
+  if (window._followupOverlay) window._followupOverlay.remove();
+  if (response === 'skip') return;
+
+  // Save to Firebase
+  if (_firebaseFs) {
+    _firebaseFs.collection('health_reports').add({
+      device_id:       getDeviceId(),
+      version:         state.version || 'adult',
+      event:           'followup_response',
+      response:        response,
+      responded_at:    firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => {});
+  }
+
+  if (response === 'yes') {
+    showToast('?? Thank you! That means everything to us.');
+  } else if (response === 'somewhat') {
+    showToast('?? Thank you for letting us know. We will keep improving.');
+  } else {
+    showToast('?? Got it. We hope it helps next time. ??');
+  }
+}
+
 function placeOrder() {
   const { subtotal, delivery, discount, total } = getOrderTotal();
 
@@ -2893,6 +2952,8 @@ function registerSW() {
    INIT — Wire all events
    ============================================= */
 function init() {
+  // Check for health report follow-up on load
+  try { checkHealthReportFollowup(); } catch(e) {}
   // Check for special URL params FIRST before any female experience loads
   try {
     const _urlParams = new URLSearchParams(window.location.search);
@@ -4545,7 +4606,22 @@ function generateHealthSummary() {
         store_url: 'Period: ' + startDate + ' to ' + endDate + '\n\n' + body
 
 
-      }).then(() => showToast('Summary sent to ' + nlData.email + ' ??'))
+      }).then(() => {
+        showToast('Summary sent to ' + nlData.email + ' ??');
+        // Track health report usage in Firebase
+        if (_firebaseFs) {
+          _firebaseFs.collection('health_reports').add({
+            device_id:  getDeviceId(),
+            version:    state.version || 'adult',
+            email:      nlData.email,
+            sent_at:    firebase.firestore.FieldValue.serverTimestamp(),
+            followup_status: 'pending'
+          }).catch(e => console.warn('[Period.] Health report track failed:', e));
+        }
+        // Schedule follow-up prompt for 3 weeks later
+        const followupDate = Date.now() + (21 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('period_report_followup', followupDate.toString());
+      })
         .catch(() => showToast('Could not send email. Try screenshotting instead.'));
     } else {
       showToast('Email not configured yet. Screenshot your summary for now ??');
@@ -4708,6 +4784,17 @@ function logDateFromCalendar(dateStr) {
 
 
 function logPeriodStart() {
+  // Track tracker usage in Firebase
+  try {
+    if (_firebaseFs) {
+      _firebaseFs.collection('tracker_events').add({
+        device_id:  getDeviceId(),
+        version:    state.version || 'adult',
+        event:      'period_logged',
+        logged_at:  firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(e => {});
+    }
+  } catch(e) {}
   const data  = getTrackerData();
   const today = todayStr();
   if (data.cycles.find(c => c.s === today)) { showToast('Period start already logged for today'); return; }
@@ -5586,12 +5673,29 @@ function recordGiveBackOnOrder() {
   if (_donateKitEnabled) {
     const kits = parseInt(getCookie('period_donated_kits') || '0', 10);
     setCookie('period_donated_kits', String(kits + 1), 365 * 10);
-    showToast('💜 A period kit is being donated to a Cleveland school!');
+    showToast('💜 A period kit is being donated to a school!');
+    // Save to Firebase
+    if (_firebaseFs) {
+      _firebaseFs.collection('kit_donations').add({
+        device_id:   getDeviceId(),
+        version:     state.version || 'adult',
+        donated_at:  firebase.firestore.FieldValue.serverTimestamp(),
+        source:      'checkout_toggle'
+      }).catch(e => {});
+    }
   }
   if (_roundUpEnabled) {
     const cents    = Math.round(getRoundUpAmt() * 100);
     const existing = parseInt(getCookie('period_roundup_cents') || '0', 10);
     setCookie('period_roundup_cents', String(existing + cents), 365 * 10);
+    // Save round-up to Firebase
+    if (_firebaseFs) {
+      _firebaseFs.collection('round_ups').add({
+        device_id:    getDeviceId(),
+        amount_cents: cents,
+        donated_at:   firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(e => {});
+    }
   }
   _roundUpEnabled   = false;
   _donateKitEnabled = false;
