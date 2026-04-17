@@ -555,8 +555,11 @@ function setVersion(version) {
 
 
 function showVersionPicker() {
-  // Don't show for guys experience
-  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
+  // Don't show for guys or sis experience
+  try {
+    const _p = new URLSearchParams(window.location.search);
+    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
+  } catch(e) {}
   const picker = $('versionPicker');
   if (!picker) return;
   picker.style.display    = 'flex';
@@ -583,8 +586,11 @@ function dismissVersionPicker() {
    APP INTRO CARD — shown before experience picker
    ============================================= */
 function showAppIntroCard() {
-  // Don't show for guys experience
-  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
+  // Don't show for guys or sis experience
+  try {
+    const _p = new URLSearchParams(window.location.search);
+    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
+  } catch(e) {}
   const overlay = document.createElement('div');
   overlay.id = 'appIntroOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
@@ -2783,14 +2789,20 @@ function registerSW() {
    INIT — Wire all events
    ============================================= */
 function init() {
-  // Check for ?for=him FIRST before any female experience loads
+  // Check for special URL params FIRST before any female experience loads
   try {
     const _urlParams = new URLSearchParams(window.location.search);
     if (_urlParams.get('for') === 'him') {
       initTheme();
       registerSW();
       navigateGuys();
-      return; // Stop here — don't run any female experience code
+      return;
+    }
+    if (_urlParams.get('program') === 'sis') {
+      initTheme();
+      registerSW();
+      navigateSis();
+      return;
     }
   } catch(e) {}
 
@@ -2934,7 +2946,7 @@ function init() {
   });
 
 
-  // Newsletter
+  // Just Flow With It
   if ($('openNewsletterBtn'))  $('openNewsletterBtn').addEventListener('click', showNewsletterModal);
   if ($('nlCloseBtn'))         $('nlCloseBtn').addEventListener('click', closeNewsletterModal);
   if ($('nlSubmitBtn'))        $('nlSubmitBtn').addEventListener('click', subscribeNewsletter);
@@ -2958,7 +2970,7 @@ function init() {
   }
 
 
-  // Newsletter life-stage buttons (use event delegation)
+  // Just Flow With It — life-stage buttons (use event delegation)
   const stageRow = $('nlStageRow');
   if (stageRow) stageRow.addEventListener('click', e => {
     const btn = e.target.closest('.nl-stage-btn');
@@ -3084,7 +3096,7 @@ function init() {
   if ($('teenScoopLink'))  $('teenScoopLink').addEventListener('click', _openScoop);
   if ($('cycleScoopBack')) $('cycleScoopBack').addEventListener('click', () => navigate('home'));
 
-  // Newsletter hero button — re-wire here in case starter mode hid/restored it
+  // Just Flow With It hero button — re-wire here in case starter mode hid/restored it
   if ($('heroNewsletterBtn')) {
     $('heroNewsletterBtn').addEventListener('click', () => {
       showNewsletterModal();
@@ -3896,8 +3908,8 @@ updateTrackerWidget();
   const msg = $('nlSuccessMsg');
   if (msg) {
     msg.textContent = (state.version === 'teen')
-      ? "bestie, your period tracker is unlocked! welcome to the community 🌸"
-      : "Your period tracker is now unlocked. Welcome to the community.";
+      ? "you're in the flow now, bestie! tracker unlocked. welcome to the community 🌸"
+      : "You're in the flow now. Tracker unlocked. Welcome to the community. 💜";
   }
 }
 
@@ -4404,7 +4416,7 @@ function generateHealthSummary() {
   document.getElementById('emailSummaryBtn').addEventListener('click', () => {
     const nlData = getNLCookie();
     if (!nlData || !nlData.email) {
-      showToast('Subscribe to the newsletter first to enable email summaries');
+      showToast('Just Flow With It first to enable email summaries 💜');
       return;
     }
     if (EMAILJS_CONFIG && typeof emailjs !== 'undefined') {
@@ -6143,6 +6155,167 @@ function navigateGuys() {
 }
 
 
+
+/* =============================================================
+   HELP A GIRL OUT, SIS — Emergency Peer Delivery Program
+   Entry point: perioddelivers.com?program=sis
+   ============================================================= */
+
+function navigateSis() {
+  // Hide age gate and all female overlays
+  const ageGate = document.getElementById('ageGateWrap');
+  if (ageGate) { ageGate.style.display = 'none'; ageGate.style.visibility = 'hidden'; }
+  const picker = document.getElementById('versionPicker');
+  if (picker) { picker.style.display = 'none'; }
+  const intro = document.getElementById('appIntroOverlay');
+  if (intro) intro.remove();
+  // Hide header elements
+  const vBadge = document.getElementById('versionBadge');
+  if (vBadge) vBadge.style.display = 'none';
+  const tStrip = document.getElementById('trendingStrip');
+  if (tStrip) tStrip.style.display = 'none';
+  const csBanner = document.getElementById('comingSoonBanner');
+  if (csBanner) csBanner.style.display = 'none';
+  document.body.style.paddingTop = '0';
+  document.body.style.overflow = '';
+  // Remove active from all views
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  // Show sis view
+  const sisView = document.getElementById('sisView');
+  if (sisView) { sisView.classList.add('active'); sisView.style.display = 'block'; }
+  setTimeout(initSisView, 100);
+}
+
+function initSisView() {
+  // Wire request buttons
+  const reqBtn  = document.getElementById('sisRequestBtn');
+  const reqBtn2 = document.getElementById('sisRequestBtn2');
+  const cancelBtn = document.getElementById('sisCancelBtn');
+  const submitBtn = document.getElementById('sisSubmitBtn');
+
+  if (reqBtn)    reqBtn.addEventListener('click', sisShowRequestForm);
+  if (reqBtn2)   reqBtn2.addEventListener('click', sisShowRequestForm);
+  if (cancelBtn) cancelBtn.addEventListener('click', sisCancelRequest);
+  if (submitBtn) submitBtn.addEventListener('click', sisSubmitRequest);
+
+  // Wire product picker chips
+  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const active = btn.style.background.includes('0.25');
+      btn.style.background = active
+        ? 'rgba(168,85,247,0.08)'
+        : 'rgba(168,85,247,0.25)';
+      btn.style.borderColor = active
+        ? 'rgba(168,85,247,0.3)'
+        : 'rgba(168,85,247,0.8)';
+      btn.style.fontWeight = active ? '400' : '700';
+    });
+  });
+}
+
+function sisHowItWorks() {
+  const section = document.getElementById('sisHowSection');
+  if (section) {
+    const showing = section.style.display !== 'none';
+    section.style.display = showing ? 'none' : 'block';
+  }
+}
+
+function sisShowRequestForm() {
+  const s1 = document.getElementById('sisScreen1');
+  const s2 = document.getElementById('sisScreen2');
+  const cta = document.getElementById('sisExploreCta');
+  if (s1) s1.style.display = 'none';
+  if (s2) s2.style.display = 'block';
+  if (cta) cta.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function sisCancelRequest() {
+  const s1 = document.getElementById('sisScreen1');
+  const s2 = document.getElementById('sisScreen2');
+  const cta = document.getElementById('sisExploreCta');
+  if (s1) s1.style.display = 'flex';
+  if (s2) s2.style.display = 'none';
+  if (cta) cta.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  showToast('Request cancelled. You\'re safe. \u{1F49C}');
+}
+
+function sisSubmitRequest() {
+  const location = document.getElementById('sisLocation');
+  const address  = document.getElementById('sisAddress');
+  const notes    = document.getElementById('sisNotes');
+
+  // Validate location
+  if (!location || !location.value.trim()) {
+    if (location) {
+      location.style.borderColor = '#EF4444';
+      setTimeout(() => location.style.borderColor = 'rgba(168,85,247,0.3)', 2000);
+    }
+    showToast('Please tell us where you are \u{1F4CD}');
+    return;
+  }
+
+  // Collect selected items
+  const selected = [];
+  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
+    if (btn.style.background.includes('0.25')) {
+      selected.push(btn.dataset.item);
+    }
+  });
+
+  if (!selected.length) {
+    showToast('Please pick at least one item you need \u{1F91D}');
+    return;
+  }
+
+  // Save to Firebase
+  const request = {
+    location:   location.value.trim(),
+    address:    address ? address.value.trim() : '',
+    items:      selected,
+    notes:      notes ? notes.value.trim() : '',
+    status:     'pending',
+    created_at: new Date().toISOString(),
+    source:     'sis_qr_scan'
+  };
+
+  if (_firebaseFs) {
+    _firebaseFs.collection('sis_requests').add({
+      ...request,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Sis request save failed:', e));
+  }
+
+  // Show waiting screen
+  const s2 = document.getElementById('sisScreen2');
+  const s3 = document.getElementById('sisScreen3');
+  const cta = document.getElementById('sisExploreCta');
+  if (s2) s2.style.display = 'none';
+  if (s3) { s3.style.display = 'flex'; s3.style.flexDirection = 'column'; s3.style.alignItems = 'center'; s3.style.justifyContent = 'center'; s3.style.padding = '2rem 1.5rem'; s3.style.textAlign = 'center'; }
+  if (cta) cta.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function sisExploreApp() {
+  // Navigate to the main female experience
+  // Reset the URL param handling and show age gate / full app
+  const sisView = document.getElementById('sisView');
+  if (sisView) sisView.classList.remove('active');
+  // Show age gate for proper female onboarding
+  const ageGate = document.getElementById('ageGateWrap');
+  if (ageGate) {
+    ageGate.style.display = 'flex';
+    ageGate.style.visibility = 'visible';
+  }
+  // Show version badge again
+  const vBadge = document.getElementById('versionBadge');
+  if (vBadge) vBadge.style.display = '';
+  document.body.style.overflow = 'hidden';
+}
+
+
 /* =============================================================
    URL PARAM HANDLER: ?v=emergency goes straight to emergency shop
    ============================================================= */
@@ -6153,6 +6326,12 @@ function handleURLParams() {
     const forHim = params.get('for');
     if (forHim === 'him') {
       navigateGuys();
+      return;
+    }
+    // Help a Girl Out Sis entry point
+    const program = params.get('program');
+    if (program === 'sis') {
+      navigateSis();
       return;
     }
     // Standard version override
@@ -6386,7 +6565,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Newsletter hero pill handled in init()
+  // Just Flow With It hero pill handled in init()
 
   // ── Feature card buttons (may not exist if spotlight removed) ──
   const featureTrackerBtn = $('featureTrackerBtn');
@@ -6588,7 +6767,10 @@ document.addEventListener('DOMContentLoaded', () => {
    ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   // Skip age gate entirely for ?for=him
-  try { if (new URLSearchParams(window.location.search).get('for') === 'him') return; } catch(e) {}
+  try {
+    const _p = new URLSearchParams(window.location.search);
+    if (_p.get('for') === 'him' || _p.get('program') === 'sis') return;
+  } catch(e) {}
 
   const wrap       = document.getElementById('ageGateWrap');
   const askScreen  = document.getElementById('ageGateAsk');
