@@ -679,12 +679,12 @@ function initVersionPicker() {
     fresh.addEventListener('click', fn);
   }
 
-  wireCard('pickTeen',      () => { setVersion('teen');      dismissVersionPicker(); });
-  wireCard('pickAdult',     () => { setVersion('adult');     dismissVersionPicker(); });
+  wireCard('pickTeen',      () => { setVersion('teen');      dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
+  wireCard('pickAdult',     () => { setVersion('adult');     dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
   wireCard('pickEmergency', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
-  wireCard('pickGifter',    () => { setVersion('gifter');    dismissVersionPicker(); });
-  wireCard('pickHolistic',  () => { setVersion('holistic');  dismissVersionPicker(); });
-  wireCard('pickStarter',   () => { setVersion('starter');   dismissVersionPicker(); });
+  wireCard('pickGifter',    () => { setVersion('gifter');    dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
+  wireCard('pickHolistic',  () => { setVersion('holistic');  dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
+  wireCard('pickStarter',   () => { setVersion('starter');   dismissVersionPicker(); setTimeout(() => navigate('home'), 460); });
 
   const switchBtn = $('switchModeBtn');
   if (switchBtn) {
