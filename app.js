@@ -3642,6 +3642,8 @@ function submitCommPost() {
 
 
 function initCommunity() {
+  // Init community tabs (Community + Sis on Standby)
+  initCommTabs();
   const name = getNickname();
   if (!name) {
     // Show nickname prompt
@@ -5644,6 +5646,293 @@ function initImpactCounter() {
   }
 }
 
+
+
+
+/* =============================================================
+   SIS ON STANDBY — Community Tab & Opt-In System
+   ============================================================= */
+
+const SIS_CODE_OF_CONDUCT = [
+  {
+    title: "1. Delivery Only — No Personal Contact",
+    body: "As a Sis, your role is to deliver supplies to the location specified in the request. You are not required to make personal contact with the requester. Knock, leave the supplies, and go. Under no circumstances should you attempt to enter a private space, engage in conversation beyond a brief acknowledgment, or collect personal information from the requester."
+  },
+  {
+    title: "2. In-App Communication Only",
+    body: "All coordination between you and the requester occurs through the Period. platform exclusively. You must not share your personal phone number, social media, or any other contact information with a requester, nor request theirs. Any attempt to establish contact outside the app is a violation of this agreement and grounds for immediate removal from the program."
+  },
+  {
+    title: "3. Confirmation Required Before Reward",
+    body: "Rewards are issued only after the requester confirms delivery through the app. You agree not to pressure, rush, or contact a requester regarding delivery confirmation. If a requester does not confirm within 24 hours, Period. LLC will review the delivery record and make a determination at its sole discretion."
+  },
+  {
+    title: "4. Safety Is Non-Negotiable",
+    body: "If at any point you feel unsafe during a delivery — for any reason — you have the right to cancel immediately with no penalty. Tap 'Cancel Delivery' in the app. Your safety is never secondary to completing a request. Period. LLC will never penalize a Sis for prioritizing her personal safety."
+  },
+  {
+    title: "5. Ratings & Program Standards",
+    body: "Requesters rate their Sis after each delivery. Three ratings below 3 stars within any 90-day period will result in an automatic review of your Sis status. Ratings below 2 stars on two consecutive deliveries will result in immediate suspension pending review. You agree to accept these standards as a condition of participation."
+  },
+  {
+    title: "6. Period. LLC Is a Coordination Platform",
+    body: "Period. LLC facilitates connections between users who wish to help and users who need assistance. Period. LLC is not responsible for the actions of individual Sis volunteers beyond what is explicitly covered in these terms. By opting in, you acknowledge that you are acting as an independent community member, not as an employee, contractor, or agent of Period. LLC."
+  },
+  {
+    title: "7. Reimbursement & Rewards",
+    body: "Sis volunteers who complete verified deliveries are eligible for reimbursement of product costs and reward tier benefits as published in the app. Reimbursement is contingent upon delivery confirmation by the requester and verification by Period. LLC. Period. LLC reserves the right to modify reward tiers with 30 days notice to active Sis volunteers."
+  },
+  {
+    title: "8. Opt-Out Rights",
+    body: "You may opt out of the Sis program at any time by visiting the Sis on Standby tab in the Community section and tapping 'Opt Out.' Opting out immediately removes you from the active notification pool. Earned rewards prior to opt-out remain valid. Re-enrollment is permitted after a 7-day waiting period."
+  },
+  {
+    title: "9. Zero Tolerance Policy",
+    body: "Period. LLC maintains a zero tolerance policy for harassment, discrimination, intimidation, or any behavior that compromises the safety or dignity of a requester. Violations of this policy result in immediate and permanent removal from the program with no appeal. We built this for women to help women. That standard is non-negotiable."
+  },
+  {
+    title: "10. Agreement & Acknowledgment",
+    body: "By tapping 'I Agree — I'm Ready to Be a Sis,' you confirm that you have read, understood, and agreed to all terms of this Code of Conduct. You acknowledge that your participation is voluntary, that you may opt out at any time, and that Period. LLC reserves the right to update these terms with reasonable notice. We are so grateful you're here. 💜"
+  }
+];
+
+function getSisVolunteerStatus() {
+  try {
+    const m = document.cookie.match(/period_sis_volunteer=([^;]+)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : null;
+  } catch { return null; }
+}
+
+function setSisVolunteerStatus(data) {
+  document.cookie = 'period_sis_volunteer=' + encodeURIComponent(JSON.stringify(data)) +
+    ';max-age=946080000;path=/;SameSite=Lax';
+}
+
+function initCommTabs() {
+  const tabs = document.querySelectorAll('.comm-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Update tab styles
+      tabs.forEach(t => {
+        t.style.borderBottom    = '2.5px solid transparent';
+        t.style.color           = 'rgba(255,255,255,0.4)';
+        t.classList.remove('active');
+      });
+      tab.style.borderBottom  = '2.5px solid var(--accent)';
+      tab.style.color         = 'var(--text-primary)';
+      tab.classList.add('active');
+
+      // Show correct panel
+      const which = tab.dataset.commTab;
+      const commPanel = document.getElementById('commPanelCommunity');
+      const sisPanel  = document.getElementById('commPanelSis');
+      if (commPanel) commPanel.style.display = which === 'community' ? '' : 'none';
+      if (sisPanel)  sisPanel.style.display  = which === 'sis'       ? '' : 'none';
+
+      // Init sis panel if switching to it
+      if (which === 'sis') initSisPanel();
+    });
+  });
+}
+
+function initSisPanel() {
+  const status = getSisVolunteerStatus();
+  const statusCard    = document.getElementById('sisStatusCard');
+  const statusText    = document.getElementById('sisStatusText');
+  const optInSection  = document.getElementById('sisOptInSection');
+  const becomeBtn     = document.getElementById('becomeASisBtn');
+
+  if (status && status.optedIn) {
+    // Already a Sis — show status
+    if (statusCard)   statusCard.style.display   = '';
+    if (optInSection) optInSection.style.display  = 'none';
+    if (statusText) {
+      const deliveries = status.deliveries || 0;
+      const tier = deliveries >= 10 ? 'OG Sis \ud83d\udc51 \u2014 15% off everything, always'
+        : deliveries >= 5  ? 'Free subscription box earned \u2b50'
+        : deliveries >= 3  ? 'Free product tier unlocked \ud83c\udfc9'
+        : deliveries >= 2  ? '30% off your next order \ud83c\udfc8'
+        : deliveries >= 1  ? '20% off your next order \ud83c\udfc7'
+        : 'Complete your first delivery to earn rewards \ud83d\udce6';
+      statusText.innerHTML =
+        'You\u2019re opted in and ready to help. \ud83d\udc9c<br>' +
+        '<span style="color:var(--accent);font-weight:600;">' + tier + '</span>';
+    }
+  } else {
+    // Not yet a Sis
+    if (statusCard)   statusCard.style.display   = 'none';
+    if (optInSection) optInSection.style.display  = '';
+    if (becomeBtn) {
+      const fresh = becomeBtn.cloneNode(true);
+      becomeBtn.parentNode.replaceChild(fresh, becomeBtn);
+      fresh.addEventListener('click', showSisCodeOfConduct);
+    }
+  }
+}
+
+function showSisCodeOfConduct() {
+  const overlay = document.createElement('div');
+  overlay.id = 'sisCodeOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.98);overflow-y:auto;padding:1.5rem;';
+
+  const sectionsHtml = SIS_CODE_OF_CONDUCT.map(item =>
+    '<div style="margin-bottom:1.25rem;padding:1rem;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:14px;">' +
+    '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:0.4rem;">' + item.title + '</div>' +
+    '<div style="font-size:0.8rem;color:var(--text-muted);line-height:1.7;">' + item.body + '</div>' +
+    '</div>'
+  ).join('');
+
+  overlay.innerHTML =
+    '<div style="max-width:480px;margin:0 auto;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">' +
+    '<div>' +
+    '<div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.2rem;">Period. LLC</div>' +
+    '<h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--text-primary);">Sis Code of Conduct</h2>' +
+    '</div>' +
+    '<button id="sisCodeCloseBtn" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">\u00d7</button>' +
+    '</div>' +
+
+    '<div style="background:rgba(168,85,247,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.2);">' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.75;margin:0;">' +
+    'This Code of Conduct governs your participation in the Period. "Help a Girl Out, Sis" peer delivery program. ' +
+    'Please read every section carefully before agreeing. This is a binding agreement. ' +
+    'We wrote it to protect you, to protect the women you help, and to make sure this program stays something we\u2019re all proud of. \ud83d\udc9c' +
+    '</p></div>' +
+
+    sectionsHtml +
+
+    '<div style="background:rgba(34,197,94,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;border:1px solid rgba(34,197,94,0.2);">' +
+    '<p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7;margin:0;">' +
+    '\ud83d\udc9c <strong>From Destiny &amp; the Period. Team:</strong> The fact that you\u2019re reading this means you\u2019re already the kind of person this program was built for. ' +
+    'Thank you for showing up for women you don\u2019t even know yet. That\u2019s what this is all about.' +
+    '</p></div>' +
+
+    '<label style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;background:var(--surface-2);border-radius:14px;border:1px solid var(--border);margin-bottom:1rem;cursor:pointer;">' +
+    '<input type="checkbox" id="sisCodeCheck" style="margin-top:0.2rem;flex-shrink:0;accent-color:#A855F7;width:18px;height:18px;"/>' +
+    '<span style="font-size:0.82rem;color:var(--text-muted);line-height:1.65;">I have read and agree to all 10 terms of the Sis Code of Conduct. I understand this is a binding agreement and that violations may result in removal from the program.</span>' +
+    '</label>' +
+
+    '<button id="sisAgreeBtn" style="width:100%;padding:1.1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;opacity:0.5;" disabled>' +
+    '\ud83e\udd1d I Agree \u2014 I\u2019m Ready to Be a Sis' +
+    '</button>' +
+    '<button id="sisCodeCloseBtn2" style="width:100%;padding:0.875rem;background:none;border:none;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Not right now</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  // Wire checkbox to enable agree button
+  const check    = document.getElementById('sisCodeCheck');
+  const agreeBtn = document.getElementById('sisAgreeBtn');
+  check.addEventListener('change', () => {
+    agreeBtn.disabled = !check.checked;
+    agreeBtn.style.opacity = check.checked ? '1' : '0.5';
+  });
+
+  // Wire close buttons
+  document.getElementById('sisCodeCloseBtn').addEventListener('click',  () => overlay.remove());
+  document.getElementById('sisCodeCloseBtn2').addEventListener('click', () => overlay.remove());
+
+  // Wire agree button
+  agreeBtn.addEventListener('click', () => {
+    if (!check.checked) return;
+    overlay.remove();
+    showSisLocationConsent();
+  });
+}
+
+function showSisLocationConsent() {
+  const overlay = document.createElement('div');
+  overlay.id = 'sisConsentOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+
+  overlay.innerHTML =
+    '<div style="max-width:380px;width:100%;background:var(--surface);border-radius:24px;padding:2rem;border:1px solid rgba(168,85,247,0.3);text-align:center;">' +
+    '<div style="font-size:2.5rem;margin-bottom:0.75rem;">\ud83d\udccd</div>' +
+    '<h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">One Last Thing</h2>' +
+    '<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin-bottom:0.75rem;">' +
+    'To notify you when someone nearby needs help, we need your permission to send you push notifications and access your general location when the app is open.' +
+    '</p>' +
+    '<div style="background:rgba(168,85,247,0.06);border-radius:14px;padding:0.875rem;margin-bottom:1.25rem;border:1px solid rgba(168,85,247,0.15);">' +
+    '<p style="font-size:0.78rem;color:var(--text-muted);line-height:1.65;margin:0;">' +
+    '\ud83d\udd12 <strong>Your privacy is protected.</strong> Your exact location is never stored or shared. We only use it in the moment to check if you\u2019re within 0.5 miles of a request. ' +
+    'You can opt out of notifications at any time in your device settings.' +
+    '</p></div>' +
+    '<button id="sisConsentYes" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;">' +
+    '\ud83d\udcf2 Enable Notifications \u2014 I\u2019m In' +
+    '</button>' +
+    '<button id="sisConsentNo" style="width:100%;padding:0.875rem;background:none;border:1.5px solid var(--border);border-radius:999px;color:var(--text-muted);font-size:0.875rem;font-weight:600;cursor:pointer;">' +
+    'Opt in without notifications for now' +
+    '</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('sisConsentYes').addEventListener('click', () => {
+    overlay.remove();
+    // Request push notification permission
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission().then(perm => {
+        completeSisOptIn(perm === 'granted');
+      }).catch(() => completeSisOptIn(false));
+    } else {
+      completeSisOptIn(Notification.permission === 'granted');
+    }
+  });
+
+  document.getElementById('sisConsentNo').addEventListener('click', () => {
+    overlay.remove();
+    completeSisOptIn(false);
+  });
+}
+
+function completeSisOptIn(notificationsEnabled) {
+  const data = {
+    optedIn:              true,
+    notificationsEnabled: notificationsEnabled,
+    deliveries:           0,
+    rating:               null,
+    joinedAt:             new Date().toISOString(),
+    nickname:             getNickname() || 'Anonymous Sis'
+  };
+
+  setSisVolunteerStatus(data);
+
+  // Save to Firebase
+  if (_firebaseFs) {
+    _firebaseFs.collection('sis_volunteers').add({
+      ...data,
+      device_id:  getDeviceId(),
+      version:    state.version || 'adult',
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.warn('[Period.] Sis volunteer save failed:', e));
+  }
+
+  // Show confirmation overlay
+  const conf = document.createElement('div');
+  conf.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(8,6,16,0.97);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  conf.innerHTML =
+    '<div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">' +
+    '<div style="font-size:3rem;">\ud83d\udc51</div>' +
+    '<h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--text-primary);">You\u2019re a Sis now.</h2>' +
+    '<p style="font-size:0.9rem;color:var(--text-muted);line-height:1.7;max-width:280px;">' +
+    'Welcome to the program. When a woman nearby needs help, you\u2019ll be notified. ' +
+    'You\u2019re already someone\u2019s hero \u2014 she just doesn\u2019t know it yet. \ud83d\udc9c' +
+    '</p>' +
+    (notificationsEnabled
+      ? '<div style="padding:0.75rem 1rem;background:rgba(34,197,94,0.1);border-radius:12px;border:1px solid rgba(34,197,94,0.2);font-size:0.82rem;color:var(--text-muted);">\u2705 Push notifications enabled \u2014 you\u2019ll know the moment someone needs you.</div>'
+      : '<div style="padding:0.75rem 1rem;background:rgba(168,85,247,0.08);border-radius:12px;border:1px solid rgba(168,85,247,0.15);font-size:0.82rem;color:var(--text-muted);">\ud83d\udcf2 Enable notifications in your device settings anytime to get real-time alerts.</div>') +
+    '<button id="sisConfDone" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:800;cursor:pointer;">' +
+    'Let\u2019s Go \ud83d\udc51' +
+    '</button>' +
+    '</div>';
+  document.body.appendChild(conf);
+
+  document.getElementById('sisConfDone').addEventListener('click', () => {
+    conf.remove();
+    // Refresh the Sis panel to show status
+    initSisPanel();
+  });
+}
 
 
 /* =============================================================
