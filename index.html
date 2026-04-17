@@ -674,6 +674,32 @@
         Google Pay
       </button>
     </div>
+    <!-- Order Notes + Nurse Toggle -->
+    <div style="margin-bottom:0.875rem;">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;">Order Notes <span style="font-weight:400;opacity:0.6;">(optional)</span></div>
+      <textarea id="orderNotesInput" placeholder="e.g. Leave at front desk, knock twice, I&#39;m in the 2nd floor bathroom..." style="width:100%;height:72px;padding:0.75rem;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-size:0.85rem;color:var(--text-primary);resize:none;outline:none;box-sizing:border-box;font-family:inherit;" maxlength="250"></textarea>
+    </div>
+    <!-- Nurse / Staff Assistance Toggle -->
+    <div id="nurseToggleWrap" style="margin-bottom:1rem;padding:0.875rem;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <span style="font-size:1.1rem;">&#x1F3E5;</span>
+          <div>
+            <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary);">Request Staff Assistance</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Coordinate discreet delivery via on-site staff</div>
+          </div>
+        </div>
+        <div style="position:relative;flex-shrink:0;">
+          <input type="checkbox" id="nurseToggle" style="opacity:0;position:absolute;width:0;height:0;">
+          <div id="nurseToggleTrack" onclick="toggleNurseAssist()" style="width:44px;height:24px;background:var(--surface-3,#333);border-radius:999px;cursor:pointer;position:relative;transition:background 0.2s;">
+            <div id="nurseToggleThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="nurseToggleNote" style="display:none;font-size:0.78rem;color:var(--text-muted);line-height:1.6;margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(168,85,247,0.15);">
+        &#x26A0;&#xFE0F; We will flag this order for discreet coordination with on-site staff (nurse, reception, or manager). Please add any helpful details in your order notes above.
+      </div>
+    </div>
     <div class="pay-divider"><span>or</span></div>
     <button class="checkout-btn" id="checkoutBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Place Order</button>
     <div class="stripe-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Secured by Stripe</div>
