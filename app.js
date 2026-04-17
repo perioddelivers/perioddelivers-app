@@ -662,21 +662,39 @@ function initVersionPicker() {
     picker.style.display = 'flex';
     picker.style.opacity = '1';
     picker.style.visibility = 'visible';
+    picker.style.pointerEvents = 'auto';
   }
   document.body.style.overflow = 'hidden';
-  const pickTeen = $('pickTeen'), pickAdult = $('pickAdult');
-  const pickEmergency = $('pickEmergency'), pickGifter = $('pickGifter');
-  const pickHolistic = $('pickHolistic'), switchBtn = $('switchModeBtn');
-  if (pickTeen)      pickTeen.addEventListener('click',      () => { setVersion('teen');      dismissVersionPicker(); });
-  if (pickAdult)     pickAdult.addEventListener('click',     () => { setVersion('adult');     dismissVersionPicker(); });
-  if (pickEmergency) pickEmergency.addEventListener('click', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
-  if (pickGifter)    pickGifter.addEventListener('click',    () => { setVersion('gifter');    dismissVersionPicker(); });
-  if (pickHolistic)  pickHolistic.addEventListener('click',  () => { setVersion('holistic');  dismissVersionPicker(); });
-  const pickStarter = $('pickStarter');
-  if (pickStarter)   pickStarter.addEventListener('click',   () => { setVersion('starter');   dismissVersionPicker(); });
-  if (switchBtn)     switchBtn.addEventListener('click', showVersionPicker);
+
+  // Clone each button before wiring to prevent duplicate listeners
+  // This is safe to call multiple times (badge tap, Sis return, etc.)
+  function wireCard(id, fn) {
+    const el = $(id);
+    if (!el) return;
+    const fresh = el.cloneNode(true);
+    el.parentNode.replaceChild(fresh, el);
+    fresh.addEventListener('click', fn);
+  }
+
+  wireCard('pickTeen',      () => { setVersion('teen');      dismissVersionPicker(); });
+  wireCard('pickAdult',     () => { setVersion('adult');     dismissVersionPicker(); });
+  wireCard('pickEmergency', () => { setVersion('emergency'); dismissVersionPicker(); setTimeout(() => navigate('shop'), 460); });
+  wireCard('pickGifter',    () => { setVersion('gifter');    dismissVersionPicker(); });
+  wireCard('pickHolistic',  () => { setVersion('holistic');  dismissVersionPicker(); });
+  wireCard('pickStarter',   () => { setVersion('starter');   dismissVersionPicker(); });
+
+  const switchBtn = $('switchModeBtn');
+  if (switchBtn) {
+    const freshSwitch = switchBtn.cloneNode(true);
+    switchBtn.parentNode.replaceChild(freshSwitch, switchBtn);
+    freshSwitch.addEventListener('click', showVersionPicker);
+  }
   const versionBadge = $('versionBadge');
-  if (versionBadge)  versionBadge.addEventListener('click', showVersionPicker);
+  if (versionBadge) {
+    const freshBadge = versionBadge.cloneNode(true);
+    versionBadge.parentNode.replaceChild(freshBadge, versionBadge);
+    freshBadge.addEventListener('click', showVersionPicker);
+  }
 }
 
 function initVersion() {
