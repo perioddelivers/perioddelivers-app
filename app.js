@@ -585,6 +585,35 @@ function dismissVersionPicker() {
 /* =============================================
    APP INTRO CARD — shown before experience picker
    ============================================= */
+function _showIntroCardDirect() {
+  // Direct version — no URL param check
+  // Used when navigating from Sis/Guys view to main app
+  const overlay = document.createElement('div');
+  overlay.id = 'appIntroOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(8,6,16,0.98);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.innerHTML = `
+    <div style="max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:#EDE8FA;line-height:1.1;">Period.</div>
+      <div style="width:48px;height:2px;background:linear-gradient(135deg,#A855F7,#7C3AED);border-radius:999px;"></div>
+      <p style="font-size:0.9rem;color:rgba(237,232,250,0.75);line-height:1.7;max-width:300px;">
+        We deliver period care, wellness essentials &amp; more &mdash; on demand or monthly. &#x1F49C;
+      </p>
+      <p style="font-size:0.82rem;color:rgba(237,232,250,0.5);line-height:1.6;">
+        On the next screen, <strong style="color:rgba(237,232,250,0.8);">select the experience that best describes you</strong>.
+      </p>
+      <button id="appIntroNextBtn" style="width:100%;padding:1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
+        Let&#39;s Go &#x2728;
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  document.getElementById('appIntroNextBtn').addEventListener('click', () => {
+    overlay.style.transition = 'opacity 0.3s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.remove(); initVersionPicker(); }, 300);
+  });
+}
+
 function showAppIntroCard() {
   // Don't show for guys or sis experience
   try {
@@ -6236,6 +6265,31 @@ function sisShowRequestForm() {
   if (s2) s2.style.display = 'block';
   if (cta) cta.style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Wire chips NOW that Screen 2 is visible
+  document.querySelectorAll('.sis-pick-btn').forEach(btn => {
+    // Remove any old listener by cloning
+    const fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener('click', () => {
+      const active = fresh.classList.contains('sis-selected');
+      if (active) {
+        fresh.classList.remove('sis-selected');
+        fresh.style.background  = 'rgba(168,85,247,0.08)';
+        fresh.style.borderColor = 'rgba(168,85,247,0.3)';
+        fresh.style.fontWeight  = '400';
+        fresh.style.color       = '#EDE8FA';
+        fresh.style.boxShadow   = 'none';
+      } else {
+        fresh.classList.add('sis-selected');
+        fresh.style.background  = 'rgba(168,85,247,0.35)';
+        fresh.style.borderColor = 'rgba(168,85,247,1)';
+        fresh.style.fontWeight  = '700';
+        fresh.style.color       = 'white';
+        fresh.style.boxShadow   = '0 0 12px rgba(168,85,247,0.4)';
+      }
+    });
+  });
 }
 
 function sisCancelRequest() {
@@ -6351,7 +6405,9 @@ function sisExploreApp() {
       setTimeout(() => {
         ageGate.style.display = 'none';
         document.body.style.overflow = '';
-        showAppIntroCard();
+        // Call intro card directly — bypassing URL param check
+        // since URL still has ?program=sis
+        _showIntroCardDirect();
       }, 300);
     });
   }
