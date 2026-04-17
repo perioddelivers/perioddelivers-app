@@ -297,6 +297,18 @@ tr:hover td { background: rgba(168,85,247,0.04); }
         <div class="stat-value" id="totalSisRequests">—</div>
         <div class="stat-sub" id="sisPending">— pending</div>
       </div>
+      <div class="stat-card" style="--accent:#EC4899;">
+        <div class="stat-icon">&#x1FA78;</div>
+        <div class="stat-eyebrow">Tracker Users</div>
+        <div class="stat-value" id="totalTrackerUsers">—</div>
+        <div class="stat-sub" id="totalTrackerLogs">— period logs</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">&#x1F4CB;</div>
+        <div class="stat-eyebrow">Health Reports Sent</div>
+        <div class="stat-value" id="totalHealthReports">—</div>
+        <div class="stat-sub" id="reportHelpedCount">— helped their appt</div>
+      </div>
     </div>
 
     <!-- ── EXPERIENCE BREAKDOWN ── -->
@@ -379,6 +391,29 @@ tr:hover td { background: rgba(168,85,247,0.04); }
       </div>
       <div id="waitlistTable">
         <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── TRACKER & HEALTH REPORTS ── -->
+    <div class="section-label">&#x1FA78; Period Tracker &amp; Health Reports</div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x1FA78; Tracker Activity</div>
+          <div class="table-count" id="trackerActivityCount"></div>
+        </div>
+        <div id="trackerActivityTable">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">&#x1F4CB; Health Report Follow-Up Responses</div>
+          <div class="table-count" id="followupCount"></div>
+        </div>
+        <div id="followupTable">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
       </div>
     </div>
 
@@ -561,6 +596,7 @@ async function loadAll() {
       loadWaitlist(),
       loadReviews(),
       loadSisRatings(),
+      loadTrackerData(),
     ]);
   } catch(e) { console.error('Load error:', e); }
 }
@@ -918,6 +954,95 @@ async function loadSisRatings() {
   } catch(e) {
     document.getElementById('sisRatingsTable').innerHTML = empty('Sis deliveries collection not yet created.');
     console.warn('Sis ratings:', e);
+  }
+}
+
+
+// ── TRACKER & HEALTH REPORTS ─────────────────────────────────
+async function loadTrackerData() {
+  try {
+    const [trackerSnap, reportSnap] = await Promise.all([
+      db.collection('tracker_events').orderBy('logged_at','desc').limit(200).get(),
+      db.collection('health_reports').orderBy('sent_at','desc').limit(200).get()
+    ]);
+
+    const events  = trackerSnap.docs.map(d => ({id:d.id,...d.data()}));
+    const reports = reportSnap.docs.map(d => ({id:d.id,...d.data()}));
+
+    // Unique devices = unique users
+    const uniqueDevices = new Set(events.map(e => e.device_id)).size;
+    const totalLogs     = events.filter(e => e.event === 'period_logged').length;
+    const sentReports   = reports.filter(r => r.email).length;
+
+    // Follow-up responses
+    const followups   = reports.filter(r => r.event === 'followup_response');
+    const helpedCount = followups.filter(r => r.response === 'yes').length;
+    const somewhatCount = followups.filter(r => r.response === 'somewhat').length;
+
+    document.getElementById('totalTrackerUsers').textContent = uniqueDevices;
+    document.getElementById('totalTrackerLogs').textContent  = totalLogs + ' period logs';
+    document.getElementById('totalHealthReports').textContent = sentReports;
+    document.getElementById('reportHelpedCount').textContent =
+      (helpedCount + somewhatCount) + ' helped their appt';
+    document.getElementById('trackerActivityCount').textContent = events.length + ' events';
+    document.getElementById('followupCount').textContent = followups.length + ' responses';
+
+    // Tracker activity table
+    const recentEvents = events.slice(0, 20);
+    if (recentEvents.length === 0) {
+      document.getElementById('trackerActivityTable').innerHTML =
+        empty('No tracker events yet — users need to log a period first. 💜');
+    } else {
+      const tRows = recentEvents.map(e => `<tr>
+        <td>${fmtDate(e.logged_at)}</td>
+        <td>${experienceBadge(e.version || 'adult')}</td>
+        <td>${badge(e.event === 'period_logged' ? 'Period Logged' : e.event, 'purple')}</td>
+        <td style="font-size:0.75rem;color:var(--muted);">${e.device_id ? e.device_id.slice(0,10)+'...' : '—'}</td>
+      </tr>`).join('');
+      document.getElementById('trackerActivityTable').innerHTML = `
+        <table>
+          <thead><tr><th>Date</th><th>Experience</th><th>Event</th><th>Device</th></tr></thead>
+          <tbody>${tRows}</tbody>
+        </table>`;
+    }
+
+    // Follow-up responses table
+    if (followups.length === 0) {
+      document.getElementById('followupTable').innerHTML =
+        empty('No follow-up responses yet — they appear 3 weeks after a health report is sent. 💜');
+    } else {
+      const responseLabels = {
+        yes: ['Helped!', 'green'],
+        somewhat: ['Somewhat', 'amber'],
+        no: ['Not yet', 'red'],
+        skip: ['Skipped', 'purple']
+      };
+      const fRows = followups.map(r => {
+        const [label, cls] = responseLabels[r.response] || [r.response, 'purple'];
+        return `<tr>
+          <td>${fmtDate(r.responded_at)}</td>
+          <td>${badge(label, cls)}</td>
+          <td>${experienceBadge(r.version || 'adult')}</td>
+          <td style="font-size:0.75rem;color:var(--muted);">${r.device_id ? r.device_id.slice(0,10)+'...' : '—'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('followupTable').innerHTML = `
+        <table>
+          <thead><tr><th>Date</th><th>Response</th><th>Experience</th><th>Device</th></tr></thead>
+          <tbody>${fRows}</tbody>
+        </table>`;
+    }
+
+  } catch(e) {
+    document.getElementById('trackerActivityTable').innerHTML =
+      empty('Tracker collection not yet created — will populate once users log periods.');
+    document.getElementById('followupTable').innerHTML =
+      empty('Follow-up collection not yet created.');
+    document.getElementById('totalTrackerUsers').textContent = '0';
+    document.getElementById('totalTrackerLogs').textContent  = '0 period logs';
+    document.getElementById('totalHealthReports').textContent = '0';
+    document.getElementById('reportHelpedCount').textContent = '0 helped their appt';
+    console.warn('Tracker:', e);
   }
 }
 
