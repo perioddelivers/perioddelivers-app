@@ -5938,3 +5938,9 @@ div#legalModal::before {
   gap: var(--sp-2);
   width: 100%;
 }
+
+/* Emoji cross-platform rendering fix */
+.welcome-card-emoji,
+#welcomeCard span:first-child {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', sans-serif !important;
+}
