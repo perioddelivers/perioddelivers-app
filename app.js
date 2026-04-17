@@ -566,6 +566,9 @@ function showVersionPicker() {
   picker.style.opacity    = '1';
   picker.style.transition = 'none';
   document.body.style.overflow = 'hidden';
+  // Always re-wire cards when picker is shown
+  // cloneNode in initVersionPicker ensures no duplicate listeners
+  initVersionPicker();
 }
 
 
