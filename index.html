@@ -885,7 +885,105 @@
 <div class="view" id="communityView">
   <div class="comm-greeting" id="commGreeting"><div class="comm-greeting-inner"><p class="comm-greeting-text" id="commGreetingText">Welcome to the community. &#x1F49C;</p></div></div>
   <div class="comm-header"><h2 class="comm-title">Our Community</h2><p class="comm-subtitle">A space to connect, share, and support each other.</p><p class="comm-phase-note">Posts are private to your device right now &mdash; real-time community is coming soon. &#x1F49C;</p></div>
-  <div class="comm-topics" id="commTopics"><div class="comm-topic-grid" id="commTopicGrid"></div></div>
+  <!-- Community tabs -->
+  <div style="display:flex;border-bottom:1px solid rgba(168,85,247,0.15);margin:0 0 0.5rem;" id="commTabBar">
+    <button class="comm-tab active" id="commTabCommunity" data-comm-tab="community"
+      style="flex:1;padding:0.875rem 0.5rem;background:none;border:none;border-bottom:2.5px solid var(--accent);color:var(--text-primary);font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+      Community<span>&#x1F4AC;</span>
+    </button>
+    <button class="comm-tab" id="commTabSis" data-comm-tab="sis"
+      style="flex:1;padding:0.875rem 0.5rem;background:none;border:none;border-bottom:2.5px solid transparent;color:rgba(255,255,255,0.4);font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+      Sis on Standby<span>&#x1F91D;</span>
+    </button>
+  </div>
+
+  <!-- Community panel -->
+  <div id="commPanelCommunity">
+    <div class="comm-topics" id="commTopics"><div class="comm-topic-grid" id="commTopicGrid"></div></div>
+  </div>
+
+  <!-- Sis on Standby panel -->
+  <div id="commPanelSis" style="display:none;padding:1rem 1.25rem 6rem;">
+
+    <!-- Header -->
+    <div style="text-align:center;padding:1.5rem 0 1rem;">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem;">&#x1F91D;</div>
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:0.4rem;">Help a Girl Out, Sis</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;max-width:300px;margin:0 auto;">Be the reason someone&#39;s worst moment becomes a little more bearable. Opt in to deliver supplies to women nearby who need help right now.</p>
+    </div>
+
+    <!-- Status card — shows if already opted in -->
+    <div id="sisStatusCard" style="display:none;margin-bottom:1.25rem;padding:1.25rem;background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(124,58,237,0.08));border:1.5px solid rgba(168,85,247,0.3);border-radius:20px;text-align:center;">
+      <div style="font-size:1.8rem;margin-bottom:0.4rem;">&#x1F451;</div>
+      <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">You&#39;re a Sis! &#x1F91D;</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;" id="sisStatusText">You&#39;re opted in and ready to help.</div>
+    </div>
+
+    <!-- How it works -->
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">How It Works</div>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div style="display:flex;gap:0.875rem;padding:0.875rem;background:var(--surface-2);border-radius:14px;border:1px solid var(--border);">
+          <span style="font-size:1.2rem;flex-shrink:0;">&#x1F4F2;</span>
+          <div><div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.2rem;">You get notified</div><div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">When someone nearby needs help, you&#39;ll get a push notification with their request.</div></div>
+        </div>
+        <div style="display:flex;gap:0.875rem;padding:0.875rem;background:var(--surface-2);border-radius:14px;border:1px solid var(--border);">
+          <span style="font-size:1.2rem;flex-shrink:0;">&#x1F6CD;&#xFE0F;</span>
+          <div><div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.2rem;">You shop &amp; deliver</div><div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">Grab the items from the nearest partner store. Drop off at her location. Knock and leave.</div></div>
+        </div>
+        <div style="display:flex;gap:0.875rem;padding:0.875rem;background:var(--surface-2);border-radius:14px;border:1px solid var(--border);">
+          <span style="font-size:1.2rem;flex-shrink:0;">&#x1F381;</span>
+          <div><div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.2rem;">You get rewarded</div><div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">Discounts, free products, and eventually a free subscription box. The more you help, the more you earn.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reward tiers -->
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">&#x1F3C6; Your Reward Tiers</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--surface-2);border-radius:12px;border:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1rem;">&#x1F947;</span><span style="font-size:0.85rem;color:var(--text-primary);">1st delivery</span></div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--accent);">20% off next order</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--surface-2);border-radius:12px;border:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1rem;">&#x1F948;</span><span style="font-size:0.85rem;color:var(--text-primary);">2nd delivery</span></div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--accent);">30% off next order</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--surface-2);border-radius:12px;border:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1rem;">&#x1F949;</span><span style="font-size:0.85rem;color:var(--text-primary);">3rd delivery</span></div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--accent);">Free product (under $15)</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(168,85,247,0.08);border-radius:12px;border:1px solid rgba(168,85,247,0.2);">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1rem;">&#x2B50;</span><span style="font-size:0.85rem;color:var(--text-primary);">5th delivery</span></div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--accent);">Free month subscription box</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:linear-gradient(135deg,rgba(212,175,55,0.12),rgba(212,175,55,0.06));border-radius:12px;border:1px solid rgba(212,175,55,0.3);">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1rem;">&#x1F451;</span><span style="font-size:0.85rem;color:var(--text-primary);">10+ deliveries</span></div>
+          <span style="font-size:0.8rem;font-weight:700;color:#D4AF37;">OG Sis + 15% off forever</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;">&#x1F3C6; Sis Leaderboard</div>
+      <div style="padding:1.5rem;background:var(--surface-2);border-radius:16px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.5rem;">&#x1F6A7;</div>
+        <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Coming Soon</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">The leaderboard goes live when real-time Sis matching launches. Your deliveries are being tracked now so you&#39;ll start with your earned rank. &#x1F49C;</div>
+      </div>
+    </div>
+
+    <!-- Become a Sis CTA -->
+    <div id="sisOptInSection">
+      <button id="becomeASisBtn" style="width:100%;padding:1.1rem;background:linear-gradient(135deg,#A855F7,#7C3AED);color:white;border:none;border-radius:999px;font-size:1rem;font-weight:800;cursor:pointer;margin-bottom:0.75rem;box-shadow:0 8px 32px rgba(168,85,247,0.35);">
+        &#x1F91D; Become a Sis
+      </button>
+      <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;line-height:1.6;">By opting in you agree to the Sis Code of Conduct. You can opt out at any time.</p>
+    </div>
+
+  </div>
   <div class="comm-thread" id="commThread" style="display:none">
     <div class="comm-thread-topbar"><button class="comm-back-btn" id="commBackBtn" aria-label="Back to topics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Topics</button><span class="comm-thread-header" id="commThreadHeader"></span></div>
     <div class="comm-posts" id="commPosts"></div>
