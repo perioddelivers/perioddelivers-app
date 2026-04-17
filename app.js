@@ -1169,12 +1169,19 @@ function renderCart() {
   if (_el('breakdownDelivery')) {
     const _isEmergCart = state.version === 'emergency' || (state.cart && state.cart[17] > 0);
     if (_isEmergCart) {
-      _el('breakdownDelivery').textContent = 'FREE ⚡ Emergency';
+      _el('breakdownDelivery').textContent = 'FREE - Emergency';
       _el('breakdownDelivery').style.color = '#6DAA45';
     } else {
-      _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE ??' : fmt(_pricing.delivery);
+      _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE' : fmt(_pricing.delivery);
       _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
     }
+    // Update the cart footer delivery row
+    const _isEmerg2 = state.version === 'emergency' || (state.cart && state.cart[17] > 0);
+    const _timeEl   = document.getElementById('cartDeliveryTime');
+    const _noteEl   = document.getElementById('cartDeliveryNote');
+    const _iconEl   = document.getElementById('cartDeliveryIcon');
+    if (_timeEl) { _timeEl.textContent = _isEmerg2 ? 'Under 30 min' : '1-3 days'; _timeEl.style.color = _isEmerg2 ? '#EF4444' : ''; }
+    if (_noteEl) { _noteEl.textContent = _isEmerg2 ? '- Emergency FREE delivery' : '- Urgent orders under 30 min'; _noteEl.style.color = _isEmerg2 ? '#6DAA45' : ''; }
   }
 
 
