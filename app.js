@@ -99,6 +99,8 @@ const PROMO_CODES = {
 
 function getDeliveryFee(subtotal) {
   if (state.appliedPromo && state.appliedPromo.type === 'shipping') return 0;
+  // Emergency delivery is always free — no one should pay more when they need help most
+  if (state.version === 'emergency' || (state.cart && state.cart[17] > 0)) return 0;
   return subtotal >= 35 ? 0 : 4.99;
 }
 
@@ -1154,11 +1156,25 @@ function renderCart() {
 
 
   if (_el('breakdownSubtotal')) _el('breakdownSubtotal').textContent = fmt(_pricing.subtotal);
+  // Update delivery time label for emergency orders
+  const _emergDelivEl = document.querySelector('.delivery-time');
+  const _emergLabelEl = document.querySelector('.delivery-label');
+  const _isEmergNow = state.version === 'emergency' || (state.cart && state.cart[17] > 0);
+  if (_emergDelivEl && _isEmergNow) {
+    _emergDelivEl.textContent = 'Under 30 min delivery';
+    if (_emergLabelEl) _emergLabelEl.textContent = '?? Urgent Delivery';
+  }
 
 
   if (_el('breakdownDelivery')) {
-    _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE 🎉' : fmt(_pricing.delivery);
-    _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
+    const _isEmergCart = state.version === 'emergency' || (state.cart && state.cart[17] > 0);
+    if (_isEmergCart) {
+      _el('breakdownDelivery').textContent = 'FREE ⚡ Emergency';
+      _el('breakdownDelivery').style.color = '#6DAA45';
+    } else {
+      _el('breakdownDelivery').textContent  = _pricing.delivery === 0 ? 'FREE ??' : fmt(_pricing.delivery);
+      _el('breakdownDelivery').style.color  = _pricing.delivery === 0 ? '#6DAA45' : '';
+    }
   }
 
 
